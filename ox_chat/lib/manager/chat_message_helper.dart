@@ -154,7 +154,7 @@ class ChatMessageHelper {
     try {
       final decryptedContent = json.decode(decryptContent);
       if (decryptedContent is Map) {
-        return decryptedContent['duration'];
+        return decryptedContent['content'];
       } else if (decryptedContent is String) {
         return decryptedContent;
       }
