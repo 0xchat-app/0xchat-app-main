@@ -176,10 +176,6 @@ class _ChatRelayGroupMsgPageState extends State<ChatRelayGroupMsgPage> with Mess
     bottomHintParam = null;
   }
 
-  Future<void> _loadMoreMessages() async {
-    await chatGeneralHandler.loadMoreMessage(_messages);
-  }
-
   void _onJoinGroupTap() async {
     OXLoading.show();
     OKEvent event = await RelayGroup.sharedInstance.joinGroup(groupId, '${chatGeneralHandler.author.firstName} join the group');

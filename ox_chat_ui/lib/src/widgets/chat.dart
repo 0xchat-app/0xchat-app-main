@@ -89,6 +89,7 @@ class Chat extends StatefulWidget {
     this.onBackgroundTap,
     this.onEndReached,
     this.onEndReachedThreshold,
+    this.onHeaderReached,
     this.onMessageDoubleTap,
     this.onMessageLongPress,
     this.onMessageStatusLongPress,
@@ -279,6 +280,8 @@ class Chat extends StatefulWidget {
   /// See [ChatList.onEndReachedThreshold].
   final double? onEndReachedThreshold;
 
+  final Future<void> Function()? onHeaderReached;
+
   /// See [Message.onMessageDoubleTap].
   final void Function(BuildContext context, types.Message)? onMessageDoubleTap;
 
@@ -401,7 +404,6 @@ class ChatState extends State<Chat> {
   static const String _unreadHeaderId = 'unread_header_id';
 
   List<Object> _chatMessages = [];
-  List<PreviewImage> _gallery = [];
   PageController? _galleryPageController;
   bool _hadScrolledToUnreadOnOpen = false;
 
@@ -442,7 +444,6 @@ class ChatState extends State<Chat> {
       );
 
       _chatMessages = (result[0] as List<Object>).reversed.toList();
-      _gallery = result[1] as List<PreviewImage>;
 
       _refreshAutoScrollMapping();
       _maybeScrollToFirstUnread();
@@ -472,6 +473,7 @@ class ChatState extends State<Chat> {
       _scrollController.scrollToIndex(
         _autoScrollIndexById[id] ?? 0,
         duration: duration ?? scrollAnimationDuration,
+        preferPosition: AutoScrollPosition.middle,
       );
 
   @override
@@ -538,6 +540,7 @@ class ChatState extends State<Chat> {
                           onEndReached: widget.onEndReached,
                           onEndReachedThreshold:
                           widget.onEndReachedThreshold,
+                          onHeadReached: widget.onHeaderReached,
                           scrollController: _scrollController,
                           scrollPhysics: widget.scrollPhysics,
                           typingIndicatorOptions:
@@ -728,14 +731,7 @@ class ChatState extends State<Chat> {
               onMessageLongPress: widget.onMessageLongPress,
               onMessageStatusLongPress: widget.onMessageStatusLongPress,
               onMessageStatusTap: widget.onMessageStatusTap,
-              onMessageTap: (context, tappedMessage) {
-                if (tappedMessage is types.ImageMessage &&
-                    widget.disableImageGallery != true) {
-                  _onImagePressed(tappedMessage);
-                }
-
-                widget.onMessageTap?.call(context, tappedMessage);
-              },
+              onMessageTap: widget.onMessageTap,
               onMessageVisibilityChanged: widget.onMessageVisibilityChanged,
               onPreviewDataFetched: _onPreviewDataFetched,
               onAudioDataFetched: widget.onAudioDataFetched,
@@ -770,25 +766,6 @@ class ChatState extends State<Chat> {
       OXNavigator.pop(context);
       _galleryPageController?.dispose();
       _galleryPageController = null;
-    }
-
-    void _onImagePressed(types.ImageMessage message) {
-      final initialPage = _gallery.indexWhere(
-            (element) => element.id == message.id && element.uri == message.uri,
-      );
-      _galleryPageController = PageController(initialPage: initialPage);
-      OXNavigator.presentPage(context, (context) => ImageGallery(
-        imageHeaders: widget.imageHeaders,
-        images: _gallery,
-        pageController: _galleryPageController!,
-        onClosePressed: _onCloseGalleryPressed,
-        options: widget.imageGalleryOptions,
-      ));
-
-
-      // setState(() {
-      //   _isImageViewVisible = true;
-      // });
     }
 
     void _onPreviewDataFetched(

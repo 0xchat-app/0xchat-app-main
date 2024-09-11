@@ -167,10 +167,6 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
     bottomHintParam = null;
   }
 
-  Future<void> _loadMoreMessages() async {
-    await chatGeneralHandler.loadMoreMessage(_messages);
-  }
-
   Future onJoinGroupTap() async {
     await OXLoading.show();
     final OKEvent okEvent = await Groups.sharedInstance.joinGroup(groupId, '${chatGeneralHandler.author.firstName} join the group');

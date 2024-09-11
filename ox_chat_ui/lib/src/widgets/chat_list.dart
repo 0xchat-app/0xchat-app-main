@@ -20,10 +20,12 @@ class ChatList extends StatefulWidget {
     this.keyboardDismissBehavior = ScrollViewKeyboardDismissBehavior.manual,
     this.onEndReached,
     this.onEndReachedThreshold,
+    this.onHeadReached,
     required this.scrollController,
     this.scrollPhysics,
     this.typingIndicatorOptions,
     required this.useTopSafeAreaInset,
+    this.isOnline = true,
   });
 
   final VoidCallback? scrollToAnchorMsgAction;
@@ -50,6 +52,8 @@ class ChatList extends StatefulWidget {
   /// to the very end of the list (minus [onEndReachedThreshold]).
   final Future<void> Function()? onEndReached;
 
+  final Future<void> Function()? onHeadReached;
+
   /// A representation of how a [ScrollView] should dismiss the on-screen keyboard.
   final ScrollViewKeyboardDismissBehavior keyboardDismissBehavior;
 
@@ -74,6 +78,8 @@ class ChatList extends StatefulWidget {
   /// Whether to use top safe area inset for the list.
   final bool useTopSafeAreaInset;
 
+  final bool isOnline;
+
   @override
   State<ChatList> createState() => _ChatListState();
 }
@@ -90,21 +96,30 @@ class _ChatListState extends State<ChatList>
     ..forward();
 
   bool _indicatorOnScrollStatus = false;
-  bool _isShowNextPageLoading = false;
-  bool _isNextPageLoading = false;
+  bool _isShowBeforePageLoading = false;
+  bool _isBeforePageLoading = false;
+  bool _isShowAfterPageLoading = false;
+  bool _isAfterPageLoading = false;
   final GlobalKey<PatchedSliverAnimatedListState> _listKey =
       GlobalKey<PatchedSliverAnimatedListState>();
-  late List<Object> _oldData = List.from(widget.items);
 
   bool _isAtBottom = false;
   bool _isFirstLaunch = true;
 
   bool _isScrolling = false;
 
+  List<Object> bodyItems = [];
+  List<Object> headerItems = [];
+
+  List<Object> get items => [...headerItems, ...bodyItems];
+
+  final headerWidgetKey = GlobalKey();
+
   @override
   void initState() {
     super.initState();
 
+    bodyItems = [...widget.items];
     didUpdateWidget(widget);
     _isFirstLaunch = false;
   }
@@ -113,7 +128,14 @@ class _ChatListState extends State<ChatList>
   void didUpdateWidget(covariant ChatList oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    _calculateDiffs(oldWidget.items);
+    final oldList = [
+      ...headerItems,
+      ...bodyItems,
+    ];
+    final newList = [
+      ...widget.items,
+    ];
+    _calculateDiffs(oldList, newList);
   }
 
   @override
@@ -129,7 +151,8 @@ class _ChatListState extends State<ChatList>
           updateBottomFlag(notification);
           updateIndicatorStatus(notification);
           updateScrollingFlag(notification);
-          loadingIfNeeded(notification);
+          loadingBeforeMessageIfNeeded(notification);
+          loadingAfterMessageIfNeeded(notification);
           return false;
         },
         child: CustomScrollView(
@@ -141,7 +164,7 @@ class _ChatListState extends State<ChatList>
             if (widget.bottomWidget != null)
               SliverToBoxAdapter(child: widget.bottomWidget),
             SliverPadding(
-              padding: const EdgeInsets.only(bottom: 4),
+              padding: const EdgeInsets.symmetric(vertical: 4),
               sliver: SliverToBoxAdapter(
                 child: widget.typingIndicatorOptions?.customTypingIndicator ??
                     TypingIndicator(
@@ -153,26 +176,8 @@ class _ChatListState extends State<ChatList>
                     ),
               ),
             ),
-            SliverPadding(
-              padding: const EdgeInsets.only(bottom: 4),
-              sliver: PatchedSliverAnimatedList(
-                findChildIndexCallback: (Key key) {
-                  if (key is ValueKey<Object>) {
-                    final newIndex = widget.items.indexWhere(
-                      (v) => _valueKeyForItem(v) == key,
-                    );
-                    if (newIndex != -1) {
-                      return newIndex;
-                    }
-                  }
-                  return null;
-                },
-                initialItemCount: widget.items.length,
-                key: _listKey,
-                itemBuilder: (_, index, animation) =>
-                    _newMessageBuilder(index, animation),
-              ),
-            ),
+            buildHeaderListView(),
+            buildBodyListView(),
             SliverPadding(
               padding: EdgeInsets.only(
                 bottom: 16,
@@ -182,26 +187,7 @@ class _ChatListState extends State<ChatList>
                   axisAlignment: 1,
                   sizeFactor: _animation,
                   child: Center(
-                    child: Container(
-                      alignment: Alignment.center,
-                      height: 32,
-                      width: 32,
-                      child: SizedBox(
-                        height: 16,
-                        width: 16,
-                        child: _isShowNextPageLoading
-                            ? CircularProgressIndicator(
-                          backgroundColor: Colors.transparent,
-                          strokeWidth: 1.5,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            InheritedChatTheme.of(context)
-                                .theme
-                                .primaryColor,
-                          ),
-                        )
-                            : null,
-                      ),
-                    ),
+                    child: buildLoadingWidget(),
                   ),
                 ),
               ),
@@ -210,10 +196,59 @@ class _ChatListState extends State<ChatList>
         ),
       );
 
-  void _calculateDiffs(List<Object> oldList) async {
+  Widget buildBodyListView() =>
+      SliverList(
+        delegate: SliverChildBuilderDelegate(
+              (_, index) => _newMessageBuilder(bodyItems[index], index + headerItems.length),
+          childCount: bodyItems.length,
+          findChildIndexCallback: (Key key) {
+            if (key is ValueKey<Object>) {
+              final newIndex = bodyItems.indexWhere(
+                    (v) => _valueKeyForItem(v) == key,
+              );
+              if (newIndex != -1) {
+                return newIndex;
+              }
+            }
+            return null;
+          },
+        ),
+      );
+
+  Widget buildHeaderListView() =>
+      SliverVisibility(
+        visible: false,
+        maintainState: true,
+        sliver: SliverToBoxAdapter(
+          child: NotificationListener<SizeChangedLayoutNotification>(
+            onNotification: (notification) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (headerItems.isEmpty) return ;
+                insertHeaderMessage();
+              });
+              return true;
+            },
+            child: SizeChangedLayoutNotifier(
+              child: ListView.builder(
+                padding: EdgeInsets.zero,
+                key: headerWidgetKey,
+                shrinkWrap: true,
+                reverse: true,
+                itemCount: headerItems.length,
+                itemBuilder: (context, index) => _newMessageBuilder(headerItems[index], index),
+              ),
+            ),
+          ),
+        ),
+      );
+
+  void _calculateDiffs(List<Object> oldList, List<Object> newList) async {
+    final newHeaderItems = [...headerItems];
+    final newBodyItems = [...bodyItems];
+
     final diffResult = calculateListDiff<Object>(
       oldList,
-      widget.items,
+      newList,
       equalityChecker: (item1, item2) {
         if (item1 is Map<String, Object> && item2 is Map<String, Object>) {
           final message1 = item1['message']! as types.Message;
@@ -226,35 +261,80 @@ class _ChatListState extends State<ChatList>
       },
     );
 
-    for (final update in diffResult.getUpdates(batch: false)) {
+    for (final update in diffResult.getUpdatesWithData()) {
       update.when(
-        insert: (pos, count) {
+        insert: (pos, data) {
           _listKey.currentState?.insertItem(pos);
+          if (pos <= headerItems.length) {
+            newHeaderItems.insert(pos, data);
+          } else {
+            newBodyItems.insert(pos - headerItems.length, data);
+          }
         },
-        remove: (pos, count) {
+        remove: (pos, data) {
           final item = oldList[pos];
           _listKey.currentState?.removeItem(
             pos,
             (_, animation) => _removedMessageBuilder(item, animation),
           );
+          if (pos <= headerItems.length) {
+            newHeaderItems.removeAt(pos);
+          } else {
+            newBodyItems.removeAt(pos - headerItems.length);
+          }
         },
-        change: (pos, payload) {},
-        move: (from, to) {},
+        change: (pos, oldData, newData) {},
+        move: (from, to, data) {},
       );
     }
-    _scrollToBottomIfNeeded(oldList);
 
-    _oldData = List.from(widget.items);
+    headerItems = newHeaderItems;
+    bodyItems = newBodyItems;
+    _scrollToBottomIfNeeded(oldList);
   }
 
-  Widget _newMessageBuilder(int index, Animation<double> animation) {
+  void insertHeaderMessage() {
+    final renderBox = headerWidgetKey.currentContext?.findRenderObject();
+    if (renderBox is! RenderBox) return ;
+
+    final immutableHeaderItems = [...headerItems];
+    headerItems.clear();
+
+    final size = renderBox.size;
+    if (size.height < 1) return ;
+
+    final position = widget.scrollController.position;
+    position.correctPixels(size.height + position.pixels);
+    setState(() {
+      bodyItems.insertAll(0, immutableHeaderItems);
+    });
+  }
+
+  Widget buildLoadingWidget() => Container(
+      alignment: Alignment.center,
+      height: 32,
+      width: 32,
+      child: SizedBox(
+        height: 16,
+        width: 16,
+        child: _isShowBeforePageLoading
+            ? CircularProgressIndicator(
+          backgroundColor: Colors.transparent,
+          strokeWidth: 1.5,
+          valueColor: AlwaysStoppedAnimation<Color>(
+            InheritedChatTheme.of(context)
+                .theme
+                .primaryColor,
+          ),
+        )
+            : null,
+      ),
+    );
+
+  Widget _newMessageBuilder(Object item, int index) {
     try {
-      final item = _oldData[index];
-      
-      return SizeTransition(
+      return SizedBox(
         key: _valueKeyForItem(item),
-        axisAlignment: -1,
-        sizeFactor: animation.drive(CurveTween(curve: Curves.easeOutQuad)),
         child: widget.itemBuilder(item, index),
       );
     } catch (e) {
@@ -304,7 +384,7 @@ class _ChatListState extends State<ChatList>
 
   bool shouldScrollToBottom(List<Object> oldList) {
     final oldItem = oldList.last;
-    final item = widget.items.last;
+    final item = items.last;
     var hasNewMessage = false;
     if (oldItem is Map<String, Object> && item is Map<String, Object>) {
       final oldMessage = oldItem['message']! as types.Message;
@@ -345,31 +425,64 @@ class _ChatListState extends State<ChatList>
     }
   }
 
-  void loadingIfNeeded(ScrollNotification notification) {
+  void loadingBeforeMessageIfNeeded(ScrollNotification notification) {
 
-    if (widget.items.isEmpty || widget.onEndReached == null || widget.isLastPage == true) return ;
+    if (items.isEmpty || widget.onEndReached == null || widget.isLastPage == true) return ;
 
     final loadingOffset = 50;
     final isTryLoading = notification.metrics.pixels >= notification.metrics.maxScrollExtent - loadingOffset;
     if (!isTryLoading) return ;
 
     final tryShowNextPageLoading = () {
-      if (!_isShowNextPageLoading) {
+      if (!_isShowBeforePageLoading) {
         setState(() {
-          _isShowNextPageLoading = true;
+          _isShowBeforePageLoading = true;
         });
       }
     };
 
     final tryDoLoadingAction = () {
       if (_isScrolling) return ;
-      if (_isNextPageLoading) return ;
-      _isNextPageLoading = true;
+      if (_isBeforePageLoading) return ;
+      _isBeforePageLoading = true;
 
-      widget.onEndReached!().whenComplete(() {
+      widget.onEndReached?.call().whenComplete(() {
         setState(() {
-          _isShowNextPageLoading = false;
-          _isNextPageLoading = false;
+          _isShowBeforePageLoading = false;
+          _isBeforePageLoading = false;
+        });
+      });
+    };
+
+    tryShowNextPageLoading();
+    tryDoLoadingAction();
+  }
+
+  void loadingAfterMessageIfNeeded(ScrollNotification notification) {
+
+    if (items.isEmpty || widget.onHeadReached == null) return ;
+
+    final loadingOffset = 30;
+    final isTryLoading = notification.metrics.pixels < loadingOffset;
+    if (!isTryLoading) return ;
+
+    final tryShowNextPageLoading = () {
+      if (!_isShowAfterPageLoading) {
+        setState(() {
+          _isShowAfterPageLoading = true;
+        });
+      }
+    };
+
+    final tryDoLoadingAction = () {
+      if (_isScrolling) return ;
+      if (_isAfterPageLoading) return ;
+      _isAfterPageLoading = true;
+
+      widget.onHeadReached?.call().whenComplete(() {
+        setState(() {
+          _isShowAfterPageLoading = false;
+          _isAfterPageLoading = false;
         });
       });
     };

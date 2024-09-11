@@ -158,10 +158,6 @@ class _ChatChannelMessagePageState extends State<ChatChannelMessagePage> with Me
     }
   }
 
-  Future<void> _loadMoreMessages() async {
-    await chatGeneralHandler.loadMoreMessage(_messages);
-  }
-
   Future onJoinChannelTap() async {
     await OXLoading.show();
     final OKEvent okEvent = await Channels.sharedInstance.joinChannel(channelId);

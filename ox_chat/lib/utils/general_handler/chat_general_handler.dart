@@ -167,6 +167,7 @@ extension ChatMessageHandlerEx on ChatGeneralHandler {
       List<types.Message> originMessage, {
         List<types.Message>? allMessage,
         int increasedCount = ChatPageConfig.messagesPerPage,
+        required bool isForward,
       }) async {
     // final allMsg = allMessage ?? (await ChatDataCache.shared.getSessionMessage(session));
     // var end = 0;
@@ -193,8 +194,12 @@ extension ChatMessageHandlerEx on ChatGeneralHandler {
     final newMessages = await ChatDataCache.shared.loadSessionMessage(
       session: session,
       loadMsgCount: increasedCount,
+      isForward: isForward,
     );
-    hasMoreMessage = newMessages.isNotEmpty;
+
+    if (!isForward) {
+      hasMoreMessage = newMessages.isNotEmpty;
+    }
 
     final messages = await ChatDataCache.shared.getSessionMessage(session: session);
     updateMessageReactionsListener(messages);

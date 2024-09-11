@@ -49,30 +49,41 @@ class ChatMessagePage extends StatefulWidget {
     bool isPushWithReplace = false,
   }) async {
     ChatDataCache.shared.cleanSessionMessage(communityItem);
-    final initialMessage = await ChatDataCache.shared.loadSessionMessage(
-      session: communityItem,
-      loadMsgCount:  ChatPageConfig.messagesPerPage,
-    );
+    List<types.Message> initialMessage;
+    if (anchorMsgId != null && anchorMsgId.isNotEmpty) {
+      initialMessage = await ChatDataCache.shared.getNearbyMessages(
+        targetMessageId: anchorMsgId,
+        beforeCount: ChatPageConfig.messagesPerPage,
+        afterCount: ChatPageConfig.messagesPerPage,
+      );
+    } else {
+      initialMessage = await ChatDataCache.shared.loadSessionMessage(
+        session: communityItem,
+        loadMsgCount: ChatPageConfig.messagesPerPage,
+      );
+    }
     final hasMoreMessage = initialMessage.isNotEmpty;
 
     // Try request newest message
-    final chatType = communityItem.coreChatType;
-    int? since = initialMessage.firstOrNull?.createdAt;
-    if (since != null) since ~/= 1000;
-    if (chatType != null) {
-      Messages.recoverMessagesFromRelay(
-        communityItem.chatId,
-        chatType,
-        since: since,
-      );
-      if (initialMessage.isNotEmpty && initialMessage.length < ChatPageConfig.messagesPerPage) {
-        int until = initialMessage.last.createdAt ~/ 1000;
+    if (anchorMsgId == null) {
+      final chatType = communityItem.coreChatType;
+      int? since = initialMessage.firstOrNull?.createdAt;
+      if (since != null) since ~/= 1000;
+      if (chatType != null) {
         Messages.recoverMessagesFromRelay(
           communityItem.chatId,
           chatType,
-          until: until,
-          limit: ChatPageConfig.messagesPerPage * 3,
+          since: since,
         );
+        if (initialMessage.isNotEmpty && initialMessage.length < ChatPageConfig.messagesPerPage) {
+          int until = initialMessage.last.createdAt ~/ 1000;
+          Messages.recoverMessagesFromRelay(
+            communityItem.chatId,
+            chatType,
+            until: until,
+            limit: ChatPageConfig.messagesPerPage * 3,
+          );
+        }
       }
     }
 
@@ -83,6 +94,7 @@ class ChatMessagePage extends StatefulWidget {
       case ChatType.chatStranger:
         pageWidget = ChatMessagePage(
           communityItem: communityItem,
+          anchorMsgId: anchorMsgId,
           initialMessage: initialMessage,
           hasMoreMessage: hasMoreMessage,
         );
@@ -90,6 +102,7 @@ class ChatMessagePage extends StatefulWidget {
       case ChatType.chatSecret:
         pageWidget = ChatSecretMessagePage(
           communityItem: communityItem,
+          anchorMsgId: anchorMsgId,
           initialMessage: initialMessage,
           hasMoreMessage: hasMoreMessage,
         );
@@ -97,6 +110,7 @@ class ChatMessagePage extends StatefulWidget {
       case ChatType.chatChannel:
         pageWidget = ChatChannelMessagePage(
           communityItem: communityItem,
+          anchorMsgId: anchorMsgId,
           initialMessage: initialMessage,
           hasMoreMessage: hasMoreMessage,
         );
@@ -104,6 +118,7 @@ class ChatMessagePage extends StatefulWidget {
       case ChatType.chatGroup:
         pageWidget = ChatGroupMessagePage(
           communityItem: communityItem,
+          anchorMsgId: anchorMsgId,
           initialMessage: initialMessage,
           hasMoreMessage: hasMoreMessage,
         );
@@ -111,6 +126,7 @@ class ChatMessagePage extends StatefulWidget {
       case ChatType.chatRelayGroup:
         pageWidget = ChatRelayGroupMsgPage(
           communityItem: communityItem,
+          anchorMsgId: anchorMsgId,
           initialMessage: initialMessage,
           hasMoreMessage: hasMoreMessage,
         );
@@ -226,10 +242,6 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
 
     final isContact = Contacts.sharedInstance.allContacts.containsKey(userId);
     isShowContactMenu = !isContact;
-  }
-
-  Future<void> _loadMoreMessages() async {
-    await chatGeneralHandler.loadMoreMessage(_messages);
   }
 
   void _handleAutoDelete() {

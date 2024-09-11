@@ -359,10 +359,6 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
     );
   }
 
-  Future<void> _loadMoreMessages() async {
-    await chatGeneralHandler.loadMoreMessage(_messages);
-  }
-
   void _rejectSecretChat() async {
     OXCommonHintDialog.show(context,
         title: '',

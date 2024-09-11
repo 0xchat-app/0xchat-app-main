@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:ox_chat/utils/custom_message_utils.dart';
 import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 import 'package:ox_common/model/chat_session_model_isar.dart';
+import 'package:ox_common/utils/list_extension.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:uuid/uuid.dart';
@@ -96,6 +97,7 @@ class ChatDataCache with OXChatObserver {
   Future<List<types.Message>> loadSessionMessage({
     required ChatSessionModelISAR session,
     required int loadMsgCount,
+    bool isForward = false,
   }) async {
     final key = _getChatTypeKey(session);
     if (key == null) {
@@ -109,13 +111,21 @@ class ChatDataCache with OXChatObserver {
 
     final currentMessageList = [...await getSessionMessage(session: session)];
     final params = key.messageLoaderParams;
-    var lastMessageDate = currentMessageList.lastOrNull?.createdAt;
-    if (lastMessageDate != null) lastMessageDate ~/= 1000;
+    int? until, since;
+    if (isForward) {
+      var firstMessageDate = currentMessageList.firstOrNull?.createdAt;
+      if (firstMessageDate != null) since = firstMessageDate ~/ 1000;
+    } else {
+      var lastMessageDate = currentMessageList.lastOrNull?.createdAt;
+      if (lastMessageDate != null) until =  lastMessageDate ~/ 1000;
+    }
+
     final newMessages = (await Messages.loadMessagesFromDB(
       receiver: params.receiver,
       groupId: params.groupId,
       sessionId: params.sessionId,
-      until: lastMessageDate,
+      until: until,
+      since: since,
       limit: loadMsgCount,
     ))['messages'];
 
@@ -140,17 +150,63 @@ class ChatDataCache with OXChatObserver {
 
     // If no new messages are retrieved from the DB, attempt to fetch them from the relay.
     final coreChatType = session.coreChatType;
-    if (result.isEmpty && coreChatType != null) {
+    if (result.isEmpty && coreChatType != null && until != null) {
       Messages.recoverMessagesFromRelay(
         session.chatId,
         coreChatType,
-        until: lastMessageDate,
+        until: until,
         limit: loadMsgCount * 3,
       );
     }
 
     return result;
   }
+
+  Future<List<types.Message>> getNearbyMessages({
+    required String targetMessageId,
+    required int beforeCount,
+    required int afterCount,
+  }) async {
+    final message = await Messages.sharedInstance.loadMessageDBFromDB(targetMessageId);
+    if (message == null) return [];
+
+    final chatKey = ChatDataCacheGeneralMethodEx.getChatTypeKeyWithMessage(message);
+    if (chatKey == null) return [];
+
+    final loadParams = chatKey.messageLoaderParams;
+    List<MessageDBISAR> beforeMessages = (await Messages.loadMessagesFromDB(
+      receiver: loadParams.receiver,
+      groupId: loadParams.groupId,
+      sessionId: loadParams.sessionId,
+      until: message.createTime,
+      limit: beforeCount,
+    ))['messages'] ?? <MessageDBISAR>[];
+    List<MessageDBISAR> afterMessages = (await Messages.loadMessagesFromDB(
+      receiver: loadParams.receiver,
+      groupId: loadParams.groupId,
+      sessionId: loadParams.sessionId,
+      since: message.createTime,
+      limit: afterCount,
+    ))['messages'] ?? <MessageDBISAR>[];
+    afterMessages = afterMessages.reversed.toList();
+
+    final messages = [
+      ...afterMessages,
+      ...beforeMessages,
+    ].removeDuplicates((msg) => msg.messageId);
+
+    final result = <types.Message>[];
+    for (var newMsg in messages) {
+      final uiMsg = await _distributeMessageToChatKey(chatKey, newMsg);
+      if (uiMsg != null) {
+        result.add(uiMsg);
+        checkUIMessageInfo(uiMsg);
+      }
+    }
+
+    return result;
+  }
+
 
   Future checkUIMessageInfo(types.Message message) async {
     if (message is types.CustomMessage) {

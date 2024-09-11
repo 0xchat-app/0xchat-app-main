@@ -88,7 +88,16 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
       anchorMsgId: widget.anchorMsgId,
       messages: widget.messages,
       isLastPage: !widget.handler.hasMoreMessage,
-      onEndReached: loadMoreMessages,
+      onEndReached: () => widget.handler.loadMoreMessage(
+        widget.messages,
+        isForward: false,
+      ),
+      onHeaderReached: () async {
+        widget.handler.loadMoreMessage(
+          widget.messages,
+          isForward: true,
+        );
+      },
       onMessageTap: widget.handler.messagePressHandler,
       onPreviewDataFetched: _handlePreviewDataFetched,
       onSendPressed: (msg) => widget.handler.sendTextMessage(context, msg.text),
@@ -147,10 +156,6 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
       onInsertedContent: (KeyboardInsertedContent insertedContent) =>
           widget.handler.sendInsertedContentMessage(context, insertedContent),
     );
-  }
-
-  Future<void> loadMoreMessages() async {
-    await widget.handler.loadMoreMessage(widget.messages);
   }
 
   void _handlePreviewDataFetched(
