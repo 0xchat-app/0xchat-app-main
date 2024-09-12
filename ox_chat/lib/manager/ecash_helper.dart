@@ -184,7 +184,7 @@ class EcashHelper {
   static Future<String> addSignatureToToken(String token) async {
     return await Cashu.addSignatureToToken(
       ecashString: token,
-      privateKeyList: [Account.sharedInstance.currentPrivkey],
+      pukeyList: [Account.sharedInstance.currentPubkey],
     ) ?? '';
   }
 
