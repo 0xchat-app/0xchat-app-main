@@ -3,7 +3,6 @@ import 'dart:convert';
 
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import 'package:ox_chat/manager/chat_data_cache.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/model/constant.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
@@ -21,10 +20,10 @@ class ChatSendMessageHelper {
     MessageContentCreator? contentEncoder,
     MessageContentCreator? sourceCreator,
     String? replaceMessageId,
-    Function(types.Message)? successCallback,
+    Future Function(OKEvent event, types.Message)? sendEventHandler,
+    Function(types.Message)? sendActionFinishHandler,
   }) async {
     // prepare data
-    var sendFinish = OXValue(false);
     final type = message.dbMessageType(
       encrypt: message.decryptKey != null,
     );
@@ -90,20 +89,6 @@ class ChatSendMessageHelper {
             'expiration: ${senderStrategy.session.expiration}',
       );
 
-      Future sendEventHandler(OKEvent event) async {
-        sendFinish.value = true;
-        final message =
-            await ChatDataCache.shared.getMessage(null, session, sendMsg.id);
-        if (message == null) return;
-
-        final updatedMessage = message.copyWith(
-          remoteId: event.eventId,
-          status: event.status ? types.Status.sent : types.Status.error,
-        );
-        ChatDataCache.shared
-            .updateMessage(session: session, message: updatedMessage);
-      }
-
       final sendResultEvent = senderStrategy.doSendMessageAction(
         messageType: type,
         contentString: contentString,
@@ -115,54 +100,15 @@ class ChatSendMessageHelper {
       );
 
       final isWaitForSend = sendingType != ChatSendingType.remote;
-      sendResultEvent.then((event) => sendEventHandler(event));
       if (isWaitForSend) {
-        sendEventHandler(await sendResultEvent);
+        sendEventHandler?.call(await sendResultEvent, sendMsg);
       } else {
-        sendResultEvent.then((event) => sendEventHandler(event));
+        sendResultEvent.then((event) => sendEventHandler?.call(event, sendMsg));
       }
     }
 
-    if (replaceMessageId != null && replaceMessageId.isNotEmpty) {
-      ChatDataCache.shared.updateMessage(
-        session: session,
-        message: sendMsg,
-        originMessageId: replaceMessageId,
-      );
-    } else {
-      ChatDataCache.shared.addNewMessage(
-        session: session,
-        message: sendMsg,
-      );
-    }
-
-    successCallback?.call(sendMsg);
-
-    if (sendingType == ChatSendingType.remote) {
-      // If the message is not sent within a short period of time, change the status to the sending state
-      _setMessageSendingStatusIfNeeded(session, sendFinish, sendMsg);
-    }
+    sendActionFinishHandler?.call(sendMsg);
 
     return null;
-  }
-
-  static void updateMessageStatus(
-      ChatSessionModelISAR session, types.Message message, types.Status status) {
-    final updatedMessage = message.copyWith(
-      status: status,
-    );
-    ChatDataCache.shared
-        .updateMessage(session: session, message: updatedMessage);
-  }
-
-  static void _setMessageSendingStatusIfNeeded(ChatSessionModelISAR session,
-      OXValue<bool> sendFinish, types.Message message) {
-    Future.delayed(const Duration(milliseconds: 500), () async {
-      if (!sendFinish.value) {
-        final msg = await ChatDataCache.shared.getMessage(null, session, message.id);
-        if (msg == null) return ;
-        updateMessageStatus(session, msg, types.Status.sending);
-      }
-    });
   }
 }

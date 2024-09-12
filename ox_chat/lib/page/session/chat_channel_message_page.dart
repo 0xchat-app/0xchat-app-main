@@ -3,7 +3,6 @@ import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import 'package:ox_chat/utils/message_prompt_tone_mixin.dart';
 import 'package:ox_chat/widget/common_chat_widget.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
@@ -39,7 +38,7 @@ class ChatChannelMessagePage extends StatefulWidget {
   State<ChatChannelMessagePage> createState() => _ChatChannelMessagePageState();
 }
 
-class _ChatChannelMessagePageState extends State<ChatChannelMessagePage> with MessagePromptToneMixin {
+class _ChatChannelMessagePageState extends State<ChatChannelMessagePage> {
 
   late ChatGeneralHandler chatGeneralHandler;
   List<types.Message> _messages = [];

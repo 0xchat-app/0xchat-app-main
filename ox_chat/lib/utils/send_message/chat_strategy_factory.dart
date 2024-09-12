@@ -1,7 +1,7 @@
+
 import 'package:chatcore/chat-core.dart';
-import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:nostr_core_dart/nostr.dart';
-import 'package:ox_chat/manager/chat_data_cache.dart';
+import 'package:ox_chat/manager/chat_data_manager_models.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/chat_type.dart';
@@ -275,17 +275,7 @@ class RelayGroupChatStrategy extends ChatStrategy {
     String? decryptSecret,
     String? source,
   }) async {
-    List<String> previous = [];
-    final List<types.Message> uiMsgList = await ChatDataCache.shared.getSessionMessage(session: session);
-    for (types.Message message in uiMsgList) {
-      final messageId = message.remoteId;
-      if (messageId != null && messageId.isNotEmpty) {
-        previous.add(messageId.substring(0, 8));
-      }
-      if (previous.length ==3){
-        break;
-      }
-    }
+    List<String> previous = await createPrevious();
     return RelayGroup.sharedInstance.getSendGroupMessageEvent(
       receiverId,
       messageType,
@@ -307,17 +297,7 @@ class RelayGroupChatStrategy extends ChatStrategy {
     Event? event,
     String? replaceMessageId,
   }) async {
-    List<String> previous = [];
-    final List<types.Message> uiMsgList = await ChatDataCache.shared.getSessionMessage(session: session);
-    for (types.Message message in uiMsgList) {
-      final messageId = message.remoteId;
-      if (messageId != null && messageId.isNotEmpty) {
-        previous.add(messageId.substring(0, 8));
-      }
-      if (previous.length ==3){
-        break;
-      }
-    }
+    List<String> previous = await createPrevious();
     return RelayGroup.sharedInstance.sendGroupMessage(
       receiverId,
       messageType,
@@ -329,6 +309,31 @@ class RelayGroupChatStrategy extends ChatStrategy {
       decryptSecret: decryptSecret,
       replaceMessageId: replaceMessageId,
     );
+  }
+
+  Future<List<String>> createPrevious() async {
+    List<String> previous = [];
+    final allMessages = await _getAllLocalMessage();
+    for (var message in allMessages) {
+      final messageId = message.messageId;
+      if (messageId.isNotEmpty) {
+        previous.add(messageId.substring(0, 8));
+      }
+      if (previous.length == 3) {
+        break;
+      }
+    }
+    return previous;
+  }
+
+  Future<List<MessageDBISAR>> _getAllLocalMessage() async {
+    final params = session.chatTypeKey?.messageLoaderParams;
+    if (params == null) return [];
+    return (await Messages.loadMessagesFromDB(
+      receiver: params.receiver,
+      groupId: params.groupId,
+      sessionId: params.sessionId,
+    ))['messages'] ?? <MessageDBISAR>[];
   }
 }
 

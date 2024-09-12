@@ -8,7 +8,6 @@ import 'package:ox_chat/page/session/chat_channel_message_page.dart';
 import 'package:ox_chat/page/session/chat_group_message_page.dart';
 import 'package:ox_chat/page/session/chat_relay_group_msg_page.dart';
 import 'package:ox_chat/page/session/chat_secret_message_page.dart';
-import 'package:ox_chat/utils/message_prompt_tone_mixin.dart';
 import 'package:ox_chat/widget/common_chat_widget.dart';
 import 'package:ox_chat/widget/not_contact_top_widget.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
@@ -142,7 +141,7 @@ class ChatMessagePage extends StatefulWidget {
   }
 }
 
-class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptToneMixin {
+class _ChatMessagePageState extends State<ChatMessagePage> {
 
   late ChatGeneralHandler chatGeneralHandler;
   List<types.Message> _messages = [];

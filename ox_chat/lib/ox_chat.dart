@@ -25,10 +25,8 @@ import 'package:ox_chat/page/ecash/ecash_info.dart';
 import 'package:ox_chat/page/ecash/ecash_info_isar.dart';
 import 'package:ox_chat/page/ecash/ecash_signature_record.dart';
 import 'package:ox_chat/page/ecash/ecash_signature_record_isar.dart';
-import 'package:ox_chat/page/session/chat_channel_message_page.dart';
 import 'package:ox_chat/page/session/chat_choose_share_page.dart';
 import 'package:ox_chat/page/session/chat_message_page.dart';
-import 'package:ox_chat/page/session/chat_relay_group_msg_page.dart';
 import 'package:ox_chat/page/session/chat_session_list_page.dart';
 import 'package:ox_chat/page/session/chat_video_play_page.dart';
 import 'package:ox_chat/page/session/search_page.dart';
@@ -39,7 +37,6 @@ import 'package:ox_common/business_interface/ox_chat/contact_base_page_state.dar
 import 'package:ox_common/business_interface/ox_chat/interface.dart';
 import 'package:ox_common/business_interface/ox_usercenter/interface.dart';
 import 'package:ox_common/business_interface/ox_usercenter/zaps_detail_model.dart';
-import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -268,9 +265,9 @@ class OXChat extends OXFlutterModule {
     );
 
     chatGeneralHandler.sendSystemMessage(
-        context,
-        content,
-        localTextKey:localTextKey,
+      content,
+      context: context,
+      localTextKey:localTextKey,
     );
   }
 

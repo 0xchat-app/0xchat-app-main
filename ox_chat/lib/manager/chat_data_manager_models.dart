@@ -1,6 +1,9 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:chatcore/chat-core.dart';
+import 'package:ox_chat/utils/chat_log_utils.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
+import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 
 class ChatTypeMessageLoaderParams {
@@ -214,5 +217,95 @@ class RelayGroupKey implements ChatTypeKey {
   @override
   String toString() {
     return '${super.toString()}, groupId: $groupId';
+  }
+}
+
+extension MessageChatTypeKeyEx on MessageDBISAR {
+  ChatTypeKey? get chatTypeKey {
+    MessageDBISAR message = this;
+    final type = message.chatType;
+    if (type == 3 || message.sessionId.isNotEmpty) {
+      return SecretChatKey(message.sessionId);
+    }
+
+    if (type == 1) {
+      return GroupKey(message.groupId);
+    }
+    if (type == 4) {
+      return RelayGroupKey(message.groupId);
+    }
+    if (type == 2 || message.groupId.isNotEmpty) {
+      return ChannelKey(message.groupId);
+    }
+
+    if (type == 0 || message.sender.isNotEmpty && message.receiver.isNotEmpty) {
+      return PrivateChatKey(message.sender, message.receiver);
+    }
+
+    ChatLogUtils.info(
+      className: 'MessageChatTypeKeyEx',
+      funcName: 'chatTypeKey',
+      message: 'ChatTypeKey is null, messageId: ${message.messageId}, messageType: ${message.type}',
+    );
+
+    return null;
+  }
+}
+
+extension SessionChatTypeKeyEx on ChatSessionModelISAR {
+  ChatTypeKey? get chatTypeKey {
+    final chatType = this.chatType;
+    switch (chatType) {
+      case ChatType.chatSingle:
+      case ChatType.chatStranger:
+        return _convertSessionToPrivateChatKey();
+      case ChatType.chatGroup:
+        return _convertSessionToGroupKey();
+      case ChatType.chatChannel:
+        return _convertSessionToChannelKey();
+      case ChatType.chatSecret:
+      case ChatType.chatSecretStranger:
+        return _convertSessionToSecretChatKey();
+      case ChatType.chatRelayGroup:
+        return _convertSessionToRelayGroupKey();
+      default:
+        assert(false, 'unknown chatType');
+        return null;
+    }
+  }
+
+  ChatTypeKey? _convertSessionToPrivateChatKey() {
+    return PrivateChatKey(sender, receiver);
+  }
+
+  GroupKey? _convertSessionToGroupKey() {
+    final groupId = this.groupId;
+    if (groupId == null) {
+      assert(false, 'groupId is null');
+      return null;
+    }
+    return GroupKey(groupId);
+  }
+
+  ChannelKey? _convertSessionToChannelKey() {
+    final channelId = this.groupId;
+    if (channelId == null) {
+      assert(false, 'channelId is null');
+      return null;
+    }
+    return ChannelKey(channelId);
+  }
+
+  ChatTypeKey? _convertSessionToSecretChatKey() {
+    return SecretChatKey(chatId);
+  }
+
+  RelayGroupKey? _convertSessionToRelayGroupKey() {
+    final groupId = this.groupId;
+    if (groupId == null) {
+      assert(false, 'groupId is null');
+      return null;
+    }
+    return RelayGroupKey(groupId);
   }
 }

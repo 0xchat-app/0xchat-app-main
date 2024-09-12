@@ -4,7 +4,6 @@ import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import 'package:ox_chat/utils/message_prompt_tone_mixin.dart';
 import 'package:ox_chat/widget/common_chat_widget.dart';
 import 'package:ox_chat/widget/not_contact_top_widget.dart';
 import 'package:ox_chat/widget/secret_hint_widget.dart';
@@ -50,7 +49,7 @@ class ChatSecretMessagePage extends StatefulWidget {
   State<ChatSecretMessagePage> createState() => _ChatSecretMessagePageState();
 }
 
-class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXChatObserver, MessagePromptToneMixin {
+class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXChatObserver {
 
   late ChatGeneralHandler chatGeneralHandler;
   List<types.Message> _messages = [];

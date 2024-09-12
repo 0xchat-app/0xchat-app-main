@@ -1,4 +1,6 @@
 
+import 'dart:async';
+
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 
@@ -10,36 +12,48 @@ class ChatDraftManager {
 
   final localKey = 'ChatDraftManagerTempDraft';
 
-  String chatId = '';
+  /// key: chatId; value: draft
+  Map<String, String> tempDraft = {};
 
-  String tempDraft = '';
+  Completer setupCompleter = Completer();
 
-  Future tryUpdateLastTempDraft() async {
+  Future setup() async {
+    await _tryUpdateLastTempDraft();
+    if (!setupCompleter.isCompleted) setupCompleter.complete();
+  }
+
+  Future _tryUpdateLastTempDraft() async {
     final jsonMap = await OXCacheManager.defaultOXCacheManager.getData(localKey, defaultValue: '') as Map;
-    this.chatId = jsonMap['chatId'] ?? '';
-    this.tempDraft = jsonMap['draft'] ?? '';
-    if (chatId.isNotEmpty && tempDraft.isNotEmpty) {
-      updateSession();
+    for (var chatId in jsonMap.keys) {
+      if (chatId is! String || chatId.isEmpty || chatId == 'chatId') continue ;
+      
+      final draft = jsonMap[chatId];
+      if (draft is String && draft.isNotEmpty) {
+        await updateSessionDraft(chatId);
+      }
     }
   }
 
-  void updateTempDraft(String chatId, String text) {
-    if (tempDraft == text) return ;
-    this.chatId = chatId;
-    tempDraft = text;
-    final jsonMap = {'chatId': chatId, 'draft': text};
-    OXCacheManager.defaultOXCacheManager.saveData(localKey, jsonMap);
-  }
-
-  Future clearTempDraft() async {
-    chatId = '';
-    tempDraft = '';
-    await OXCacheManager.defaultOXCacheManager.saveData(localKey, '');
-  }
-
-  Future updateSession() async {
+  Future updateTempDraft(String chatId, String text) async {
     if (chatId.isEmpty) return ;
-    OXChatBinding.sharedInstance.updateChatSession(chatId, draft: tempDraft);
-    clearTempDraft();
+
+    await setupCompleter.future;
+
+    tempDraft[chatId] = text;
+    OXCacheManager.defaultOXCacheManager.saveData(localKey, tempDraft);
+  }
+
+  Future _clearTempDraft(String chatId) async {
+    tempDraft.remove(chatId);
+    await OXCacheManager.defaultOXCacheManager.saveData(localKey, tempDraft);
+  }
+
+  Future updateSessionDraft(String chatId) async {
+    if (chatId.isEmpty) return ;
+
+    final draft = tempDraft[chatId];
+    await OXChatBinding.sharedInstance.updateChatSession(chatId, draft: draft);
+
+    await _clearTempDraft(chatId);
   }
 }

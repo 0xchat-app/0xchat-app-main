@@ -8,9 +8,12 @@ import 'package:ox_chat/manager/chat_page_config.dart';
 import 'package:ox_chat/utils/chat_voice_helper.dart';
 import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
 import 'package:ox_chat/utils/general_handler/chat_mention_handler.dart';
+import 'package:ox_chat/utils/general_handler/message_data_controller.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
 import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/chat_prompt_tone.dart';
+import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/web_url_helper.dart';
 import 'package:ox_common/widgets/avatar.dart';
 
@@ -47,14 +50,18 @@ class CommonChatWidget extends StatefulWidget {
 class CommonChatWidgetState extends State<CommonChatWidget> {
 
   ChatSessionModelISAR get session => widget.handler.session;
+
+  MessageDataController get dataController => widget.handler.dataController;
+
   final pageConfig = ChatPageConfig();
 
   @override
   void initState() {
     tryInitDraft();
     super.initState();
-    widget.handler.updateMessageReactionsListener(widget.messages);
-    addListener();
+
+    PromptToneManager.sharedInstance.isCurrencyChatPage = dataController.isInCurrentSession;
+    OXChatBinding.sharedInstance.msgIsReaded = dataController.isInCurrentSession;
   }
 
   void tryInitDraft() {
@@ -65,18 +72,13 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
     }
   }
 
-  void addListener() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ChatDataCache.shared.addObserver(session, (messages) {
-        widget.handler.refreshMessage(messages);
-      });
-    });
-  }
-
   @override
   void dispose() {
-    ChatDraftManager.shared.updateSession();
+    PromptToneManager.sharedInstance.isCurrencyChatPage = null;
+    OXChatBinding.sharedInstance.msgIsReaded = null;
+    ChatDraftManager.shared.updateSessionDraft(session.chatId);
     widget.handler.dispose();
+
     super.dispose();
   }
   
@@ -88,14 +90,14 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
       anchorMsgId: widget.anchorMsgId,
       messages: widget.messages,
       isLastPage: !widget.handler.hasMoreMessage,
-      onEndReached: () => widget.handler.loadMoreMessage(
-        widget.messages,
-        isForward: false,
+      onEndReached: () => dataController.loadMoreMessage(
+        loadMsgCount: ChatPageConfig.messagesPerPage,
+        isLoadBeforeData: true,
       ),
       onHeaderReached: () async {
-        widget.handler.loadMoreMessage(
-          widget.messages,
-          isForward: true,
+        dataController.loadMoreMessage(
+          loadMsgCount: ChatPageConfig.messagesPerPage,
+          isLoadBeforeData: false,
         );
       },
       onMessageTap: widget.handler.messagePressHandler,
@@ -149,10 +151,20 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
             itemOnTap: (reaction) => widget.handler.reactionPressHandler(context, message, reaction.content),
           ),
       mentionUserListWidget: widget.handler.mentionHandler?.buildMentionUserList(),
-      onAudioDataFetched: (message) => ChatVoiceMessageHelper.populateMessageWithAudioDetails(
-        session: widget.handler.session,
-        message: message,
-      ),
+      onAudioDataFetched: (message) async {
+        final (sourceFile, duration) = await ChatVoiceMessageHelper.populateMessageWithAudioDetails(
+          session: widget.handler.session,
+          message: message,
+        );
+        if (duration != null) {
+          dataController.updateMessage(
+            message.copyWith(
+              audioFile: sourceFile,
+              duration: duration,
+            ),
+          );
+        }
+      },
       onInsertedContent: (KeyboardInsertedContent insertedContent) =>
           widget.handler.sendInsertedContentMessage(context, insertedContent),
     );
@@ -169,6 +181,6 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
     final updatedMessage = targetMessage.copyWith(
       previewData: previewData,
     );
-    ChatDataCache.shared.updateMessage(session: widget.handler.session, message: updatedMessage);
+    dataController.updateMessage(updatedMessage);
   }
 }
