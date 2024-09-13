@@ -23,7 +23,7 @@ class ChatDraftManager {
   }
 
   Future _tryUpdateLastTempDraft() async {
-    final jsonMap = await OXCacheManager.defaultOXCacheManager.getData(localKey, defaultValue: '') as Map;
+    final jsonMap = await OXCacheManager.defaultOXCacheManager.getData(localKey, defaultValue: {}) as Map;
     for (var chatId in jsonMap.keys) {
       if (chatId is! String || chatId.isEmpty || chatId == 'chatId') continue ;
       

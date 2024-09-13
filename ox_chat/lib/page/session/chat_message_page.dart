@@ -1,8 +1,6 @@
 
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import 'package:ox_chat/manager/chat_page_config.dart';
 import 'package:ox_chat/model/constant.dart';
 import 'package:ox_chat/page/session/chat_channel_message_page.dart';
 import 'package:ox_chat/page/session/chat_group_message_page.dart';
@@ -10,7 +8,6 @@ import 'package:ox_chat/page/session/chat_relay_group_msg_page.dart';
 import 'package:ox_chat/page/session/chat_secret_message_page.dart';
 import 'package:ox_chat/widget/common_chat_widget.dart';
 import 'package:ox_chat/widget/not_contact_top_widget.dart';
-import 'package:ox_chat/manager/chat_data_cache.dart';
 import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
 import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/model/chat_type.dart';
@@ -25,17 +22,11 @@ import 'package:ox_localizable/ox_localizable.dart';
 
 class ChatMessagePage extends StatefulWidget {
 
-  final ChatSessionModelISAR communityItem;
-  final List<types.Message> initialMessage;
-  final String? anchorMsgId;
-  final bool hasMoreMessage;
+  final ChatGeneralHandler handler;
 
   const ChatMessagePage({
     super.key,
-    required this.communityItem,
-    required this.initialMessage,
-    this.anchorMsgId,
-    this.hasMoreMessage = false,
+    required this.handler,
   });
 
   @override
@@ -47,44 +38,12 @@ class ChatMessagePage extends StatefulWidget {
     String? anchorMsgId,
     bool isPushWithReplace = false,
   }) async {
-    ChatDataCache.shared.cleanSessionMessage(communityItem);
-    List<types.Message> initialMessage;
-    if (anchorMsgId != null && anchorMsgId.isNotEmpty) {
-      initialMessage = await ChatDataCache.shared.getNearbyMessages(
-        targetMessageId: anchorMsgId,
-        beforeCount: ChatPageConfig.messagesPerPage,
-        afterCount: ChatPageConfig.messagesPerPage,
-      );
-    } else {
-      initialMessage = await ChatDataCache.shared.loadSessionMessage(
-        session: communityItem,
-        loadMsgCount: ChatPageConfig.messagesPerPage,
-      );
-    }
-    final hasMoreMessage = initialMessage.isNotEmpty;
 
-    // Try request newest message
-    if (anchorMsgId == null) {
-      final chatType = communityItem.coreChatType;
-      int? since = initialMessage.firstOrNull?.createdAt;
-      if (since != null) since ~/= 1000;
-      if (chatType != null) {
-        Messages.recoverMessagesFromRelay(
-          communityItem.chatId,
-          chatType,
-          since: since,
-        );
-        if (initialMessage.isNotEmpty && initialMessage.length < ChatPageConfig.messagesPerPage) {
-          int until = initialMessage.last.createdAt ~/ 1000;
-          Messages.recoverMessagesFromRelay(
-            communityItem.chatId,
-            chatType,
-            until: until,
-            limit: ChatPageConfig.messagesPerPage * 3,
-          );
-        }
-      }
-    }
+    final handler = ChatGeneralHandler(
+      session: communityItem,
+      anchorMsgId: anchorMsgId,
+    );
+    await handler.initializeMessage();
 
     Widget? pageWidget;
     final sessionType = communityItem.chatType;
@@ -92,42 +51,27 @@ class ChatMessagePage extends StatefulWidget {
       case ChatType.chatSingle:
       case ChatType.chatStranger:
         pageWidget = ChatMessagePage(
-          communityItem: communityItem,
-          anchorMsgId: anchorMsgId,
-          initialMessage: initialMessage,
-          hasMoreMessage: hasMoreMessage,
+          handler: handler,
         );
         break ;
       case ChatType.chatSecret:
         pageWidget = ChatSecretMessagePage(
-          communityItem: communityItem,
-          anchorMsgId: anchorMsgId,
-          initialMessage: initialMessage,
-          hasMoreMessage: hasMoreMessage,
+          handler: handler,
         );
         break ;
       case ChatType.chatChannel:
         pageWidget = ChatChannelMessagePage(
-          communityItem: communityItem,
-          anchorMsgId: anchorMsgId,
-          initialMessage: initialMessage,
-          hasMoreMessage: hasMoreMessage,
+          handler: handler,
         );
         break ;
       case ChatType.chatGroup:
         pageWidget = ChatGroupMessagePage(
-          communityItem: communityItem,
-          anchorMsgId: anchorMsgId,
-          initialMessage: initialMessage,
-          hasMoreMessage: hasMoreMessage,
+          handler: handler,
         );
         break ;
       case ChatType.chatRelayGroup:
         pageWidget = ChatRelayGroupMsgPage(
-          communityItem: communityItem,
-          anchorMsgId: anchorMsgId,
-          initialMessage: initialMessage,
-          hasMoreMessage: hasMoreMessage,
+          handler: handler,
         );
         break ;
     }
@@ -143,51 +87,29 @@ class ChatMessagePage extends StatefulWidget {
 
 class _ChatMessagePageState extends State<ChatMessagePage> {
 
-  late ChatGeneralHandler chatGeneralHandler;
-  List<types.Message> _messages = [];
-
-  UserDBISAR? get otherUser => chatGeneralHandler.otherUser;
+  ChatGeneralHandler get handler => widget.handler;
+  ChatSessionModelISAR get session => handler.session;
+  UserDBISAR? get otherUser => handler.otherUser;
 
   bool isShowContactMenu = true;
 
   @override
-  ChatSessionModelISAR get session => widget.communityItem;
-  
-  @override
   void initState() {
-    setupChatGeneralHandler();
     super.initState();
 
     prepareData();
   }
 
-  void setupChatGeneralHandler() {
-    chatGeneralHandler = ChatGeneralHandler(
-      session: widget.communityItem,
-      refreshMessageUI: (messages) {
-        setState(() {
-          if (messages != null) _messages = messages;
-        });
-      },
-      fileEncryptionType: types.EncryptionType.encrypted,
-    );
-    chatGeneralHandler.hasMoreMessage = widget.hasMoreMessage;
-  }
-
   void prepareData() {
-    _messages = [...widget.initialMessage];
-    // _loadMoreMessages();
     _updateChatStatus();
-    ChatDataCache.shared.setSessionAllMessageIsRead(widget.communityItem);
     _handleAutoDelete();
     _handelDMRelay();
   }
 
   @override
   void dispose() {
-    ChatDataCache.shared.removeObserver(widget.communityItem);
     // close other uer dm relays
-    Contacts.sharedInstance.closeUserDMRelays(widget.communityItem.chatId);
+    Contacts.sharedInstance.closeUserDMRelays(session.chatId);
     super.dispose();
   }
 
@@ -205,7 +127,7 @@ class _ChatMessagePageState extends State<ChatMessagePage> {
           Container(
             alignment: Alignment.center,
             child: OXUserAvatar(
-              chatId: widget.communityItem.chatId,
+              chatId: session.chatId,
               user: otherUser,
               size: Adapt.px(36),
               isClickable: true,
@@ -217,12 +139,10 @@ class _ChatMessagePageState extends State<ChatMessagePage> {
         ],
       ),
       body: CommonChatWidget(
-        handler: chatGeneralHandler,
-        messages: _messages,
-        anchorMsgId: widget.anchorMsgId,
+        handler: handler,
         customTopWidget: isShowContactMenu
           ? NotContactTopWidget(
-            chatSessionModel: widget.communityItem,
+            chatSessionModel: session,
             onTap: _hideContactMenu,
           ) : null,
       ),
@@ -254,40 +174,39 @@ class _ChatMessagePageState extends State<ChatMessagePage> {
       } else {
         timeStr = (time ~/ 60).toString() + ' ' + Localized.text('ox_chat.minutes');
       }
-      chatGeneralHandler.sendSystemMessage(
-        context,
+      handler.sendSystemMessage(
         Localized.text('ox_chat.str_dm_auto_delete_hint').replaceAll(r'${time}', timeStr),
+        context: context,
         sendingType: ChatSendingType.memory,
       );
     }
   }
 
   Future<void> _handelDMRelay() async {
-    Contacts.sharedInstance.connectUserDMRelays(widget.communityItem.chatId);
+    Contacts.sharedInstance.connectUserDMRelays(session.chatId);
     await Account.sharedInstance.reloadProfileFromRelay(otherUser?.pubKey ?? '');
-    if(otherUser?.dmRelayList?.isNotEmpty == false){
-      chatGeneralHandler.sendSystemMessage(
-        context,
+    if (otherUser?.dmRelayList?.isNotEmpty == false) {
+      handler.sendSystemMessage(
         Localized.text('ox_chat.user_dmrelay_not_set_hint_message'),
+        context: context,
         sendingType: ChatSendingType.memory,
       );
-    }
-    else{
+    } else {
       // connect to other uer dm relays
-      Contacts.sharedInstance.connectUserDMRelays(widget.communityItem.chatId).then((result){
-         if(!result && mounted){
-           chatGeneralHandler.sendSystemMessage(
-             context,
+      Contacts.sharedInstance.connectUserDMRelays(session.chatId).then((result) {
+         if (!result && mounted) {
+           handler.sendSystemMessage(
              Localized.text('ox_chat.user_dmrelay_not_connect_hint_message'),
+             context: context,
              sendingType: ChatSendingType.memory,
            );
          }
       });
       // check my dm relay
-      if(chatGeneralHandler.author.sourceObject?.dmRelayList?.isNotEmpty == false){
-        chatGeneralHandler.sendSystemMessage(
-          context,
+      if (handler.author.sourceObject?.dmRelayList?.isNotEmpty == false) {
+        handler.sendSystemMessage(
           Localized.text('ox_chat.my_dmrelay_not_set_hint_message'),
+          context: context,
           sendingType: ChatSendingType.memory,
         );
       }

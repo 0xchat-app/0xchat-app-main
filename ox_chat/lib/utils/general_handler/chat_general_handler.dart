@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
+import 'package:ox_chat/manager/chat_page_config.dart';
 import 'package:ox_chat/manager/ecash_helper.dart';
 import 'package:ox_chat/model/constant.dart';
 import 'package:ox_chat/page/ecash/ecash_open_dialog.dart';
@@ -75,9 +76,9 @@ class ChatGeneralHandler {
   ChatGeneralHandler({
     required this.session,
     types.User? author,
-    this.refreshMessageUI,
-    this.fileEncryptionType = types.EncryptionType.none,
-  }) : author = author ?? _defaultAuthor() {
+    this.anchorMsgId,
+  }) : author = author ?? _defaultAuthor(),
+       fileEncryptionType = _fileEncryptionType(session) {
     setupDataController();
     setupOtherUserIfNeeded();
     setupMentionHandlerIfNeeded();
@@ -87,25 +88,13 @@ class ChatGeneralHandler {
   UserDBISAR? otherUser;
   final ChatSessionModelISAR session;
   final types.EncryptionType fileEncryptionType;
-
-  bool _hasMoreMessage = false;
-  bool get hasMoreMessage => _hasMoreMessage;
-  set hasMoreMessage(bool value) {
-    final coreChatType = session.coreChatType;
-     if (coreChatType == 2 || coreChatType == 4) {
-       _hasMoreMessage = true;
-       return ;
-     }
-    _hasMoreMessage = value;
-  }
+  final String? anchorMsgId;
 
   ChatReplyHandler replyHandler = ChatReplyHandler();
   ChatMentionHandler? mentionHandler;
   late MessageDataController dataController;
 
   TextEditingController inputController = TextEditingController();
-
-  Function(List<types.Message>?)? refreshMessageUI;
 
   final tempMessageSet = <types.Message>{};
 
@@ -115,6 +104,22 @@ class ChatGeneralHandler {
       id: userDB!.pubKey,
       sourceObject: userDB,
     );
+  }
+
+  static types.EncryptionType _fileEncryptionType(ChatSessionModelISAR session) {
+    final sessionType = session.chatType;
+    switch (sessionType) {
+      case ChatType.chatSingle:
+      case ChatType.chatStranger:
+      case ChatType.chatSecret:
+      case ChatType.chatGroup:
+        return types.EncryptionType.encrypted;
+      case ChatType.chatChannel:
+      case ChatType.chatRelayGroup:
+        return types.EncryptionType.none;
+      default:
+        return types.EncryptionType.none;
+    }
   }
 
   static UserDBISAR? _defaultOtherUser(ChatSessionModelISAR session) {
@@ -158,6 +163,34 @@ class ChatGeneralHandler {
     mentionHandler.inputController = inputController;
 
     this.mentionHandler = mentionHandler;
+  }
+
+  Future initializeMessage() async {
+    final anchorMsgId = this.anchorMsgId;
+    if (anchorMsgId != null && anchorMsgId.isNotEmpty) {
+      await dataController.loadNearbyMessage(
+        targetMessageId: anchorMsgId,
+        beforeCount: ChatPageConfig.messagesPerPage,
+        afterCount: ChatPageConfig.messagesPerPage,
+      );
+    } else {
+      final messages = await dataController.loadMoreMessage(
+        loadMsgCount: ChatPageConfig.messagesPerPage,
+      );
+
+      // Try request more messages
+      final chatType = session.coreChatType;
+      if (chatType != null) {
+        // Try request newer messages
+        int? since = messages.firstOrNull?.createdAt;
+        if (since != null) since ~/= 1000;
+        Messages.recoverMessagesFromRelay(
+          session.chatId,
+          chatType,
+          since: since,
+        );
+      }
+    }
   }
 
   void dispose() {

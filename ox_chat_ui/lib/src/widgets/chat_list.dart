@@ -14,6 +14,7 @@ class ChatList extends StatefulWidget {
     this.scrollToAnchorMsgAction,
     this.bottomWidget,
     required this.bubbleRtlAlignment,
+    this.isFirstPage,
     this.isLastPage,
     required this.itemBuilder,
     required this.items,
@@ -25,10 +26,9 @@ class ChatList extends StatefulWidget {
     this.scrollPhysics,
     this.typingIndicatorOptions,
     required this.useTopSafeAreaInset,
-    this.isOnline = true,
   });
 
-  final VoidCallback? scrollToAnchorMsgAction;
+  final Future Function()? scrollToAnchorMsgAction;
 
   /// A custom widget at the bottom of the list.
   final Widget? bottomWidget;
@@ -36,6 +36,8 @@ class ChatList extends StatefulWidget {
   /// Used to set alignment of typing indicator.
   /// See [BubbleRtlAlignment].
   final BubbleRtlAlignment bubbleRtlAlignment;
+
+  final bool? isFirstPage;
 
   /// Used for pagination (infinite scroll) together with [onEndReached].
   /// When true, indicates that there are no more pages to load and
@@ -78,8 +80,6 @@ class ChatList extends StatefulWidget {
   /// Whether to use top safe area inset for the list.
   final bool useTopSafeAreaInset;
 
-  final bool isOnline;
-
   @override
   State<ChatList> createState() => _ChatListState();
 }
@@ -103,8 +103,7 @@ class _ChatListState extends State<ChatList>
   final GlobalKey<PatchedSliverAnimatedListState> _listKey =
       GlobalKey<PatchedSliverAnimatedListState>();
 
-  bool _isAtBottom = false;
-  bool _isFirstLaunch = true;
+  bool _isAtBottom = true;
 
   bool _isScrolling = false;
 
@@ -120,22 +119,22 @@ class _ChatListState extends State<ChatList>
     super.initState();
 
     bodyItems = [...widget.items];
-    didUpdateWidget(widget);
-    _isFirstLaunch = false;
+    if (widget.scrollToAnchorMsgAction != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await widget.scrollToAnchorMsgAction?.call();
+      });
+    }
   }
 
   @override
   void didUpdateWidget(covariant ChatList oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    final oldList = [
-      ...headerItems,
-      ...bodyItems,
-    ];
-    final newList = [
-      ...widget.items,
-    ];
-    _calculateDiffs(oldList, newList);
+    if (oldWidget.items != widget.items) {
+      final oldList = [...headerItems, ...bodyItems,];
+      final newList = [...widget.items];
+      _calculateDiffs(oldList, newList);
+    }
   }
 
   @override
@@ -288,9 +287,13 @@ class _ChatListState extends State<ChatList>
       );
     }
 
-    headerItems = newHeaderItems;
-    bodyItems = newBodyItems;
-    _scrollToBottomIfNeeded(oldList);
+    if (oldList.isEmpty) {
+      headerItems = [];
+      bodyItems = [...newList];
+    } else {
+      headerItems = newHeaderItems;
+      bodyItems = newBodyItems;
+    }
   }
 
   void insertHeaderMessage() {
@@ -303,8 +306,12 @@ class _ChatListState extends State<ChatList>
     final size = renderBox.size;
     if (size.height < 1) return ;
 
-    final position = widget.scrollController.position;
-    position.correctPixels(size.height + position.pixels);
+    if (immutableHeaderItems.length == 1 && widget.isFirstPage == true && shouldScrollToBottom()) {
+      scrollToBottom();
+    } else {
+      final position = widget.scrollController.position;
+      position.correctPixels(size.height + position.pixels);
+    }
     setState(() {
       bodyItems.insertAll(0, immutableHeaderItems);
     });
@@ -353,55 +360,21 @@ class _ChatListState extends State<ChatList>
         ),
       );
 
-  // Hacky solution to reconsider.
-  void _scrollToBottomIfNeeded(List<Object> oldList) {
-    if (!_isFirstLaunch && !shouldScrollToBottom(oldList)) return ;
-    final scrollToAnchorMsgAction = widget.scrollToAnchorMsgAction;
-    if (_isFirstLaunch && scrollToAnchorMsgAction != null) {
-      scrollToAnchorMsgAction();
-    } else {
-      scrollToBottom();
-    }
-  }
-
   void scrollToBottom() {
-    if (_isFirstLaunch) {
-      // if (mounted) {
-      //   WidgetsBinding.instance.addPostFrameCallback((_) async {
-      //     widget.scrollController.jumpTo(0);
-      //   });
-      // }
-    } else {
-      if (widget.scrollController.hasClients) {
-        widget.scrollController.animateTo(
-          0,
-          duration: const Duration(milliseconds: 10),
-          curve: Curves.easeInQuad,
-        );
-      }
+    if (widget.scrollController.hasClients) {
+      widget.scrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 10),
+        curve: Curves.easeInQuad,
+      );
     }
   }
 
-  bool shouldScrollToBottom(List<Object> oldList) {
-    final oldItem = oldList.last;
-    final item = items.last;
-    var hasNewMessage = false;
-    if (oldItem is Map<String, Object> && item is Map<String, Object>) {
-      final oldMessage = oldItem['message']! as types.Message;
-      final message = item['message']! as types.Message;
-      hasNewMessage = oldMessage.id != message.id;
-    }
-
-    if (hasNewMessage && _isAtBottom) {
-      return true;
-    }
-
-    return false;
-  }
+  bool shouldScrollToBottom() => _isAtBottom;
 
   void updateBottomFlag(ScrollNotification notification) {
     final bottomOffset = 100.0;
-    _isAtBottom = notification.metrics.pixels >= notification.metrics.maxScrollExtent - bottomOffset;
+    _isAtBottom = notification.metrics.pixels < bottomOffset;
   }
 
   void updateIndicatorStatus(ScrollNotification notification) {

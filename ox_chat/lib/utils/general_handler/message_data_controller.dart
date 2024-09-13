@@ -27,7 +27,20 @@ class MessageDataController with OXChatObserver {
   Set<String> _messageIdCache = {};
   List<types.Message> _messages = [];
 
+  bool _hasMoreOldMessage = true;
+  bool get canLoadMoreMessage {
+    final coreChatType = chatTypeKey.coreChatType;
+    if (coreChatType == 2 || coreChatType == 4) {
+      return true;
+    }
+    return _hasMoreOldMessage;
+  }
+
+  bool _hasMoreNewMessage = false;
+  bool get hasMoreNewMessage => _hasMoreNewMessage;
+
   ValueNotifier<List<types.Message>> messageValueNotifier = ValueNotifier([]);
+  ValueNotifier<bool> disableAutoScrollToBottomNotifier = ValueNotifier(false);
 
   void dispose() {
     removeMessageReactionsListener();
@@ -163,12 +176,12 @@ extension MessageDataControllerInterface on MessageDataController {
 
   Future<List<types.Message>> loadMoreMessage({
     required int loadMsgCount,
-    bool isLoadBeforeData = true,
+    bool isLoadOlderData = true,
   }) async {
     final immutableMessages = [..._messages];
     final params = chatTypeKey.messageLoaderParams;
     int? until, since;
-    if (isLoadBeforeData) {
+    if (isLoadOlderData) {
       var lastMessageDate = immutableMessages.lastOrNull?.createdAt;
       if (lastMessageDate != null) until =  lastMessageDate ~/ 1000;
     } else {
@@ -200,15 +213,22 @@ extension MessageDataControllerInterface on MessageDataController {
     }
     _notifyUpdateMessages();
 
-    // If no new messages are retrieved from the DB, attempt to fetch them from the relay.
-    final coreChatType = chatTypeKey.coreChatType;
-    if (result.isEmpty && coreChatType != null && until != null) {
-      Messages.recoverMessagesFromRelay(
-        chatTypeKey.sessionId,
-        coreChatType,
-        until: until,
-        limit: loadMsgCount * 3,
-      );
+    if (isLoadOlderData) {
+      _hasMoreOldMessage = result.length >= loadMsgCount;
+      if (!_hasMoreOldMessage) {
+        // If no new messages are retrieved from the DB, attempt to fetch them from the relay.
+        final coreChatType = chatTypeKey.coreChatType;
+        if (coreChatType != null && until != null) {
+          Messages.recoverMessagesFromRelay(
+            chatTypeKey.sessionId,
+            coreChatType,
+            until: until,
+            limit: loadMsgCount * 3,
+          );
+        }
+      }
+    } else {
+      _hasMoreNewMessage = result.length >= loadMsgCount;
     }
 
     return result;
@@ -223,37 +243,71 @@ extension MessageDataControllerInterface on MessageDataController {
     if (message == null) return [];
 
     final loadParams = chatTypeKey.messageLoaderParams;
-    List<MessageDBISAR> beforeMessages = (await Messages.loadMessagesFromDB(
+    List<MessageDBISAR> olderMessages = (await Messages.loadMessagesFromDB(
       receiver: loadParams.receiver,
       groupId: loadParams.groupId,
       sessionId: loadParams.sessionId,
       until: message.createTime,
       limit: beforeCount,
     ))['messages'] ?? <MessageDBISAR>[];
-    List<MessageDBISAR> afterMessages = (await Messages.loadMessagesFromDB(
+    List<MessageDBISAR> newerMessages = (await Messages.loadMessagesFromDB(
       receiver: loadParams.receiver,
       groupId: loadParams.groupId,
       sessionId: loadParams.sessionId,
       since: message.createTime,
       limit: afterCount,
     ))['messages'] ?? <MessageDBISAR>[];
-    afterMessages = afterMessages.reversed.toList();
+    newerMessages = newerMessages.reversed.toList();
 
     final messages = [
-      ...afterMessages,
-      ...beforeMessages,
+      ...newerMessages,
+      ...olderMessages,
     ].removeDuplicates((msg) => msg.messageId);
 
     final result = <types.Message>[];
     for (var newMsg in messages) {
-      final uiMsg = await _addMessageWithMessageDB(newMsg);
+      final uiMsg = await _addMessageWithMessageDB(newMsg, needNotifyUpdate: false);
       if (uiMsg != null) {
         result.add(uiMsg);
         _checkUIMessageInfo(uiMsg);
       }
     }
 
+    _notifyUpdateMessages();
+
+    _hasMoreOldMessage = olderMessages.length >= beforeCount;
+    _hasMoreNewMessage = newerMessages.length >= afterCount;
+
     return result;
+  }
+
+  Future insertFirstPageMessages({
+    required int firstPageMessageCount,
+    Future Function()? scrollAction,
+  }) async {
+    final loadParams = chatTypeKey.messageLoaderParams;
+    List<MessageDBISAR> firstPageMessage = (await Messages.loadMessagesFromDB(
+      receiver: loadParams.receiver,
+      groupId: loadParams.groupId,
+      sessionId: loadParams.sessionId,
+      limit: firstPageMessageCount,
+    ))['messages'] ?? <MessageDBISAR>[];
+
+    final insertedMessages = <types.Message>[];
+    for (var newMsg in firstPageMessage) {
+      final uiMsg = await _addMessageWithMessageDB(newMsg, needNotifyUpdate: false);
+      if (uiMsg != null) {
+        insertedMessages.add(uiMsg);
+        _checkUIMessageInfo(uiMsg);
+      }
+    }
+
+    _notifyUpdateMessages();
+
+    await scrollAction?.call();
+
+    _messages = [...insertedMessages];
+    _notifyUpdateMessages();
   }
 }
 
@@ -266,6 +320,13 @@ extension MessageDataControllerPrivate on MessageDataController {
 
   Future _receiveMessageHandler(MessageDBISAR message) async {
     if (chatTypeKey != message.chatTypeKey) return ;
+
+    final firstMessageTime = _messages.firstOrNull?.createdAt;
+    if (_hasMoreNewMessage && firstMessageTime != null && message.createTime > (firstMessageTime ~/ 1000)) return ;
+
+    final lastMessageTime = _messages.lastOrNull?.createdAt;
+    if (_hasMoreOldMessage && lastMessageTime != null && message.createTime < (lastMessageTime ~/ 1000)) return ;
+
     await _addMessageWithMessageDB(message);
   }
 
