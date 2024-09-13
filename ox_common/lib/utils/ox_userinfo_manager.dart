@@ -116,7 +116,6 @@ class OXUserInfoManager {
               UserConfigTool.compatibleOld(tempUserDB);
               currentUserInfo = tempUserDB;
               _initDatas();
-              _initFeedback();
               return;
             }
           } else {
@@ -132,7 +131,6 @@ class OXUserInfoManager {
           UserConfigTool.compatibleOld(tempUserDB);
           currentUserInfo = tempUserDB;
           _initDatas();
-          _initFeedback();
           return;
         }
       }
@@ -393,7 +391,8 @@ class OXUserInfoManager {
   }
 
   Future<void> _initDatas() async {
-    UserConfigTool.updateSettingFromDB(currentUserInfo?.settings);
+    await UserConfigTool.updateSettingFromDB(currentUserInfo?.settings);
+    _initFeedback();
     await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageSettingKey.KEY_CHAT_RUN_STATUS.name, true);
     OXServerManager.sharedInstance.loadConnectICEServer();
     addChatCallBack();
@@ -439,13 +438,14 @@ class OXUserInfoManager {
 
   Future<bool> _fetchFeedback(int feedback) async {
     String jsonString = UserConfigTool.getSetting(StorageSettingKey.KEY_NOTIFICATION_LIST.name, defaultValue: '');
+
     if (jsonString.isEmpty) return true;
     final Map<String, dynamic> jsonMap = json.decode(jsonString);
     for (var entry in jsonMap.entries) {
       var value = entry.value;
       if (value is Map<String, dynamic>) {
-        if(jsonMap['id'] == feedback){
-          return jsonMap['isSelected'];
+        if(value['id'] == feedback){
+          return value['isSelected'];
         }
       }
     }
