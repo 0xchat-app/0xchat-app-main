@@ -130,11 +130,9 @@ class _ChatListState extends State<ChatList>
   void didUpdateWidget(covariant ChatList oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (oldWidget.items != widget.items) {
-      final oldList = [...headerItems, ...bodyItems,];
-      final newList = [...widget.items];
-      _calculateDiffs(oldList, newList);
-    }
+    final oldList = [...headerItems, ...bodyItems,];
+    final newList = [...widget.items];
+    _calculateDiffs(oldList, newList);
   }
 
   @override
@@ -287,7 +285,7 @@ class _ChatListState extends State<ChatList>
       );
     }
 
-    if (oldList.isEmpty || newBodyItems.isEmpty) {
+    if (oldList.isEmpty || newBodyItems.isEmpty || newHeaderItems.isEmpty) {
       headerItems = [];
       bodyItems = [...newList];
     } else {

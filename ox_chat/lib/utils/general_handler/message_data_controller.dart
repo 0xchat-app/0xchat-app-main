@@ -133,7 +133,11 @@ extension MessageDataControllerInterface on MessageDataController {
       funcName: 'removeMessages',
       message: 'key: $chatTypeKey, message: $message, messageId: $messageId',
     );
-    final isSuccess = _removeMessageFromList(_messages, message: message, messageId: messageId);
+    final isSuccess = _removeMessageFromList(
+      _messages,
+      message: message,
+      messageId: messageId,
+    );
     if (isSuccess) {
       _notifyUpdateMessages();
     }
@@ -148,12 +152,16 @@ extension MessageDataControllerInterface on MessageDataController {
       funcName: 'updateMessages',
       message: 'key: $chatTypeKey, message: $message',
     );
-    _updateMessageToList(
+    final isSuccess = _updateMessageToList(
       _messages,
       message,
       originMessage: originMessage,
       originMessageId: originMessageId,
     );
+
+    if (isSuccess) {
+      _notifyUpdateMessages();
+    }
   }
 
   types.Message? getMessage(String messageId) {
