@@ -306,11 +306,11 @@ class _ChatListState extends State<ChatList>
     final size = renderBox.size;
     if (size.height < 1) return ;
 
-    if (immutableHeaderItems.length == 1 && widget.isFirstPage == true && shouldScrollToBottom()) {
-      scrollToBottom();
-    } else {
+    if (widget.isFirstPage == false || !shouldScrollToBottom() || immutableHeaderItems.length > 3) {
       final position = widget.scrollController.position;
       position.correctPixels(size.height + position.pixels);
+    } else {
+      scrollToBottom();
     }
     setState(() {
       bodyItems.insertAll(0, immutableHeaderItems);
