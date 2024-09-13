@@ -396,7 +396,7 @@ class Chat extends StatefulWidget {
 
   final ValueChanged<FocusNode>? onFocusNodeInitialized;
 
-  final Function(ScrollController)? textFieldHasFocus;
+  final Function()? textFieldHasFocus;
 
   @override
   State<Chat> createState() => ChatState();
@@ -624,7 +624,7 @@ class ChatState extends State<Chat> {
           onVoiceSend: widget.onVoiceSend,
           onGifSend: widget.onGifSend,
           textFieldHasFocus: () {
-            widget.textFieldHasFocus?.call(_scrollController);
+            widget.textFieldHasFocus?.call();
           },
           inputBottomView: widget.inputBottomView,
           onFocusNodeInitialized: widget.onFocusNodeInitialized,

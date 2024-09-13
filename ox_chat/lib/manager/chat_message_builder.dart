@@ -28,29 +28,34 @@ part 'chat_message_builder_reaction.dart';
 
 class ChatMessageBuilder {
 
-  static Widget buildRepliedMessageView(types.Message message,
-      {required int messageWidth}) {
+  static Widget buildRepliedMessageView(types.Message message, {
+    required int messageWidth,
+    Function(String repliedMessageId)? onTap,
+  }) {
     final repliedMessage = message.repliedMessage;
     if (repliedMessage == null) return SizedBox();
-    return ConstrainedBox(
-      constraints: BoxConstraints(
-        maxWidth: messageWidth.toDouble(),
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(Adapt.px(12)),
-          color: ThemeColor.color190,
+    return GestureDetector(
+      onTap: () => onTap?.call(repliedMessage.remoteId ?? ''),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: messageWidth.toDouble(),
         ),
-        margin: EdgeInsets.only(top: Adapt.px(2)),
-        padding: EdgeInsets.symmetric(
-            horizontal: Adapt.px(12), vertical: Adapt.px(4)),
-        child: Text(
-          repliedMessage.replyDisplayContent,
-          maxLines: 3,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            color: ThemeColor.color120,
-            fontSize: 12,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(Adapt.px(12)),
+            color: ThemeColor.color190,
+          ),
+          margin: EdgeInsets.only(top: Adapt.px(2)),
+          padding: EdgeInsets.symmetric(
+              horizontal: Adapt.px(12), vertical: Adapt.px(4)),
+          child: Text(
+            repliedMessage.replyDisplayContent,
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: ThemeColor.color120,
+              fontSize: 12,
+            ),
           ),
         ),
       ),

@@ -40,7 +40,10 @@ class MessageDataController with OXChatObserver {
   bool get hasMoreNewMessage => _hasMoreNewMessage;
 
   ValueNotifier<List<types.Message>> messageValueNotifier = ValueNotifier([]);
-  ValueNotifier<bool> disableAutoScrollToBottomNotifier = ValueNotifier(false);
+
+  Completer? messageLoadingCompleter;
+  bool get isMessageLoading => !(messageLoadingCompleter?.isCompleted ?? true);
+  Future get messageLoading => messageLoadingCompleter?.future ?? Future.value();
 
   void dispose() {
     removeMessageReactionsListener();
@@ -158,6 +161,11 @@ extension MessageDataControllerInterface on MessageDataController {
     return immutableMessages.where((msg) => msg.id == messageId).firstOrNull;
   }
 
+  int getMessageIndex(String messageId) {
+    final immutableMessages = [..._messages];
+    return immutableMessages.indexWhere((msg) => msg.id == messageId);
+  }
+
   Future<List<types.Message>> getAllLocalMessage() async {
     final params = chatTypeKey.messageLoaderParams;
     List<MessageDBISAR> allMessage = (await Messages.loadMessagesFromDB(
@@ -178,12 +186,16 @@ extension MessageDataControllerInterface on MessageDataController {
     required int loadMsgCount,
     bool isLoadOlderData = true,
   }) async {
+    await messageLoading;
+    final completer = Completer();
+    this.messageLoadingCompleter = completer;
+
     final immutableMessages = [..._messages];
     final params = chatTypeKey.messageLoaderParams;
     int? until, since;
     if (isLoadOlderData) {
       var lastMessageDate = immutableMessages.lastOrNull?.createdAt;
-      if (lastMessageDate != null) until =  lastMessageDate ~/ 1000;
+      if (lastMessageDate != null) until = lastMessageDate ~/ 1000;
     } else {
       var firstMessageDate = immutableMessages.firstOrNull?.createdAt;
       if (firstMessageDate != null) since = firstMessageDate ~/ 1000;
@@ -231,6 +243,7 @@ extension MessageDataControllerInterface on MessageDataController {
       _hasMoreNewMessage = result.length >= loadMsgCount;
     }
 
+    completer.complete();
     return result;
   }
 
@@ -239,6 +252,10 @@ extension MessageDataControllerInterface on MessageDataController {
     required int beforeCount,
     required int afterCount,
   }) async {
+    await messageLoading;
+    final completer = Completer();
+    this.messageLoadingCompleter = completer;
+
     final message = await Messages.sharedInstance.loadMessageDBFromDB(targetMessageId);
     if (message == null) return [];
 
@@ -278,6 +295,7 @@ extension MessageDataControllerInterface on MessageDataController {
     _hasMoreOldMessage = olderMessages.length >= beforeCount;
     _hasMoreNewMessage = newerMessages.length >= afterCount;
 
+    completer.complete();
     return result;
   }
 
@@ -285,6 +303,10 @@ extension MessageDataControllerInterface on MessageDataController {
     required int firstPageMessageCount,
     Future Function()? scrollAction,
   }) async {
+    await messageLoading;
+    final completer = Completer();
+    this.messageLoadingCompleter = completer;
+
     final loadParams = chatTypeKey.messageLoaderParams;
     List<MessageDBISAR> firstPageMessage = (await Messages.loadMessagesFromDB(
       receiver: loadParams.receiver,
@@ -306,8 +328,21 @@ extension MessageDataControllerInterface on MessageDataController {
 
     await scrollAction?.call();
 
-    _messages = [...insertedMessages];
+    _replaceMessages(insertedMessages);
     _notifyUpdateMessages();
+
+    completer.complete();
+  }
+
+  Future replaceWithNearbyMessage({
+    required String targetMessageId,
+  }) async {
+    _clearMessage();
+    await loadNearbyMessage(
+      targetMessageId: targetMessageId,
+      beforeCount: 10,
+      afterCount: 15,
+    );
   }
 }
 
@@ -353,6 +388,17 @@ extension MessageDataControllerPrivate on MessageDataController {
       );
     }
     return null;
+  }
+
+  void _clearMessage() {
+    _messages = [];
+    _messageIdCache.clear();
+  }
+
+  void _replaceMessages(List<types.Message> messages) {
+    _messages = [...messages];
+    _messageIdCache.clear();
+    _messageIdCache.addAll(messages.map((e) => e.remoteId).whereNotNull());
   }
 
   void _asyncUpdateHandler(MessageDBISAR newMessage, String originMessageId) async {

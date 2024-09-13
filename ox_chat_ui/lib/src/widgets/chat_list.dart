@@ -276,7 +276,7 @@ class _ChatListState extends State<ChatList>
             pos,
             (_, animation) => _removedMessageBuilder(item, animation),
           );
-          if (pos <= headerItems.length) {
+          if (pos < headerItems.length) {
             newHeaderItems.removeAt(pos);
           } else {
             newBodyItems.removeAt(pos - headerItems.length);
@@ -287,7 +287,7 @@ class _ChatListState extends State<ChatList>
       );
     }
 
-    if (oldList.isEmpty) {
+    if (oldList.isEmpty || newBodyItems.isEmpty) {
       headerItems = [];
       bodyItems = [...newList];
     } else {

@@ -16,6 +16,7 @@ import 'package:ox_common/utils/chat_prompt_tone.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/web_url_helper.dart';
 import 'package:ox_common/widgets/avatar.dart';
+import 'package:scroll_to_index/scroll_to_index.dart';
 
 class CommonChatWidget extends StatefulWidget {
 
@@ -49,6 +50,8 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
   MessageDataController get dataController => handler.dataController;
 
   final pageConfig = ChatPageConfig();
+
+  final AutoScrollController scrollController = AutoScrollController();
 
   @override
   void initState() {
@@ -90,17 +93,22 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
       valueListenable: dataController.messageValueNotifier,
       builder: (BuildContext context, messages, Widget? child) {
         return Chat(
+          scrollController: scrollController,
           chatId: handler.session.chatId,
           theme: pageConfig.pageTheme,
           anchorMsgId: handler.anchorMsgId,
           messages: messages,
           isFirstPage: !dataController.hasMoreNewMessage,
           isLastPage: !dataController.canLoadMoreMessage,
-          onEndReached: () => dataController.loadMoreMessage(
-            loadMsgCount: ChatPageConfig.messagesPerPage,
-            isLoadOlderData: true,
-          ),
+          onEndReached: () async {
+            if (dataController.isMessageLoading) return ;
+            dataController.loadMoreMessage(
+              loadMsgCount: ChatPageConfig.messagesPerPage,
+              isLoadOlderData: true,
+            );
+          },
           onHeaderReached: () async {
+            if (dataController.isMessageLoading) return ;
             dataController.loadMoreMessage(
               loadMsgCount: ChatPageConfig.messagesPerPage,
               isLoadOlderData: false,
@@ -149,7 +157,22 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
           inputBottomView: handler.replyHandler.buildReplyMessageWidget(),
           bottomHintParam: widget.bottomHintParam,
           onFocusNodeInitialized: handler.replyHandler.focusNodeSetter,
-          repliedMessageBuilder: ChatMessageBuilder.buildRepliedMessageView,
+          repliedMessageBuilder: (types.Message message, {required int messageWidth}) =>
+              ChatMessageBuilder.buildRepliedMessageView(
+                message,
+                messageWidth: messageWidth,
+                onTap: (repliedMessageId) async {
+                  if (repliedMessageId.isEmpty) return ;
+                  await dataController.replaceWithNearbyMessage(targetMessageId: repliedMessageId);
+                  final index = dataController.getMessageIndex(repliedMessageId);
+                  if (index > -1) {
+                    scrollController.scrollToIndex(
+                      index,
+                      preferPosition: AutoScrollPosition.middle,
+                    );
+                  }
+                },
+              ),
           reactionViewBuilder: (types.Message message, {required int messageWidth}) =>
               ChatMessageBuilder.buildReactionsView(
                 message,
@@ -173,20 +196,20 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
           },
           onInsertedContent: (KeyboardInsertedContent insertedContent) =>
               handler.sendInsertedContentMessage(context, insertedContent),
-          textFieldHasFocus: (controller) async {
+          textFieldHasFocus: () async {
             if (dataController.hasMoreNewMessage) {
               dataController.insertFirstPageMessages(
                 firstPageMessageCount: ChatPageConfig.messagesPerPage,
                 scrollAction: () async {
-                  await controller.animateTo(
+                  scrollController.animateTo(
                     0,
                     duration: const Duration(milliseconds: 100),
                     curve: Curves.easeInQuad,
                   );
-                }
+                },
               );
             } else {
-              controller.animateTo(
+              scrollController.animateTo(
                 0,
                 duration: const Duration(milliseconds: 100),
                 curve: Curves.easeInQuad,
