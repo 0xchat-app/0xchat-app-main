@@ -50,6 +50,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
   bool _hasRemoveUserPermission = false;
   bool _hasAddPermission = false;
   bool _hasEditGroupStatusPermission = false;
+  bool _hasDeleteGroupPermission = false;
   UserDBISAR? userDB;
 
   @override
@@ -70,6 +71,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
     _hasRemoveUserPermission = RelayGroup.sharedInstance.hasPermissions(groupDBInfo?.admins ?? [], userDB?.pubKey??'', [GroupActionKind.removeUser]);
     _hasAddPermission = RelayGroup.sharedInstance.hasPermissions(groupDBInfo?.admins ?? [], userDB?.pubKey??'', [GroupActionKind.addPermission]);
     _hasEditGroupStatusPermission = RelayGroup.sharedInstance.hasPermissions(groupDBInfo?.admins ?? [], userDB?.pubKey??'', [GroupActionKind.editGroupStatus]);
+    _hasDeleteGroupPermission = RelayGroup.sharedInstance.hasPermissions(groupDBInfo?.admins ?? [], userDB?.pubKey??'', [GroupActionKind.deleteGroup]);
   }
 
   @override
@@ -443,7 +445,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
   }
 
   Widget _leaveBtnWidget() {
-    String content = !_isGroupMember || _hasAddPermission ? Localized.text('ox_chat.delete_and_leave_item') : Localized.text('ox_chat.str_leave_group');
+    String content = !_isGroupMember || _hasDeleteGroupPermission ? Localized.text('ox_chat.delete_and_leave_item') : Localized.text('ox_chat.str_leave_group');
     return GestureDetector(
       child: Container(
         margin: EdgeInsets.only(top: 16.px),
@@ -468,9 +470,9 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
   }
 
   void _leaveConfirmWidget() {
-    String tips = !_isGroupMember ? Localized.text('ox_common.tips'): (_hasAddPermission
+    String tips = !_isGroupMember ? Localized.text('ox_common.tips'): (_hasDeleteGroupPermission
         ? 'delete_group_tips'.localized() : 'leave_group_tips'.localized());
-    String content = _hasAddPermission ? Localized.text('ox_chat.delete_and_leave_item') : Localized.text('ox_chat.str_leave_group');
+    String content = _hasDeleteGroupPermission ? Localized.text('ox_chat.delete_and_leave_item') : Localized.text('ox_chat.str_leave_group');
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -732,6 +734,9 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
 
   void _leaveGroupFn() async {
     OXLoading.show();
+    if(_hasDeleteGroupPermission){
+       await RelayGroup.sharedInstance.deleteGroup(widget.groupId, 'delete group');
+    }
     OKEvent event = await RelayGroup.sharedInstance.leaveGroup(widget.groupId, 'leave group');
     OXUserInfoManager.sharedInstance.setNotification();
     if (!event.status) {
