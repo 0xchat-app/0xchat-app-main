@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:collection';
 import 'package:chatcore/chat-core.dart';
+import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
@@ -456,9 +457,9 @@ class OXChatBinding {
     }
   }
 
-  void privateChatMessageUpdateCallBack(MessageDBISAR message, String replacedMessageId) async {
+  void chatMessageUpdateCallBack(MessageDBISAR message, String replacedMessageId) async {
     for (OXChatObserver observer in _observers) {
-      observer.didPrivateChatMessageUpdateCallBack(message, replacedMessageId);
+      observer.didChatMessageUpdateCallBack(message, replacedMessageId);
     }
   }
 

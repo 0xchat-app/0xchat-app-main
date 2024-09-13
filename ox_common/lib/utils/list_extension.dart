@@ -35,10 +35,11 @@ extension ListEx<T> on List<T> {
     return result;
   }
 
-  List<T> removeDuplicates(dynamic Function(T) keySelector) {
+  List<T> removeDuplicates([dynamic Function(T)? keySelector]) {
     List<T> uniqueList = [];
     Set<dynamic> seenKeys = {};
 
+    keySelector ??= (obj) => obj;
     for (var item in this) {
       var key = keySelector(item);
       if (!seenKeys.contains(key)) {

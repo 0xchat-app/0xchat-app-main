@@ -187,7 +187,7 @@ class OXUserInfoManager {
     };
     Contacts.sharedInstance.privateChatMessageUpdateCallBack = (MessageDBISAR message, String replacedMessageId) {
       LogUtil.d("Michael: init privateChatMessageUpdateCallBack message.id =${message.messageId}");
-      OXChatBinding.sharedInstance.privateChatMessageUpdateCallBack(message, replacedMessageId);
+      OXChatBinding.sharedInstance.chatMessageUpdateCallBack(message, replacedMessageId);
     };
     Channels.sharedInstance.channelMessageCallBack = (MessageDBISAR messageDB) async {
       LogUtil.d('Michael: init  channelMessageCallBack');
