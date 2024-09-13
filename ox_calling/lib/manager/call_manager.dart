@@ -276,8 +276,8 @@ class CallManager {
       _waitAccept = false;
     }
     _inCalling = false;
-    localRenderer.srcObject = null;
-    remoteRenderer.srcObject = null;
+    if(localRenderer.textureId != null) localRenderer.srcObject = null;
+    if(remoteRenderer.textureId != null) remoteRenderer.srcObject = null;
     _session = null;
     try {
       stopTimer();
