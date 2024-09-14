@@ -97,19 +97,25 @@ class MomentContentAnalyzeUtils {
   }
 
    String get getMomentShowContent {
+     final RegExp audioExp = RegExp(
+         [
+           (regexMap['audioExp'] as RegExp).pattern,
+           (regexMap['youtubeExp'] as RegExp).pattern,
+         ].join('|'),
+         caseSensitive: false
+     );
      final RegExp contentExp = RegExp(
          [
            (regexMap['imgExp'] as RegExp).pattern,
-           (regexMap['audioExp'] as RegExp).pattern,
            (regexMap['noteExp'] as RegExp).pattern,
-           (regexMap['youtubeExp'] as RegExp).pattern,
            (regexMap['lightningInvoiceExp'] as RegExp).pattern,
            (regexMap['ecashExp'] as RegExp).pattern,
          ].join('|'),
          caseSensitive: false
      );
+     String cleanedText = content.replaceFirst(audioExp, '');
 
-     final String cleanedText = content.replaceAll(contentExp, '');
+     cleanedText = cleanedText.replaceAll(contentExp, '');
      return cleanedText.trim();
   }
 

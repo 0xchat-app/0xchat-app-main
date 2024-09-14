@@ -5,6 +5,7 @@ import 'package:flutter/gestures.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/widgets/common_video_page.dart';
 import 'package:ox_common/widgets/common_webview.dart';
 import 'package:ox_discovery/utils/discovery_utils.dart';
 import 'package:ox_discovery/utils/moment_content_analyze_utils.dart';
@@ -210,6 +211,11 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget>
       return;
     }
     if (text.startsWith('http')) {
+      MomentContentAnalyzeUtils analyzeUtils = MomentContentAnalyzeUtils(text);
+      if(analyzeUtils.getMediaList(2).isNotEmpty){
+        CommonVideoPage.show(text);
+        return;
+      }
       OXNavigator.presentPage(
           context,
           allowPageScroll: true,
