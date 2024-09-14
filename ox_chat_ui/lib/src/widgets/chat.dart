@@ -671,18 +671,28 @@ class ChatState extends State<Chat> {
         int? index,
         ) {
       if (object is DateHeader) {
-        return widget.dateHeaderBuilder?.call(object) ??
-            Container(
-              alignment: Alignment.center,
-              margin: widget.theme.dateDividerMargin,
-              child: Text(
-                object.text,
-                style: widget.theme.dateDividerTextStyle,
+        return AutoScrollTag(
+          controller: _scrollController,
+          index: index ?? -1,
+          key: Key('DateHeader-${object.id}'),
+          child: widget.dateHeaderBuilder?.call(object) ??
+              Container(
+                alignment: Alignment.center,
+                margin: widget.theme.dateDividerMargin,
+                child: Text(
+                  object.text,
+                  style: widget.theme.dateDividerTextStyle,
+                ),
               ),
-            );
+        );
       } else if (object is MessageSpacer) {
-        return SizedBox(
-          height: object.height,
+        return AutoScrollTag(
+          controller: _scrollController,
+          index: index ?? -1,
+          key: Key('MessageSpacer-${object.id}'),
+          child: SizedBox(
+            height: object.height,
+          ),
         );
       } else if (object is UnreadHeaderData) {
         return AutoScrollTag(
