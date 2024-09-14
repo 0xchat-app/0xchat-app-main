@@ -1,3 +1,4 @@
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -14,7 +15,7 @@ class YoutubePlayerWidget extends StatefulWidget {
 }
 
 class _YoutubePlayerWidgetState extends State<YoutubePlayerWidget> {
-  late YoutubePlayerController _youtubeController;
+  YoutubePlayerController? _youtubeController;
 
   @override
   void initState() {
@@ -26,13 +27,17 @@ class _YoutubePlayerWidgetState extends State<YoutubePlayerWidget> {
   void _dataInit() {
     String? videoId;
     videoId = YoutubePlayer.convertUrlToId(widget.videoUrl);
-    _youtubeController = YoutubePlayerController(
-      initialVideoId: videoId!,
-      flags: const YoutubePlayerFlags(
-        autoPlay: true,
-        mute: false,
-      ),
-    );
+    try{
+      _youtubeController = YoutubePlayerController(
+        initialVideoId: videoId!,
+        flags: const YoutubePlayerFlags(
+          autoPlay: true,
+          mute: false,
+        ),
+      );
+    }catch(e){
+      print('===e======$e');
+    }
   }
 
   @override
@@ -60,8 +65,9 @@ class _YoutubePlayerWidgetState extends State<YoutubePlayerWidget> {
   }
 
   Widget _videoSurfaceDrawingWidget() {
+    if(_youtubeController == null) return Container();
     return YoutubePlayer(
-      controller: _youtubeController,
+      controller: _youtubeController!,
       showVideoProgressIndicator: false,
       onReady: () {
         print('Player is ready.');
@@ -71,7 +77,7 @@ class _YoutubePlayerWidgetState extends State<YoutubePlayerWidget> {
 
   @override
   void dispose() {
-    _youtubeController.dispose();
+    _youtubeController?.dispose();
     super.dispose();
   }
 }
