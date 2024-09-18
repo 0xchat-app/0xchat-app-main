@@ -36,12 +36,14 @@ class ChatMessagePage extends StatefulWidget {
     required BuildContext context,
     required ChatSessionModelISAR communityItem,
     String? anchorMsgId,
+    int? unreadMessageCount,
     bool isPushWithReplace = false,
   }) async {
 
     final handler = ChatGeneralHandler(
       session: communityItem,
       anchorMsgId: anchorMsgId,
+      unreadMessageCount: unreadMessageCount ?? 0,
     );
     await handler.initializeMessage();
 

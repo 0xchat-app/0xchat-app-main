@@ -77,6 +77,7 @@ class ChatGeneralHandler {
     required this.session,
     types.User? author,
     this.anchorMsgId,
+    this.unreadMessageCount = 0,
   }) : author = author ?? _defaultAuthor(),
        fileEncryptionType = _fileEncryptionType(session) {
     setupDataController();
@@ -97,6 +98,9 @@ class ChatGeneralHandler {
   TextEditingController inputController = TextEditingController();
 
   final tempMessageSet = <types.Message>{};
+
+  int unreadMessageCount;
+  types.Message? unreadFirstMessage;
 
   static types.User _defaultAuthor() {
     UserDBISAR? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
@@ -191,6 +195,16 @@ class ChatGeneralHandler {
         );
       }
     }
+
+    await initializeUnreadMessage();
+  }
+
+  Future initializeUnreadMessage() async {
+
+    if (unreadMessageCount < 10) return ;
+
+    final messages = await dataController.getLocalMessage(unreadMessageCount);
+    unreadFirstMessage = messages.lastOrNull;
   }
 
   void dispose() {
@@ -311,7 +325,7 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
     required String messageId,
     required String imageUri,
   }) async {
-    final messages = await dataController.getAllLocalMessage();
+    final messages = await dataController.getLocalMessage();
     final gallery = messages.map((message) {
       if (message is types.ImageMessage) {
         return PreviewImage(

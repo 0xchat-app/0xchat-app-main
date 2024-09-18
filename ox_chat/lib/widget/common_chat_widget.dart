@@ -1,4 +1,6 @@
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_chat/manager/chat_data_cache.dart';
@@ -14,8 +16,10 @@ import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/chat_prompt_tone.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
+import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/web_url_helper.dart';
 import 'package:ox_common/widgets/avatar.dart';
+import 'package:ox_common/widgets/common_image.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
 
 class CommonChatWidget extends StatefulWidget {
@@ -52,12 +56,15 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
   final pageConfig = ChatPageConfig();
 
   final AutoScrollController scrollController = AutoScrollController();
+  Duration scrollDuration = const Duration(milliseconds: 100);
+
+  bool isShowScrollToUnreadWidget = true;
 
   @override
   void initState() {
-    tryInitDraft();
     super.initState();
 
+    tryInitDraft();
     mentionStateInitialize();
     PromptToneManager.sharedInstance.isCurrencyChatPage = dataController.isInCurrentSession;
     OXChatBinding.sharedInstance.msgIsReaded = dataController.isInCurrentSession;
@@ -162,15 +169,7 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
                 message,
                 messageWidth: messageWidth,
                 onTap: (repliedMessageId) async {
-                  if (repliedMessageId.isEmpty) return ;
-                  await dataController.replaceWithNearbyMessage(targetMessageId: repliedMessageId);
-                  final index = dataController.getMessageIndex(repliedMessageId);
-                  if (index > -1) {
-                    scrollController.scrollToIndex(
-                      index,
-                      preferPosition: AutoScrollPosition.middle,
-                    );
-                  }
+                  scrollToMessage(repliedMessageId);
                 },
               ),
           reactionViewBuilder: (types.Message message, {required int messageWidth}) =>
@@ -179,6 +178,9 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
                 messageWidth: messageWidth,
                 itemOnTap: (reaction) => handler.reactionPressHandler(context, message, reaction.content),
               ),
+          scrollToUnreadWidget: buildScrollToUnreadWidget(),
+          isShowScrollToBottomButton: dataController.hasMoreNewMessage,
+          scrollToBottomWidget: buildScrollToBottomWidget(),
           mentionUserListWidget: handler.mentionHandler?.buildMentionUserList(),
           onAudioDataFetched: (message) async {
             final (sourceFile, duration) = await ChatVoiceMessageHelper.populateMessageWithAudioDetails(
@@ -197,27 +199,110 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
           onInsertedContent: (KeyboardInsertedContent insertedContent) =>
               handler.sendInsertedContentMessage(context, insertedContent),
           textFieldHasFocus: () async {
-            if (dataController.hasMoreNewMessage) {
-              dataController.insertFirstPageMessages(
-                firstPageMessageCount: ChatPageConfig.messagesPerPage,
-                scrollAction: () async {
-                  scrollController.animateTo(
-                    0,
-                    duration: const Duration(milliseconds: 100),
-                    curve: Curves.easeInQuad,
-                  );
-                },
-              );
-            } else {
-              scrollController.animateTo(
-                0,
-                duration: const Duration(milliseconds: 100),
-                curve: Curves.easeInQuad,
-              );
+            scrollToNewestMessage();
+          },
+          messageHasBuilder: (message, index) async {
+            if (!isShowScrollToUnreadWidget || index == null) return ;
+
+            final unreadMessage = handler.unreadFirstMessage;
+            if (unreadMessage == null) return ;
+
+            if (unreadMessage.id == message.id) {
+              await WidgetsBinding.instance.waitUntilFirstFrameRasterized;
+              setState(() {
+                isShowScrollToUnreadWidget = false;
+              });
             }
           }
         );
       }
+    );
+  }
+
+  Widget buildScrollToBottomWidget() {
+    return GestureDetector(
+      onTap: () {
+        scrollToNewestMessage();
+      },
+      child: Container(
+        width: 48.px,
+        height: 48.px,
+        decoration: BoxDecoration(
+          color: ThemeColor.color160,
+          borderRadius: BorderRadius.circular(24.px),
+        ),
+        alignment: Alignment.center,
+        child: CommonImage(
+          iconName: 'icon_arrow_down.png',
+          size: 24.px,
+          package: 'ox_chat',
+        ),
+      ),
+    );
+  }
+
+  Widget buildScrollToUnreadWidget() {
+    final message = handler.unreadFirstMessage;
+    final unreadCount = handler.unreadMessageCount;
+    final unreadCountText = unreadCount > 9999 ? '9999+' : unreadCount.toString();
+    return Visibility(
+      visible: isShowScrollToUnreadWidget && message != null,
+      child: GestureDetector(
+        onTap: () {
+          if (message == null) return ;
+          scrollToMessage(message.id);
+        },
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Container(
+              width: 48.px,
+              height: 48.px,
+              decoration: BoxDecoration(
+                color: ThemeColor.color160,
+                borderRadius: BorderRadius.circular(24.px),
+              ),
+              alignment: Alignment.center,
+              child: Transform.rotate(
+                angle: pi,
+                child: CommonImage(
+                  iconName: 'icon_arrow_down.png',
+                  size: 24.px,
+                  package: 'ox_chat',
+                ),
+              ),
+            ),
+            Positioned(
+              left: 0,
+              right: 0,
+              top: -9.px,
+              child: Center(
+                child: Container(
+                  height: 18.px,
+                  padding: EdgeInsets.symmetric(horizontal: 5.5.px),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(9.px),
+                    gradient: LinearGradient(
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                      colors: [
+                        ThemeColor.gradientMainEnd,
+                        ThemeColor.gradientMainStart
+                      ],
+                    ),
+                  ),
+                  child: Text(
+                    unreadCountText,
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -232,5 +317,48 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
       previewData: previewData,
     );
     dataController.updateMessage(updatedMessage);
+  }
+
+  void scrollToMessage(String messageId) async {
+    if (messageId.isEmpty) return ;
+
+    var index = dataController.getMessageIndex(messageId);
+    if (index > -1) {
+      scrollController.scrollToIndex(
+        index,
+        preferPosition: AutoScrollPosition.middle,
+      );
+      return ;
+    }
+
+    await dataController.replaceWithNearbyMessage(targetMessageId: messageId);
+    index = dataController.getMessageIndex(messageId);
+    if (index > -1) {
+      scrollController.scrollToIndex(
+        index,
+        preferPosition: AutoScrollPosition.middle,
+      );
+    }
+  }
+
+  void scrollToNewestMessage() {
+    if (dataController.hasMoreNewMessage) {
+      dataController.insertFirstPageMessages(
+        firstPageMessageCount: ChatPageConfig.messagesPerPage,
+        scrollAction: () async {
+          scrollTo(0.0);
+        },
+      );
+    } else {
+      scrollTo(0.0);
+    }
+  }
+
+  void scrollTo(double offset) {
+    scrollController.animateTo(
+      offset,
+      duration: scrollDuration,
+      curve: Curves.easeInQuad,
+    );
   }
 }

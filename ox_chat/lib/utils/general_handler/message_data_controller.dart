@@ -174,12 +174,13 @@ extension MessageDataControllerInterface on MessageDataController {
     return immutableMessages.indexWhere((msg) => msg.id == messageId);
   }
 
-  Future<List<types.Message>> getAllLocalMessage() async {
+  Future<List<types.Message>> getLocalMessage([int? limit]) async {
     final params = chatTypeKey.messageLoaderParams;
     List<MessageDBISAR> allMessage = (await Messages.loadMessagesFromDB(
       receiver: params.receiver,
       groupId: params.groupId,
       sessionId: params.sessionId,
+      limit: limit,
     ))['messages'] ?? <MessageDBISAR>[];
 
     final uiMessages = await Future.wait(allMessage.map((msg) => msg.toChatUIMessage()));
