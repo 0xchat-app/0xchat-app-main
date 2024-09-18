@@ -136,4 +136,26 @@ class ChatSessionUtils {
     Widget typeSessionWidget = iconName != null ? CommonImage(iconName: iconName, size: 24.px, package: 'ox_chat',useTheme: true,) : SizedBox();
     return typeSessionWidget;
   }
+
+  static bool checkIsMute(MessageDBISAR message, int type) {
+    bool isMute = false;
+    switch (type) {
+      case ChatType.chatChannel:
+        ChannelDBISAR? channelDB = Channels.sharedInstance.channels[message.groupId];
+        isMute = channelDB?.mute ?? false;
+        return isMute;
+      case ChatType.chatGroup:
+        GroupDBISAR? groupDB = Groups.sharedInstance.myGroups[message.groupId];
+        isMute = groupDB?.mute ?? false;
+        return isMute;
+      case ChatType.chatRelayGroup:
+        RelayGroupDBISAR? relayGroupDB = RelayGroup.sharedInstance.myGroups[message.groupId];
+        isMute = relayGroupDB?.mute ?? false;
+        return isMute;
+      default:
+        final tempUserDB = Account.sharedInstance.getUserInfo(message.sender);
+        isMute = tempUserDB is UserDBISAR ? (tempUserDB?.mute ?? false) : false;
+        return isMute;
+    }
+  }
 }

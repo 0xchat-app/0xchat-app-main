@@ -175,7 +175,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
 
   void didPromptToneCallBack(MessageDBISAR message, int type) async {
     if (PromptToneManager.sharedInstance.isCurrencyChatPage != null && PromptToneManager.sharedInstance.isCurrencyChatPage!(message)) return;
-    bool isMute = await _checkIsMute(message, type);
+    bool isMute = ChatSessionUtils.checkIsMute(message, type);
     if (!isMute && OXUserInfoManager.sharedInstance.canSound)
       _throttle(() {
         PromptToneManager.sharedInstance.play();
@@ -891,28 +891,6 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   void _dismissSlidable() {
     if (_latestGlobalKey != null && _latestGlobalKey!.currentContext != null) {
       Slidable.of(_latestGlobalKey!.currentContext!)!.close();
-    }
-  }
-
-  Future<bool> _checkIsMute(MessageDBISAR message, int type) async {
-    bool isMute = false;
-    switch (type) {
-      case ChatType.chatChannel:
-        ChannelDBISAR? channelDB = Channels.sharedInstance.channels[message.groupId];
-        isMute = channelDB?.mute ?? false;
-        return isMute;
-      case ChatType.chatGroup:
-        GroupDBISAR? groupDB = Groups.sharedInstance.myGroups[message.groupId];
-        isMute = groupDB?.mute ?? false;
-        return isMute;
-      case ChatType.chatRelayGroup:
-        RelayGroupDBISAR? relayGroupDB = RelayGroup.sharedInstance.myGroups[message.groupId];
-        isMute = relayGroupDB?.mute ?? false;
-        return isMute;
-      default:
-        UserDBISAR? tempUserDB = await Account.sharedInstance.getUserInfo(message.sender);
-        isMute = tempUserDB?.mute ?? false;
-        return isMute;
     }
   }
 
