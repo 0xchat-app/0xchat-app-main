@@ -479,7 +479,6 @@ class _CommonImageGalleryState extends State<CommonImageGallery>
   Future _widgetShotAndSave() async {
     if (widget.imageList.isEmpty) return;
 
-    OXLoading.show();
     final pageIndex = _pageController.page?.round() ?? 0;
     final imageUri = widget.imageList[pageIndex].url;
     final decryptKey = widget.imageList[pageIndex].decryptedKey;

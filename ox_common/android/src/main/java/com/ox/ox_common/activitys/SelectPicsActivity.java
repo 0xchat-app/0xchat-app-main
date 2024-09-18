@@ -156,15 +156,16 @@ public class SelectPicsActivity extends BaseActivity {
         PictureSelector pictureSelector = PictureSelector.create(this);
         if (mimeType != null) {
             //When directly invoking the camera for photos or videos
-            PictureSelector.create(this).openCamera("photo".equals(mimeType) ? SelectMimeType.ofImage() : SelectMimeType.ofVideo())
+            boolean isPhoto = "photo".equals(mimeType);
+            PictureSelector.create(this).openCamera(isPhoto ? SelectMimeType.ofImage() : SelectMimeType.ofVideo())
                     .setRecordVideoMaxSecond(videoRecordMaxSecond.intValue())
                     .setRecordVideoMinSecond(videoRecordMinSecond.intValue())
                     .setLanguage(getLang(language))
-                    .setOutputCameraDir(new AppPath(this).getAppVideoDirPath())
+                    .setOutputCameraDir(isPhoto ? new AppPath(this).getAppDCIMDirPath() : new AppPath(this).getAppVideoDirPath())
                     .setCropEngine((enableCrop) ?
                             new ImageCropEngine(this, buildOptions(selectorStyle), width.intValue(), height.intValue()) : null)
                     .setCompressEngine(new ImageCompressEngine(compressSize.intValue()))
-                    .setSandboxFileEngine(new MeSandboxFileEngine()).forResult(new OnResultCallbackListener<LocalMedia>() {
+                    .setSandboxFileEngine(new MeSandboxFileEngine()).forResultActivity(new OnResultCallbackListener<LocalMedia>() {
                 @Override
                 public void onResult(ArrayList<LocalMedia> result) {
                     if (result != null && result.size() > 0){

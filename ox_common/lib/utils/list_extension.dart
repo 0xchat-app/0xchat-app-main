@@ -5,7 +5,7 @@ extension IterableExtensions<T> on Iterable<T?> {
   }
 }
 
-extension ListEx on List {
+extension ListEx<T> on List<T> {
   /// Inserts an element into the list at every N-th position.
   ///
   /// This method takes an integer `n` and an element `element`, and inserts `element`
@@ -24,7 +24,7 @@ extension ListEx on List {
   ///
   /// Returns:
   /// - A new list with the elements inserted at every N-th position.
-  List<T> insertEveryN<T>(int n, T element) {
+  List<T> insertEveryN(int n, T element) {
     List<T> result = [];
     for (int i = 0; i < this.length; i++) {
       result.add(this[i]);
@@ -33,5 +33,21 @@ extension ListEx on List {
       }
     }
     return result;
+  }
+
+  List<T> removeDuplicates([dynamic Function(T)? keySelector]) {
+    List<T> uniqueList = [];
+    Set<dynamic> seenKeys = {};
+
+    keySelector ??= (obj) => obj;
+    for (var item in this) {
+      var key = keySelector(item);
+      if (!seenKeys.contains(key)) {
+        seenKeys.add(key);
+        uniqueList.add(item);
+      }
+    }
+
+    return uniqueList;
   }
 }
