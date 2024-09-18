@@ -567,19 +567,18 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   }
 
   Widget _buildItemName(ChatSessionModelISAR item) {
-    if (item.chatType == ChatType.chatSingle || item.chatType == ChatType.chatSecret){
-      return Container(
-        margin: EdgeInsets.only(right: Adapt.px(4)),
-        child:  ValueListenableBuilder<UserDBISAR>(
-          valueListenable: Account.sharedInstance.getUserNotifier(item.getOtherPubkey),
-          builder: (context, value, child) {
-            return MyText(value.name ?? '', 16.px, ThemeColor.color10, textAlign: TextAlign.left, maxLines: 1, overflow: TextOverflow.ellipsis, fontWeight: FontWeight.w600);
-          },
-        ),
-        constraints: BoxConstraints(maxWidth: _nameMaxW),
-      );
-    }
+    late Widget nameView;
     String showName = ChatSessionUtils.getChatName(item);
+    if (item.chatType == ChatType.chatSingle || item.chatType == ChatType.chatSecret){
+      nameView = ValueListenableBuilder<UserDBISAR>(
+        valueListenable: Account.sharedInstance.getUserNotifier(item.getOtherPubkey),
+        builder: (context, value, child) {
+          return MyText(showName, 16.px, ThemeColor.color10, textAlign: TextAlign.left, maxLines: 1, overflow: TextOverflow.ellipsis, fontWeight: FontWeight.w600);
+        },
+      );
+    } else {
+      nameView =MyText(showName, 16.px, ThemeColor.color10, textAlign: TextAlign.left, maxLines: 1, overflow: TextOverflow.ellipsis, fontWeight: FontWeight.w600);
+    }
     return Container(
       margin: EdgeInsets.only(right: Adapt.px(4)),
       child: item.chatType == ChatType.chatSecret
@@ -604,19 +603,12 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                       ],
                     ).createShader(Offset.zero & bounds.size);
                   },
-                  child: MyText(
-                    showName,
-                    16,
-                    ThemeColor.color0,
-                    letterSpacing: 0.4.px,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  child: nameView,
                 ),
               ],
             )
-          : MyText(showName, 16.px, ThemeColor.color10, textAlign: TextAlign.left, maxLines: 1, overflow: TextOverflow.ellipsis, fontWeight: FontWeight.w600),
+          : nameView,
       constraints: BoxConstraints(maxWidth: _nameMaxW),
-      // width: Adapt.px(135),
     );
   }
 
