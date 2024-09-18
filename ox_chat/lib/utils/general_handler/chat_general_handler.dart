@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
+import 'package:ox_chat/manager/chat_page_config.dart';
 import 'package:ox_chat/manager/ecash_helper.dart';
 import 'package:ox_chat/model/constant.dart';
 import 'package:ox_chat/page/ecash/ecash_open_dialog.dart';
@@ -37,7 +38,6 @@ import 'package:ox_common/widgets/common_video_page.dart';
 import 'package:uuid/uuid.dart';
 import 'package:ox_chat/manager/chat_draft_manager.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
-import 'package:ox_chat/manager/chat_page_config.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_chat/page/contacts/contact_user_info_page.dart';
@@ -66,6 +66,9 @@ import 'package:flutter_chat_types/src/message.dart' as UIMessage;
 import 'package:device_info/device_info.dart';
 import 'package:ox_common/widgets/zaps/zaps_action_handler.dart';
 
+import '../../manager/chat_data_manager_models.dart';
+import 'message_data_controller.dart';
+
 part 'chat_send_message_handler.dart';
 
 class ChatGeneralHandler {
@@ -73,9 +76,10 @@ class ChatGeneralHandler {
   ChatGeneralHandler({
     required this.session,
     types.User? author,
-    this.refreshMessageUI,
-    this.fileEncryptionType = types.EncryptionType.none,
-  }) : author = author ?? _defaultAuthor() {
+    this.anchorMsgId,
+  }) : author = author ?? _defaultAuthor(),
+       fileEncryptionType = _fileEncryptionType(session) {
+    setupDataController();
     setupOtherUserIfNeeded();
     setupMentionHandlerIfNeeded();
   }
@@ -84,26 +88,13 @@ class ChatGeneralHandler {
   UserDBISAR? otherUser;
   final ChatSessionModelISAR session;
   final types.EncryptionType fileEncryptionType;
-
-  bool _hasMoreMessage = false;
-  bool get hasMoreMessage => _hasMoreMessage;
-  set hasMoreMessage(bool value) {
-    final coreChatType = session.coreChatType;
-     if (coreChatType == 2 || coreChatType == 4) {
-       _hasMoreMessage = true;
-       return ;
-     }
-    _hasMoreMessage = value;
-  }
+  final String? anchorMsgId;
 
   ChatReplyHandler replyHandler = ChatReplyHandler();
   ChatMentionHandler? mentionHandler;
+  late MessageDataController dataController;
 
   TextEditingController inputController = TextEditingController();
-
-  Function(List<types.Message>?)? refreshMessageUI;
-
-  Set<String> reactionsListenMsgId = {};
 
   final tempMessageSet = <types.Message>{};
 
@@ -115,8 +106,30 @@ class ChatGeneralHandler {
     );
   }
 
+  static types.EncryptionType _fileEncryptionType(ChatSessionModelISAR session) {
+    final sessionType = session.chatType;
+    switch (sessionType) {
+      case ChatType.chatSingle:
+      case ChatType.chatStranger:
+      case ChatType.chatSecret:
+      case ChatType.chatGroup:
+        return types.EncryptionType.encrypted;
+      case ChatType.chatChannel:
+      case ChatType.chatRelayGroup:
+        return types.EncryptionType.none;
+      default:
+        return types.EncryptionType.none;
+    }
+  }
+
   static UserDBISAR? _defaultOtherUser(ChatSessionModelISAR session) {
     return Account.sharedInstance.userCache[session.getOtherPubkey]?.value;
+  }
+
+  void setupDataController() {
+    final chatType = session.chatTypeKey;
+    if (chatType == null) throw Exception('setupDataController: chatType is null');
+    dataController = MessageDataController(chatType);
   }
 
   void setupOtherUserIfNeeded() {
@@ -152,56 +165,36 @@ class ChatGeneralHandler {
     this.mentionHandler = mentionHandler;
   }
 
+  Future initializeMessage() async {
+    final anchorMsgId = this.anchorMsgId;
+    if (anchorMsgId != null && anchorMsgId.isNotEmpty) {
+      await dataController.loadNearbyMessage(
+        targetMessageId: anchorMsgId,
+        beforeCount: ChatPageConfig.messagesPerPage,
+        afterCount: ChatPageConfig.messagesPerPage,
+      );
+    } else {
+      final messages = await dataController.loadMoreMessage(
+        loadMsgCount: ChatPageConfig.messagesPerPage,
+      );
+
+      // Try request more messages
+      final chatType = session.coreChatType;
+      if (chatType != null) {
+        // Try request newer messages
+        int? since = messages.firstOrNull?.createdAt;
+        if (since != null) since ~/= 1000;
+        Messages.recoverMessagesFromRelay(
+          session.chatId,
+          chatType,
+          since: since,
+        );
+      }
+    }
+  }
+
   void dispose() {
-    // for (var msg in tempMessageSet) {
-    //   ChatDataCache.shared.deleteMessage(session, msg);
-    // }
-    ChatDataCache.shared.cleanSessionMessage(session);
-    removeMessageReactionsListener();
-  }
-}
-
-extension ChatMessageHandlerEx on ChatGeneralHandler {
-
-  Future loadMoreMessage(
-      List<types.Message> originMessage, {
-        List<types.Message>? allMessage,
-        int increasedCount = ChatPageConfig.messagesPerPage,
-      }) async {
-    // final allMsg = allMessage ?? (await ChatDataCache.shared.getSessionMessage(session));
-    // var end = 0;
-    // // Find the index of the last message in all the messages.
-    // var index = -1;
-    // for (int i = originMessage.length - 1; i >= 0; i--) {
-    //   final msg = originMessage[i];
-    //   final result = allMsg.indexOf(msg);
-    //   if (result >= 0) {
-    //     index = result;
-    //     break ;
-    //   }
-    // }
-    // if (index == -1 && increasedCount == 0) {
-    //   end = ChatPageConfig.messagesPerPage;
-    // } else {
-    //   end = index + 1 + increasedCount;
-    // }
-    // hasMoreMessage = end < allMsg.length;
-    //
-    // final newMessageList = allMsg.sublist(0, min(allMsg.length, end));
-    // refreshMessageUI?.call(newMessageList);
-
-    final newMessages = await ChatDataCache.shared.loadSessionMessage(
-      session: session,
-      loadMsgCount: increasedCount,
-    );
-    hasMoreMessage = newMessages.isNotEmpty;
-
-    final messages = await ChatDataCache.shared.getSessionMessage(session: session);
-    updateMessageReactionsListener(messages);
-  }
-
-  void refreshMessage(List<types.Message> messages) {
-    refreshMessageUI?.call(messages);
+    dataController.dispose();
   }
 }
 
@@ -318,7 +311,7 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
     required String messageId,
     required String imageUri,
   }) async {
-    final messages = await ChatDataCache.shared.getSessionMessage(session: session);
+    final messages = await dataController.getAllLocalMessage();
     final gallery = messages.map((message) {
       if (message is types.ImageMessage) {
         return PreviewImage(
@@ -659,7 +652,7 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
   }
 
   void messageDeleteHandler(types.Message message) {
-    ChatDataCache.shared.deleteMessage(session, message);
+    dataController.removeMessage(message: message);
   }
 
   /// Handles the press event for the "Reaction emoji" in a menu item.
@@ -726,11 +719,10 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
         );
       }
 
-      ChatDataCache.shared.updateMessage(
-        session: session,
-        message: message.copyWith(
+      dataController.updateMessage(
+        message.copyWith(
           reactions: reactions,
-        ),
+        )
       );
     }
 
@@ -904,26 +896,6 @@ extension ChatInputHandlerEx on ChatGeneralHandler {
     final chatId = session.chatId;
     if (chatId.isEmpty) return ;
     ChatDraftManager.shared.updateTempDraft(chatId, text);
-  }
-}
-
-extension ChatReactionsHandlerEx on ChatGeneralHandler {
-
-  void updateMessageReactionsListener(List<types.Message> newMessageList) {
-    final actionSubscriptionId = newMessageList
-        .map((e) => e.remoteId)
-        .where((id) => id != null && id.isNotEmpty)
-        .toList()
-        .cast<String>();
-
-    reactionsListenMsgId.addAll(actionSubscriptionId);
-
-    Messages.sharedInstance.loadMessagesReactions(reactionsListenMsgId.toList(), session.chatType);
-  }
-
-  void removeMessageReactionsListener() {
-    reactionsListenMsgId.clear();
-    Messages.sharedInstance.closeMessagesActionsRequests();
   }
 }
 

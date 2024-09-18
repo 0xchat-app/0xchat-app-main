@@ -70,7 +70,7 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
       if (badgeAwardFromDB.isNotEmpty) {
         _getCurrentUserBadgeModelList(badgeAwardFromDB);
       }
-      BadgesHelper.sharedInstance.getUserBadgeAwardsFromRelay(userPubkey).then((badgeAwardFromRelay) {
+      BadgesHelper.sharedInstance.getUserBadgeAwardsFromRelay(userPubkey, (badgeAwardFromRelay){
         if(badgeAwardFromRelay != null){
           LogUtil.d("current user badge award form Relay: $badgeAwardFromRelay");
           if(!listEquals(badgeAwardFromDB, badgeAwardFromRelay)){

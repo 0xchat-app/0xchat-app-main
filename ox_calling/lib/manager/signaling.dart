@@ -568,6 +568,7 @@ class SignalingManager {
           });
       await _localStream?.dispose();
       _localStream = null;
+      onRemoveLocalStream?.call();
 
       await session.pc?.close();
       await session.dc?.close();

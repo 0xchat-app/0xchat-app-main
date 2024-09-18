@@ -213,7 +213,8 @@ class _MomentWidgetState extends State<MomentWidget> {
 
     List<String> getMomentExternalLink = model.value!.getMomentExternalLink;
     if (getMomentExternalLink.isNotEmpty) {
-      return MomentUrlWidget(url: getMomentExternalLink[0]);
+      String url = getMomentExternalLink[0];
+      return MomentUrlWidget(url: url);
     }
     return const SizedBox();
   }

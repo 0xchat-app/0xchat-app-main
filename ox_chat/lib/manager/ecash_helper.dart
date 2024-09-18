@@ -10,6 +10,7 @@ import 'package:ox_chat/page/ecash/ecash_signature_record.dart';
 import 'package:ox_chat/page/ecash/ecash_signature_record_isar.dart';
 import 'package:ox_chat/utils/custom_message_utils.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 import 'package:ox_common/utils/encrypt_utils.dart';
 import 'package:isar/isar.dart';
@@ -148,13 +149,13 @@ class EcashHelper {
     }
   }
 
-  static Future<bool?> tryRedeemTokenList(EcashPackage package) async {
+  static Future<(String? errorMsg, bool isRedeemed)> tryRedeemTokenList(EcashPackage package) async {
     final unreceivedToken = package.tokenInfoList
         .where((info) => info.redeemHistory == null)
         .toList()
         ..shuffle();
 
-    var hasRedeemError = false;
+    String? errorMsg;
     for (final tokenInfo in unreceivedToken) {
       final token = tokenInfo.token;
       final response = await Cashu.redeemEcash(
@@ -169,21 +170,21 @@ class EcashHelper {
       if (response.isSuccess) {
         final history = (await Cashu.getHistory(value: [token])).firstOrNull;
         tokenInfo.redeemHistory = history?.toReceiptHistory();
-        return true;
+        return (null, true);
       }
 
-      hasRedeemError = true;
+      errorMsg = response.errorMsg;
     }
 
-    if (hasRedeemError) return null;
+    if (errorMsg != null) return (errorMsg, false);
 
-    return false;
+    return ('ecash_tokens_already_spent'.localized(), true);
   }
 
   static Future<String> addSignatureToToken(String token) async {
     return await Cashu.addSignatureToToken(
       ecashString: token,
-      privateKeyList: [Account.sharedInstance.currentPrivkey],
+      pukeyList: [Account.sharedInstance.currentPubkey],
     ) ?? '';
   }
 

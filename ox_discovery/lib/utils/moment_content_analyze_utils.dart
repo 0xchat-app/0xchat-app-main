@@ -14,7 +14,7 @@ class MomentContentAnalyzeUtils {
     'noteExp': RegExp(r'nostr:(note|nevent)[0-9a-zA-Z]{8,}\b'),
     'imgExp': RegExp(r'https?://\S+\.(?:png|jpg|jpeg|gif)\b\S*', caseSensitive: false),
     'audioExp': RegExp(r'https?://\S+\.(?:mp3|wav|aac|m4a|mp4|avi|mov|wmv)\b\S*', caseSensitive: false),
-    'youtubeExp': RegExp(r'(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/[^\s]*'),
+    'youtubeExp': RegExp(r'https?://\S+\.(youtube\.com|youtu\.be)\b\S*'),
     'lineFeedExp': RegExp(r"\n"),
     'showMoreExp': RegExp(r"show more$"),
     'lightningInvoiceExp': RegExp(r'^\s*(lnbc|lntb)[0-9a-zA-Z]+\b\S*'),
@@ -97,19 +97,24 @@ class MomentContentAnalyzeUtils {
   }
 
    String get getMomentShowContent {
+     final RegExp audioExp = RegExp(
+         [
+           (regexMap['audioExp'] as RegExp).pattern,
+           (regexMap['youtubeExp'] as RegExp).pattern,
+         ].join('|'),
+         caseSensitive: false
+     );
      final RegExp contentExp = RegExp(
          [
            (regexMap['imgExp'] as RegExp).pattern,
-           (regexMap['audioExp'] as RegExp).pattern,
            (regexMap['noteExp'] as RegExp).pattern,
-           (regexMap['youtubeExp'] as RegExp).pattern,
            (regexMap['lightningInvoiceExp'] as RegExp).pattern,
            (regexMap['ecashExp'] as RegExp).pattern,
          ].join('|'),
          caseSensitive: false
      );
-
-     final String cleanedText = content.replaceAll(contentExp, '');
+     String cleanedText = content.replaceFirst(audioExp, '');
+     cleanedText = cleanedText.replaceAll(contentExp, '');
      return cleanedText.trim();
   }
 

@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
-import 'package:ox_chat/manager/chat_data_cache.dart';
+import 'package:ox_chat/manager/chat_data_manager_models.dart';
 import 'package:ox_chat/widget/mention_user_list.dart';
 import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/chat_type.dart';
@@ -32,16 +32,22 @@ extension ChatSessionModelMentionEx on ChatSessionModelISAR {
   }
 
   Future<List<UserDBISAR>> _userListGetterByMessageList() async {
+    final loadParams = this.chatTypeKey?.messageLoaderParams;
+    if (loadParams == null) return [];
+
     final completer = Completer<List<UserDBISAR>>();
     final myPubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
-    ChatDataCache.shared.getSessionMessage(session: this).then((messageList) {
+    Messages.loadMessagesFromDB(
+      receiver: loadParams.receiver,
+      groupId: loadParams.groupId,
+      sessionId: loadParams.sessionId,
+    ).then((value) {
+      List<MessageDBISAR> messages = value['messages'] ?? [];
       final userList = Set<UserDBISAR>();
-      messageList.forEach((msg) {
-        final userDB = msg.author.sourceObject;
-        if (userDB is UserDBISAR) {
-          if (userDB.pubKey != myPubkey) {
-            userList.add(userDB);
-          }
+      messages.forEach((msg) {
+        final userDB = Account.sharedInstance.getUserInfo(msg.sender);
+        if (userDB is UserDBISAR && userDB.pubKey != myPubkey) {
+          userList.add(userDB);
         }
       });
       completer.complete(userList.toList());

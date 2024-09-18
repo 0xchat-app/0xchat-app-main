@@ -3,12 +3,9 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:intl/intl.dart';
-import 'package:ox_chat_ui/src/widgets/pop_menu/custom_pop_up_menu.dart';
-import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/web_url_helper.dart';
-import 'package:ox_localizable/ox_localizable.dart';
 import 'package:photo_view/photo_view.dart' show PhotoViewComputedScale;
 import 'package:scroll_to_index/scroll_to_index.dart';
 
@@ -19,7 +16,6 @@ import '../models/date_header.dart';
 import '../models/emoji_enlargement_behavior.dart';
 import '../models/giphy_image.dart';
 import '../models/message_spacer.dart';
-import '../models/preview_image.dart';
 import '../models/unread_header_data.dart';
 import '../util.dart';
 import 'chat_list.dart';
@@ -29,6 +25,7 @@ import 'input/input_more_page.dart';
 import 'message/message.dart';
 import 'message/system_message.dart';
 import 'message/text_message.dart';
+import 'pop_menu/custom_pop_up_menu.dart';
 import 'state/inherited_chat_theme.dart';
 import 'state/inherited_l10n.dart';
 import 'state/inherited_user.dart';
@@ -78,6 +75,7 @@ class Chat extends StatefulWidget {
     this.imageMessageBuilder,
     this.inputOptions = const InputOptions(),
     this.isAttachmentUploading,
+    this.isFirstPage,
     this.isLastPage,
     this.keyboardDismissBehavior = ScrollViewKeyboardDismissBehavior.manual,
     this.l10n = const ChatL10nEn(),
@@ -89,6 +87,7 @@ class Chat extends StatefulWidget {
     this.onBackgroundTap,
     this.onEndReached,
     this.onEndReachedThreshold,
+    this.onHeaderReached,
     this.onMessageDoubleTap,
     this.onMessageLongPress,
     this.onMessageStatusLongPress,
@@ -124,6 +123,7 @@ class Chat extends StatefulWidget {
     this.onFocusNodeInitialized,
     this.onInsertedContent,
     this.bottomHintParam,
+    this.textFieldHasFocus,
   });
 
   final ChatHintParam? bottomHintParam;
@@ -243,6 +243,9 @@ class Chat extends StatefulWidget {
   /// See [Input.isAttachmentUploading].
   final bool? isAttachmentUploading;
 
+  /// See [ChatList.isFirstPage].
+  final bool? isFirstPage;
+
   /// See [ChatList.isLastPage].
   final bool? isLastPage;
 
@@ -278,6 +281,8 @@ class Chat extends StatefulWidget {
 
   /// See [ChatList.onEndReachedThreshold].
   final double? onEndReachedThreshold;
+
+  final Future<void> Function()? onHeaderReached;
 
   /// See [Message.onMessageDoubleTap].
   final void Function(BuildContext context, types.Message)? onMessageDoubleTap;
@@ -391,6 +396,8 @@ class Chat extends StatefulWidget {
 
   final ValueChanged<FocusNode>? onFocusNodeInitialized;
 
+  final Function()? textFieldHasFocus;
+
   @override
   State<Chat> createState() => ChatState();
 }
@@ -401,8 +408,6 @@ class ChatState extends State<Chat> {
   static const String _unreadHeaderId = 'unread_header_id';
 
   List<Object> _chatMessages = [];
-  List<PreviewImage> _gallery = [];
-  PageController? _galleryPageController;
   bool _hadScrolledToUnreadOnOpen = false;
 
   /// Keep track of all the auto scroll indices by their respective message's id to allow animating to them.
@@ -442,7 +447,6 @@ class ChatState extends State<Chat> {
       );
 
       _chatMessages = (result[0] as List<Object>).reversed.toList();
-      _gallery = result[1] as List<PreviewImage>;
 
       _refreshAutoScrollMapping();
       _maybeScrollToFirstUnread();
@@ -451,7 +455,6 @@ class ChatState extends State<Chat> {
 
   @override
   void dispose() {
-    _galleryPageController?.dispose();
     _scrollController.dispose();
     super.dispose();
   }
@@ -468,10 +471,11 @@ class ChatState extends State<Chat> {
   }
 
   /// Scroll to the message with the specified [id].
-  void scrollToMessage(String id, {Duration? duration}) =>
+  Future scrollToMessage(String id, {Duration? duration}) =>
       _scrollController.scrollToIndex(
         _autoScrollIndexById[id] ?? 0,
         duration: duration ?? scrollAnimationDuration,
+        preferPosition: AutoScrollPosition.middle,
       );
 
   @override
@@ -522,6 +526,7 @@ class ChatState extends State<Chat> {
                           bottomWidget: widget.listBottomWidget,
                           bubbleRtlAlignment:
                           widget.bubbleRtlAlignment!,
+                          isFirstPage: widget.isFirstPage,
                           isLastPage: widget.isLastPage,
                           itemBuilder: (Object item, int? index) =>
                               LayoutBuilder(
@@ -538,6 +543,7 @@ class ChatState extends State<Chat> {
                           onEndReached: widget.onEndReached,
                           onEndReachedThreshold:
                           widget.onEndReachedThreshold,
+                          onHeadReached: widget.onHeaderReached,
                           scrollController: _scrollController,
                           scrollPhysics: widget.scrollPhysics,
                           typingIndicatorOptions:
@@ -554,7 +560,7 @@ class ChatState extends State<Chat> {
                   ],
                 ),
               ),
-              widget.customCenterWidget != null ? widget.customCenterWidget! :  SizedBox(),
+              widget.customCenterWidget ?? SizedBox(),
               if (widget.mentionUserListWidget != null && mentionUserListBottom != null)
                 Positioned(
                   left: Adapt.px(12),
@@ -618,13 +624,7 @@ class ChatState extends State<Chat> {
           onVoiceSend: widget.onVoiceSend,
           onGifSend: widget.onGifSend,
           textFieldHasFocus: () {
-            if (_scrollController.hasClients && _scrollController.offset > 0) {
-              _scrollController.animateTo(
-                0,
-                duration: const Duration(milliseconds: 10),
-                curve: Curves.easeInQuad,
-              );
-            }
+            widget.textFieldHasFocus?.call();
           },
           inputBottomView: widget.inputBottomView,
           onFocusNodeInitialized: widget.onFocusNodeInitialized,
@@ -671,18 +671,28 @@ class ChatState extends State<Chat> {
         int? index,
         ) {
       if (object is DateHeader) {
-        return widget.dateHeaderBuilder?.call(object) ??
-            Container(
-              alignment: Alignment.center,
-              margin: widget.theme.dateDividerMargin,
-              child: Text(
-                object.text,
-                style: widget.theme.dateDividerTextStyle,
+        return AutoScrollTag(
+          controller: _scrollController,
+          index: index ?? -1,
+          key: Key('DateHeader-${object.id}'),
+          child: widget.dateHeaderBuilder?.call(object) ??
+              Container(
+                alignment: Alignment.center,
+                margin: widget.theme.dateDividerMargin,
+                child: Text(
+                  object.text,
+                  style: widget.theme.dateDividerTextStyle,
+                ),
               ),
-            );
+        );
       } else if (object is MessageSpacer) {
-        return SizedBox(
-          height: object.height,
+        return AutoScrollTag(
+          controller: _scrollController,
+          index: index ?? -1,
+          key: Key('MessageSpacer-${object.id}'),
+          child: SizedBox(
+            height: object.height,
+          ),
         );
       } else if (object is UnreadHeaderData) {
         return AutoScrollTag(
@@ -728,14 +738,7 @@ class ChatState extends State<Chat> {
               onMessageLongPress: widget.onMessageLongPress,
               onMessageStatusLongPress: widget.onMessageStatusLongPress,
               onMessageStatusTap: widget.onMessageStatusTap,
-              onMessageTap: (context, tappedMessage) {
-                if (tappedMessage is types.ImageMessage &&
-                    widget.disableImageGallery != true) {
-                  _onImagePressed(tappedMessage);
-                }
-
-                widget.onMessageTap?.call(context, tappedMessage);
-              },
+              onMessageTap: widget.onMessageTap,
               onMessageVisibilityChanged: widget.onMessageVisibilityChanged,
               onPreviewDataFetched: _onPreviewDataFetched,
               onAudioDataFetched: widget.onAudioDataFetched,
@@ -761,34 +764,6 @@ class ChatState extends State<Chat> {
           child: messageWidget,
         );
       }
-    }
-
-    void _onCloseGalleryPressed() {
-      // setState(() {
-      //   _isImageViewVisible = false;
-      // });
-      OXNavigator.pop(context);
-      _galleryPageController?.dispose();
-      _galleryPageController = null;
-    }
-
-    void _onImagePressed(types.ImageMessage message) {
-      final initialPage = _gallery.indexWhere(
-            (element) => element.id == message.id && element.uri == message.uri,
-      );
-      _galleryPageController = PageController(initialPage: initialPage);
-      OXNavigator.presentPage(context, (context) => ImageGallery(
-        imageHeaders: widget.imageHeaders,
-        images: _gallery,
-        pageController: _galleryPageController!,
-        onClosePressed: _onCloseGalleryPressed,
-        options: widget.imageGalleryOptions,
-      ));
-
-
-      // setState(() {
-      //   _isImageViewVisible = true;
-      // });
     }
 
     void _onPreviewDataFetched(

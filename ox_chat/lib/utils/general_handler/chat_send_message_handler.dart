@@ -51,6 +51,27 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     );
   }
 
+  static Future sendSystemMessageHandler(
+      String receiverPubkey,
+      String text, {
+        int chatType = ChatType.chatSingle,
+        BuildContext? context,
+        ChatSessionModelISAR? session,
+        String secretSessionId = '',
+      }) async {
+    final sender = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
+    if (sender.isEmpty) return ;
+
+    session ??= _getSessionModel(
+      receiverPubkey,
+      chatType,
+      secretSessionId,
+    );
+    if (session == null) return ;
+
+    ChatGeneralHandler(session: session).sendSystemMessage(text, context: context);
+  }
+
   static ChatSessionModelISAR? _getSessionModel(String receiverPubkey, int type, [String secretSessionId = '']) {
     final sender = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
     if (sender.isEmpty) return null;
@@ -73,7 +94,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     types.Message? resendMessage,
     ChatSendingType sendingType = ChatSendingType.remote,
     String? replaceMessageId,
-    Function(types.Message)? successCallback,
+    Function(types.Message)? sendActionFinishHandler,
   }) async {
     types.Message? message;
     int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
@@ -94,7 +115,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     if (message == null) return ;
 
     if (replaceMessageId != null) {
-      final replaceMessage = await ChatDataCache.shared.getMessage(null, session, replaceMessageId);
+      final replaceMessage = dataController.getMessage(replaceMessageId);
       message = message.copyWith(
         id: replaceMessageId,
         createdAt: replaceMessage?.createdAt ?? message.createdAt,
@@ -110,6 +131,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       tempMessageSet.add(message);
     }
 
+    var sendFinish = OXValue(false);
     final errorMsg = await ChatSendMessageHelper.sendMessage(
       session: session,
       message: message,
@@ -139,11 +161,69 @@ extension ChatMessageSendEx on ChatGeneralHandler {
         return null;
       },
       replaceMessageId: replaceMessageId,
-      successCallback: successCallback,
+      sendEventHandler: (event, sendMsg) =>
+          _sendEventHandler(event, sendMsg, sendFinish),
+      sendActionFinishHandler: (message) {
+        _sendActionFinishHandler(
+          message: message,
+          sendFinish: sendFinish,
+          sendingType: sendingType,
+          replaceMessageId: replaceMessageId,
+        );
+        sendActionFinishHandler?.call(message);
+      },
     );
     if (errorMsg != null && errorMsg.isNotEmpty) {
       CommonToast.instance.show(context, errorMsg);
     }
+  }
+
+  Future _sendEventHandler(OKEvent event, types.Message sendMsg, OXValue sendFinish) async {
+    sendFinish.value = true;
+    final message = await dataController.getMessage(sendMsg.id);
+    if (message == null) return;
+
+    final updatedMessage = message.copyWith(
+      remoteId: event.eventId,
+      status: event.status ? types.Status.sent : types.Status.error,
+    );
+    dataController.updateMessage(updatedMessage, originMessageId: sendMsg.id);
+  }
+
+  void _sendActionFinishHandler({
+    required types.Message message,
+    required OXValue<bool> sendFinish,
+    required ChatSendingType sendingType,
+    String? replaceMessageId,
+  }) {
+
+    if (replaceMessageId != null && replaceMessageId.isNotEmpty) {
+      dataController.updateMessage(message, originMessageId: replaceMessageId);
+    } else {
+      dataController.addMessage(message);
+    }
+
+    if (sendingType == ChatSendingType.remote) {
+      // If the message is not sent within a short period of time, change the status to the sending state
+      _setMessageSendingStatusIfNeeded(sendFinish, message);
+    }
+  }
+
+  void _setMessageSendingStatusIfNeeded(OXValue<bool> sendFinish, types.Message message) {
+    Future.delayed(const Duration(milliseconds: 500), () async {
+      if (!sendFinish.value) {
+        final msg = await dataController.getMessage(message.id);
+        if (msg == null) return ;
+        _updateMessageStatus(msg, types.Status.sending);
+      }
+    });
+  }
+
+  void _updateMessageStatus(types.Message message, types.Status status) {
+    final updatedMessage = message.copyWith(
+      status: status,
+    );
+    dataController.updateMessage(updatedMessage);
   }
 
   FutureOr<String?> messageContentEncoder(types.Message message) {
@@ -165,7 +245,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       createdAt: DateTime.now().millisecondsSinceEpoch,
       status: types.Status.sending,
     );
-    ChatDataCache.shared.deleteMessage(session, resendMsg);
+    dataController.removeMessage(messageId: message.id);
 
     if (resendMsg.isImageSendingMessage) {
       sendImageMessage(
@@ -299,7 +379,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       messageType: MessageType.template,
       resendMessage: resendMessage,
       sendingType: ChatSendingType.store,
-      successCallback: (sendMessage) {
+      sendActionFinishHandler: (sendMessage) {
         UploadManager.shared.uploadFile(
           fileType: FileType.image,
           filePath: filePath!,
@@ -481,7 +561,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       content: content,
       messageType: MessageType.template,
       sendingType: ChatSendingType.store,
-      successCallback: (sendMessage) {
+      sendActionFinishHandler: (sendMessage) {
         UploadManager.shared.uploadFile(
           fileType: FileType.video,
           filePath: videoPath!,
@@ -568,7 +648,8 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     } catch (_) { }
   }
 
-  void sendSystemMessage(BuildContext context, String text, {
+  void sendSystemMessage(String text, {
+    BuildContext? context,
     String? localTextKey,
     ChatSendingType sendingType = ChatSendingType.remote,
   }) {

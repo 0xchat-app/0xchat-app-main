@@ -35,6 +35,8 @@ import 'package:ox_usercenter/utils/widget_tool.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:cashu_dart/cashu_dart.dart';
 
+import 'nuts_zaps/nuts_zaps_page.dart';
+
 ///Title: settings_page
 ///Description: TODO(Fill in by oneself)
 ///Copyright: Copyright (c) 2021
@@ -154,53 +156,69 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () async {
-        if (_settingModel.settingItemType == SettingItemType.messageNotification) {
-          OXNavigator.pushPage(context, (context) => const MessageNotificationPage()).then((value) {
-            setState(() {});
-          });
-        } else if (_settingModel.settingItemType == SettingItemType.relays) {
-          OXNavigator.pushPage(context, (context) => const RelaysPage()).then((value) {
-            setState(() {});
-          });
-        } else if (_settingModel.settingItemType == SettingItemType.keys) {
-          OXNavigator.pushPage(context, (context) => const KeysPage());
-        } else if (_settingModel.settingItemType == SettingItemType.zaps) {
-          if (_getZapBadge()) {
-            MsgNotification(noticeNum: 0).dispatch(context);
-            UserConfigTool.saveSetting(StorageSettingKey.KEY_ZAP_BADGE.name, false).then((value) {
-              setState(() {
-                _isShowZapBadge = _getZapBadge();
-              });
+        switch(_settingModel.settingItemType) {
+          case SettingItemType.messageNotification:
+            OXNavigator.pushPage(context, (context) => const MessageNotificationPage()).then((value) {
+              setState(() {});
             });
-          }
-          claimEcash();
-          OXNavigator.pushPage(context, (context) => const ZapsPage());
-        } else if (_settingModel.settingItemType == SettingItemType.privacy) {
-          OXNavigator.pushPage(context, (context) => const PrivacyPage());
-        } else if (_settingModel.settingItemType == SettingItemType.database) {
-          OXNavigator.pushPage(context, (context) => const DatabaseSettingPage());
-        } else if (_settingModel.settingItemType == SettingItemType.language) {
-          OXNavigator.pushPage(context, (context) => const LanguageSettingsPage());
-        } else if (_settingModel.settingItemType == SettingItemType.theme) {
-          await OXNavigator.pushPage(context, (context) => const ThemeSettingsPage());
-        } else if (_settingModel.settingItemType == SettingItemType.ice) {
-          OXNavigator.pushPage(context, (context) => const ICEServerPage());
-        } else if (_settingModel.settingItemType == SettingItemType.dataRevovery) {
-          final file = await FileUtils.importFile();
-          if (file != null) {
-            OXLoading.show();
-            final success = await ImportDataTools.unzipAndProcessFile(file);
-            OXLoading.dismiss();
-            if (success) {
-              CommonToast.instance.show(context, 'Import successfully');
-            } else {
-              CommonToast.instance.show(context, 'Import failure');
+            break;
+          case SettingItemType.relays:
+            OXNavigator.pushPage(context, (context) => const RelaysPage()).then((value) {
+              setState(() {});
+            });
+            break;
+          case SettingItemType.keys:
+            OXNavigator.pushPage(context, (context) => const KeysPage());
+            break;
+          case SettingItemType.zaps:
+            if (_getZapBadge()) {
+              MsgNotification(noticeNum: 0).dispatch(context);
+              UserConfigTool.saveSetting(StorageSettingKey.KEY_ZAP_BADGE.name, false).then((value) {
+                setState(() {
+                  _isShowZapBadge = _getZapBadge();
+                });
+              });
             }
-          }
-        } else if (_settingModel.settingItemType == SettingItemType.devLog) {
-          if (_isOpenDevLog) OXNavigator.pushPage(context, (context) => const LogsFilePage());
-        } else if (_settingModel.settingItemType == SettingItemType.fileServer) {
-          OXNavigator.pushPage(context, (context) => const FileServerPage());
+            claimEcash();
+            OXNavigator.pushPage(context, (context) => const ZapsPage());
+            break;
+          case SettingItemType.nutsZaps:
+            OXNavigator.pushPage(context, (context) => NutsZapsPage());
+            break;
+          case SettingItemType.privacy:
+            OXNavigator.pushPage(context, (context) => const PrivacyPage());
+            break;
+          case SettingItemType.database:
+            OXNavigator.pushPage(context, (context) => const DatabaseSettingPage());
+            break;
+          case SettingItemType.language:
+            OXNavigator.pushPage(context, (context) => const LanguageSettingsPage());
+            break;
+          case SettingItemType.theme:
+            await OXNavigator.pushPage(context, (context) => const ThemeSettingsPage());
+            break;
+          case SettingItemType.ice:
+            OXNavigator.pushPage(context, (context) => const ICEServerPage());
+            break;
+          case SettingItemType.dataRevovery:
+            final file = await FileUtils.importFile();
+            if (file != null) {
+              OXLoading.show();
+              final success = await ImportDataTools.unzipAndProcessFile(file);
+              OXLoading.dismiss();
+              if (success) {
+                CommonToast.instance.show(context, 'Import successfully');
+              } else {
+                CommonToast.instance.show(context, 'Import failure');
+              }
+            }
+            break;
+          case SettingItemType.devLog:
+            if (_isOpenDevLog) OXNavigator.pushPage(context, (context) => const LogsFilePage());
+            break;
+          case SettingItemType.fileServer:
+            OXNavigator.pushPage(context, (context) => const FileServerPage());
+            break;
         }
       },
       child: itemView(

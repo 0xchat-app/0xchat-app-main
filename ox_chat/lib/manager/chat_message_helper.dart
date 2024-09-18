@@ -19,8 +19,6 @@ import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/video_utils.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
-import 'chat_data_cache.dart';
-
 class OXValue<T> {
   OXValue(this.value);
   T value;
@@ -154,7 +152,7 @@ class ChatMessageHelper {
     try {
       final decryptedContent = json.decode(decryptContent);
       if (decryptedContent is Map) {
-        return decryptedContent['duration'];
+        return decryptedContent['content'];
       } else if (decryptedContent is String) {
         return decryptedContent;
       }
@@ -456,6 +454,7 @@ extension MessageDBToUIEx on MessageDBISAR {
   Future<types.Message?> toChatUIMessage({
     bool loadRepliedMessage = true,
     VoidCallback? isMentionMessageCallback,
+    Function(MessageDBISAR newMessage)? asyncUpdateHandler,
   }) async {
     // Status
     final msgStatus = getStatus();
@@ -468,11 +467,7 @@ extension MessageDBToUIEx on MessageDBISAR {
     final asyncParseCallback = (String content, MessageType messageType) async {
       parseTo(type: messageType, decryptContent: content);
       await Messages.saveMessageToDB(this);
-      final key = ChatDataCacheGeneralMethodEx.getChatTypeKeyWithMessage(this);
-      final uiMessage = await this.toChatUIMessage();
-      if(uiMessage != null){
-        ChatDataCache.shared.updateMessage(chatKey: key, message: uiMessage);
-      }
+      asyncUpdateHandler?.call(this);
     };
 
     return ChatMessageHelper.createUIMessage(

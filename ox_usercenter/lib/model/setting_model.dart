@@ -51,6 +51,18 @@ class SettingModel {
       rightContent: '',
       settingItemType: SettingItemType.zaps,
     ));
+    // settingModelList.add(SettingModel(
+    //   iconName: 'icon_settings_nuts.png',
+    //   title: 'ox_usercenter.nuts_zaps',
+    //   rightContent: '',
+    //   settingItemType: SettingItemType.nutsZaps,
+    // ));
+    settingModelList.add(SettingModel(
+      iconName: 'icon_settings_privacy.png',
+      title: 'ox_usercenter.privacy',
+      rightContent: '',
+      settingItemType: SettingItemType.privacy,
+    ));
     settingModelList.add(SettingModel(
       iconName: 'icon_settings_keys.png',
       title: 'ox_usercenter.keys',
@@ -101,6 +113,7 @@ enum SettingItemType {
   messageNotification,
   relays,
   zaps,
+  nutsZaps,
   keys,
   privacy,
   database,

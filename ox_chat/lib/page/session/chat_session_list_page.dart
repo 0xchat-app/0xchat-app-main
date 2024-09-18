@@ -175,7 +175,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
 
   void didPromptToneCallBack(MessageDBISAR message, int type) async {
     if (PromptToneManager.sharedInstance.isCurrencyChatPage != null && PromptToneManager.sharedInstance.isCurrencyChatPage!(message)) return;
-    bool isMute = await _checkIsMute(message, type);
+    bool isMute = ChatSessionUtils.checkIsMute(message, type);
     if (!isMute && OXUserInfoManager.sharedInstance.canSound)
       _throttle(() {
         PromptToneManager.sharedInstance.play();
@@ -567,19 +567,18 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   }
 
   Widget _buildItemName(ChatSessionModelISAR item) {
-    if (item.chatType == ChatType.chatSingle || item.chatType == ChatType.chatSecret){
-      return Container(
-        margin: EdgeInsets.only(right: Adapt.px(4)),
-        child:  ValueListenableBuilder<UserDBISAR>(
-          valueListenable: Account.sharedInstance.getUserNotifier(item.getOtherPubkey),
-          builder: (context, value, child) {
-            return MyText(value.name ?? '', 16.px, ThemeColor.color10, textAlign: TextAlign.left, maxLines: 1, overflow: TextOverflow.ellipsis, fontWeight: FontWeight.w600);
-          },
-        ),
-        constraints: BoxConstraints(maxWidth: _nameMaxW),
-      );
-    }
+    late Widget nameView;
     String showName = ChatSessionUtils.getChatName(item);
+    if (item.chatType == ChatType.chatSingle || item.chatType == ChatType.chatSecret){
+      nameView = ValueListenableBuilder<UserDBISAR>(
+        valueListenable: Account.sharedInstance.getUserNotifier(item.getOtherPubkey),
+        builder: (context, value, child) {
+          return MyText(showName, 16.px, ThemeColor.color10, textAlign: TextAlign.left, maxLines: 1, overflow: TextOverflow.ellipsis, fontWeight: FontWeight.w600);
+        },
+      );
+    } else {
+      nameView =MyText(showName, 16.px, ThemeColor.color10, textAlign: TextAlign.left, maxLines: 1, overflow: TextOverflow.ellipsis, fontWeight: FontWeight.w600);
+    }
     return Container(
       margin: EdgeInsets.only(right: Adapt.px(4)),
       child: item.chatType == ChatType.chatSecret
@@ -604,19 +603,12 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                       ],
                     ).createShader(Offset.zero & bounds.size);
                   },
-                  child: MyText(
-                    showName,
-                    16,
-                    ThemeColor.color0,
-                    letterSpacing: 0.4.px,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  child: nameView,
                 ),
               ],
             )
-          : MyText(showName, 16.px, ThemeColor.color10, textAlign: TextAlign.left, maxLines: 1, overflow: TextOverflow.ellipsis, fontWeight: FontWeight.w600),
+          : nameView,
       constraints: BoxConstraints(maxWidth: _nameMaxW),
-      // width: Adapt.px(135),
     );
   }
 
@@ -899,28 +891,6 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   void _dismissSlidable() {
     if (_latestGlobalKey != null && _latestGlobalKey!.currentContext != null) {
       Slidable.of(_latestGlobalKey!.currentContext!)!.close();
-    }
-  }
-
-  Future<bool> _checkIsMute(MessageDBISAR message, int type) async {
-    bool isMute = false;
-    switch (type) {
-      case ChatType.chatChannel:
-        ChannelDBISAR? channelDB = Channels.sharedInstance.channels[message.groupId];
-        isMute = channelDB?.mute ?? false;
-        return isMute;
-      case ChatType.chatGroup:
-        GroupDBISAR? groupDB = Groups.sharedInstance.myGroups[message.groupId];
-        isMute = groupDB?.mute ?? false;
-        return isMute;
-      case ChatType.chatRelayGroup:
-        RelayGroupDBISAR? relayGroupDB = RelayGroup.sharedInstance.myGroups[message.groupId];
-        isMute = relayGroupDB?.mute ?? false;
-        return isMute;
-      default:
-        UserDBISAR? tempUserDB = await Account.sharedInstance.getUserInfo(message.sender);
-        isMute = tempUserDB?.mute ?? false;
-        return isMute;
     }
   }
 

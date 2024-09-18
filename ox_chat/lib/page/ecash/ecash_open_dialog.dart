@@ -5,16 +5,17 @@ import 'package:flutter/material.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:easy_loading_button/easy_loading_button.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import 'package:ox_chat/manager/chat_data_cache.dart';
+import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/manager/ecash_helper.dart';
 import 'package:ox_chat/page/ecash/ecash_info.dart';
 import 'package:ox_chat/utils/custom_message_utils.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
+import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/future_extension.dart';
-import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
@@ -410,27 +411,22 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
   }
 
   void redeemPackage() async {
-    if (isRedeemed) return ;
+    if (this.isRedeemed) return ;
 
-    final success = await EcashHelper.tryRedeemTokenList(widget.package);
+    final (errorMsg, isRedeemed) = await EcashHelper.tryRedeemTokenList(widget.package);
 
-    if (success == null) {
-      CommonToast.instance.show(context, 'ecash_redeem_failed_hint'.localized());
-      setState(() {
-        isRedeemed = widget.package.isRedeemed;
-      });
-      return ;
-    }
-    if (success) {
+    if (errorMsg == null) {
       jumpToDetailPage(false);
     } else {
-      CommonToast.instance.show(context, 'ecash_tokens_already_spent'.localized());
-      setState(() {
-        isRedeemed = widget.package.isRedeemed;
-      });
+      CommonToast.instance.show(context, errorMsg);
     }
 
-    updateMessageToRedeemedState(widget.package.messageId);
+    setState(() {
+      this.isRedeemed = isRedeemed;
+    });
+    if (isRedeemed) {
+      updateMessageToRedeemedState(widget.package.messageId);
+    }
   }
 
   Future updateMessageToRedeemedState(String? messageId) async {
@@ -438,17 +434,12 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
 
     final messageDB = await Messages.sharedInstance.loadMessageDBFromDB(messageId);
     if (messageDB != null) {
-      final chatKey = ChatDataCacheGeneralMethodEx.getChatTypeKeyWithMessage(messageDB);
-      final uiMessage = await ChatDataCache.shared.getMessage(
-        chatKey,
-        null,
-        messageId,
-      );
-      if (uiMessage is types.CustomMessage) {
-        EcashMessageEx(uiMessage).isOpened = true;
+      final uiMessage = await messageDB.toChatUIMessage();
+      if (uiMessage is types.CustomMessage && uiMessage.customType == CustomMessageType.ecashV2) {
+        EcashV2MessageEx(uiMessage).isOpened = true;
         messageDB.decryptContent = jsonEncode(uiMessage.metadata);
         await Messages.saveMessageToDB(messageDB);
-        await ChatDataCache.shared.updateMessage(chatKey: chatKey, message: uiMessage);
+        OXChatBinding.sharedInstance.chatMessageUpdateCallBack(messageDB, messageDB.messageId);
       }
     }
   }

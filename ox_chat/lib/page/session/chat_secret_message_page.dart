@@ -3,8 +3,6 @@ import 'dart:io';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import 'package:ox_chat/utils/message_prompt_tone_mixin.dart';
 import 'package:ox_chat/widget/common_chat_widget.dart';
 import 'package:ox_chat/widget/not_contact_top_widget.dart';
 import 'package:ox_chat/widget/secret_hint_widget.dart';
@@ -18,7 +16,6 @@ import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_localizable/ox_localizable.dart';
-import 'package:ox_chat/manager/chat_data_cache.dart';
 import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/widgets/avatar.dart';
@@ -33,43 +30,30 @@ import 'package:screen_protector/screen_protector.dart';
 
 class ChatSecretMessagePage extends StatefulWidget {
 
-  final ChatSessionModelISAR communityItem;
-  final List<types.Message> initialMessage;
-  final String? anchorMsgId;
-  final bool hasMoreMessage;
+  final ChatGeneralHandler handler;
 
   const ChatSecretMessagePage({
     super.key,
-    required this.communityItem,
-    required this.initialMessage,
-    this.anchorMsgId,
-    this.hasMoreMessage = false,
+    required this.handler,
   });
 
   @override
   State<ChatSecretMessagePage> createState() => _ChatSecretMessagePageState();
 }
 
-class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXChatObserver, MessagePromptToneMixin {
-
-  late ChatGeneralHandler chatGeneralHandler;
-  List<types.Message> _messages = [];
-
-  bool isShowContactMenu = true;
+class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXChatObserver {
 
   SecretSessionDBISAR? _secretSessionDB;
-  UserDBISAR? get otherUser => chatGeneralHandler.otherUser;
+  ChatGeneralHandler get handler => widget.handler;
+  ChatSessionModelISAR get session => handler.session;
+  UserDBISAR? get otherUser => handler.otherUser;
+
+  bool isShowContactMenu = true;
 
   ChatHintParam? bottomHintParam;
 
   @override
-  ChatSessionModelISAR get session => widget.communityItem;
-
-  String get sessionId => widget.communityItem.chatId;
-
-  @override
   void initState() {
-    setupChatGeneralHandler();
     super.initState();
 
     OXChatBinding.sharedInstance.addObserver(this);
@@ -81,7 +65,6 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
   @override
   void dispose() {
     OXChatBinding.sharedInstance.removeObserver(this);
-    ChatDataCache.shared.removeObserver(widget.communityItem);
     disProtectScreen();
     super.dispose();
   }
@@ -93,16 +76,16 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
       await ScreenProtector.preventScreenshotOn();
       ScreenProtector.addListener(() {
         final key = 'ox_chat.screenshot_hint_message';
-        chatGeneralHandler.sendSystemMessage(
-          context,
+        handler.sendSystemMessage(
           Localized.text(key).replaceAll(r'${user}', Localized.text('ox_common.you')).capitalize(),
+          context: context,
           localTextKey: key,
         );
       }, (p0) {
         final key = 'ox_chat.screen_record_hint_message';
-        chatGeneralHandler.sendSystemMessage(
-          context,
+        handler.sendSystemMessage(
           Localized.text(key).replaceAll(r'${user}', Localized.text('ox_common.you')).capitalize(),
+          context: context,
           localTextKey: key,
         );
       });
@@ -119,31 +102,15 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
   }
 
   void initSecretData() {
-    if (widget.communityItem.chatType == ChatType.chatSecret || widget.communityItem.chatType == ChatType.chatSecretStranger) {
+    if (session.chatType == ChatType.chatSecret || session.chatType == ChatType.chatSecretStranger) {
       setState(() {
-        _secretSessionDB = Contacts.sharedInstance.secretSessionMap[widget.communityItem.chatId];
+        _secretSessionDB = Contacts.sharedInstance.secretSessionMap[session.chatId];
       });
     }
   }
 
-  void setupChatGeneralHandler() {
-    chatGeneralHandler = ChatGeneralHandler(
-      session: widget.communityItem,
-      refreshMessageUI: (messages) {
-        setState(() {
-          if (messages != null) _messages = messages;
-        });
-      },
-      fileEncryptionType: types.EncryptionType.encrypted,
-    );
-    chatGeneralHandler.hasMoreMessage = widget.hasMoreMessage;
-  }
-
   void prepareData() {
-    _messages = [...widget.initialMessage];
-    // _loadMoreMessages();
     _updateChatStatus();
-    ChatDataCache.shared.setSessionAllMessageIsRead(widget.communityItem);
   }
 
   @override
@@ -192,7 +159,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
             alignment: Alignment.center,
             child: OXUserAvatar(
               isSecretChat:true,
-              chatId: widget.communityItem.chatId,
+              chatId: session.chatId,
               user: otherUser,
               size: Adapt.px(36),
               isClickable: true,
@@ -204,13 +171,17 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
         ],
       ),
       body: CommonChatWidget(
-        handler: chatGeneralHandler,
-        messages: _messages,
-        anchorMsgId: widget.anchorMsgId,
+        handler: handler,
         customTopWidget: isShowContactMenu
-            ? NotContactTopWidget(chatSessionModel: widget.communityItem, onTap: _hideContactMenu)
+            ? NotContactTopWidget(chatSessionModel: session, onTap: _hideContactMenu)
             : null,
-        customCenterWidget: _messages.length > 0 ? null : SecretHintWidget(chatSessionModel: widget.communityItem),
+        customCenterWidget: ValueListenableBuilder(
+          valueListenable: handler.dataController.messageValueNotifier,
+          builder: (BuildContext context, messages, Widget? child) {
+            if (messages.isNotEmpty) return const SizedBox();
+            return SecretHintWidget(chatSessionModel: session);
+          },
+        ),
         customBottomWidget: (_secretSessionDB == null || _secretSessionDB!.currentStatus == 2) ? null : customBottomWidget(),
         bottomHintParam: bottomHintParam,
       ),
@@ -251,7 +222,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
   }
 
   Widget customBottomWidget() {
-    UserDBISAR? otherDB = Account.sharedInstance.userCache[widget.communityItem.getOtherPubkey]?.value;
+    UserDBISAR? otherDB = otherUser;
     String showUsername = otherDB?.getUserShowName() ?? '';
     String _hintText = '';
     String _leftBtnTxt = '';
@@ -359,10 +330,6 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
     );
   }
 
-  Future<void> _loadMoreMessages() async {
-    await chatGeneralHandler.loadMoreMessage(_messages);
-  }
-
   void _rejectSecretChat() async {
     OXCommonHintDialog.show(context,
         title: '',
@@ -380,7 +347,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
                 if (okEvent.status) {
                   UserDBISAR? toPubkeyUserDB = Contacts.sharedInstance.allContacts[_secretSessionDB!.toPubkey];
                   await OXChatBinding.sharedInstance.deleteSession(
-                    [widget.communityItem.chatId],
+                    [session.chatId],
                     isStranger: toPubkeyUserDB == null,
                   );
                   OXNavigator.pop(context); //pop dialog
@@ -399,10 +366,10 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
     await OXLoading.dismiss();
     if (okEvent.status) {
       OXChatBinding.sharedInstance.updateChatSession(
-        widget.communityItem.chatId,
+        session.chatId,
         content: 'secret_chat_accepted_tips'.localized({r"${name}": otherUser?.name ?? ''}),
       );
-      OXChatBinding.sharedInstance.changeChatSessionType(widget.communityItem, true);
+      OXChatBinding.sharedInstance.changeChatSessionType(session, true);
       setState(() {});
     } else {
       CommonToast.instance.show(context, okEvent.message);

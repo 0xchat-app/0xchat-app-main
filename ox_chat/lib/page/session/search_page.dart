@@ -232,6 +232,7 @@ class SearchPageState extends State<SearchPage> {
       String? pubkey = UserDBISAR.decodePubkey(searchQuery);
       if (pubkey != null) {
         UserDBISAR? user = await Account.sharedInstance.getUserInfo(pubkey);
+        if(user == null) return;
         dataGroups.add(
           Group(
               title: 'str_title_top_hins_contacts'.localized(),
