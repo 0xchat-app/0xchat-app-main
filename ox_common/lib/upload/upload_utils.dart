@@ -18,7 +18,6 @@ import 'package:ox_common/widgets/common_loading.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart';
 import 'package:dio/dio.dart';
-import 'package:path/path.dart' as Path;
 import 'package:uuid/uuid.dart';
 
 class UploadUtils {
@@ -111,7 +110,7 @@ class UploadUtils {
       );
     }
 
-    return UploadResult.success(url);
+    return UploadResult.success(url, encryptedKey);
   }
 
   static UplodAliyunType convertFileTypeToUploadAliyunType(FileType fileType) {
@@ -132,11 +131,12 @@ class UploadResult {
   final bool isSuccess;
   final String url;
   final String? errorMsg;
+  final String? encryptedKey;
 
-  UploadResult({required this.isSuccess, required this.url, this.errorMsg});
+  UploadResult({required this.isSuccess, required this.url, this.errorMsg, this.encryptedKey});
 
-  factory UploadResult.success(String url) {
-    return UploadResult(isSuccess: true, url: url);
+  factory UploadResult.success(String url, String? encryptedKey) {
+    return UploadResult(isSuccess: true, url: url, encryptedKey: encryptedKey);
   }
 
   factory UploadResult.error(String errorMsg) {
@@ -198,31 +198,39 @@ class UploadManager {
   static final UploadManager shared = UploadManager._internal();
   UploadManager._internal() { }
 
+  // Key: _cacheKey(uploadId, pubkey)
   Map<String, StreamController<double>> uploadStreamMap = {};
+
+  // Key: _cacheKey(uploadId, pubkey)
   Map<String, UploadResult> uploadResultMap = {};
 
-  StreamController prepareUploadStream(String uploadId) {
-    return uploadStreamMap.putIfAbsent(uploadId, () => StreamController<double>.broadcast());
+  StreamController prepareUploadStream(String uploadId, String? pubkey) {
+    return uploadStreamMap.putIfAbsent(
+      _cacheKey(uploadId, pubkey),
+      () => StreamController<double>.broadcast(),
+    );
   }
 
   Future<void> uploadFile({
     required FileType fileType,
     required String filePath,
     required uploadId,
+    required String? receivePubkey,
     String? encryptedKey,
     bool autoStoreImage = true,
     Function(UploadResult, bool isFromCache)? completeCallback,
   }) async {
 
-    final result = uploadResultMap[uploadId];
+    final cacheKey = _cacheKey(uploadId, receivePubkey);
+    final result = uploadResultMap[cacheKey];
     if (result != null && result.isSuccess) {
       completeCallback?.call(result, true);
       return ;
     }
 
-    final streamController = prepareUploadStream(uploadId);
+    final streamController = prepareUploadStream(uploadId, receivePubkey);
     streamController.add(0.0);
-    uploadResultMap.remove(uploadId);
+    uploadResultMap.remove(cacheKey);
 
     final file = File(filePath);
     UploadUtils.uploadFile(
@@ -235,19 +243,21 @@ class UploadManager {
         streamController.add(progress);
       },
     ).then((result) {
-      uploadResultMap[uploadId] = result;
+      uploadResultMap[cacheKey] = result;
       completeCallback?.call(result, false);
     });
   }
 
-  Stream<double>? getUploadProgress(String uploadId) {
-    final controller = uploadStreamMap[uploadId];
+  Stream<double>? getUploadProgress(String uploadId, String? pubkey) {
+    final controller = uploadStreamMap[_cacheKey(uploadId, pubkey)];
     if (controller == null) {
       return null;
     }
     return controller.stream;
   }
 
-  bool? getUploadResult(String uploadId) =>
-      uploadResultMap[uploadId]?.isSuccess;
+  UploadResult? getUploadResult(String uploadId, String? receivePubkey) =>
+      uploadResultMap[_cacheKey(uploadId, receivePubkey)];
+
+  String _cacheKey(String uploadId, String? pubkey) => '$uploadId-CacheKey-${pubkey ?? ''}';
 }
