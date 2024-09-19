@@ -298,8 +298,25 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       final fileId = await EncodeUtils.generatePartialFileMd5(imageFile);
       final bytes = await imageFile.readAsBytes();
       final image = await decodeImageFromList(bytes);
-      final encryptedKey = fileEncryptionType == types.EncryptionType.encrypted
-          ? createEncryptKey() : null;
+
+      String? encryptedKey;
+      String? imageURL;
+      final uploadResult = UploadManager.shared.getUploadResult(fileId, otherUser?.pubKey);
+      if (uploadResult?.isSuccess == true) {
+        final url = uploadResult?.url;
+        encryptedKey = uploadResult?.encryptedKey;
+        if (url != null && url.isNotEmpty) {
+          imageURL = generateUrlWithInfo(
+            originalUrl: url,
+            width: image.width,
+            height: image.height,
+          );
+        }
+
+      } else {
+        encryptedKey = fileEncryptionType == types.EncryptionType.encrypted
+            ? createEncryptKey() : null;
+      }
 
       await sendImageMessage(
         context: context,
@@ -308,6 +325,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
         imageWidth: image.width,
         imageHeight: image.height,
         encryptedKey: encryptedKey,
+        url: imageURL,
       );
     }
   }
@@ -372,7 +390,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       return;
     }
 
-    UploadManager.shared.prepareUploadStream(fileId);
+    UploadManager.shared.prepareUploadStream(fileId, otherUser?.pubKey);
     await _sendMessageHandler(
       context: context,
       content: content,
@@ -384,6 +402,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
           fileType: FileType.image,
           filePath: filePath!,
           uploadId: fileId,
+          receivePubkey: otherUser?.pubKey ?? '',
           encryptedKey: encryptedKey,
           autoStoreImage: false,
           completeCallback: (uploadResult, isFromCache) async {
@@ -555,7 +574,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     } catch (_) { }
     if (content.isEmpty) return ;
 
-    UploadManager.shared.prepareUploadStream(fileId);
+    UploadManager.shared.prepareUploadStream(fileId, null);
     await _sendMessageHandler(
       context: context,
       content: content,
@@ -566,6 +585,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
           fileType: FileType.video,
           filePath: videoPath!,
           uploadId: fileId,
+          receivePubkey: null,
           completeCallback: (uploadResult, isFromCache) async {
             var videoURL = uploadResult.url;
             if (!uploadResult.isSuccess || videoURL.isEmpty) return ;

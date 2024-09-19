@@ -89,6 +89,7 @@ class ChatMessageBuilder {
     required types.CustomMessage message,
     required int messageWidth,
     required Widget reactionWidget,
+    String? receiverPubkey
   }) {
     final isMe = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey == message.author.id;
     final type = message.customType;
@@ -107,9 +108,9 @@ class ChatMessageBuilder {
       case CustomMessageType.ecashV2:
         return ChatMessageBuilderCustomEx._buildEcashV2Message(message, reactionWidget);
       case CustomMessageType.imageSending:
-        return ChatMessageBuilderCustomEx._buildImageSendingMessage(message, messageWidth, reactionWidget);
+        return ChatMessageBuilderCustomEx._buildImageSendingMessage(message, messageWidth, reactionWidget, receiverPubkey);
       case CustomMessageType.video:
-        return ChatMessageBuilderCustomEx._buildVideoMessage(message, messageWidth, reactionWidget);
+        return ChatMessageBuilderCustomEx._buildVideoMessage(message, messageWidth, reactionWidget, receiverPubkey);
       default:
         return SizedBox();
     }

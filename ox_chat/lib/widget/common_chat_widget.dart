@@ -158,7 +158,16 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
           customTopWidget: widget.customTopWidget,
           customCenterWidget: widget.customCenterWidget,
           customBottomWidget: widget.customBottomWidget,
-          customMessageBuilder: ChatMessageBuilder.buildCustomMessage,
+          customMessageBuilder: ({
+            required types.CustomMessage message,
+            required int messageWidth,
+            required Widget reactionWidget,
+          }) => ChatMessageBuilder.buildCustomMessage(
+            message: message,
+            messageWidth: messageWidth,
+            reactionWidget: reactionWidget,
+            receiverPubkey: handler.otherUser?.pubKey,
+          ),
           imageMessageBuilder: ChatMessageBuilder.buildImageMessage,
           inputOptions: handler.inputOptions,
           inputBottomView: handler.replyHandler.buildReplyMessageWidget(),
