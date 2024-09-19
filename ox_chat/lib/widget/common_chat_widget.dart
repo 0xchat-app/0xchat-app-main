@@ -355,6 +355,7 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
   }
 
   void scrollTo(double offset) {
+    if (!scrollController.hasClients) return ;
     scrollController.animateTo(
       offset,
       duration: scrollDuration,
