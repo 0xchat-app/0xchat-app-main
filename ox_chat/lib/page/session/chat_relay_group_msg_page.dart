@@ -49,7 +49,7 @@ class _ChatRelayGroupMsgPageState extends State<ChatRelayGroupMsgPage> with OXCh
     prepareData();
   }
 
-  void setupGroup() {
+  Future<void> setupGroup() async {
     final groupId = session.groupId;
     if (groupId == null) return ;
     relayGroup = RelayGroup.sharedInstance.groups[groupId];
@@ -63,6 +63,17 @@ class _ChatRelayGroupMsgPageState extends State<ChatRelayGroupMsgPage> with OXCh
           });
         }
       });
+    }
+    else{
+      int status = RelayGroup.sharedInstance.getInGroupStatus(groupId);
+      if(status == 0){
+        bool result = await RelayGroup.sharedInstance.checkInGroupFromRelay(groupId, Account.sharedInstance.currentPubkey);
+        if(result && mounted) {
+          setState(() {
+            _updateChatStatus();
+          });
+        }
+      }
     }
   }
 
