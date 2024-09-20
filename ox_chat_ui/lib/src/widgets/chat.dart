@@ -429,6 +429,7 @@ class ChatState extends State<Chat> {
   /// Keep track of all the auto scroll indices by their respective message's id to allow animating to them.
   final Map<String, int> _autoScrollIndexById = {};
   late final AutoScrollController _scrollController;
+  final GlobalKey _bottomWidgetKey = GlobalKey();
   final GlobalKey<InputState> _inputKey = GlobalKey<InputState>();
 
   @override
@@ -610,8 +611,8 @@ class ChatState extends State<Chat> {
   }
 
   double? _getInputViewY() {
-    if (_inputKey.currentContext != null) {
-      final renderBox = _inputKey.currentContext!.findRenderObject() as RenderBox;
+    if (_bottomWidgetKey.currentContext != null) {
+      final renderBox = _bottomWidgetKey.currentContext!.findRenderObject() as RenderBox;
       // Do not delete this line of code, or you will mention that the user list view does not fit the keyboard
       final _ = MediaQuery.of(context).size.height;
       final inputHeight = renderBox.size.height;
@@ -623,48 +624,56 @@ class ChatState extends State<Chat> {
 
     Widget _buildBottomInputArea() {
       final bottomHintParam = widget.bottomHintParam;
-      if (bottomHintParam != null) {
-        return SafeArea(
-          child: GestureDetector(
-            onTap: bottomHintParam.onTap,
-            child: Container(
-              decoration: BoxDecoration(
-                color: ThemeColor.color190,
-                borderRadius: BorderRadius.circular(Adapt.px(12)),
-              ),
-              margin: EdgeInsets.only(bottom: Adapt.px(10)),
-              height: Adapt.px(58),
-              alignment:Alignment.center,
-              child: Text(
-                bottomHintParam.text,
-                style: TextStyle(
-                  color: ThemeColor.gradientMainStart,
+      return Stack(
+        key: _bottomWidgetKey,
+        children: [
+          Visibility(
+            visible: bottomHintParam != null,
+            child: SafeArea(
+              child: GestureDetector(
+                onTap: bottomHintParam?.onTap,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: ThemeColor.color190,
+                    borderRadius: BorderRadius.circular(Adapt.px(12)),
+                  ),
+                  margin: EdgeInsets.only(bottom: Adapt.px(10)),
+                  height: Adapt.px(58),
+                  alignment:Alignment.center,
+                  child: Text(
+                    bottomHintParam?.text ?? '',
+                    style: TextStyle(
+                      color: ThemeColor.gradientMainStart,
+                    ),
+                    maxLines: 2,
+                    textAlign: TextAlign.center,
+                  ),
                 ),
-                maxLines: 2,
-                textAlign: TextAlign.center,
               ),
             ),
           ),
-        );
-      } else {
-        return Input(
-          key: _inputKey,
-          chatId: widget.chatId,
-          items: widget.inputMoreItems,
-          isAttachmentUploading: widget.isAttachmentUploading,
-          onAttachmentPressed: widget.onAttachmentPressed,
-          onSendPressed: widget.onSendPressed,
-          options: widget.inputOptions,
-          onVoiceSend: widget.onVoiceSend,
-          onGifSend: widget.onGifSend,
-          textFieldHasFocus: () {
-            widget.textFieldHasFocus?.call();
-          },
-          inputBottomView: widget.inputBottomView,
-          onFocusNodeInitialized: widget.onFocusNodeInitialized,
-          onInsertedContent: widget.onInsertedContent,
-        );
-      }
+          Visibility(
+            visible: bottomHintParam == null,
+            child: Input(
+              key: _inputKey,
+              chatId: widget.chatId,
+              items: widget.inputMoreItems,
+              isAttachmentUploading: widget.isAttachmentUploading,
+              onAttachmentPressed: widget.onAttachmentPressed,
+              onSendPressed: widget.onSendPressed,
+              options: widget.inputOptions,
+              onVoiceSend: widget.onVoiceSend,
+              onGifSend: widget.onGifSend,
+              textFieldHasFocus: () {
+                widget.textFieldHasFocus?.call();
+              },
+              inputBottomView: widget.inputBottomView,
+              onFocusNodeInitialized: widget.onFocusNodeInitialized,
+              onInsertedContent: widget.onInsertedContent,
+            ),
+          ),
+        ],
+      );
     }
 
     Widget _emptyStateBuilder() =>
