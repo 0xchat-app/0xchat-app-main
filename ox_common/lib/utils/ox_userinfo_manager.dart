@@ -452,8 +452,9 @@ class OXUserInfoManager {
     return true;
   }
 
-  void resetHeartBeat(){//eg: backForeground
+  Future<void> resetHeartBeat() async {//eg: backForeground
     if (isLogin) {
+      await ThreadPoolManager.sharedInstance.initialize();
       Connect.sharedInstance.startHeartBeat();
       Account.sharedInstance.startHeartBeat();
       NotificationHelper.sharedInstance.startHeartBeat();
