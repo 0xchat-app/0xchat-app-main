@@ -71,6 +71,8 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
 
   bool _isInputFocused = false;
 
+  bool _postMomentTag = false;
+
   final TextEditingController _textController = TextEditingController();
 
   final ProcessController _processController = ProcessController();
@@ -707,6 +709,8 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
     // if (_uploadCompleter != null) {
     //   getMediaStr = await _uploadCompleter!.future;
     // }
+    if(_postMomentTag) return;
+    _postMomentTag = true;
     OXLoading.show();
 
     String getMediaStr = await _getUploadMediaContent();

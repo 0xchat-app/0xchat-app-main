@@ -46,6 +46,8 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
 
   List<String> get getImagePicList => widget.notedUIModel.value?.getImageList ?? [];
 
+  bool _postMomentTag = false;
+
   @override
   void initState() {
     super.initState();
@@ -342,6 +344,8 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
       CommonToast.instance.show(context, Localized.text('ox_discovery.content_empty_tips'));
       return;
     }
+    if(_postMomentTag) return;
+    _postMomentTag = true;
     await OXLoading.show();
     final inputText = _textController.text;
     List<String>? getReplyUser = DiscoveryUtils.getMentionReplyUserList(draftCueUserMap, inputText);

@@ -23,6 +23,8 @@ import 'package:ox_usercenter/model/request_verify_dns.dart';
 import 'package:ox_usercenter/page/set_up/avatar_preview_page.dart';
 import 'package:ox_usercenter/widget/npub_cash_address_widget.dart';
 
+import '../../widget/select_asset_dialog.dart';
+
 class ProfileSetUpPage extends StatefulWidget {
   const ProfileSetUpPage({Key? key}) : super(key: key);
 
@@ -201,9 +203,6 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
           CommonToast.instance.show(context, 'Upload Failed$errorMsg');
           return;
         }
-      }
-      else{
-        mCurrentUserInfo!.picture = '';
       }
 
       UserDBISAR? tempUserDB;
@@ -414,16 +413,21 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
             (context) => AvatarPreviewPage(
                 imageFile: imageFile,
                 userDB: OXUserInfoManager.sharedInstance.currentUserInfo))
-        .then((value) {
-      if (value is File) {
-        setState(() {
-          imageFile = value;
-        });
-      }
-      else if(value == null){
+        .then((result) {
+          Map? selectAssetDialog = result as Map?;
+      if(selectAssetDialog == null) return;
+      SelectAssetAction action = selectAssetDialog['action'];
+      File? imgFile = selectAssetDialog['result'];
+      if(action == SelectAssetAction.Remove){
         setState(() {
           imageFile = null;
           headerUrl = '';
+          mCurrentUserInfo!.picture = '';
+        });
+      }
+      else if(action != SelectAssetAction.Cancel){
+        setState(() {
+          imageFile = imgFile;
         });
       }
     });
