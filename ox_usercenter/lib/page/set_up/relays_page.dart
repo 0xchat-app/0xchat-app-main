@@ -455,6 +455,9 @@ class _RelaysPageState extends State<RelaysPage> {
 
   void _addOnTap({String? upcomingRelay, bool isUserInput = false}) async {
     upcomingRelay ??= _relayTextFieldControll.text;
+    if(upcomingRelay.endsWith('/')){
+      upcomingRelay = upcomingRelay.substring(0, upcomingRelay.length - 1);
+    }
     List<RelayDBISAR> relayList = _relayListMap[_relayType]!;
     List<RelayDBISAR> recommendRelayList = _recommendRelayListMap[_relayType]!;
     final upcomingRelays = relayList.map((e) => e.url).toList();
