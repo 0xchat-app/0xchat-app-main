@@ -276,6 +276,7 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
         _createNip96Server();
         break;
       case FileStorageProtocol.blossom:
+        _createBlossomServer();
         break;
       case FileStorageProtocol.minio:
         _createMinioServer();
@@ -350,6 +351,26 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
       UploadResult result = UploadExceptionHandler.handleException(e);
       CommonToast.instance.show(context, result.errorMsg ?? 'Minio Error');
     }
+  }
+
+  _createBlossomServer() async {
+    final url = _urlController.text;
+    final name = _serverNameController.text;
+    if(!_urlValidator(url)) {
+      CommonToast.instance.show(context, Localized.text('ox_usercenter.str_url_tips_text'));
+      return;
+    }
+    BlossomServer blossomServer = BlossomServer(
+      url: url,
+      name: name.isNotEmpty ? name : url,
+      description: url,
+    );
+    if(widget.operationType == OperationType.create) {
+      await OXServerManager.sharedInstance.addFileStorageServer(blossomServer);
+    }else {
+      await OXServerManager.sharedInstance.updateFileStorageServer(blossomServer);
+    }
+    OXNavigator.pop(context);
   }
 
   _createNip96Server() async {
