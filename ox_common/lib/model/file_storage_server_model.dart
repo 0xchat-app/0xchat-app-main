@@ -115,12 +115,6 @@ class FileStorageServer {
   }
 
   static List<FileStorageServer> get defaultFileStorageServers => List.from([
-        OXChatServer(
-          url: 'https://www.0xchat.com',
-          name: '0xchat.com',
-          canEdit: false,
-          description: 'https://www.0xchat.com',
-        ),
         Nip96Server(
           url: 'https://nostr.build',
           name: 'nostr.build',
