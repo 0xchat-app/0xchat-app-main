@@ -239,7 +239,8 @@ extension MessageDataControllerInterface on MessageDataController {
       if (!_hasMoreOldMessage) {
         // If no new messages are retrieved from the DB, attempt to fetch them from the relay.
         final coreChatType = chatTypeKey.coreChatType;
-        if (coreChatType != null && until != null) {
+        final fetchUntil = result.lastOrNull?.createdAt ?? until;
+        if (coreChatType != null && fetchUntil != null) {
           Messages.recoverMessagesFromRelay(
             chatTypeKey.sessionId,
             coreChatType,
