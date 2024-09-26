@@ -31,6 +31,7 @@ dependencies:
   cupertino_icons: ^1.0.0
   encrypt: ^5.0.1
   flutter_device_type: ^0.4.0
+  flutter_inappwebview: ^6.0.0
 
   # core
   chatcore:
@@ -94,6 +95,11 @@ dependency_overrides:
       url: https://www.github.com/davidmartos96/sqflite_sqlcipher.git
       path: sqflite
       ref: fmdb_override
+  flutter_inappwebview_ios:
+    git:
+      url: https://github.com/andychucs/flutter_inappwebview.git
+      ref: master
+      path: flutter_inappwebview_ios
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
