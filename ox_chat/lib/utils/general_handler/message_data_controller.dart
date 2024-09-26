@@ -244,7 +244,7 @@ extension MessageDataControllerInterface on MessageDataController {
           Messages.recoverMessagesFromRelay(
             chatTypeKey.sessionId,
             coreChatType,
-            until: until,
+            until: fetchUntil,
             limit: loadMsgCount * 3,
           );
         }
