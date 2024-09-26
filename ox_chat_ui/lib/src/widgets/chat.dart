@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:intl/intl.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/num_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/web_url_helper.dart';
 import 'package:photo_view/photo_view.dart' show PhotoViewComputedScale;
@@ -124,6 +125,10 @@ class Chat extends StatefulWidget {
     this.onInsertedContent,
     this.bottomHintParam,
     this.textFieldHasFocus,
+    this.scrollToUnreadWidget,
+    this.scrollToBottomWidget,
+    this.messageHasBuilder,
+    this.isShowScrollToBottomButton = false,
   });
 
   final ChatHintParam? bottomHintParam;
@@ -154,6 +159,10 @@ class Chat extends StatefulWidget {
   final Widget? customCenterWidget;
 
   final Widget? mentionUserListWidget;
+
+  final Widget? scrollToUnreadWidget;
+
+  final Widget? scrollToBottomWidget;
 
   /// Allows you to replace the default Input widget e.g. if you want to create
   /// a channel view. If you're looking for the bottom widget added to the chat
@@ -398,6 +407,10 @@ class Chat extends StatefulWidget {
 
   final Function()? textFieldHasFocus;
 
+  final Function(types.Message message, int? index)? messageHasBuilder;
+
+  final bool isShowScrollToBottomButton;
+
   @override
   State<Chat> createState() => ChatState();
 }
@@ -407,12 +420,16 @@ class ChatState extends State<Chat> {
   /// Used to get the correct auto scroll index from [_autoScrollIndexById].
   static const String _unreadHeaderId = 'unread_header_id';
 
+  double get bottomThreshold => 100.px;
   List<Object> _chatMessages = [];
   bool _hadScrolledToUnreadOnOpen = false;
+
+  bool isShowScrollToBottomButton = false;
 
   /// Keep track of all the auto scroll indices by their respective message's id to allow animating to them.
   final Map<String, int> _autoScrollIndexById = {};
   late final AutoScrollController _scrollController;
+  final GlobalKey _bottomWidgetKey = GlobalKey();
   final GlobalKey<InputState> _inputKey = GlobalKey<InputState>();
 
   @override
@@ -484,7 +501,7 @@ class ChatState extends State<Chat> {
     var scrollToAnchorMsgAction = null;
     if (anchorMsgId != null && anchorMsgId.isNotEmpty)
       scrollToAnchorMsgAction = () => scrollToMessage(anchorMsgId);
-    final mentionUserListBottom = _getBottomOffsetForMentionUserList();
+    final mentionUserListBottom = _getInputViewY() + Adapt.px(16);
     return InheritedUser(
       user: widget.user,
       child: InheritedChatTheme(
@@ -521,35 +538,41 @@ class ChatState extends State<Chat> {
                           FocusManager.instance.primaryFocus?.unfocus();
                           widget.onBackgroundTap?.call();
                         },
-                        child: ChatList(
-                          scrollToAnchorMsgAction: scrollToAnchorMsgAction,
-                          bottomWidget: widget.listBottomWidget,
-                          bubbleRtlAlignment:
-                          widget.bubbleRtlAlignment!,
-                          isFirstPage: widget.isFirstPage,
-                          isLastPage: widget.isLastPage,
-                          itemBuilder: (Object item, int? index) =>
-                              LayoutBuilder(
-                                  builder: (BuildContext context,
-                                      BoxConstraints constraints,) =>
-                                      _messageBuilder(
-                                        item,
-                                        constraints,
-                                        index,
-                                      )),
-                          items: _chatMessages,
-                          keyboardDismissBehavior:
-                          widget.keyboardDismissBehavior,
-                          onEndReached: widget.onEndReached,
-                          onEndReachedThreshold:
-                          widget.onEndReachedThreshold,
-                          onHeadReached: widget.onHeaderReached,
-                          scrollController: _scrollController,
-                          scrollPhysics: widget.scrollPhysics,
-                          typingIndicatorOptions:
-                          widget.typingIndicatorOptions,
-                          useTopSafeAreaInset:
-                          widget.useTopSafeAreaInset ?? isMobile,
+                        child: NotificationListener<ScrollNotification>(
+                          onNotification: (notification) {
+                            checkIfShowUnreadAnchorButton(notification);
+                            return false;
+                          },
+                          child: ChatList(
+                            scrollToAnchorMsgAction: scrollToAnchorMsgAction,
+                            bottomWidget: widget.listBottomWidget,
+                            bubbleRtlAlignment:
+                            widget.bubbleRtlAlignment!,
+                            isFirstPage: widget.isFirstPage,
+                            isLastPage: widget.isLastPage,
+                            itemBuilder: (Object item, int? index) =>
+                                LayoutBuilder(
+                                    builder: (BuildContext context,
+                                        BoxConstraints constraints,) =>
+                                        _messageBuilder(
+                                          item,
+                                          constraints,
+                                          index,
+                                        )),
+                            items: _chatMessages,
+                            keyboardDismissBehavior:
+                            widget.keyboardDismissBehavior,
+                            onEndReached: widget.onEndReached,
+                            onEndReachedThreshold:
+                            widget.onEndReachedThreshold,
+                            onHeadReached: widget.onHeaderReached,
+                            scrollController: _scrollController,
+                            scrollPhysics: widget.scrollPhysics,
+                            typingIndicatorOptions:
+                            widget.typingIndicatorOptions,
+                            useTopSafeAreaInset:
+                            widget.useTopSafeAreaInset ?? isMobile,
+                          ),
                         ),
                       ),
                     ),
@@ -561,10 +584,22 @@ class ChatState extends State<Chat> {
                 ),
               ),
               widget.customCenterWidget ?? SizedBox(),
+              if (widget.scrollToUnreadWidget != null)
+                Positioned(
+                  right: 12.px,
+                  top: 50.px,
+                  child: widget.scrollToUnreadWidget!,
+                ),
+              if (widget.scrollToBottomWidget != null && (widget.isShowScrollToBottomButton || isShowScrollToBottomButton))
+                Positioned(
+                  right: 12.px,
+                  bottom: mentionUserListBottom,
+                  child: widget.scrollToBottomWidget!,
+                ),
               if (widget.mentionUserListWidget != null && mentionUserListBottom != null)
                 Positioned(
-                  left: Adapt.px(12),
-                  right: Adapt.px(12),
+                  left: 12.px,
+                  right: 12.px,
                   bottom: mentionUserListBottom,
                   child: widget.mentionUserListWidget!,
                 ),
@@ -575,13 +610,13 @@ class ChatState extends State<Chat> {
     );
   }
 
-  double? _getBottomOffsetForMentionUserList() {
-    if (_inputKey.currentContext != null) {
-      final renderBox = _inputKey.currentContext!.findRenderObject() as RenderBox;
+  double? _getInputViewY() {
+    if (_bottomWidgetKey.currentContext != null) {
+      final renderBox = _bottomWidgetKey.currentContext!.findRenderObject() as RenderBox;
       // Do not delete this line of code, or you will mention that the user list view does not fit the keyboard
       final _ = MediaQuery.of(context).size.height;
       final inputHeight = renderBox.size.height;
-      return inputHeight + Adapt.px(16);
+      return inputHeight;
     } else {
       return null;
     }
@@ -589,48 +624,56 @@ class ChatState extends State<Chat> {
 
     Widget _buildBottomInputArea() {
       final bottomHintParam = widget.bottomHintParam;
-      if (bottomHintParam != null) {
-        return SafeArea(
-          child: GestureDetector(
-            onTap: bottomHintParam.onTap,
-            child: Container(
-              decoration: BoxDecoration(
-                color: ThemeColor.color190,
-                borderRadius: BorderRadius.circular(Adapt.px(12)),
-              ),
-              margin: EdgeInsets.only(bottom: Adapt.px(10)),
-              height: Adapt.px(58),
-              alignment:Alignment.center,
-              child: Text(
-                bottomHintParam.text,
-                style: TextStyle(
-                  color: ThemeColor.gradientMainStart,
+      return Stack(
+        key: _bottomWidgetKey,
+        children: [
+          Visibility(
+            visible: bottomHintParam != null,
+            child: SafeArea(
+              child: GestureDetector(
+                onTap: bottomHintParam?.onTap,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: ThemeColor.color190,
+                    borderRadius: BorderRadius.circular(Adapt.px(12)),
+                  ),
+                  margin: EdgeInsets.only(bottom: Adapt.px(10)),
+                  height: Adapt.px(58),
+                  alignment:Alignment.center,
+                  child: Text(
+                    bottomHintParam?.text ?? '',
+                    style: TextStyle(
+                      color: ThemeColor.gradientMainStart,
+                    ),
+                    maxLines: 2,
+                    textAlign: TextAlign.center,
+                  ),
                 ),
-                maxLines: 2,
-                textAlign: TextAlign.center,
               ),
             ),
           ),
-        );
-      } else {
-        return Input(
-          key: _inputKey,
-          chatId: widget.chatId,
-          items: widget.inputMoreItems,
-          isAttachmentUploading: widget.isAttachmentUploading,
-          onAttachmentPressed: widget.onAttachmentPressed,
-          onSendPressed: widget.onSendPressed,
-          options: widget.inputOptions,
-          onVoiceSend: widget.onVoiceSend,
-          onGifSend: widget.onGifSend,
-          textFieldHasFocus: () {
-            widget.textFieldHasFocus?.call();
-          },
-          inputBottomView: widget.inputBottomView,
-          onFocusNodeInitialized: widget.onFocusNodeInitialized,
-          onInsertedContent: widget.onInsertedContent,
-        );
-      }
+          Visibility(
+            visible: bottomHintParam == null,
+            child: Input(
+              key: _inputKey,
+              chatId: widget.chatId,
+              items: widget.inputMoreItems,
+              isAttachmentUploading: widget.isAttachmentUploading,
+              onAttachmentPressed: widget.onAttachmentPressed,
+              onSendPressed: widget.onSendPressed,
+              options: widget.inputOptions,
+              onVoiceSend: widget.onVoiceSend,
+              onGifSend: widget.onGifSend,
+              textFieldHasFocus: () {
+                widget.textFieldHasFocus?.call();
+              },
+              inputBottomView: widget.inputBottomView,
+              onFocusNodeInitialized: widget.onFocusNodeInitialized,
+              onInsertedContent: widget.onInsertedContent,
+            ),
+          ),
+        ],
+      );
     }
 
     Widget _emptyStateBuilder() =>
@@ -710,6 +753,8 @@ class ChatState extends State<Chat> {
         final Widget messageWidget;
         final showUserAvatars = widget.avatarBuilder != null;
 
+        widget.messageHasBuilder?.call(message, index);
+
         if (message is types.SystemMessage) {
           messageWidget = widget.systemMessageBuilder?.call(message) ??
               SystemMessage(message: message.text);
@@ -785,6 +830,15 @@ class ChatState extends State<Chat> {
           _autoScrollIndexById[message.id] = i;
         }
         i++;
+      }
+    }
+
+    void checkIfShowUnreadAnchorButton(ScrollNotification notification) {
+      final isShowScrollToBottomButton = notification.metrics.pixels > bottomThreshold;
+      if (this.isShowScrollToBottomButton != isShowScrollToBottomButton) {
+        setState(() {
+          this.isShowScrollToBottomButton = isShowScrollToBottomButton;
+        });
       }
     }
   }

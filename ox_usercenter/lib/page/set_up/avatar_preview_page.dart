@@ -82,14 +82,14 @@ class _AvatarPreviewPageState extends State<AvatarPreviewPage> with WidgetsBindi
                         setState(() {
                           imageFile = null;
                         });
-                        OXNavigator.pop(context, null);
+                        OXNavigator.pop(context, selectAssetDialog);
                       }
                       else if (imgFile != null) {
                         setState(() {
                           imageFile = imgFile;
                         });
                         // 07/04 requirement change
-                        OXNavigator.pop(context, imgFile);
+                        OXNavigator.pop(context, selectAssetDialog);
                       }
                     },
                   ),

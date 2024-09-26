@@ -1,6 +1,7 @@
 import 'package:diffutil_dart/diffutil.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:ox_common/utils/adapt.dart';
 
 import '../../ox_chat_ui.dart';
 import 'patched_sliver_animated_list.dart';
@@ -103,6 +104,7 @@ class _ChatListState extends State<ChatList>
   final GlobalKey<PatchedSliverAnimatedListState> _listKey =
       GlobalKey<PatchedSliverAnimatedListState>();
 
+  double get bottomThreshold => 100.px;
   bool _isAtBottom = true;
 
   bool _isScrolling = false;
@@ -371,8 +373,7 @@ class _ChatListState extends State<ChatList>
   bool shouldScrollToBottom() => _isAtBottom;
 
   void updateBottomFlag(ScrollNotification notification) {
-    final bottomOffset = 100.0;
-    _isAtBottom = notification.metrics.pixels < bottomOffset;
+    _isAtBottom = notification.metrics.pixels < bottomThreshold;
   }
 
   void updateIndicatorStatus(ScrollNotification notification) {

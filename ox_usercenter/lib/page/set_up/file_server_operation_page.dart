@@ -52,6 +52,7 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
     super.initState();
     _initMinioData();
     _initNip96Data();
+    _initBlossomData();
   }
 
   _initMinioData() {
@@ -74,6 +75,16 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
         Nip96Server? nip96server = widget.fileStorageServer as Nip96Server;
         _urlController.text = nip96server.url;
         _serverNameController.text = nip96server.name;
+      }
+    }
+  }
+
+  _initBlossomData() {
+    if (widget.fileStorageProtocol == FileStorageProtocol.blossom) {
+      if (widget.operationType == OperationType.edit) {
+        BlossomServer? blossomServer = widget.fileStorageServer as BlossomServer;
+        _urlController.text = blossomServer.url;
+        _serverNameController.text = blossomServer.name;
       }
     }
   }
@@ -205,8 +216,20 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
   Widget _buildBlossomTypeView() {
     return Column(
       children: [
-        _buildItem('URL', _buildTextField(hintText: 'Enter URL(http or https)'),),
-        _buildItem('Custom Name', _buildTextField(hintText: 'Custom Server Name(Optional)'),).setPaddingOnly(top: 12.px),
+        _buildItem(
+          'URL',
+          _buildTextField(
+            hintText: Localized.text('ox_usercenter.str_url_hint_text'),
+            controller: _urlController,
+          ),
+        ),
+        _buildItem(
+          Localized.text('ox_usercenter.str_custom_name'),
+          _buildTextField(
+            hintText: Localized.text('ox_usercenter.str_name_hint_text'),
+            controller: _serverNameController,
+          ),
+        ).setPaddingOnly(top: 12.px),
       ],
     );
   }
@@ -276,6 +299,7 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
         _createNip96Server();
         break;
       case FileStorageProtocol.blossom:
+        _createBlossomServer();
         break;
       case FileStorageProtocol.minio:
         _createMinioServer();
@@ -350,6 +374,26 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
       UploadResult result = UploadExceptionHandler.handleException(e);
       CommonToast.instance.show(context, result.errorMsg ?? 'Minio Error');
     }
+  }
+
+  _createBlossomServer() async {
+    final url = _urlController.text;
+    final name = _serverNameController.text;
+    if(!_urlValidator(url)) {
+      CommonToast.instance.show(context, Localized.text('ox_usercenter.str_url_tips_text'));
+      return;
+    }
+    BlossomServer blossomServer = BlossomServer(
+      url: url,
+      name: name.isNotEmpty ? name : url,
+      description: url,
+    );
+    if(widget.operationType == OperationType.create) {
+      await OXServerManager.sharedInstance.addFileStorageServer(blossomServer);
+    }else {
+      await OXServerManager.sharedInstance.updateFileStorageServer(blossomServer);
+    }
+    OXNavigator.pop(context);
   }
 
   _createNip96Server() async {

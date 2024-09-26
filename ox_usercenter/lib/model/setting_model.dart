@@ -58,12 +58,6 @@ class SettingModel {
     //   settingItemType: SettingItemType.nutsZaps,
     // ));
     settingModelList.add(SettingModel(
-      iconName: 'icon_settings_privacy.png',
-      title: 'ox_usercenter.privacy',
-      rightContent: '',
-      settingItemType: SettingItemType.privacy,
-    ));
-    settingModelList.add(SettingModel(
       iconName: 'icon_settings_keys.png',
       title: 'ox_usercenter.keys',
       rightContent: '',

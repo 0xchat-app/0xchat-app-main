@@ -548,6 +548,7 @@ extension ChatMessageBuilderCustomEx on ChatMessageBuilder {
     types.CustomMessage message,
     int messageWidth,
     Widget reactionWidget,
+    String? receiverPubkey,
   ) {
     final path = ImageSendingMessageEx(message).path;
     final url = ImageSendingMessageEx(message).url;
@@ -557,7 +558,7 @@ extension ChatMessageBuilderCustomEx on ChatMessageBuilder {
     final encryptedKey = ImageSendingMessageEx(message).encryptedKey;
     final stream = fileId.isEmpty || url.isNotEmpty
         ? null
-        : UploadManager.shared.getUploadProgress(fileId);
+        : UploadManager.shared.getUploadProgress(fileId, receiverPubkey);
 
     if (width == null || height == null) {
       try {
@@ -612,6 +613,7 @@ extension ChatMessageBuilderCustomEx on ChatMessageBuilder {
     types.CustomMessage message,
     int messageWidth,
     Widget reactionWidget,
+    String? receiverPubkey,
   ) {
     final url = VideoMessageEx(message).url;
     var snapshotPath = VideoMessageEx(message).snapshotPath;
@@ -620,7 +622,7 @@ extension ChatMessageBuilderCustomEx on ChatMessageBuilder {
     var height = VideoMessageEx(message).height;
     final stream = fileId.isEmpty || url.isNotEmpty
         ? null
-        : UploadManager.shared.getUploadProgress(fileId);
+        : UploadManager.shared.getUploadProgress(fileId, null);
 
     if (width == null || height == null) {
       try {

@@ -945,6 +945,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   }
 
   void _itemFn(ChatSessionModelISAR item) async {
+    final unreadMessageCount = item.unreadCount;
     _setAllRead(item);
     switch(item.chatType){
       case ChatType.chatRelayGroup:
@@ -954,6 +955,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
         ChatMessagePage.open(
           context: context,
           communityItem: item,
+          unreadMessageCount: unreadMessageCount,
         );
         break;
       case ChatType.chatNotice:
@@ -963,6 +965,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
         ChatMessagePage.open(
           context: context,
           communityItem: item,
+          unreadMessageCount: unreadMessageCount,
         ).then((value) {
           _merge();
         });
