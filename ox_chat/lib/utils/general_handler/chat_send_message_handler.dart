@@ -499,7 +499,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     await _sendMessageHandler(
       context: context,
       content: path,
-      messageType: MessageType.audio,
+      messageType: fileEncryptionType == types.EncryptionType.encrypted ? MessageType.encryptedAudio : MessageType.audio,
     );
 
     OXLoading.dismiss();
@@ -748,15 +748,14 @@ extension ChatMessageSendUtileEx on ChatGeneralHandler {
       );
       return null;
     }
-
     if (uriIsLocalPath) {
-      final pk = message.fileEncryptionType == types.EncryptionType.encrypted ? message.decryptKey : null;
+      final pk = fileEncryptionType == types.EncryptionType.encrypted ? createEncryptKey() : null;
       final result = await uploadFile(fileType: FileType.voice, filePath: filePath, messageId: message.id, encryptedKey: pk);
       if (!result.isSuccess) {
         CommonToast.instance.show(context, '${Localized.text('ox_chat.message_send_audio_fail')}: ${result.errorMsg}');
         return null;
       }
-      return message.copyWith(uri: result.url);
+      return message.copyWith(uri: result.url, decryptKey: pk);
     }
     return message;
   }

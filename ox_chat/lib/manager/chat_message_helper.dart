@@ -578,7 +578,7 @@ extension MessageUIToDBEx on types.Message {
       case types.MessageType.image:
         return encrypt ? MessageType.encryptedImage : MessageType.image;
       case types.MessageType.audio:
-        return MessageType.audio;
+        return encrypt ? MessageType.encryptedAudio: MessageType.audio;
       case types.MessageType.video:
         return MessageType.video;
       case types.MessageType.file:
