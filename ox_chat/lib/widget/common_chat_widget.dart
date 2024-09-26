@@ -55,6 +55,7 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
 
   final pageConfig = ChatPageConfig();
 
+  final GlobalKey<ChatState> chatWidgetKey = GlobalKey<ChatState>();
   final AutoScrollController scrollController = AutoScrollController();
   Duration scrollDuration = const Duration(milliseconds: 100);
 
@@ -100,6 +101,7 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
       valueListenable: dataController.messageValueNotifier,
       builder: (BuildContext context, messages, Widget? child) {
         return Chat(
+          key: chatWidgetKey,
           scrollController: scrollController,
           chatId: handler.session.chatId,
           theme: pageConfig.pageTheme,
@@ -333,20 +335,14 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
 
     var index = dataController.getMessageIndex(messageId);
     if (index > -1) {
-      scrollController.scrollToIndex(
-        index,
-        preferPosition: AutoScrollPosition.middle,
-      );
+      chatWidgetKey.currentState?.scrollToMessage(messageId);
       return ;
     }
 
     await dataController.replaceWithNearbyMessage(targetMessageId: messageId);
     index = dataController.getMessageIndex(messageId);
     if (index > -1) {
-      scrollController.scrollToIndex(
-        index,
-        preferPosition: AutoScrollPosition.middle,
-      );
+      chatWidgetKey.currentState?.scrollToMessage(messageId);
     }
   }
 
