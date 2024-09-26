@@ -115,32 +115,26 @@ class FileStorageServer {
   }
 
   static List<FileStorageServer> get defaultFileStorageServers => List.from([
-        OXChatServer(
-          url: '',
-          name: '0xchat.com',
-          canEdit: false,
-          description: 'https://www.0xchat.com',
-        ),
         Nip96Server(
-          url: '',
+          url: 'https://nostr.build',
           name: 'nostr.build',
           canEdit: false,
           description: 'https://nostr.build',
         ),
         Nip96Server(
-          url: '',
+          url: 'https://void.cat',
           name: 'void.cat',
           canEdit: false,
           description: 'https://void.cat',
         ),
         Nip96Server(
-          url: '',
+          url: 'https://pomf2.lain.la',
           name: 'pomf2.lain.la',
           canEdit: false,
           description: 'https://pomf2.lain.la',
         ),
         BlossomServer(
-          url: '',
+          url: 'https://nosto.re',
           name: 'nosto.re',
           canEdit: false,
           description: 'https://nosto.re',

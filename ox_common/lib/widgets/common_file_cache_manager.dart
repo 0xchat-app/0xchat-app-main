@@ -9,6 +9,18 @@ import 'package:ox_common/utils/aes_encrypt_utils.dart';
 import 'package:ox_common/utils/string_utils.dart';
 import 'package:path/path.dart' as path;
 
+class OXDefaultCacheManager extends CacheManager with ImageCacheManager {
+  static const key = 'libCachedImageData';
+
+  static final OXDefaultCacheManager _instance = OXDefaultCacheManager._();
+
+  factory OXDefaultCacheManager() {
+    return _instance;
+  }
+
+  OXDefaultCacheManager._() : super(Config(key, repo: JsonCacheInfoRepository(databaseName: key)));
+}
+
 class OXFileCacheManager {
 
   static CacheManager get({
@@ -17,11 +29,11 @@ class OXFileCacheManager {
     if (encryptKey != null && encryptKey.isNotEmpty) {
       return DecryptedCacheManager(encryptKey);
     }
-    return DefaultCacheManager();
+    return OXDefaultCacheManager();
   }
 
   static Future emptyCache() async {
-    await DefaultCacheManager().emptyCache();
+    await OXDefaultCacheManager().emptyCache();
     await DecryptedCacheManager('').emptyCache();
   }
 }
@@ -30,7 +42,7 @@ class DecryptedCacheManager extends CacheManager {
   static const key = "decryptCache";
   final String decryptKey;
 
-  DecryptedCacheManager(this.decryptKey) : super(Config(key));
+  DecryptedCacheManager(this.decryptKey) : super(Config(key, repo: JsonCacheInfoRepository(databaseName: key)));
 
   @override
   Stream<FileResponse> getFileStream(String url,

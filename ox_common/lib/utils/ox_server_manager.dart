@@ -127,17 +127,19 @@ class OXServerManager {
 
   List<FileStorageServer> getFileStorageServers() {
     final jsonString = UserConfigTool.getSetting(fileStorageServer, defaultValue: '');
-
+    var fileStorageServers = FileStorageServer.defaultFileStorageServers;
     if (jsonString.isEmpty) {
-      return [];
+      return fileStorageServers;
     }
-
-    final fileStorageServers = jsonDecode(jsonString);
-    final fileStorageList = [
-      for (var json in fileStorageServers) FileStorageServer.fromJson(json)
-    ];
-
-    return fileStorageList;
+    final addFileStorageServers = jsonDecode(jsonString);
+    for (var json in addFileStorageServers) {
+      var server = FileStorageServer.fromJson(json);
+      var exists = fileStorageServers.any((s) => s.url == server.url);
+      if (!exists) {
+        fileStorageServers.add(server);
+      }
+    }
+    return fileStorageServers;
   }
 
   Future<void> saveSelectedFileStorageServer() async {
@@ -174,7 +176,7 @@ class OXServerManager {
   }
 
   Future<void> deleteFileStorageServer(FileStorageServer fileStorageServer) async {
-    fileStorageServers.remove(fileStorageServer);
+    fileStorageServers.removeWhere((element) => element.url == fileStorageServer.url);
     await saveFileStorageServers(fileStorageServers);
     for (OXServerObserver observer in _observers) {
       observer.didDeleteFileStorageServer();

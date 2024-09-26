@@ -225,3 +225,45 @@ extension FormattedNumberExtension on int {
     return formattedResult;
   }
 }
+
+extension NullableNumOperators<T extends num> on T? {
+  T? operator +(T value) {
+    if (this == null) {
+      return null;
+    } else {
+      return (this! + value) as T;
+    }
+  }
+
+  T? operator -(num value) {
+    if (this == null) {
+      return null;
+    } else {
+      return (this! - value) as T;
+    }
+  }
+
+  T? operator *(T value) {
+    if (this == null) {
+      return null;
+    } else {
+      return (this! * value) as T;
+    }
+  }
+
+  num? operator /(T value) {
+    if (this == null) {
+      return null;
+    } else {
+      return (this! / value) as T;
+    }
+  }
+
+  T? operator %(T value) {
+    if (this == null) {
+      return null;
+    } else {
+      return (this! % value) as T;
+    }
+  }
+}
