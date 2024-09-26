@@ -20,9 +20,9 @@ class Nip96ServerAdaptation {
     apiUrl = json['api_url'];
     downloadUrl = json['download_url'];
     delegatedToUrl = json['delegated_to_url'];
-    supportedNips = json['supported_nips'].cast<int>();
+    supportedNips = json['supported_nips']?.cast<int>();
     tosUrl = json['tos_url'];
-    contentTypes = json['content_types'].cast<String>();
+    contentTypes = json['content_types']?.cast<String>();
     plans =
         json['plans'] != null ? new Nip96Plans.fromJson(json['plans']) : null;
   }

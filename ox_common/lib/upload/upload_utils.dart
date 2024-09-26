@@ -59,7 +59,8 @@ class UploadUtils {
       switch (protocol) {
         case  FileStorageProtocol.nip96:
         case  FileStorageProtocol.blossom:
-          final imageServices = (FileStorageProtocol.nip96 == protocol) ? ImageServices.NIP_96 : ImageServices.BLOSSOM;
+        var imageServices = fileStorageServer.name;
+        if(FileStorageProtocol.blossom == protocol) imageServices = ImageServices.BLOSSOM;
           url = await Uploader.upload(
             uploadFile.path,
               imageServices,
