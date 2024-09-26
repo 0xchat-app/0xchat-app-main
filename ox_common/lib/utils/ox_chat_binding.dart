@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'dart:collection';
+
 import 'package:chatcore/chat-core.dart';
-import 'package:nostr_core_dart/nostr.dart';
+import 'package:isar/isar.dart';
 import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/string_utils.dart';
-import 'package:isar/isar.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
 
@@ -178,11 +178,15 @@ class OXChatBinding {
     }
     ChatSessionModelISAR? tempModel = sessionMap[messageDB.groupId];
     if (tempModel != null) {
+      if (messageDB.createTime >= tempModel.createTime) {
+        tempModel.content = sessionModel.content;
+        tempModel.createTime = sessionModel.createTime;
+        tempModel.messageType = sessionModel.messageType;
+      }
       if (!messageDB.read && messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
-        sessionModel.unreadCount = tempModel.unreadCount += 1;
+        tempModel.unreadCount = tempModel.unreadCount += 1;
         noticePromptToneCallBack(messageDB, tempModel.chatType);
       }
-      if (messageDB.createTime >= tempModel.createTime) tempModel = sessionModel;
       sessionMap[messageDB.groupId] = tempModel;
       ChatSessionModelISAR.saveChatSessionModelToDB(tempModel);
     } else {
@@ -216,23 +220,22 @@ class OXChatBinding {
     sessionModel.chatId = chatId;
     ChatSessionModelISAR? tempModel = sessionMap[chatId];
     if (tempModel != null) {
-      sessionModel.chatType = tempModel.chatType;
+      if (messageDB.createTime >= tempModel.createTime) {
+        tempModel.content = sessionModel.content;
+        tempModel.createTime = sessionModel.createTime;
+        tempModel.messageType = sessionModel.messageType;
+      }
       if (messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
         if (!messageDB.read) {
-          sessionModel.unreadCount = tempModel.unreadCount += 1;
+          tempModel.unreadCount = tempModel.unreadCount += 1;
           if (tempModel.chatType == ChatType.chatStranger || tempModel.chatType == ChatType.chatSecretStranger) {
             unReadStrangerSessionCount += 1;
           }
           noticePromptToneCallBack(messageDB, tempModel.chatType);
         }
       } else {
-        sessionModel.chatType = sessionModel.chatType == ChatType.chatSecretStranger ? ChatType.chatSecret
-            : (sessionModel.chatType == ChatType.chatStranger ? ChatType.chatSingle : sessionModel.chatType);
-      }
-      if (messageDB.createTime >= tempModel.createTime){
-        sessionModel.expiration = tempModel.expiration;
-        sessionModel.messageKind = tempModel.messageKind;
-        tempModel = sessionModel;
+        tempModel.chatType = tempModel.chatType == ChatType.chatSecretStranger ? ChatType.chatSecret
+            : (sessionModel.chatType == ChatType.chatStranger ? ChatType.chatSingle : tempModel.chatType);
       }
       sessionMap[chatId] = tempModel;
       ChatSessionModelISAR.saveChatSessionModelToDB(tempModel);
