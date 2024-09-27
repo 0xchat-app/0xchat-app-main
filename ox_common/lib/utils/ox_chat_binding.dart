@@ -235,7 +235,7 @@ class OXChatBinding {
         }
       } else {
         tempModel.chatType = tempModel.chatType == ChatType.chatSecretStranger ? ChatType.chatSecret
-            : (sessionModel.chatType == ChatType.chatStranger ? ChatType.chatSingle : tempModel.chatType);
+            : (tempModel.chatType == ChatType.chatStranger ? ChatType.chatSingle : tempModel.chatType);
       }
       sessionMap[chatId] = tempModel;
       ChatSessionModelISAR.saveChatSessionModelToDB(tempModel);

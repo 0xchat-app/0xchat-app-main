@@ -26,16 +26,14 @@ class FileStorageServer {
 
   factory FileStorageServer.fromJson(Map<String, dynamic> json) {
     FileStorageProtocol getFileStorageProtocol(int index) =>
-        FileStorageProtocol.values
-            .where((element) => element.index == index)
-            .first;
+        FileStorageProtocol.values.where((element) => element.index == index).first;
     final url = json['url'] ?? '';
     final protocol = getFileStorageProtocol(json['protocol'] ?? 0);
     final name = json['name'] ?? '';
     final description = json['description'] ?? '';
     final canEdit = json['canEdit'];
 
-    switch(protocol) {
+    switch (protocol) {
       case FileStorageProtocol.nip96:
         return Nip96Server(
           url: url,
@@ -84,7 +82,7 @@ class FileStorageServer {
       'description': fileStorageServer.description,
       'canEdit': fileStorageServer.canEdit
     };
-    switch(fileStorageServer.protocol) {
+    switch (fileStorageServer.protocol) {
       case FileStorageProtocol.nip96:
         return fileServerJson;
       case FileStorageProtocol.blossom:
@@ -101,7 +99,6 @@ class FileStorageServer {
         return fileServerJson;
       default:
         return fileServerJson;
-
     }
   }
 
@@ -116,18 +113,6 @@ class FileStorageServer {
 
   static List<FileStorageServer> get defaultFileStorageServers => List.from([
         Nip96Server(
-          url: 'https://nostr.build',
-          name: 'nostr.build',
-          canEdit: false,
-          description: 'https://nostr.build',
-        ),
-        Nip96Server(
-          url: 'https://void.cat',
-          name: 'void.cat',
-          canEdit: false,
-          description: 'https://void.cat',
-        ),
-        Nip96Server(
           url: 'https://pomf2.lain.la',
           name: 'pomf2.lain.la',
           canEdit: false,
@@ -138,6 +123,18 @@ class FileStorageServer {
           name: 'nosto.re',
           canEdit: false,
           description: 'https://nosto.re',
+        ),
+        Nip96Server(
+          url: 'https://nostr.build',
+          name: 'nostr.build',
+          canEdit: false,
+          description: 'https://nostr.build',
+        ),
+        Nip96Server(
+          url: 'https://void.cat',
+          name: 'void.cat',
+          canEdit: false,
+          description: 'https://void.cat',
         )
       ]);
 }
