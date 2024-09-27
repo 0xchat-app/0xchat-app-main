@@ -7,6 +7,7 @@ import 'package:chatcore/chat-core.dart';
 class PromptToneManager {
 
   bool Function(MessageDBISAR msg)? isCurrencyChatPage;
+  bool isAppPaused = false;
 
   static final PromptToneManager sharedInstance = PromptToneManager._internal();
 
