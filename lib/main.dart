@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:ox_calling/manager/call_manager.dart';
 import 'package:ox_common/scheme/scheme_helper.dart';
+import 'package:ox_common/utils/chat_prompt_tone.dart';
 import 'package:ox_common/utils/error_utils.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/user_config_tool.dart';
@@ -254,6 +255,7 @@ class MainState extends State<MainApp>
     commonEventBus.fire(AppLifecycleStateEvent(state));
     switch (state) {
       case AppLifecycleState.resumed:
+        PromptToneManager.sharedInstance.isAppPaused = false;
         if (OXUserInfoManager.sharedInstance.isLogin) NotificationHelper.sharedInstance.setOnline();
         SchemeHelper.tryHandlerForOpenAppScheme();
         OXUserInfoManager.sharedInstance.resetHeartBeat();
@@ -263,6 +265,7 @@ class MainState extends State<MainApp>
         }
         break;
       case AppLifecycleState.paused:
+        PromptToneManager.sharedInstance.isAppPaused = true;
         if (OXUserInfoManager.sharedInstance.isLogin) NotificationHelper.sharedInstance.setOffline();
         lastUserInteractionTime = DateTime.now().millisecondsSinceEpoch;
         if (CallManager.instance.getInCallIng && CallManager.instance.isAudioVoice){
