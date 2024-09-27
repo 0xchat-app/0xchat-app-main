@@ -33,7 +33,9 @@ class ChatVoiceMessageHelper {
         sourceFile = await DecryptedCacheManager.decryptFile(sourceFile, message.decryptKey!);
       }
     }
-    String newPath = sourceFile.path.replaceAll('.bin', '.$extension');
+
+    String newExtension = sourceFile.path.split('.').last;
+    String newPath = sourceFile.path.replaceAll(newExtension, extension);
     sourceFile = await sourceFile.rename(newPath);
     final duration = await getAudioDuration(sourceFile.path);
     return (sourceFile, duration);
