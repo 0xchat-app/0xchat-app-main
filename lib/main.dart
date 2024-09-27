@@ -87,7 +87,7 @@ void main() async {
       bool openDevLog = UserConfigTool.getSetting(StorageSettingKey.KEY_OPEN_DEV_LOG.name, defaultValue: false);
       if (openDevLog) {
         FlutterError.presentError(details);
-        ErrorUtils.logErrorToFile(details.toString());
+        ErrorUtils.logErrorToFile(details.toString() + '\n' + details.stack.toString());
       }
       print(details.toString());
     };
@@ -98,7 +98,7 @@ void main() async {
   }, (error, stackTrace) async {
     bool openDevLog = UserConfigTool.getSetting(StorageSettingKey.KEY_OPEN_DEV_LOG.name, defaultValue: false);
     if (openDevLog) {
-      ErrorUtils.logErrorToFile(error.toString());
+      ErrorUtils.logErrorToFile(error.toString() + '\n' + stackTrace.toString());
     }
     print(error);
     print(stackTrace);

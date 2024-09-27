@@ -1,6 +1,7 @@
 package com.oxchat.nostr.channel;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -11,7 +12,9 @@ import com.oxchat.nostr.MultiEngineActivity;
 import com.oxchat.nostr.util.SharedPreUtils;
 import com.oxchat.nostr.VoiceCallService;
 import java.util.HashMap;
+import java.util.List;
 
+import io.flutter.Log;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
@@ -75,6 +78,11 @@ public class AppPreferences implements MethodChannel.MethodCallHandler, FlutterP
             paramsMap = (HashMap) call.arguments;
         }
         switch (call.method) {
+            case "isAppInBackground" -> {
+                Log.e("Michael:" ,"----onMethodCall----isAppInBackground  ");
+                boolean isAppInBackground = isAppInBackground();
+                result.success(isAppInBackground);
+            }
             case "startVoiceCallService" -> {
                 String title = "";
                 String content = "";
@@ -134,5 +142,22 @@ public class AppPreferences implements MethodChannel.MethodCallHandler, FlutterP
                 mActivity.startActivity(intent);
             }
         }
+    }
+
+    private boolean isAppInBackground() {
+        ActivityManager activityManager = (ActivityManager) mActivity.getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningAppProcessInfo> runningApps = activityManager.getRunningAppProcesses();
+        for (ActivityManager.RunningAppProcessInfo processInfo : runningApps) {
+            if (processInfo.processName.equals(mActivity.getPackageName())) {
+                if (processInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
+                    //ActivityState", "App is in the foreground.  is see
+                    return false;
+                } else {
+                    //ActivityState", "App is in the background.
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
