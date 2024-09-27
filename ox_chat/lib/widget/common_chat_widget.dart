@@ -340,6 +340,7 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
     }
 
     await dataController.replaceWithNearbyMessage(targetMessageId: messageId);
+    await Future.delayed(Duration(milliseconds: 300));
     index = dataController.getMessageIndex(messageId);
     if (index > -1) {
       chatWidgetKey.currentState?.scrollToMessage(messageId);
