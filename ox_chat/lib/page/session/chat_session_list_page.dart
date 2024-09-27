@@ -176,7 +176,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   void didPromptToneCallBack(MessageDBISAR message, int type) async {
     if (PromptToneManager.sharedInstance.isCurrencyChatPage != null && PromptToneManager.sharedInstance.isCurrencyChatPage!(message)) return;
     bool isMute = ChatSessionUtils.checkIsMute(message, type);
-    if (!isMute && OXUserInfoManager.sharedInstance.canSound)
+    if (!isMute && OXUserInfoManager.sharedInstance.canSound && !PromptToneManager.sharedInstance.isAppPaused)
       _throttle(() {
         PromptToneManager.sharedInstance.play();
       });
