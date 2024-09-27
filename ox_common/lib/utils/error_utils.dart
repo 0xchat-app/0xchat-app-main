@@ -23,6 +23,10 @@ import 'dart:io';
 ///CreateTime: 2024/3/5 20:19
 class ErrorUtils{
   static Future<void> logErrorToFile(String error) async {
+    await ThreadPoolManager.sharedInstance.runOtherTask(() => inputLogErrorToFile(error));
+  }
+
+  static Future<void> inputLogErrorToFile(String error) async {
     final directory = await getApplicationDocumentsDirectory();
     int lastTime = UserConfigTool.getSetting(StorageSettingKey.KEY_SAVE_LOG_TIME.name, defaultValue: 0) as int;
     int fileNameTime = DateTime.now().millisecondsSinceEpoch;
