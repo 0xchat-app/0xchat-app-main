@@ -99,7 +99,10 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     types.Message? message;
     int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
     if (resendMessage != null) {
-      message = resendMessage.copyWith(createdAt: tempCreateTime);
+      message = resendMessage.copyWith(
+        createdAt: tempCreateTime,
+        status: null,
+      );
     } else if (content != null && messageType != null) {
       final mid = Uuid().v4();
       message = await ChatMessageHelper.createUIMessage(
@@ -245,7 +248,6 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       createdAt: DateTime.now().millisecondsSinceEpoch,
       status: types.Status.sending,
     );
-    dataController.removeMessage(messageId: message.id);
 
     if (resendMsg.isImageSendingMessage) {
       sendImageMessage(
