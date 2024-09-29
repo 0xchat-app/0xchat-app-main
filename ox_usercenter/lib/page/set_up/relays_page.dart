@@ -73,7 +73,7 @@ class _RelaysPageState extends State<RelaysPage> {
     for (var relayType in RelayType.values) {
       _initRelayList(relayType);
     }
-    setState(() {});
+    if(mounted) setState(() {});
   }
 
   void _initRelayList(RelayType relayType) {
