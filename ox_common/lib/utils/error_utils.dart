@@ -23,6 +23,8 @@ import 'dart:io';
 ///CreateTime: 2024/3/5 20:19
 class ErrorUtils{
   static Future<void> logErrorToFile(String error) async {
+    LogUtil.e('logErrorToFile: $error');
+    return;
     await ThreadPoolManager.sharedInstance.runOtherTask(() => inputLogErrorToFile(error));
   }
 
