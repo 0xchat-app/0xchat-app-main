@@ -305,7 +305,10 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
           );
           break;
         case CustomMessageType.video:
-          CommonVideoPage.show(VideoMessageEx(message).url);
+          final videoURI = VideoMessageEx(message).videoURI;
+          if (videoURI.isEmpty) return ;
+
+          CommonVideoPage.show(videoURI);
           break;
         default:
           break;

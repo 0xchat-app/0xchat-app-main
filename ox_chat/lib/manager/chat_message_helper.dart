@@ -231,6 +231,7 @@ class ChatMessageHelper {
             videoURL: url,
             onlyFromCache: true,
           ))?.path ?? '',
+          encryptedKey: decryptSecret,
         );
         try {
           final jsonString = jsonEncode(meta);

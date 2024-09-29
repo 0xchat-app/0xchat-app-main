@@ -123,7 +123,7 @@ abstract class CustomMessage extends Message {
       ];
 
   @override
-  Message copyWith({
+  CustomMessage copyWith({
     User? author,
     int? createdAt,
     String? id,
@@ -173,7 +173,7 @@ class _CustomMessage extends CustomMessage {
   }) : super._();
 
   @override
-  Message copyWith({
+  CustomMessage copyWith({
     User? author,
     int? createdAt,
     String? id,
