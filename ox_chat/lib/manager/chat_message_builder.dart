@@ -34,7 +34,7 @@ class ChatMessageBuilder {
     Function(String repliedMessageId)? onTap,
   }) {
     final repliedMessageId = message.repliedMessageId;
-    if (repliedMessageId == null) return SizedBox();
+    if (repliedMessageId == null || repliedMessageId.isEmpty) return SizedBox();
 
     final repliedMessage = message.repliedMessage;
     return GestureDetector(
