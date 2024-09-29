@@ -39,31 +39,14 @@ class ChatSendMessageHelper {
       // for test
       // senderStrategy.session.expiration = currentUnixTimestampSeconds() + 5;
       // prepare send event
-      Event? event;
-      var plaintEvent = message.sourceKey;
-      if (plaintEvent != null && plaintEvent is String) {
-        try {
-          event = await Event.fromJson(jsonDecode(plaintEvent));
-        } catch (e) {
-          final errorMsg = 'send message error: $e';
-          ChatLogUtils.error(
-            className: 'ChatSendMessageHelper',
-            funcName: 'sendMessage',
-            message: 'resend error, plaintEvent: $plaintEvent, errorMsg: $errorMsg',
-          );
-          return errorMsg;
-        }
-      }
+      Event? event = await senderStrategy.getSendMessageEvent(
+        messageType: type,
+        contentString: contentString,
+        replayId: replayId,
+        decryptSecret: message.decryptKey,
+        source: await sourceCreator?.call(message),
+      );
 
-      if (event == null) {
-        event = await senderStrategy.getSendMessageEvent(
-          messageType: type,
-          contentString: contentString,
-          replayId: replayId,
-          decryptSecret: message.decryptKey,
-          source: await sourceCreator?.call(message),
-        );
-      }
       if (event == null) {
         return 'send message fail';
       }
