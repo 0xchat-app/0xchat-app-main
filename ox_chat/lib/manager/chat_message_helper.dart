@@ -209,6 +209,11 @@ class ChatMessageHelper {
           return (newContent, MessageType.template);
         }
 
+        MessageDBISAR.identifyUrl(content).then((value) {
+          if (messageType == value) return ;
+          asyncParseCallback?.call(content, value);
+        });
+
         return (content, messageType);
       case MessageType.image:
       case MessageType.encryptedImage:
@@ -231,6 +236,7 @@ class ChatMessageHelper {
             videoURL: url,
             onlyFromCache: true,
           ))?.path ?? '',
+          encryptedKey: decryptSecret,
         );
         try {
           final jsonString = jsonEncode(meta);

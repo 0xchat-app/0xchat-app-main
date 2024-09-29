@@ -505,7 +505,7 @@ class _ContractListItemState extends State<ContractListItem> {
       BadgeDBISAR? badgeDB;
       try {
         List<BadgeDBISAR?> badgeDBList = await BadgesHelper.getBadgeInfosFromDB(badgeList);
-        badgeDB = badgeDBList.first;
+        badgeDB = badgeDBList.firstOrNull;
       } catch (error) {
         LogUtil.e("user selected badge info fetch failed: $error");
       }

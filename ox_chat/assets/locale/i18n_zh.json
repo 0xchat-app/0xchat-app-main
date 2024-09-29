@@ -311,7 +311,7 @@
   "str_edit_group_about_not_empty_toast": "群描述不能为空",
   "str_group_type_change_hint": "更改类型",
   "str_chat_history_for_new_members_change_type_hint": "更改类型",
-  "str_chat_history_for_new_members": "新成员的聊天历史",
+  "str_chat_history_for_new_members": "群信息",
   "str_chat_history_for_new_members_show": "显示",
   "str_chat_history_for_new_members_hidden": "隐藏",
   "str_group_share_menu_title": "分享群聊",

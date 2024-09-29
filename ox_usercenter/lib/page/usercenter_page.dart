@@ -148,7 +148,7 @@ class _UserCenterPageState extends State<UserCenterPage>
             await BadgesHelper.getAllProfileBadgesFromRelay(
                 OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '');
         if (badgeDBList != null && badgeDBList.isNotEmpty) {
-          badgeDB = badgeDBList.first;
+          badgeDB = badgeDBList.firstOrNull;
           return badgeDB;
         }
       }

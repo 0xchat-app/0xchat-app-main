@@ -142,6 +142,7 @@ extension CustomMessageEx on types.CustomMessage {
         VideoMessageEx.metaWidthKey: width,
       if (height != null)
         VideoMessageEx.metaHeightKey: height,
+      VideoMessageEx.metaEncryptedKey: encryptedKey,
     });
   }
 
@@ -436,6 +437,7 @@ extension VideoMessageEx on types.CustomMessage {
   static const metaURLKey = 'url';
   static const metaWidthKey = 'width';
   static const metaHeightKey = 'height';
+  static const metaEncryptedKey = 'encrypted';
 
   String get fileId => metadata?[CustomMessageEx.metaContentKey]?[metaFileIdKey] ?? '';
   String get snapshotPath => metadata?[CustomMessageEx.metaContentKey]?[metaSnapshotPathKey] ?? '';
@@ -443,8 +445,22 @@ extension VideoMessageEx on types.CustomMessage {
   String get url => metadata?[CustomMessageEx.metaContentKey]?[metaURLKey] ?? '';
   int? get width => metadata?[CustomMessageEx.metaContentKey]?[metaWidthKey];
   int? get height => metadata?[CustomMessageEx.metaContentKey]?[metaHeightKey];
+  String? get encryptedKey => metadata?[CustomMessageEx.metaContentKey]?[metaEncryptedKey];
+
+  bool get isLocalFile => encryptedKey != null || videoPath.isNotEmpty;
+
+  bool get canOpen => isLocalFile ? videoPath.isNotEmpty : url.isNotEmpty;
+
+  String get videoURI {
+    if (!canOpen) return '';
+    return isLocalFile ? videoPath : url;
+  }
 
   void set snapshotPath(String value) {
     metadata?[CustomMessageEx.metaContentKey]?[metaSnapshotPathKey] = value;
+  }
+
+  void set videoPath(String value) {
+    metadata?[CustomMessageEx.metaContentKey]?[metaVideoPathKey] = value;
   }
 }

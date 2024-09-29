@@ -143,7 +143,7 @@ class _ZapUserInfoItemState extends State<ZapUserInfoItem> {
       try {
         List<BadgeDBISAR?> badgeDBList =
         await BadgesHelper.getBadgeInfosFromDB(badgeList);
-        badgeDB = badgeDBList.first;
+        badgeDB = badgeDBList.firstOrNull;
       } catch (error) {
         LogUtil.e("user selected badge info fetch failed: $error");
       }

@@ -169,6 +169,9 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
             messageWidth: messageWidth,
             reactionWidget: reactionWidget,
             receiverPubkey: handler.otherUser?.pubKey,
+            messageUpdateCallback: (newMessage) {
+              dataController.updateMessage(newMessage);
+            },
           ),
           imageMessageBuilder: ChatMessageBuilder.buildImageMessage,
           inputOptions: handler.inputOptions,
@@ -224,7 +227,8 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
                 isShowScrollToUnreadWidget = false;
               });
             }
-          }
+          },
+
         );
       }
     );

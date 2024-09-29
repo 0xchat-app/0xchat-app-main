@@ -310,7 +310,7 @@ class _RelayGroupRequestsPageState extends State<RelayGroupRequestsPage> with Co
       BadgeDBISAR? badgeDB;
       try {
         List<BadgeDBISAR?> badgeDBList = await BadgesHelper.getBadgeInfosFromDB(badgeList);
-        badgeDB = badgeDBList.first;
+        badgeDB = badgeDBList.firstOrNull;
       } catch (error) {
         LogUtil.e("user selected badge info fetch failed: $error");
       }

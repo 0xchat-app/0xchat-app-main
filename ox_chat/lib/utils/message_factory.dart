@@ -575,6 +575,7 @@ class CustomMessageFactory implements MessageFactory {
         final url = contentMap[VideoMessageEx.metaURLKey];
         final width = contentMap[VideoMessageEx.metaWidthKey];
         final height = contentMap[VideoMessageEx.metaHeightKey];
+        final encryptedKey = contentMap[VideoMessageEx.metaEncryptedKey];
         return createVideoMessage(
           author: author,
           timestamp: timestamp,
@@ -591,6 +592,7 @@ class CustomMessageFactory implements MessageFactory {
           url: url,
           width: width,
           height: height,
+          encryptedKey: encryptedKey,
         );
       default:
         return null;

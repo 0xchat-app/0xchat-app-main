@@ -5,6 +5,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/utils/custom_message_utils.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
+import 'package:ox_chat/widget/chat_video_message.dart';
 import 'package:ox_chat/widget/image_preview_widget.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
@@ -32,10 +33,12 @@ class ChatMessageBuilder {
     required int messageWidth,
     Function(String repliedMessageId)? onTap,
   }) {
+    final repliedMessageId = message.repliedMessageId;
+    if (repliedMessageId == null || repliedMessageId.isEmpty) return SizedBox();
+
     final repliedMessage = message.repliedMessage;
-    if (repliedMessage == null) return SizedBox();
     return GestureDetector(
-      onTap: () => onTap?.call(repliedMessage.remoteId ?? ''),
+      onTap: () => onTap?.call(repliedMessage?.remoteId ?? ''),
       child: ConstrainedBox(
         constraints: BoxConstraints(
           maxWidth: messageWidth.toDouble(),
@@ -49,7 +52,7 @@ class ChatMessageBuilder {
           padding: EdgeInsets.symmetric(
               horizontal: Adapt.px(12), vertical: Adapt.px(4)),
           child: Text(
-            repliedMessage.replyDisplayContent,
+            repliedMessage?.replyDisplayContent ?? '[Not Found]',
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
@@ -89,7 +92,8 @@ class ChatMessageBuilder {
     required types.CustomMessage message,
     required int messageWidth,
     required Widget reactionWidget,
-    String? receiverPubkey
+    String? receiverPubkey,
+    Function(types.Message newMessage)? messageUpdateCallback,
   }) {
     final isMe = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey == message.author.id;
     final type = message.customType;
@@ -110,7 +114,7 @@ class ChatMessageBuilder {
       case CustomMessageType.imageSending:
         return ChatMessageBuilderCustomEx._buildImageSendingMessage(message, messageWidth, reactionWidget, receiverPubkey);
       case CustomMessageType.video:
-        return ChatMessageBuilderCustomEx._buildVideoMessage(message, messageWidth, reactionWidget, receiverPubkey);
+        return ChatMessageBuilderCustomEx._buildVideoMessage(message, messageWidth, reactionWidget, receiverPubkey, messageUpdateCallback);
       default:
         return SizedBox();
     }
