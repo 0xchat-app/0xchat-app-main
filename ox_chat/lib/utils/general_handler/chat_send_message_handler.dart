@@ -608,7 +608,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
           fileType: FileType.video,
           filePath: videoPath!,
           uploadId: fileId,
-          receivePubkey: null,
+          receivePubkey: otherUser?.pubKey ?? '',
           encryptedKey: encryptedKey,
           completeCallback: (uploadResult, isFromCache) async {
             var videoURL = uploadResult.url;

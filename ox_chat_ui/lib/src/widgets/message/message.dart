@@ -414,7 +414,7 @@ class _MessageState extends State<Message> {
       children: [
         if (currentUserIsAuthor)
           _buildStatusWidget().setPaddingOnly(right: 8.px),
-        if (widget.message.repliedMessage == null)
+        if (widget.message.repliedMessageId == null)
           Flexible(child: bubble,)
         else
           Flexible(

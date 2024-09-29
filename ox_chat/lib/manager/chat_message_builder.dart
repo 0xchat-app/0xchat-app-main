@@ -33,10 +33,12 @@ class ChatMessageBuilder {
     required int messageWidth,
     Function(String repliedMessageId)? onTap,
   }) {
+    final repliedMessageId = message.repliedMessageId;
+    if (repliedMessageId == null) return SizedBox();
+
     final repliedMessage = message.repliedMessage;
-    if (repliedMessage == null) return SizedBox();
     return GestureDetector(
-      onTap: () => onTap?.call(repliedMessage.remoteId ?? ''),
+      onTap: () => onTap?.call(repliedMessage?.remoteId ?? ''),
       child: ConstrainedBox(
         constraints: BoxConstraints(
           maxWidth: messageWidth.toDouble(),
@@ -50,7 +52,7 @@ class ChatMessageBuilder {
           padding: EdgeInsets.symmetric(
               horizontal: Adapt.px(12), vertical: Adapt.px(4)),
           child: Text(
-            repliedMessage.replyDisplayContent,
+            repliedMessage?.replyDisplayContent ?? '[Not Found]',
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
