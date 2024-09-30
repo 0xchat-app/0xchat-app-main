@@ -90,7 +90,6 @@ void main() async {
         FlutterError.presentError(details);
         ErrorUtils.logErrorToFile(details.toString() + '\n' + details.stack.toString());
       }
-      print(details.toString());
     };
     getApplicationDocumentsDirectory().then((value) {
       LogUtil.d('[App start] Application Documents Path: $value');
