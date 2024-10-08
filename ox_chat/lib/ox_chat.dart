@@ -81,7 +81,6 @@ class OXChat extends OXFlutterModule {
     'contactChanneDetailsPage': _contactChanneDetailsPage,
     'relayGroupInfoPage': _relayGroupInfoPage,
     'groupInfoPage': _groupInfoPage,
-    'commonWebview': _commonWebview,
     'zapsRecordDetail' : _zapsRecordDetail,
     'sendTextMsg': _sendTextMsg,
     'sendTemplateMessage': _sendTemplateMessage,
@@ -232,10 +231,6 @@ class OXChat extends OXFlutterModule {
     OXNavigator.pushPage(context!, (context) => GroupInfoPage(groupId: groupId));
   }
 
-  Future<void> _commonWebview(BuildContext? context,{required String url}) async {
-    OXNavigator.presentPage(context!, allowPageScroll: true, (context) => CommonWebView(url), fullscreenDialog: true);
-  }
-
   Future<void> _zapsRecordDetail(BuildContext? context,{required String invoice, required String amount, required String zapsTime}) async {
     final zapsDetail = ZapsRecordDetail(
       invoice: invoice,
@@ -324,7 +319,7 @@ class OXChat extends OXFlutterModule {
 
     if (Platform.isAndroid){
       String fileContent = await loadFileByAndroid(decryptedFile);
-      await OXNavigator.pushPage(context, (context) => CommonWebView(fileContent, isLocalHtmlResource: true,));
+      await OXModuleService.invoke('ox_common', 'gotoWebView', [context, fileContent, null, null, true, null]);
     } else {
       // Open on page
       var fileURL = decryptedFile.path;
@@ -332,7 +327,7 @@ class OXChat extends OXFlutterModule {
       if (!fileURL.isFileURL) {
         fileURL = 'file://$fileURL';
       }
-      await OXNavigator.pushPage(context, (context) => CommonWebView(fileURL));
+      await OXModuleService.invoke('ox_common', 'gotoWebView', [context, fileURL, null, null, null, null]);
     }
     encryptedFile.delete();
     decryptedFile.delete();
