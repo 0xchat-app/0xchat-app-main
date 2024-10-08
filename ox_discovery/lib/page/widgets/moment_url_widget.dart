@@ -8,6 +8,7 @@ import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_webview.dart';
 import 'package:ox_discovery/utils/moment_widgets_utils.dart';
+import 'package:ox_module_service/ox_module_service.dart';
 
 import '../../model/moment_extension_model.dart';
 
@@ -76,12 +77,7 @@ class MomentUrlWidgetState extends State<MomentUrlWidget> {
     if(urlData == null) return const SizedBox();
     return GestureDetector(
       onTap: () {
-        OXNavigator.presentPage(
-            context,
-            allowPageScroll: true,
-            (context) => CommonWebView(widget.url),
-            fullscreenDialog: true,
-        );
+        OXModuleService.invoke('ox_common', 'gotoWebView', [context, widget.url, null, null, null, null]);
       },
       child: Container(
         width: double.infinity,

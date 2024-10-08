@@ -35,6 +35,7 @@ import 'package:ox_common/widgets/common_file_cache_manager.dart';
 import 'package:ox_common/widgets/common_image_gallery.dart';
 import 'package:ox_common/widgets/common_long_content_page.dart';
 import 'package:ox_common/widgets/common_video_page.dart';
+import 'package:ox_module_service/ox_module_service.dart';
 import 'package:uuid/uuid.dart';
 import 'package:ox_chat/manager/chat_draft_manager.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
@@ -269,7 +270,7 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
       );
 
   void _onLinkTextPressed(BuildContext context, String text) {
-    OXNavigator.presentPage(context, allowPageScroll: true, (context) => CommonWebView(text), fullscreenDialog: true);
+    OXModuleService.invoke('ox_common', 'gotoWebView', [context, text, null, null, null, null]);
   }
 
   Future messagePressHandler(BuildContext context, types.Message message) async {
@@ -440,7 +441,7 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
   void templateMessagePressHandler(BuildContext context, types.CustomMessage message) {
     final link = TemplateMessageEx(message).link;
     if (link.isRemoteURL) {
-      OXNavigator.presentPage(context, allowPageScroll: true, (context) => CommonWebView(link), fullscreenDialog: true);
+      OXModuleService.invoke('ox_common', 'gotoWebView', [context, link, null, null, null, null]);
     } else {
       link.tryHandleCustomUri(context: context);
     }

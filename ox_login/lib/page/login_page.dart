@@ -8,7 +8,6 @@ import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/app_initialization_manager.dart';
-import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
@@ -26,7 +25,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:rich_text_widget/rich_text_widget.dart';
-import 'package:ox_cache_manager/ox_cache_manager.dart';
+import 'package:ox_module_service/ox_module_service.dart';
 
 class LoginPage extends StatefulWidget {
   final bool? isLoginShow;
@@ -316,22 +315,10 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _serviceWebView() {
-    OXNavigator.presentPage(
-      context,
-      (context) => CommonWebView(
-        'https://www.0xchat.com/protocols/0xchat_terms_of_use.html',
-        title: Localized.text("ox_login.terms_of_service"),
-      ),
-    );
+    OXModuleService.invoke('ox_common', 'gotoWebView', [context, 'https://www.0xchat.com/protocols/0xchat_terms_of_use.html', null, null, null, null]);
   }
 
   void _privacyPolicyWebView() {
-    OXNavigator.presentPage(
-      context,
-          (context) => CommonWebView(
-            'https://www.0xchat.com/protocols/0xchat_privacy_policy.html',
-        title: Localized.text("ox_login.privacy_policy"),
-      ),
-    );
+    OXModuleService.invoke('ox_common', 'gotoWebView', [context, 'https://www.0xchat.com/protocols/0xchat_privacy_policy.html', null, null, null, null]);
   }
 }
