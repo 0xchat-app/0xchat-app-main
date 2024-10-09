@@ -204,6 +204,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       dataController.updateMessage(message, originMessageId: replaceMessageId);
     } else {
       dataController.addMessage(message);
+      dataController.galleryCache.tryAddPreviewImage(message: message);
     }
 
     if (sendingType == ChatSendingType.remote) {

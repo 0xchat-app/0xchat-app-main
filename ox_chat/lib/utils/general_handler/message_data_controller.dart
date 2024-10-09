@@ -16,6 +16,8 @@ import 'package:ox_common/utils/list_extension.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 
+import 'chat_gallery_data_cache.dart';
+
 class MessageDataController with OXChatObserver {
 
   MessageDataController(this.chatTypeKey) {
@@ -23,6 +25,8 @@ class MessageDataController with OXChatObserver {
   }
 
   ChatTypeKey chatTypeKey;
+
+  ChatGalleryDataCache galleryCache = ChatGalleryDataCache();
 
   Set<String> _messageIdCache = {};
   List<types.Message> _messages = [];
@@ -174,12 +178,16 @@ extension MessageDataControllerInterface on MessageDataController {
     return immutableMessages.indexWhere((msg) => msg.id == messageId);
   }
 
-  Future<List<types.Message>> getLocalMessage([int? limit]) async {
+  Future<List<types.Message>> getLocalMessage({
+    List<MessageType> messageTypes = const [],
+    int? limit,
+  }) async {
     final params = chatTypeKey.messageLoaderParams;
     List<MessageDBISAR> allMessage = (await Messages.loadMessagesFromDB(
       receiver: params.receiver,
       groupId: params.groupId,
       sessionId: params.sessionId,
+      messageTypes: messageTypes,
       limit: limit,
     ))['messages'] ?? <MessageDBISAR>[];
 
@@ -375,7 +383,10 @@ extension MessageDataControllerPrivate on MessageDataController {
     final lastMessageTime = _messages.lastOrNull?.createdAt;
     if (_hasMoreOldMessage && lastMessageTime != null && message.createTime < (lastMessageTime ~/ 1000)) return ;
 
-    await _addMessageWithMessageDB(message);
+    final uiMessage = await _addMessageWithMessageDB(message);
+    if (uiMessage != null) {
+      galleryCache.tryAddPreviewImage(message: uiMessage);
+    }
   }
 
   Future<types.Message?> _addMessageWithMessageDB(MessageDBISAR message, {
