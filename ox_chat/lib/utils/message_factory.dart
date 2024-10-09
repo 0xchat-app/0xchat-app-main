@@ -454,13 +454,14 @@ class CustomMessageFactory implements MessageFactory {
         );
 
       case CustomMessageType.note:
-        final authorIcon = contentMap['authorIcon'];
-        final authorName = contentMap['authorName'];
-        final authorDNS = contentMap['authorDNS'];
-        final createTime = contentMap['createTime'];
-        final note = contentMap['note'];
-        final image = contentMap['image'];
-        final link = contentMap['link'];
+        final sourceScheme = contentMap['sourceScheme'] ?? '';
+        final authorIcon = contentMap['authorIcon'] ?? '';
+        final authorName = contentMap['authorName'] ?? '';
+        final authorDNS = contentMap['authorDNS'] ?? '';
+        final createTime = contentMap['createTime'] ?? '';
+        final note = contentMap['note'] ?? '';
+        final image = contentMap['image'] ?? '';
+        final link = contentMap['link'] ?? '';
         return createNoteMessage(
           author: author,
           timestamp: timestamp,
@@ -468,6 +469,7 @@ class CustomMessageFactory implements MessageFactory {
           id: remoteId ?? messageId ?? '',
           remoteId: remoteId,
           sourceKey: sourceKey,
+          sourceScheme: sourceScheme,
           authorIcon: authorIcon,
           authorName: authorName,
           authorDNS: authorDNS,
@@ -544,12 +546,12 @@ class CustomMessageFactory implements MessageFactory {
         }
 
       case CustomMessageType.imageSending:
-        final fileId = contentMap[ImageSendingMessageEx.metaFileIdKey];
-        final path = contentMap[ImageSendingMessageEx.metaPathKey];
-        final url = contentMap[ImageSendingMessageEx.metaURLKey];
-        final width = contentMap[ImageSendingMessageEx.metaWidthKey];
-        final height = contentMap[ImageSendingMessageEx.metaHeightKey];
-        final encryptedKey = contentMap[ImageSendingMessageEx.metaEncryptedKey];
+        String fileId = contentMap[ImageSendingMessageEx.metaFileIdKey] ?? '';
+        String path = contentMap[ImageSendingMessageEx.metaPathKey] ?? '';
+        String url = contentMap[ImageSendingMessageEx.metaURLKey] ?? '';
+        int? width = contentMap[ImageSendingMessageEx.metaWidthKey];
+        int? height = contentMap[ImageSendingMessageEx.metaHeightKey];
+        String? encryptedKey = contentMap[ImageSendingMessageEx.metaEncryptedKey];
         return createImageSendingMessage(
           author: author,
           timestamp: timestamp,
@@ -681,6 +683,7 @@ class CustomMessageFactory implements MessageFactory {
     int? expiration,
     List<types.Reaction> reactions = const [],
     List<types.ZapsInfo> zapsInfoList = const [],
+    required String sourceScheme,
     required String authorIcon,
     required String authorName,
     required String authorDNS,
@@ -697,6 +700,7 @@ class CustomMessageFactory implements MessageFactory {
       remoteId: remoteId,
       roomId: roomId,
       metadata: CustomMessageEx.noteMetaData(
+        sourceScheme: sourceScheme,
         authorIcon: authorIcon,
         authorName: authorName,
         authorDNS: authorDNS,

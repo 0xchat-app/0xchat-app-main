@@ -42,6 +42,7 @@ class ChatMessageHelper {
     MessageType type,
     String senderId,
   ) {
+    final unknownText = Localized.text('ox_common.message_type_unknown');
     switch (type) {
       case MessageType.text:
         final mentionDecoderText = ChatMentionMessageEx.tryDecoder(contentText);
@@ -98,42 +99,48 @@ class ChatMessageHelper {
       case MessageType.call:
         return Localized.text('ox_common.message_type_call');
       case MessageType.template:
-        if (contentText.isNotEmpty) {
-          try {
-            final decryptedContent = json.decode(contentText);
-            if (decryptedContent is Map) {
-              final type = CustomMessageTypeEx.fromValue(decryptedContent['type']);
-              final content = decryptedContent['content'];
-              switch (type) {
-                case CustomMessageType.zaps:
-                  return Localized.text('ox_common.message_type_zaps');
-                case CustomMessageType.template:
-                  if (content is Map) {
-                    final title = content['title'] ?? '';
-                    return Localized.text('ox_common.message_type_template') + title;
-                  }
-                  break ;
-                case CustomMessageType.ecash:
-                case CustomMessageType.ecashV2:
-                  var memo = '';
-                  try {
-                    memo = EcashMessageEx.getDescriptionWithMetadata(json.decode(contentText));
-                  } catch (_) { }
-                  return '[Cashu Ecash] $memo';
-                case CustomMessageType.imageSending:
-                  return Localized.text('ox_common.message_type_image');
-                case CustomMessageType.video:
-                  return Localized.text('ox_common.message_type_video');
-                default:
-                  break ;
-              }
+        if (contentText.isEmpty) break ;
+
+        Map metaMap = {};
+        try {
+          metaMap = json.decode(contentText);
+        } catch (_) { }
+
+        final type = CustomMessageTypeEx.fromValue(metaMap[CustomMessageEx.metaTypeKey]);
+        final content = metaMap[CustomMessageEx.metaContentKey];
+        if (type == null) break;
+
+        switch (type) {
+          case CustomMessageType.zaps:
+            return Localized.text('ox_common.message_type_zaps');
+          case CustomMessageType.template:
+            if (content is Map) {
+              final title = content['title'] ?? '';
+              return Localized.text('ox_common.message_type_template') + title;
             }
-          } catch (_) { }
+            break ;
+          case CustomMessageType.ecash:
+          case CustomMessageType.ecashV2:
+            var memo = '';
+            try {
+              memo = EcashMessageEx.getDescriptionWithMetadata(json.decode(contentText));
+            } catch (_) { }
+            return '[Cashu Ecash] $memo';
+          case CustomMessageType.imageSending:
+            return Localized.text('ox_common.message_type_image');
+          case CustomMessageType.video:
+            return Localized.text('ox_common.message_type_video');
+          case CustomMessageType.note:
+            final sourceScheme = NoteMessageEx.getSourceSchemeWithMetadata(metaMap);
+            if (sourceScheme != null && sourceScheme.isNotEmpty) return sourceScheme;
+            return Localized.text('ox_common.message_type_template');
+          case CustomMessageType.call:
+            return CallMessageEx.getDescriptionWithMetadata(metaMap) ?? unknownText;
         }
-        return Localized.text('ox_common.message_type_unknown');
-      default:
-        return Localized.text('ox_common.message_type_unknown');
+        break ;
     }
+
+    return unknownText;
   }
 
   static Future<types.User?> _getUser(String userPubkey) async {
@@ -186,7 +193,7 @@ class ChatMessageHelper {
           // Template Msg
           ChatNostrSchemeHandle.tryDecodeNostrScheme(initialText).then((nostrSchemeContent) async {
             logger?.print('step async - initialText: $initialText, nostrSchemeContent: ${nostrSchemeContent}');
-            if(nostrSchemeContent != null) {
+            if (nostrSchemeContent != null) {
               asyncParseCallback?.call(nostrSchemeContent, MessageType.template);
             }
           });

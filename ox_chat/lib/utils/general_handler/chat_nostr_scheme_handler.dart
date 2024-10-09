@@ -226,7 +226,6 @@ class ChatNostrSchemeHandle {
       userDB =
           await Account.sharedInstance.reloadProfileFromRelay(noteDB.author);
     }
-    ;
 
     // String resultString = nostrScheme.replaceFirst('nostr:', "");
     // final url = '${CommonConstant.njumpURL}${resultString}';
@@ -234,7 +233,9 @@ class ChatNostrSchemeHandle {
         await OXDiscoveryInterface.getJumpMomentPageUri(noteDB.noteId);
     Map<String, dynamic> map = {};
     map['type'] = '4';
+
     map['content'] = {
+      'sourceScheme': noteDB.encodedNoteId,
       'authorIcon': '${userDB?.picture}',
       'authorName': '${userDB?.name}',
       'authorDNS': '${userDB?.dns}',
