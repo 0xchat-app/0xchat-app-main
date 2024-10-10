@@ -13,6 +13,8 @@ import 'package:ox_chat/utils/custom_message_utils.dart';
 import 'package:ox_chat/utils/general_handler/chat_mention_handler.dart';
 import 'package:ox_chat/utils/general_handler/chat_nostr_scheme_handler.dart';
 import 'package:ox_chat/utils/message_factory.dart';
+import 'package:ox_chat/utils/widget_tool.dart';
+import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
@@ -97,7 +99,18 @@ class ChatMessageHelper {
         }
         return text;
       case MessageType.call:
-        return Localized.text('ox_common.message_type_call');
+        var contentMap;
+        try {
+          contentMap = json.decode(contentText);
+        } catch (_) { }
+
+        final type = CallMessageTypeEx.fromValue(contentMap['media']);
+        if (type == null) break ;
+
+        switch (type) {
+          case CallMessageType.audio: return '[${'str_voice_call'.localized()}]';
+          case CallMessageType.video: return '[${'str_video_call'.localized()}]';
+        }
       case MessageType.template:
         if (contentText.isEmpty) break ;
 
