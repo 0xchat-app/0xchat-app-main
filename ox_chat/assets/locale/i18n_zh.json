@@ -328,5 +328,6 @@
   "str_group_admin_permission_success_toast": "权限修改成功",
   "str_dm_auto_delete_hint": "消息将在${time}后自动删除",
   "delete_message_me_action_mode": "刪除我的訊息",
-  "delete_message_everyone_action_mode": "刪除所有人的訊息"
+  "delete_message_everyone_action_mode": "刪除所有人的訊息",
+  "str_group_admin_permission_add_fail_toast": "不能添加改权限"
 }
