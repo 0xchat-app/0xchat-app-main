@@ -175,7 +175,7 @@ extension MessageDataControllerInterface on MessageDataController {
 
   int getMessageIndex(String messageId) {
     final immutableMessages = [..._messages];
-    return immutableMessages.indexWhere((msg) => msg.id == messageId);
+    return immutableMessages.indexWhere((msg) => msg.id == messageId || msg.remoteId == messageId);
   }
 
   Future<List<types.Message>> getLocalMessage({

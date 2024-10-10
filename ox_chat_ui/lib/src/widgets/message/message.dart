@@ -193,16 +193,23 @@ class Message extends StatefulWidget {
   final Widget Function(BuildContext context, types.Message, CustomPopupMenuController controller)? longPressWidgetBuilder;
 
   @override
-  State<Message> createState() => _MessageState();
+  State<Message> createState() => MessageState();
 }
 
 
 
-class _MessageState extends State<Message> {
+class MessageState extends State<Message> {
 
   final CustomPopupMenuController _popController = CustomPopupMenuController();
 
   double get horizontalPadding => 12.px;
+
+  Duration get flashDisplayDuration => const Duration(milliseconds: 300);
+  Duration get flashDismissDuration => const Duration(milliseconds: 1000);
+  late Duration flashDuration = flashDisplayDuration;
+
+  Color get flashColor => ThemeColor.color190;
+  late Color flashBackgroundColor = flashColor.withOpacity(0);
 
   @override
   Widget build(BuildContext context) {
@@ -240,10 +247,15 @@ class _MessageState extends State<Message> {
       );
     }
 
-    return Container(
-      alignment: alignment,
-      margin: margin,
-      child: _buildMessageContentView(),
+    return AnimatedContainer(
+      duration: flashDuration,
+      curve: Curves.easeIn,
+      color: flashBackgroundColor,
+      child: Container(
+        alignment: alignment,
+        margin: margin,
+        child: _buildMessageContentView(),
+      ),
     );
   }
 
@@ -546,5 +558,18 @@ class _MessageState extends State<Message> {
     widget.message,
     messageWidth: widget.messageWidth,
   ) ?? const SizedBox();
+
+  void flash() {
+    setState(() {
+      flashBackgroundColor = flashColor;
+      flashDuration = flashDisplayDuration;
+    });
+    Future.delayed(flashDisplayDuration, () {
+      setState(() {
+        flashBackgroundColor = flashColor.withOpacity(0.0);
+        flashDuration = flashDismissDuration;
+      });
+    });
+  }
 }
 

@@ -425,6 +425,9 @@ class ChatState extends State<Chat> {
   final GlobalKey _bottomWidgetKey = GlobalKey();
   final GlobalKey<InputState> _inputKey = GlobalKey<InputState>();
 
+  /// Key: [types.Message.id], Value: Message widget key
+  final Map<String, GlobalKey<MessageState>> messageKeyMap = {};
+
   @override
   void initState() {
     super.initState();
@@ -481,11 +484,21 @@ class ChatState extends State<Chat> {
   }
 
   /// Scroll to the message with the specified [id].
-  Future scrollToMessage(String id, {Duration? duration}) => _scrollController.scrollToIndex(
-        _autoScrollIndexById[id] ?? 0,
-        duration: duration ?? scrollAnimationDuration,
-        preferPosition: AutoScrollPosition.middle,
-      );
+  Future scrollToMessage(String messageId, {Duration? duration}) async {
+    await _scrollController.scrollToIndex(
+      _autoScrollIndexById[messageId] ?? 0,
+      duration: duration ?? scrollAnimationDuration,
+      preferPosition: AutoScrollPosition.middle,
+    );
+    flashMessage(messageId);
+  }
+
+  void flashMessage(String messageId) {
+    final widgetKey = messageKeyMap[messageId];
+    if (widgetKey == null) return ;
+
+    widgetKey.currentState?.flash();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -755,7 +768,16 @@ class ChatState extends State<Chat> {
             ? min(constraints.maxWidth, 280.px).floor()
             : min(constraints.maxWidth, 280.px).floor();
 
+        final messageId = message.id;
+        final messageRemoteId = message.remoteId;
+
+        final widgetKey = messageKeyMap.putIfAbsent(messageId, () => GlobalKey());
+        if (messageId != messageRemoteId && messageRemoteId != null && messageRemoteId.isNotEmpty) {
+          messageKeyMap[messageRemoteId] = widgetKey;
+        }
+
         messageWidget = Message(
+          key: widgetKey,
           audioMessageBuilder: widget.audioMessageBuilder,
           avatarBuilder: widget.avatarBuilder,
           bubbleBuilder: widget.bubbleBuilder,
