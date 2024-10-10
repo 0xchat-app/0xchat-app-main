@@ -178,7 +178,14 @@ class _RelayGroupSetAdminRightsPageState extends State<RelayGroupSetAdminRightsP
                 onChanged: (value) async {
                   setState(() {
                     if (value) {
-                      _currentPermissionKinds.add(groupActionKind);
+                      if(groupActionKind == GroupActionKind.addPermission ||
+                          groupActionKind == GroupActionKind.removePermission ||
+                          groupActionKind == GroupActionKind.deleteGroup){
+                        CommonToast.instance.show(context, 'str_group_admin_permission_add_fail_toast'.localized());
+                      }
+                      else{
+                        _currentPermissionKinds.add(groupActionKind);
+                      }
                     } else {
                       _currentPermissionKinds.remove(groupActionKind);
                     }
