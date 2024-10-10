@@ -264,7 +264,7 @@ class OXCImagePickerHelper {
             manager.requestAVAsset(forVideo: asset, options: options) { asset, audioMix, info in
                 if let urlAsset = asset as? AVURLAsset {
                     let url = urlAsset.url
-                    let subString = String(url.absoluteString.dropFirst(7))
+                    let subString = url.relativePath
                     
                     let formatter = DateFormatter()
                     formatter.dateFormat = "yyyyMMddHHmmss"
