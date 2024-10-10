@@ -203,9 +203,8 @@ class CommonSelectRelayPageState extends State<CommonSelectRelayPage> {
                     fontSize: Adapt.px(15),
                   ),
                   suffixIcon: _delTextIconWidget(),
-                  border: const OutlineInputBorder(
-                    borderSide: BorderSide.none,
-                  ),
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.symmetric(horizontal: 12.px),
                 ),
                 onChanged: (str) {
                   setState(() {
