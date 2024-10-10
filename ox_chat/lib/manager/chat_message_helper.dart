@@ -611,7 +611,7 @@ extension MessageUIToDBEx on types.Message {
     }
   }
 
-  String contentString(String content) {
+  String contentString() {
     final msg = this;
 
     Map map = {
