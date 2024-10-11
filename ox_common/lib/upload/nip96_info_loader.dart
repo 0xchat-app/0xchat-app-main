@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/network/network_general.dart';
 import 'package:ox_network/network_manager.dart';
 import 'nip96_server_adaptation.dart';
+import 'package:http/http.dart' as http;
 
 class NIP96InfoLoader {
   static NIP96InfoLoader? _nip96infoLoader;
@@ -39,15 +42,14 @@ class NIP96InfoLoader {
     // }
 
     try {
-      OXResponse response = await OXNetwork.instance.doRequest(
-        null,
-        url: newUri.toString(),
-        type: RequestType.GET,
-        showLoading: false,
-      );
-      var result = response.data;
-      LogUtil.e("Get NIP-96 Server Successful");
-      return Nip96ServerAdaptation.fromJson(result);
+      final response = await http
+          .get(Uri.parse(newUri.toString()));
+      if (response.statusCode == 200) {
+        var result = jsonDecode(response.body);
+        return Nip96ServerAdaptation.fromJson(result);
+      } else {
+        return null;
+      }
     } catch (e, s) {
       LogUtil.e("Get NIP-96 Server failed: $e\r\n$s");
       return null;

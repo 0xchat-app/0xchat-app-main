@@ -180,8 +180,9 @@ extension ScanAnalysisHandlerEx on ScanUtils {
     matcher: (String str) {
       return str.startsWith('nostr+walletconnect:');
     },
-    action: (String nwcURI, BuildContext context) async {
+    action: (String nwcURI, _) async {
       NostrWalletConnection? nwc = NostrWalletConnection.fromURI(nwcURI);
+      BuildContext context = OXNavigator.navigatorKey.currentContext!;
       OXCommonHintDialog.show(context,
         title: 'scan_find_nwc_hint'.commonLocalized(),
         content: '${nwc?.relays[0]}\n${nwc?.lud16}',
