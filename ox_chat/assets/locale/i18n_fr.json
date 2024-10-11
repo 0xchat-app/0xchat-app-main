@@ -271,7 +271,7 @@
   "str_group_private_description": "Mise en œuvre de salle de discussion NIP-17. Tous les messages sont envoyés individuellement à chaque membre du groupe",
   "str_public_channel_description": "Mise en œuvre de chat public NIP-28. Tout le monde peut rejoindre et envoyer des messages librement",
   "str_group_show_description": "Les informations du groupe sont visibles pour les non-membres",
-  "str_group_hidden_description": "Les informations du groupe sont cachées aux non-membres"
+  "str_group_hidden_description": "Les informations du groupe sont cachées aux non-membres",
   "str_group_type": "Type",
   "str_group_relay": "Relais",
   "str_group_ID": "ID",
