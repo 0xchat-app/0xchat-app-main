@@ -203,7 +203,12 @@ class ZapsActionHandler {
         receiver: receiver,
         groupId: groupId
       );
-      bool result = await handleZapWithEcash(mint: mint!, zapsInfo: zapsInfo, context: context);
+      bool result = await handleZapWithEcash(
+        mint: mint!,
+        zapsInfo: zapsInfo,
+        context: context,
+        showLoading: showLoading,
+      );
       if(showLoading) OXLoading.dismiss();
       if(!result) return;
       if(context.widget is ZapsAssistedPage) OXNavigator.pop(context);
@@ -260,13 +265,22 @@ class ZapsActionHandler {
     required IMint mint,
     required Map zapsInfo,
     required BuildContext context,
+    bool showLoading = false,
   }) async {
     String invoice = zapsInfo['invoice'];
     if(invoice.isEmpty) {
       await CommonToast.instance.show(context, 'Get Invoice Failed');
       return false;
     }
-    final response = await Cashu.payingLightningInvoice(mint: mint, pr: invoice);
+    final response = await Cashu.payingLightningInvoice(
+      mint: mint,
+      pr: invoice,
+      processCallback: (statusText) {
+        if (showLoading) {
+          OXLoading.show(status: statusText);
+        }
+      }
+    );
     if (OXWalletInterface.checkAndShowDialog(context, response, mint)) return false;
     if (!response.isSuccess) {
       await CommonToast.instance.show(context, response.errorMsg);
