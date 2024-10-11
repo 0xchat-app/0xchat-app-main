@@ -51,16 +51,20 @@ class LocalNotificationManager {
     const InitializationSettings initializationSettings =
         InitializationSettings(android: initializationSettingsAndroid);
     await flutterLocalNotificationsPlugin?.initialize(initializationSettings);
+    initAndroidNotificationChannel();
+
+    await flutterLocalNotificationsPlugin
+        ?.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(channel!);
+  }
+
+  void initAndroidNotificationChannel() {
     channel = AndroidNotificationChannel(
       '10000',
       'Chat Notification',
       description: 'This Channel is 0xchat App Chat push notification',
       importance: Importance.high,
     );
-
-    await flutterLocalNotificationsPlugin
-        ?.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(channel!);
   }
 
   void onDidReceiveNotificationResponse(NotificationResponse notificationResponse) {
@@ -75,7 +79,7 @@ class LocalNotificationManager {
   }
 
   void onMessage(Uint8List message, String instance) async {
-    int notificationID = 0;
+    int notificationID = message.hashCode;
     String showTitle = '';
     String showContent = '';
     String msgType = '0';
@@ -102,6 +106,7 @@ class LocalNotificationManager {
 
   void showLocalNotification(int notificationID, String showTitle, String showContent) async {
     if (flutterLocalNotificationsPlugin == null) await LocalNotificationManager.instance.initFlutterLocalNotificationsPlugin();
+    if (channel == null) LocalNotificationManager.instance.initAndroidNotificationChannel();
     flutterLocalNotificationsPlugin?.show(
       notificationID,
       showTitle,
