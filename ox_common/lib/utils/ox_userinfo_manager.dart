@@ -7,6 +7,7 @@ import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/log_util.dart';
+import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/utils/ox_server_manager.dart';
 import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/utils/app_initialization_manager.dart';
@@ -417,7 +418,12 @@ class OXUserInfoManager {
 
   void _initMessage() {
     Messages.sharedInstance.init();
-    NotificationHelper.sharedInstance.init(CommonConstant.serverPubkey);
+    OXCommon.channelPreferences.invokeMethod(
+      'isAppInBackground',
+    ).then((value) {
+      if (!value)
+        NotificationHelper.sharedInstance.init(CommonConstant.serverPubkey);
+    });
     OXModuleService.invoke(
       'ox_calling',
       'initRTC',
