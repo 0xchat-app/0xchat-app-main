@@ -581,7 +581,7 @@ extension ChatMessageBuilderCustomEx on ChatMessageBuilder {
       ),
     );
 
-    if (message.reactions.isNotEmpty) {
+    if (message.hasReactions) {
       widget = Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
