@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:cashu_dart/business/wallet/cashu_manager.dart';
 import 'package:chatcore/chat-core.dart';
@@ -418,12 +419,17 @@ class OXUserInfoManager {
 
   void _initMessage() {
     Messages.sharedInstance.init();
-    OXCommon.channelPreferences.invokeMethod(
-      'isAppInBackground',
-    ).then((value) {
-      if (!value)
-        NotificationHelper.sharedInstance.init(CommonConstant.serverPubkey);
-    });
+    if (Platform.isAndroid) {
+      OXCommon.channelPreferences.invokeMethod(
+        'isAppInBackground',
+      ).then((value) {
+        if (!value)
+          NotificationHelper.sharedInstance.init(CommonConstant.serverPubkey);
+      });
+    } else {
+      NotificationHelper.sharedInstance.init(CommonConstant.serverPubkey);
+    }
+
     OXModuleService.invoke(
       'ox_calling',
       'initRTC',
