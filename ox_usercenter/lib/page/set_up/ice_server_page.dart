@@ -228,9 +228,8 @@ class _ICEServerPageState extends State<ICEServerPage> {
                   ),
                 )
                     : null,
-                border: const OutlineInputBorder(
-                  borderSide: BorderSide.none,
-                ),
+                border: InputBorder.none,
+                contentPadding: EdgeInsets.symmetric(horizontal: 12.px),
               ),
               onChanged: (value) {
                 setState(() {

@@ -35,6 +35,7 @@ import 'package:ox_common/widgets/common_file_cache_manager.dart';
 import 'package:ox_common/widgets/common_image_gallery.dart';
 import 'package:ox_common/widgets/common_long_content_page.dart';
 import 'package:ox_common/widgets/common_video_page.dart';
+import 'package:ox_module_service/ox_module_service.dart';
 import 'package:uuid/uuid.dart';
 import 'package:ox_chat/manager/chat_draft_manager.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
@@ -55,7 +56,6 @@ import 'package:ox_common/utils/permission_utils.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_toast.dart';
-import 'package:ox_common/widgets/common_webview.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_localizable/ox_localizable.dart';
@@ -197,14 +197,27 @@ class ChatGeneralHandler {
     }
 
     await initializeUnreadMessage();
+    initializeImageGallery();
   }
 
   Future initializeUnreadMessage() async {
-
     if (unreadMessageCount < 10) return ;
 
-    final messages = await dataController.getLocalMessage(unreadMessageCount);
+    final messages = await dataController.getLocalMessage(
+      limit: unreadMessageCount,
+    );
     unreadFirstMessage = messages.lastOrNull;
+  }
+
+  Future initializeImageGallery() async {
+    final messageList = await dataController.getLocalMessage(
+      messageTypes: [
+        MessageType.image,
+        MessageType.encryptedImage,
+        MessageType.template,
+      ],
+    );
+    dataController.galleryCache.initializePreviewImages(messageList);
   }
 
   void dispose() {
@@ -269,7 +282,7 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
       );
 
   void _onLinkTextPressed(BuildContext context, String text) {
-    OXNavigator.presentPage(context, allowPageScroll: true, (context) => CommonWebView(text), fullscreenDialog: true);
+    OXModuleService.invoke('ox_common', 'gotoWebView', [context, text, null, null, null, null]);
   }
 
   Future messagePressHandler(BuildContext context, types.Message message) async {
@@ -328,30 +341,12 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
     required String messageId,
     required String imageUri,
   }) async {
-    final messages = await dataController.getLocalMessage();
-    final gallery = messages.map((message) {
-      if (message is types.ImageMessage) {
-        return PreviewImage(
-          id: message.id,
-          uri: message.uri,
-          decryptSecret: message.decryptKey,
-        );
-      } else if (message is types.CustomMessage
-          && message.customType == CustomMessageType.imageSending) {
-        String uri = ImageSendingMessageEx(message).url;
-        if (uri.isEmpty) {
-          uri = ImageSendingMessageEx(message).path;
-        }
-        if (uri.isEmpty) return null;
 
-        return PreviewImage(
-          id: message.id,
-          uri: uri,
-          decryptSecret: message.decryptKey,
-        );
-      }
-    }).whereNotNull().toList();
+    final galleryCache = dataController.galleryCache;
 
+    await galleryCache.initializeComplete;
+
+    final gallery = galleryCache.gallery;
     final initialPage = gallery.indexWhere(
       (element) => element.id == messageId || element.uri == imageUri,
     );
@@ -440,7 +435,7 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
   void templateMessagePressHandler(BuildContext context, types.CustomMessage message) {
     final link = TemplateMessageEx(message).link;
     if (link.isRemoteURL) {
-      OXNavigator.presentPage(context, allowPageScroll: true, (context) => CommonWebView(link), fullscreenDialog: true);
+      OXModuleService.invoke('ox_common', 'gotoWebView', [context, link, null, null, null, null]);
     } else {
       link.tryHandleCustomUri(context: context);
     }

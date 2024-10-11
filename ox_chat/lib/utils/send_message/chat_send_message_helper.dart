@@ -28,7 +28,7 @@ class ChatSendMessageHelper {
       encrypt: message.decryptKey != null,
     );
     final contentString = (await contentEncoder?.call(message)) ??
-        message.contentString(message.content);
+        message.contentString();
     final replayId = message.repliedMessage?.id ?? '';
 
     types.Message sendMsg = message;

@@ -2,6 +2,7 @@
 import 'dart:convert';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:cashu_dart/cashu_dart.dart';
+import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 import 'package:ox_common/utils/string_utils.dart';
@@ -53,6 +54,7 @@ extension CustomMessageEx on types.CustomMessage {
   }
 
   static Map<String, dynamic> noteMetaData({
+    required String sourceScheme,
     required String authorIcon,
     required String authorName,
     required String authorDNS,
@@ -62,6 +64,7 @@ extension CustomMessageEx on types.CustomMessage {
     required String link,
   }) {
     return _metaData(CustomMessageType.note, {
+      'sourceScheme': sourceScheme,
       'authorIcon': authorIcon,
       'authorName': authorName,
       'authorDNS': authorDNS,
@@ -175,6 +178,15 @@ extension ZapsMessageEx on types.CustomMessage {
 extension CallMessageEx on types.CustomMessage {
   String get callText => metadata?[CustomMessageEx.metaContentKey]?['text'] ?? '';
   CallMessageType? get callType => CallMessageTypeEx.fromValue(metadata?[CustomMessageEx.metaContentKey]?['type']);
+
+  static String? getDescriptionWithMetadata(Map? metadata) {
+    final type = CallMessageTypeEx.fromValue(metadata?[CustomMessageEx.metaContentKey]?['type']);
+    if (type == null) return null;
+    switch (type) {
+      case CallMessageType.audio: return '[${'str_voice_call'.localized()}]';
+      case CallMessageType.video: return '[${'str_video_call'.localized()}]';
+    }
+  }
 }
 
 extension TemplateMessageEx on types.CustomMessage {
@@ -192,6 +204,9 @@ extension NoteMessageEx on types.CustomMessage {
   String get note => metadata?[CustomMessageEx.metaContentKey]?['note'] ?? '';
   String get image => metadata?[CustomMessageEx.metaContentKey]?['image'] ?? '';
   String get link => metadata?[CustomMessageEx.metaContentKey]?['link'] ?? '';
+
+  static String? getSourceSchemeWithMetadata(Map? metadata) =>
+      metadata?[CustomMessageEx.metaContentKey]?['sourceScheme'];
 }
 
 extension EcashMessageEx on types.CustomMessage {

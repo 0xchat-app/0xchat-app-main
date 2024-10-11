@@ -17,6 +17,7 @@ import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_webview.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_localizable/ox_localizable.dart';
+import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_push/push_lib.dart';
 import 'package:ox_usercenter/model/notice_model.dart';
 import 'package:ox_usercenter/page/set_up/settings_page.dart';
@@ -362,15 +363,8 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
     return resultMap;
   }
 
-  Future _showWebView(String title, String url) {
-    return OXNavigator.presentPage(
-      context,
-      (context) => CommonWebView(
-        url,
-        title: '0xchat',
-      ),
-      fullscreenDialog: true,
-    );
+  void _showWebView(String title, String url) {
+    OXModuleService.invoke('ox_common', 'gotoWebView', [context, url, null, null, null, null]);
   }
 
   String _showNameById(int id) {

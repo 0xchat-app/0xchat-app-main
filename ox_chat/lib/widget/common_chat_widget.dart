@@ -182,8 +182,8 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
               ChatMessageBuilder.buildRepliedMessageView(
                 message,
                 messageWidth: messageWidth,
-                onTap: (repliedMessageId) async {
-                  scrollToMessage(repliedMessageId);
+                onTap: (message) async {
+                  scrollToMessage(message);
                 },
               ),
           reactionViewBuilder: (types.Message message, {required int messageWidth}) =>
@@ -265,7 +265,7 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
       child: GestureDetector(
         onTap: () {
           if (message == null) return ;
-          scrollToMessage(message.id);
+          scrollToMessage(message);
         },
         child: Stack(
           clipBehavior: Clip.none,
@@ -334,20 +334,24 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
     dataController.updateMessage(updatedMessage);
   }
 
-  void scrollToMessage(String messageId) async {
+  void scrollToMessage(types.Message? message) async {
+    if (message == null) return ;
+
+    final messageId = message.id;
     if (messageId.isEmpty) return ;
 
     var index = dataController.getMessageIndex(messageId);
     if (index > -1) {
-      chatWidgetKey.currentState?.scrollToMessage(messageId);
-      return ;
-    }
-
-    await dataController.replaceWithNearbyMessage(targetMessageId: messageId);
-    await Future.delayed(Duration(milliseconds: 300));
-    index = dataController.getMessageIndex(messageId);
-    if (index > -1) {
-      chatWidgetKey.currentState?.scrollToMessage(messageId);
+      // Anchor message in cache
+      await chatWidgetKey.currentState?.scrollToMessage(messageId);
+    } else {
+      // Anchor message not in cache
+      await dataController.replaceWithNearbyMessage(targetMessageId: messageId);
+      await Future.delayed(Duration(milliseconds: 300));
+      index = dataController.getMessageIndex(messageId);
+      if (index > -1) {
+        await chatWidgetKey.currentState?.scrollToMessage(messageId);
+      }
     }
   }
 

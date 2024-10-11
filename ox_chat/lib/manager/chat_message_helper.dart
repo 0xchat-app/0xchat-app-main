@@ -13,6 +13,8 @@ import 'package:ox_chat/utils/custom_message_utils.dart';
 import 'package:ox_chat/utils/general_handler/chat_mention_handler.dart';
 import 'package:ox_chat/utils/general_handler/chat_nostr_scheme_handler.dart';
 import 'package:ox_chat/utils/message_factory.dart';
+import 'package:ox_chat/utils/widget_tool.dart';
+import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
@@ -42,6 +44,7 @@ class ChatMessageHelper {
     MessageType type,
     String senderId,
   ) {
+    final unknownText = Localized.text('ox_common.message_type_unknown');
     switch (type) {
       case MessageType.text:
         final mentionDecoderText = ChatMentionMessageEx.tryDecoder(contentText);
@@ -96,44 +99,61 @@ class ChatMessageHelper {
         }
         return text;
       case MessageType.call:
-        return Localized.text('ox_common.message_type_call');
-      case MessageType.template:
-        if (contentText.isNotEmpty) {
-          try {
-            final decryptedContent = json.decode(contentText);
-            if (decryptedContent is Map) {
-              final type = CustomMessageTypeEx.fromValue(decryptedContent['type']);
-              final content = decryptedContent['content'];
-              switch (type) {
-                case CustomMessageType.zaps:
-                  return Localized.text('ox_common.message_type_zaps');
-                case CustomMessageType.template:
-                  if (content is Map) {
-                    final title = content['title'] ?? '';
-                    return Localized.text('ox_common.message_type_template') + title;
-                  }
-                  break ;
-                case CustomMessageType.ecash:
-                case CustomMessageType.ecashV2:
-                  var memo = '';
-                  try {
-                    memo = EcashMessageEx.getDescriptionWithMetadata(json.decode(contentText));
-                  } catch (_) { }
-                  return '[Cashu Ecash] $memo';
-                case CustomMessageType.imageSending:
-                  return Localized.text('ox_common.message_type_image');
-                case CustomMessageType.video:
-                  return Localized.text('ox_common.message_type_video');
-                default:
-                  break ;
-              }
-            }
-          } catch (_) { }
+        var contentMap;
+        try {
+          contentMap = json.decode(contentText);
+        } catch (_) { }
+
+        final type = CallMessageTypeEx.fromValue(contentMap['media']);
+        if (type == null) break ;
+
+        switch (type) {
+          case CallMessageType.audio: return '[${'str_voice_call'.localized()}]';
+          case CallMessageType.video: return '[${'str_video_call'.localized()}]';
         }
-        return Localized.text('ox_common.message_type_unknown');
-      default:
-        return Localized.text('ox_common.message_type_unknown');
+      case MessageType.template:
+        if (contentText.isEmpty) break ;
+
+        Map metaMap = {};
+        try {
+          metaMap = json.decode(contentText);
+        } catch (_) { }
+
+        final type = CustomMessageTypeEx.fromValue(metaMap[CustomMessageEx.metaTypeKey]);
+        final content = metaMap[CustomMessageEx.metaContentKey];
+        if (type == null) break;
+
+        switch (type) {
+          case CustomMessageType.zaps:
+            return Localized.text('ox_common.message_type_zaps');
+          case CustomMessageType.template:
+            if (content is Map) {
+              final title = content['title'] ?? '';
+              return Localized.text('ox_common.message_type_template') + title;
+            }
+            break ;
+          case CustomMessageType.ecash:
+          case CustomMessageType.ecashV2:
+            var memo = '';
+            try {
+              memo = EcashMessageEx.getDescriptionWithMetadata(json.decode(contentText));
+            } catch (_) { }
+            return '[Cashu Ecash] $memo';
+          case CustomMessageType.imageSending:
+            return Localized.text('ox_common.message_type_image');
+          case CustomMessageType.video:
+            return Localized.text('ox_common.message_type_video');
+          case CustomMessageType.note:
+            final sourceScheme = NoteMessageEx.getSourceSchemeWithMetadata(metaMap);
+            if (sourceScheme != null && sourceScheme.isNotEmpty) return sourceScheme;
+            return Localized.text('ox_common.message_type_template');
+          case CustomMessageType.call:
+            return CallMessageEx.getDescriptionWithMetadata(metaMap) ?? unknownText;
+        }
+        break ;
     }
+
+    return unknownText;
   }
 
   static Future<types.User?> _getUser(String userPubkey) async {
@@ -186,7 +206,7 @@ class ChatMessageHelper {
           // Template Msg
           ChatNostrSchemeHandle.tryDecodeNostrScheme(initialText).then((nostrSchemeContent) async {
             logger?.print('step async - initialText: $initialText, nostrSchemeContent: ${nostrSchemeContent}');
-            if(nostrSchemeContent != null) {
+            if (nostrSchemeContent != null) {
               asyncParseCallback?.call(nostrSchemeContent, MessageType.template);
             }
           });
@@ -604,7 +624,7 @@ extension MessageUIToDBEx on types.Message {
     }
   }
 
-  String contentString(String content) {
+  String contentString() {
     final msg = this;
 
     Map map = {

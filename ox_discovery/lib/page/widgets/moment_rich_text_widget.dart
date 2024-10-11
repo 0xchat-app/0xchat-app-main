@@ -216,11 +216,7 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget>
         CommonVideoPage.show(text);
         return;
       }
-      OXNavigator.presentPage(
-          context,
-          allowPageScroll: true,
-          (context) => CommonWebView(text),
-          fullscreenDialog: true);
+      OXModuleService.invoke('ox_common', 'gotoWebView', [context, text, null, null, null, null]);
       return;
     }
     widget.clickBlankCallback?.call();

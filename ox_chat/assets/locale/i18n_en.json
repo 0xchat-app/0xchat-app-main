@@ -328,5 +328,6 @@
   "str_group_admin_permission_success_toast": "Permission changed successfully.",
   "str_dm_auto_delete_hint": "Messages auto-deleted after ${time}",
   "delete_message_me_action_mode": "Delete for me",
-  "delete_message_everyone_action_mode": "Delete for everyone"
+  "delete_message_everyone_action_mode": "Delete for everyone",
+  "str_group_admin_permission_add_fail_toast": "Permission can't be added."
 }

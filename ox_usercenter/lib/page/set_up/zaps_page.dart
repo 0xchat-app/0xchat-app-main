@@ -16,6 +16,7 @@ import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/common_webview.dart';
 import 'package:ox_localizable/ox_localizable.dart';
+import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_usercenter/model/zaps_record.dart';
 import 'package:ox_usercenter/page/set_up/zaps_record_page.dart';
 import 'package:chatcore/chat-core.dart';
@@ -386,19 +387,11 @@ class _ZapsPageState extends State<ZapsPage> {
       onTap: () async {
         if(index == 0){
           OXNavigator.pop(context);
-          OXNavigator.presentPage(
-            context,
-                (context) => CommonWebView(
-              'https://nwc.getalby.com/',
-              title: 'Alby - Nostr Wallet Connect',
-                  urlCallback: (url){
-                      if(url.startsWith('nostr+walletconnect://')) {
-                        ScanUtils.analysis(context!, url);
-                      }
-                  },
-            ),
-            fullscreenDialog: true,
-          );
+          OXModuleService.invoke('ox_common', 'gotoWebView', [context, 'https://nwc.getalby.com/', true, true, null, (url){
+            if(url.startsWith('nostr+walletconnect://')) {
+              ScanUtils.analysis(context!, url);
+            }
+          },]);
         }
         else if(index == 1){
           _gotoScan();

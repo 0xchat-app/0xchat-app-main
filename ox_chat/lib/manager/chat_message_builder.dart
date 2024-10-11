@@ -31,14 +31,14 @@ class ChatMessageBuilder {
 
   static Widget buildRepliedMessageView(types.Message message, {
     required int messageWidth,
-    Function(String repliedMessageId)? onTap,
+    Function(types.Message? message)? onTap,
   }) {
     final repliedMessageId = message.repliedMessageId;
     if (repliedMessageId == null || repliedMessageId.isEmpty) return SizedBox();
 
     final repliedMessage = message.repliedMessage;
     return GestureDetector(
-      onTap: () => onTap?.call(repliedMessage?.remoteId ?? ''),
+      onTap: () => onTap?.call(repliedMessage),
       child: ConstrainedBox(
         constraints: BoxConstraints(
           maxWidth: messageWidth.toDouble(),

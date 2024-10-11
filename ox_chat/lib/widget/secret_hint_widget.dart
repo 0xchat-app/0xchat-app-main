@@ -60,14 +60,7 @@ class _SecretHintWidgetState extends State<SecretHintWidget> {
             GestureDetector(
               behavior: HitTestBehavior.translucent,
               onTap: () {
-                OXNavigator.presentPage(
-                  context,
-                  (context) => CommonWebView(
-                    'https://github.com/0xchat-app/0xchat-core/blob/main/doc/secretChat.md',
-                    title: '0xchat',
-                  ),
-                  fullscreenDialog: true,
-                );
+                OXModuleService.invoke('ox_common', 'gotoWebView', [context, 'https://github.com/0xchat-app/0xchat-core/blob/main/doc/secretChat.md', null, null, null, null]);
               },
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
