@@ -83,6 +83,7 @@ class ChatGeneralHandler {
        fileEncryptionType = _fileEncryptionType(session) {
     setupDataController();
     setupOtherUserIfNeeded();
+    setupReplyHandler();
     setupMentionHandlerIfNeeded();
   }
 
@@ -92,7 +93,7 @@ class ChatGeneralHandler {
   final types.EncryptionType fileEncryptionType;
   final String? anchorMsgId;
 
-  ChatReplyHandler replyHandler = ChatReplyHandler();
+  late ChatReplyHandler replyHandler;
   ChatMentionHandler? mentionHandler;
   late MessageDataController dataController;
 
@@ -152,6 +153,10 @@ class ChatGeneralHandler {
         otherUser = userFuture;
       }
     }
+  }
+
+  void setupReplyHandler() {
+    replyHandler = ChatReplyHandler(session.chatId);
   }
 
   void setupMentionHandlerIfNeeded() {

@@ -66,6 +66,7 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
     super.initState();
 
     tryInitDraft();
+    tryInitReply();
     mentionStateInitialize();
     PromptToneManager.sharedInstance.isCurrencyChatPage = dataController.isInCurrentSession;
     OXChatBinding.sharedInstance.msgIsReaded = dataController.isInCurrentSession;
@@ -73,10 +74,20 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
 
   void tryInitDraft() {
     final draft = session.draft ?? '';
-    if (draft.isNotEmpty) {
-      handler.inputController.text = draft;
-      ChatDraftManager.shared.updateTempDraft(session.chatId, draft);
-    }
+    if (draft.isEmpty) return ;
+
+    handler.inputController.text = draft;
+    ChatDraftManager.shared.updateTempDraft(session.chatId, draft);
+  }
+
+  void tryInitReply() async {
+    final replyMessageId = session.replyMessageId ?? '';
+    if (replyMessageId.isEmpty) return ;
+
+    final message = await dataController.getLocalMessageWithId(replyMessageId);
+    if (message == null) return ;
+
+    handler.replyHandler.updateReplyMessage(message);
   }
 
   void mentionStateInitialize() {
