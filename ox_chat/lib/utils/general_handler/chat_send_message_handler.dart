@@ -508,17 +508,30 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     OXLoading.dismiss();
   }
 
-  Future sendVideoMessageWithFile(BuildContext context, List<File> videos) async {
-    for (final videoFile in videos) {
-      final fileId = await EncodeUtils.generatePartialFileMd5(videoFile);
-      final thumbnailImageFile = await OXVideoUtils.getVideoThumbnailImageWithFilePath(
-        videoFilePath: videoFile.path,
-        cacheKey: fileId,
-      );
-      if (thumbnailImageFile == null) continue;
+  Future sendVideoMessageWithFile(BuildContext context, List<Media> videos) async {
+    for (final videoMedia in videos) {
+      final videoPath = videoMedia.path ?? '';
+      if (videoPath.isEmpty) continue ;
 
-      final bytes = await thumbnailImageFile.readAsBytes();
-      final thumbnailImage = await decodeImageFromList(bytes);
+      final videoFile = File(videoPath);
+      final fileId = await EncodeUtils.generatePartialFileMd5(videoFile);
+
+      File? thumbnailImageFile;
+      final thumbPath = videoMedia.thumbPath ?? '';
+      if (thumbPath.isNotEmpty) {
+        thumbnailImageFile = File(thumbPath);
+      } else {
+        thumbnailImageFile = await OXVideoUtils.getVideoThumbnailImageWithFilePath(
+          videoFilePath: videoFile.path,
+          cacheKey: fileId,
+        );
+      }
+
+      ui.Image? thumbnailImage;
+      final bytes = await thumbnailImageFile?.readAsBytes();
+      if (bytes != null) {
+        thumbnailImage = await decodeImageFromList(bytes);
+      }
 
       String? encryptedKey;
       String? videoURL;
@@ -529,8 +542,8 @@ extension ChatMessageSendEx on ChatGeneralHandler {
         if (url != null && url.isNotEmpty) {
           videoURL = generateUrlWithInfo(
             originalUrl: url,
-            width: thumbnailImage.width,
-            height: thumbnailImage.height,
+            width: thumbnailImage?.width,
+            height: thumbnailImage?.height,
           );
         }
 
@@ -543,9 +556,9 @@ extension ChatMessageSendEx on ChatGeneralHandler {
         context: context,
         videoPath: videoFile.path,
         videoURL: videoURL,
-        snapshotPath: thumbnailImageFile.path,
-        imageWidth: thumbnailImage.width,
-        imageHeight: thumbnailImage.height,
+        snapshotPath: thumbnailImageFile?.path,
+        imageWidth: thumbnailImage?.width,
+        imageHeight: thumbnailImage?.height,
         fileId: fileId,
         encryptedKey: encryptedKey,
       );

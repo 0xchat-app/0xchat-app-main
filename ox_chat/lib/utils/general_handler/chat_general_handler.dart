@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -759,13 +760,21 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
       } else if (readMediaVisualUserSelectedGranted) {
         final filePaths = await OXCommon.select34MediaFilePaths(type);
         LogUtil.d('Michael: albumPressHandler------filePaths =${filePaths}');
-        List<File> fileList = [];
-        await Future.forEach(filePaths, (element) async {
-          fileList.add(File(element));
-        });
-        final messageSendHandler = type == 2
-            ? this.sendVideoMessageWithFile : this.sendImageMessageWithFile;
-        messageSendHandler(context, fileList);
+
+        bool isVideo = type == 2;
+        if (isVideo) {
+          List<Media> fileList = [];
+          await Future.forEach(filePaths, (path) async {
+            fileList.add(Media()..path = path);
+          });
+          sendVideoMessageWithFile(context, fileList);
+        } else {
+          List<File> fileList = [];
+          await Future.forEach(filePaths, (path) async {
+            fileList.add(File(path));
+          });
+          sendImageMessageWithFile(context, fileList);
+        }
         return;
       }
     } else {
@@ -865,8 +874,6 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
   Future<void> _goToPhoto(BuildContext context, int type) async {
     // type: 1 - image, 2 - video
     final isVideo = type == 2;
-    final messageSendHandler = isVideo
-        ? this.sendVideoMessageWithFile : this.sendImageMessageWithFile;
 
     final res = await ImagePickerUtils.pickerPaths(
       galleryMode: isVideo ? GalleryMode.video : GalleryMode.image,
@@ -875,14 +882,17 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
       compressSize: 1024,
     );
 
-    List<File> fileList = [];
-    await Future.forEach(res, (element) async {
-      final entity = element;
-      final file = File(entity.path ?? '');
-      fileList.add(file);
-    });
-
-    messageSendHandler(context, fileList);
+    if (isVideo) {
+      sendVideoMessageWithFile(context, res);
+    } else {
+      List<File> fileList = [];
+      await Future.forEach(res, (element) async {
+        final entity = element;
+        final file = File(entity.path ?? '');
+        fileList.add(file);
+      });
+      sendImageMessageWithFile(context, fileList);
+    }
   }
 
   Future<void> _goToCamera(BuildContext context) async {
