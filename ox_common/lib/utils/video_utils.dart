@@ -133,15 +133,20 @@ class OXVideoUtils {
     );
     file.createSync(recursive: true);
 
-    final filePath = await VideoThumbnail.thumbnailFile(
-      video: videoFilePath,
-      thumbnailPath: file.path,
-      imageFormat: ImageFormat.JPEG,
-      maxWidth: (Adapt.screenW * Adapt.devicePixelRatio).toInt(),
-      quality: 100,
-    );
+    String? filePath;
+    try {
+      filePath = await VideoThumbnail.thumbnailFile(
+        video: videoFilePath,
+        thumbnailPath: file.path,
+        imageFormat: ImageFormat.JPEG,
+        maxWidth: (Adapt.screenW * Adapt.devicePixelRatio).toInt(),
+        quality: 100,
+      );
+    } catch (e) {
+      LogUtil.e(e);
+    }
 
-    if (filePath == null) return null;
+    if (filePath == null || filePath.isEmpty) return null;
 
     final tempFile = File(filePath);
     final cacheFile = _putFileToCache(cacheKey, tempFile);

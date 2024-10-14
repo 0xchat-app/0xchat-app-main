@@ -53,7 +53,7 @@ class OXCImagePickerHelper {
                 configuration.cameraConfiguration.maxRecordDuration = videoRecordMaxSecond
             }
             if let videoSelectMaxSecond = params?["videoSelectMaxSecond"] as? Int {
-                configuration.maxSelectVideoDuration = videoSelectMaxSecond;
+                configuration.maxSelectVideoDuration = videoSelectMaxSecond
             }
         }
         
@@ -262,27 +262,42 @@ class OXCImagePickerHelper {
             
             let manager = PHImageManager.default()
             manager.requestAVAsset(forVideo: asset, options: options) { asset, audioMix, info in
-                if let urlAsset = asset as? AVURLAsset {
-                    let url = urlAsset.url
-                    let subString = url.relativePath
+                
+                guard let urlAsset = asset as? AVURLAsset else {
+                    return
+                }
+                
+                guard let outputDirURL = getCacheDirectory() else {
+                    return
+                }
+                
+                guard let exportSession = AVAssetExportSession(asset: urlAsset, presetName: AVAssetExportPresetMediumQuality) else {
+                    return
+                }
+                
+                let destinationURL = outputDirURL.appendingPathComponent("\(UUID().uuid).mov")
+                
+                exportSession.outputURL = destinationURL
+                exportSession.outputFileType = .mov
+                exportSession.timeRange = CMTimeRange(start: .zero, duration: .positiveInfinity)
+                
+                exportSession.exportAsynchronously(completionHandler: {
+                    if exportSession.status == .failed {
+                        print("video export failed: \(exportSession.error?.localizedDescription ?? "")")
+                        return
+                    }
                     
-                    let formatter = DateFormatter()
-                    formatter.dateFormat = "yyyyMMddHHmmss"
-                    let name = "\(formatter.string(from: Date()))\(arc4random() % 10000)"
-                    let jpgPath = "\(NSHomeDirectory())/Documents/\(name)"
-                    
-                    let img = self.getImage(from: subString)
-                    try? img?.jpegData(compressionQuality: 1.0)?.write(to: URL(fileURLWithPath: jpgPath))
-                    
-                    let aPath3 = "\(NSHomeDirectory())/Documents/\(name)"
+                    let snapshotPath = destinationURL.deletingLastPathComponent().appendingPathComponent("\(UUID().uuid).jpeg")
+                    let img = self.getImage(from: destinationURL.relativePath)
+                    try? img?.jpegData(compressionQuality: 1.0)?.write(to: snapshotPath)
                     
                     var newArr = resultArr
                     newArr.append([
-                        "thumbPath": aPath3,
-                        "path": subString
+                        "thumbPath": snapshotPath.relativePath,
+                        "path": destinationURL.relativePath
                     ])
                     self.saveImageView(newIndex, imagePHAsset: modelList, resultArr: newArr, compressSize: compressSize, result: result)
-                }
+                })
             }
             
         } else if asset.mediaType == .image {
@@ -366,5 +381,22 @@ class OXCImagePickerHelper {
         let tmpDirectory = NSTemporaryDirectory()
         let tmpPath = (tmpDirectory as NSString).appendingPathComponent(tmpFile)
         return tmpPath
+    }
+ 
+    static func getCacheDirectory() -> URL? {
+        guard let cacheDirectory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first else { return nil
+        }
+        let tempDirectory = cacheDirectory.appendingPathComponent("localVideo")
+        
+        if !FileManager.default.fileExists(atPath: tempDirectory.path) {
+            do {
+                try FileManager.default.createDirectory(at: tempDirectory, withIntermediateDirectories: true, attributes: nil)
+            } catch {
+                print("Error creating temp folder: \(error.localizedDescription)")
+                return nil
+            }
+        }
+        
+        return tempDirectory
     }
 }
