@@ -140,7 +140,7 @@ class UserConfigTool{
 
     final packageInfo = await PackageInfo.fromPlatform();
     final currentVersion = packageInfo.version;
-    if(currentVersion != migrationTargetVersion) return;
+    // if(currentVersion != migrationTargetVersion) return;
 
     String? pubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
     if (pubKey == null) return;
