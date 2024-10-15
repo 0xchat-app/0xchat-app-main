@@ -29,6 +29,7 @@ class ChatDraftManager {
       
       final draft = jsonMap[chatId];
       if (draft is String && draft.isNotEmpty) {
+        tempDraft[chatId] = draft;
         await updateSessionDraft(chatId);
       }
     }
