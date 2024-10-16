@@ -86,6 +86,7 @@ class OXChatBinding {
     int? unreadCount,
     bool alwaysTop = false,
     String? draft,
+    String? replyMessageId,
     int? messageKind,
     bool? isMentioned,
     int? expiration
@@ -119,6 +120,10 @@ class OXChatBinding {
       }
       if (draft != null && sessionModel.draft != draft) {
         sessionModel.draft = draft;
+        isChange = true;
+      }
+      if (replyMessageId != null && sessionModel.replyMessageId != replyMessageId) {
+        sessionModel.replyMessageId = replyMessageId;
         isChange = true;
       }
       if (isMentioned != null && sessionModel.isMentioned != isMentioned) {

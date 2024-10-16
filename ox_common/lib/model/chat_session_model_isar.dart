@@ -39,14 +39,15 @@ class ChatSessionModelISAR {
   bool alwaysTop;
 
   String? draft;
+  String? replyMessageId;
 
   bool isMentioned;
+  bool isZapsFromOther;
 
   int? messageKind;
 
   // added @v5
   int? expiration;
-
 
   ChatSessionModelISAR({
     this.chatId = '',
@@ -62,7 +63,9 @@ class ChatSessionModelISAR {
     this.avatar,
     this.alwaysTop = false,
     this.draft,
+    this.replyMessageId,
     this.isMentioned = false,
+    this.isZapsFromOther = false,
     this.messageKind,
     this.expiration
   });
@@ -132,7 +135,9 @@ ChatSessionModelISAR _chatSessionModelFromMap(Map<String, dynamic> map) {
     avatar: map['avatar'],
     alwaysTop: map['alwaysTop'] == 1,
     draft: map['draft'],
+    replyMessageId: map['replyMessageId'],
     isMentioned: map['isMentioned'] == 1,
+    isZapsFromOther: map['isZapsFromOther'] == 1,
     messageKind: map['messageKind'],
     expiration: map['expiration'],
   );
