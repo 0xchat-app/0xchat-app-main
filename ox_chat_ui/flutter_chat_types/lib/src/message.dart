@@ -69,6 +69,7 @@ abstract class Message extends Equatable {
     this.updatedAt,
     this.fileEncryptionType = EncryptionType.none,
     this.decryptKey,
+    this.decryptNonce,
     this.expiration,
     this.reactions = const [],
     this.zapsInfoList = const [],
@@ -141,6 +142,7 @@ abstract class Message extends Equatable {
   final EncryptionType fileEncryptionType;
 
   final String? decryptKey;
+  final String? decryptNonce;
 
   final dynamic sourceKey;
 

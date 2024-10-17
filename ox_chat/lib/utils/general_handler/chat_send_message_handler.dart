@@ -1,24 +1,23 @@
-
 part of 'chat_general_handler.dart';
 
 extension ChatMessageSendEx on ChatGeneralHandler {
   static Future sendTextMessageHandler(
-      String receiverPubkey,
-      String text, {
-        int chatType = ChatType.chatSingle,
-        BuildContext? context,
-        ChatSessionModelISAR? session,
-        String secretSessionId = '',
-      }) async {
+    String receiverPubkey,
+    String text, {
+    int chatType = ChatType.chatSingle,
+    BuildContext? context,
+    ChatSessionModelISAR? session,
+    String secretSessionId = '',
+  }) async {
     final sender = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
-    if (sender.isEmpty) return ;
+    if (sender.isEmpty) return;
 
     session ??= _getSessionModel(
       receiverPubkey,
       chatType,
       secretSessionId,
     );
-    if (session == null) return ;
+    if (session == null) return;
 
     ChatGeneralHandler(session: session).sendTextMessage(context, text);
   }
@@ -34,14 +33,14 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     ChatSessionModelISAR? session,
   }) {
     final sender = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
-    if (sender.isEmpty) return ;
+    if (sender.isEmpty) return;
 
     session ??= _getSessionModel(
       receiverPubkey,
       chatType,
       secretSessionId,
     );
-    if (session == null) return ;
+    if (session == null) return;
 
     ChatGeneralHandler(session: session)._sendTemplateMessage(
       title: title,
@@ -52,27 +51,28 @@ extension ChatMessageSendEx on ChatGeneralHandler {
   }
 
   static Future sendSystemMessageHandler(
-      String receiverPubkey,
-      String text, {
-        int chatType = ChatType.chatSingle,
-        BuildContext? context,
-        ChatSessionModelISAR? session,
-        String secretSessionId = '',
-      }) async {
+    String receiverPubkey,
+    String text, {
+    int chatType = ChatType.chatSingle,
+    BuildContext? context,
+    ChatSessionModelISAR? session,
+    String secretSessionId = '',
+  }) async {
     final sender = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
-    if (sender.isEmpty) return ;
+    if (sender.isEmpty) return;
 
     session ??= _getSessionModel(
       receiverPubkey,
       chatType,
       secretSessionId,
     );
-    if (session == null) return ;
+    if (session == null) return;
 
     ChatGeneralHandler(session: session).sendSystemMessage(text, context: context);
   }
 
-  static ChatSessionModelISAR? _getSessionModel(String receiverPubkey, int type, [String secretSessionId = '']) {
+  static ChatSessionModelISAR? _getSessionModel(String receiverPubkey, int type,
+      [String secretSessionId = '']) {
     final sender = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
     if (sender.isEmpty) return null;
 
@@ -115,7 +115,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
         replyId: messageType == MessageType.text ? replyHandler.replyMessage?.remoteId : null,
       );
     }
-    if (message == null) return ;
+    if (message == null) return;
 
     if (replaceMessageId != null) {
       final replaceMessage = dataController.getMessage(replaceMessageId);
@@ -128,7 +128,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     if (resendMessage == null) {
       message = await tryPrepareSendFileMessage(context, message);
     }
-    if (message == null) return ;
+    if (message == null) return;
 
     if (sendingType == ChatSendingType.memory) {
       tempMessageSet.add(message);
@@ -158,14 +158,14 @@ extension ChatMessageSendEx on ChatGeneralHandler {
               } else {
                 return '''[You've received cashu token via 0xchat]''';
               }
-            default: break;
+            default:
+              break;
           }
         }
         return null;
       },
       replaceMessageId: replaceMessageId,
-      sendEventHandler: (event, sendMsg) =>
-          _sendEventHandler(event, sendMsg, sendFinish),
+      sendEventHandler: (event, sendMsg) => _sendEventHandler(event, sendMsg, sendFinish),
       sendActionFinishHandler: (message) {
         _sendActionFinishHandler(
           message: message,
@@ -199,7 +199,6 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     required ChatSendingType sendingType,
     String? replaceMessageId,
   }) {
-
     if (replaceMessageId != null && replaceMessageId.isNotEmpty) {
       dataController.updateMessage(message, originMessageId: replaceMessageId);
     } else {
@@ -217,7 +216,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     Future.delayed(const Duration(milliseconds: 500), () async {
       if (!sendFinish.value) {
         final msg = await dataController.getMessage(message.id);
-        if (msg == null) return ;
+        if (msg == null) return;
         _updateMessageStatus(msg, types.Status.sending);
       }
     });
@@ -231,7 +230,6 @@ extension ChatMessageSendEx on ChatGeneralHandler {
   }
 
   FutureOr<String?> messageContentEncoder(types.Message message) {
-
     List<MessageContentParser> parserList = [
       if (mentionHandler != null) mentionHandler!.tryEncoder,
     ];
@@ -255,7 +253,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
         context: context,
         resendMessage: resendMsg as types.CustomMessage,
       );
-      return ;
+      return;
     } else if (resendMsg.isVideoSendingMessage) {
       sendVideoMessage(
         context: context,
@@ -280,7 +278,8 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     replyHandler.updateReplyMessage(null);
   }
 
-  void sendZapsMessage(BuildContext context, String zapper, String invoice, String amount, String description) async {
+  void sendZapsMessage(BuildContext context, String zapper, String invoice, String amount,
+      String description) async {
     try {
       final content = jsonEncode(CustomMessageEx.zapsMetaData(
         zapper: zapper,
@@ -293,7 +292,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
         content: content,
         messageType: MessageType.template,
       );
-    } catch (_) { }
+    } catch (_) {}
   }
 
   Future sendImageMessageWithFile(BuildContext context, List<File> images) async {
@@ -303,6 +302,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       final image = await decodeImageFromList(bytes);
 
       String? encryptedKey;
+      String? encryptedNonce;
       String? imageURL;
       final uploadResult = UploadManager.shared.getUploadResult(fileId, otherUser?.pubKey);
       if (uploadResult?.isSuccess == true) {
@@ -315,10 +315,11 @@ extension ChatMessageSendEx on ChatGeneralHandler {
             height: image.height,
           );
         }
-
       } else {
-        encryptedKey = fileEncryptionType == types.EncryptionType.encrypted
-            ? createEncryptKey() : null;
+        encryptedKey =
+            fileEncryptionType == types.EncryptionType.encrypted ? createEncryptKey() : null;
+        encryptedNonce =
+            fileEncryptionType == types.EncryptionType.encrypted ? createEncryptNonce() : null;
       }
 
       await sendImageMessage(
@@ -328,6 +329,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
         imageWidth: image.width,
         imageHeight: image.height,
         encryptedKey: encryptedKey,
+        encryptedNonce: encryptedNonce,
         url: imageURL,
       );
     }
@@ -341,6 +343,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     int? imageWidth,
     int? imageHeight,
     String? encryptedKey,
+    String? encryptedNonce,
     types.CustomMessage? resendMessage,
   }) async {
     if (resendMessage != null) {
@@ -349,6 +352,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       imageWidth ??= ImageSendingMessageEx(resendMessage).width;
       imageHeight ??= ImageSendingMessageEx(resendMessage).height;
       encryptedKey ??= ImageSendingMessageEx(resendMessage).encryptedKey;
+      encryptedNonce ??= ImageSendingMessageEx(resendMessage).encryptedNonce;
       url ??= ImageSendingMessageEx(resendMessage).url;
     }
 
@@ -359,9 +363,10 @@ extension ChatMessageSendEx on ChatGeneralHandler {
         imageWidth: imageWidth,
         imageHeight: imageHeight,
         encryptedKey: encryptedKey,
+        encryptedNonce: encryptedNonce,
         resendMessage: resendMessage,
       );
-      return ;
+      return;
     }
 
     if (filePath == null || fileId == null) {
@@ -383,7 +388,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
         height: imageHeight,
         encryptedKey: encryptedKey,
       ));
-    } catch (_) { }
+    } catch (_) {}
     if (content.isEmpty) {
       ChatLogUtils.error(
         className: 'ChatMessageSendEx',
@@ -410,7 +415,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
           autoStoreImage: false,
           completeCallback: (uploadResult, isFromCache) async {
             var imageURL = uploadResult.url;
-            if (!uploadResult.isSuccess || imageURL.isEmpty) return ;
+            if (!uploadResult.isSuccess || imageURL.isEmpty) return;
 
             imageURL = generateUrlWithInfo(
               originalUrl: imageURL,
@@ -447,6 +452,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     int? imageWidth,
     int? imageHeight,
     String? encryptedKey,
+    String? encryptedNonce,
     String? replaceMessageId,
     types.Message? resendMessage,
   }) {
@@ -458,6 +464,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
         width: imageWidth,
         height: imageHeight,
         encryptedKey: encryptedKey,
+          encryptedNonce: encryptedNonce,
       ));
 
       _sendMessageHandler(
@@ -466,7 +473,9 @@ extension ChatMessageSendEx on ChatGeneralHandler {
         replaceMessageId: replaceMessageId,
         resendMessage: resendMessage,
       );
-    } catch(_) { return ; }
+    } catch (_) {
+      return;
+    }
   }
 
   Future sendGifImageMessage(BuildContext context, GiphyImage image) async {
@@ -485,7 +494,8 @@ extension ChatMessageSendEx on ChatGeneralHandler {
   }
 
   void sendInsertedContentMessage(BuildContext context, KeyboardInsertedContent insertedContent) {
-    String base64String = 'data:${insertedContent.mimeType};base64,${base64.encode(insertedContent.data!)}';
+    String base64String =
+        'data:${insertedContent.mimeType};base64,${base64.encode(insertedContent.data!)}';
     _sendMessageHandler(
       context: context,
       content: base64String,
@@ -502,7 +512,9 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     await _sendMessageHandler(
       context: context,
       content: path,
-      messageType: fileEncryptionType == types.EncryptionType.encrypted ? MessageType.encryptedAudio : MessageType.audio,
+      messageType: fileEncryptionType == types.EncryptionType.encrypted
+          ? MessageType.encryptedAudio
+          : MessageType.audio,
     );
 
     OXLoading.dismiss();
@@ -511,7 +523,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
   Future sendVideoMessageWithFile(BuildContext context, List<Media> videos) async {
     for (final videoMedia in videos) {
       final videoPath = videoMedia.path ?? '';
-      if (videoPath.isEmpty) continue ;
+      if (videoPath.isEmpty) continue;
 
       final videoFile = File(videoPath);
       final fileId = await EncodeUtils.generatePartialFileMd5(videoFile);
@@ -534,6 +546,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       }
 
       String? encryptedKey;
+      String? encryptedNonce;
       String? videoURL;
       final uploadResult = UploadManager.shared.getUploadResult(fileId, otherUser?.pubKey);
       if (uploadResult?.isSuccess == true) {
@@ -546,25 +559,26 @@ extension ChatMessageSendEx on ChatGeneralHandler {
             height: thumbnailImage?.height,
           );
         }
-
       } else {
-        encryptedKey = fileEncryptionType == types.EncryptionType.encrypted
-            ? createEncryptKey() : null;
+        encryptedKey =
+            fileEncryptionType == types.EncryptionType.encrypted ? createEncryptKey() : null;
+        encryptedNonce =
+            fileEncryptionType == types.EncryptionType.encrypted ? createEncryptNonce() : null;
       }
 
       await sendVideoMessage(
-        context: context,
-        videoPath: videoFile.path,
-        videoURL: videoURL,
-        snapshotPath: thumbnailImageFile?.path,
-        imageWidth: thumbnailImage?.width,
-        imageHeight: thumbnailImage?.height,
-        fileId: fileId,
-        encryptedKey: encryptedKey,
-      );
+          context: context,
+          videoPath: videoFile.path,
+          videoURL: videoURL,
+          snapshotPath: thumbnailImageFile?.path,
+          imageWidth: thumbnailImage?.width,
+          imageHeight: thumbnailImage?.height,
+          fileId: fileId,
+          encryptedKey: encryptedKey,
+          encryptedNonce: encryptedNonce);
     }
   }
-  
+
   Future sendVideoMessage({
     BuildContext? context,
     String? videoPath,
@@ -574,6 +588,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     int? imageHeight,
     String? fileId,
     String? encryptedKey,
+    String? encryptedNonce,
     types.CustomMessage? resendMessage,
   }) async {
     if (resendMessage != null) {
@@ -595,11 +610,12 @@ extension ChatMessageSendEx on ChatGeneralHandler {
         imageHeight: imageHeight,
         resendMessage: resendMessage,
         encryptedKey: encryptedKey,
+        encryptedNonce: encryptedNonce,
       );
-      return ;
+      return;
     }
 
-    if (videoPath == null || fileId == null) return ;
+    if (videoPath == null || fileId == null) return;
     String content = '';
     try {
       content = jsonEncode(CustomMessageEx.videoMetaData(
@@ -610,8 +626,8 @@ extension ChatMessageSendEx on ChatGeneralHandler {
         width: imageWidth,
         height: imageHeight,
       ));
-    } catch (_) { }
-    if (content.isEmpty) return ;
+    } catch (_) {}
+    if (content.isEmpty) return;
 
     UploadManager.shared.prepareUploadStream(fileId, null);
     await _sendMessageHandler(
@@ -628,7 +644,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
           encryptedKey: encryptedKey,
           completeCallback: (uploadResult, isFromCache) async {
             var videoURL = uploadResult.url;
-            if (!uploadResult.isSuccess || videoURL.isEmpty) return ;
+            if (!uploadResult.isSuccess || videoURL.isEmpty) return;
 
             videoURL = generateUrlWithInfo(
               originalUrl: videoURL,
@@ -680,25 +696,29 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     int? imageHeight,
     String? replaceMessageId,
     String? encryptedKey,
+    String? encryptedNonce,
     types.Message? resendMessage,
   }) {
     try {
-      final contentJson = jsonEncode(CustomMessageEx.videoMetaData(
-        fileId: fileId,
-        snapshotPath: snapshotPath ?? '',
-        videoPath: videoPath ?? '',
-        url: videoURL,
-        width: imageWidth,
-        height: imageHeight,
-        encryptedKey: encryptedKey,
-      ),);
+      final contentJson = jsonEncode(
+        CustomMessageEx.videoMetaData(
+          fileId: fileId,
+          snapshotPath: snapshotPath ?? '',
+          videoPath: videoPath ?? '',
+          url: videoURL,
+          width: imageWidth,
+          height: imageHeight,
+          encryptedKey: encryptedKey,
+          encryptedNonce: encryptedNonce,
+        ),
+      );
       _sendMessageHandler(
         content: contentJson,
         messageType: MessageType.template,
         replaceMessageId: replaceMessageId,
         resendMessage: resendMessage,
       );
-    } catch (_) { }
+    } catch (_) {}
   }
 
   void _sendTemplateMessage({
@@ -709,21 +729,24 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     String link = '',
   }) {
     try {
-      final contentJson = jsonEncode(CustomMessageEx.templateMetaData(
-        title: title,
-        content: content,
-        icon: icon,
-        link: link,
-      ),);
+      final contentJson = jsonEncode(
+        CustomMessageEx.templateMetaData(
+          title: title,
+          content: content,
+          icon: icon,
+          link: link,
+        ),
+      );
       _sendMessageHandler(
         context: context,
         content: contentJson,
         messageType: MessageType.template,
       );
-    } catch (_) { }
+    } catch (_) {}
   }
 
-  void sendSystemMessage(String text, {
+  void sendSystemMessage(
+    String text, {
     BuildContext? context,
     String? localTextKey,
     ChatSendingType sendingType = ChatSendingType.remote,
@@ -736,7 +759,8 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     );
   }
 
-  void sendEcashMessage(BuildContext context, {
+  void sendEcashMessage(
+    BuildContext context, {
     required List<String> tokenList,
     List<String> receiverPubkeys = const [],
     List<EcashSignee> signees = const [],
@@ -754,27 +778,30 @@ extension ChatMessageSendEx on ChatGeneralHandler {
         content: content,
         messageType: MessageType.template,
       );
-    } catch (_) { }
+    } catch (_) {}
   }
 }
 
 extension ChatMessageSendUtileEx on ChatGeneralHandler {
-
-  String createEncryptKey() => bytesToHex(MessageDBISAR.getRandomSecret());
+  String createEncryptKey() => bytesToHex(AesEncryptUtils.secureRandom());
+  String createEncryptNonce() => bytesToHex(AesEncryptUtils.secureRandom());
 
   Future<UploadResult> uploadFile({
     required FileType fileType,
     required String filePath,
     required String messageId,
     String? encryptedKey,
+    String? encryptedNonce,
   }) async {
     final file = File(filePath);
     final ext = Path.extension(filePath);
     final fileName = '$messageId$ext';
-    return await UploadUtils.uploadFile(fileType: fileType, file: file, filename: fileName, encryptedKey: encryptedKey);
+    return await UploadUtils.uploadFile(
+        fileType: fileType, file: file, filename: fileName, encryptedKey: encryptedKey, encryptedNonce: encryptedNonce);
   }
 
-  Future<types.Message?> tryPrepareSendFileMessage(BuildContext? context, types.Message message) async {
+  Future<types.Message?> tryPrepareSendFileMessage(
+      BuildContext? context, types.Message message) async {
     types.Message? updatedMessage;
     if (message is types.AudioMessage) {
       updatedMessage = await prepareSendAudioMessage(
@@ -804,13 +831,22 @@ extension ChatMessageSendUtileEx on ChatGeneralHandler {
       return null;
     }
     if (uriIsLocalPath) {
-      final pk = fileEncryptionType == types.EncryptionType.encrypted ? createEncryptKey() : null;
-      final result = await uploadFile(fileType: FileType.voice, filePath: filePath, messageId: message.id, encryptedKey: pk);
+      final encryptedKey =
+          fileEncryptionType == types.EncryptionType.encrypted ? createEncryptKey() : null;
+      final encryptedNonce =
+          fileEncryptionType == types.EncryptionType.encrypted ? createEncryptNonce() : null;
+      final result = await uploadFile(
+          fileType: FileType.voice,
+          filePath: filePath,
+          messageId: message.id,
+          encryptedKey: encryptedKey,
+          encryptedNonce: encryptedNonce);
       if (!result.isSuccess) {
-        CommonToast.instance.show(context, '${Localized.text('ox_chat.message_send_audio_fail')}: ${result.errorMsg}');
+        CommonToast.instance.show(
+            context, '${Localized.text('ox_chat.message_send_audio_fail')}: ${result.errorMsg}');
         return null;
       }
-      return message.copyWith(uri: result.url, decryptKey: pk);
+      return message.copyWith(uri: result.url, decryptKey: encryptedKey, decryptNonce: encryptedNonce);
     }
     return message;
   }
@@ -831,10 +867,8 @@ extension ChatMessageSendUtileEx on ChatGeneralHandler {
     final updatedUri = uri.replace(
       queryParameters: {
         ...uri.queryParameters,
-        if (width != null && !originalQuery.containsKey('width'))
-          'width': width.toString(),
-        if (height != null && !originalQuery.containsKey('height'))
-          'height': height.toString(),
+        if (width != null && !originalQuery.containsKey('width')) 'width': width.toString(),
+        if (height != null && !originalQuery.containsKey('height')) 'height': height.toString(),
       },
     );
 

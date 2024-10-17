@@ -184,6 +184,7 @@ class ChatMessageHelper {
     required String content,
     required MessageType messageType,
     required String? decryptSecret,
+    required String? decryptNonce,
     Function(String content, MessageType messageType)? asyncParseCallback,
     VoidCallback? isMentionMessageCallback = null,
     MessageCheckLogger? logger,
@@ -240,6 +241,7 @@ class ChatMessageHelper {
         final meta = CustomMessageEx.imageSendingMetaData(
           url: content,
           encryptedKey: decryptSecret,
+          encryptedNonce: decryptNonce
         );
         try {
           final jsonString = jsonEncode(meta);
@@ -257,6 +259,7 @@ class ChatMessageHelper {
             onlyFromCache: true,
           ))?.path ?? '',
           encryptedKey: decryptSecret,
+          encryptedNonce: decryptNonce,
         );
         try {
           final jsonString = jsonEncode(meta);
@@ -395,6 +398,7 @@ class ChatMessageHelper {
     String? previewData,
     dynamic sourceKey,
     String? decryptSecret,
+    String? decryptNonce,
     int? expiration,
     List<String> reactionIds = const [],
     List<String> zapsInfoIds = const [],
@@ -417,6 +421,7 @@ class ChatMessageHelper {
       content: contentRaw,
       messageType: type,
       decryptSecret: decryptSecret,
+      decryptNonce: decryptNonce,
       asyncParseCallback: asyncParseCallback,
       isMentionMessageCallback: isMentionMessageCallback,
       logger: logger,
@@ -446,6 +451,7 @@ class ChatMessageHelper {
       repliedMessageId: replyId,
       previewData: previewData,
       decryptKey: decryptSecret,
+
       expiration: expiration,
       reactions: reactions,
       zapsInfoList: zapsInfoList,

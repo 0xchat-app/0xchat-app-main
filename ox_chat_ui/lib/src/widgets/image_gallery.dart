@@ -321,6 +321,7 @@ class _ImageGalleryState extends State<ImageGallery> {
   Future saveImageToLocal(PreviewImage image) async {
     final imageUri = image.uri;
     final decryptKey = image.decryptSecret;
+    final decryptNonce = image.decryptNonce;
     final fileName = imageUri.split('/').lastOrNull?.split('?').firstOrNull ?? '';
     final isGIF = fileName.contains('.gif');
 
@@ -348,7 +349,7 @@ class _ImageGalleryState extends State<ImageGallery> {
       final imageFile = File(imageUri);
       if (decryptKey != null) {
         final completer = Completer();
-        await DecryptedCacheManager.decryptFile(imageFile, decryptKey, bytesCallback: (imageData) async {
+        await DecryptedCacheManager.decryptFile(imageFile, decryptKey, nonce: decryptNonce, bytesCallback: (imageData) async {
           result = await ImageGallerySaver.saveImage(Uint8List.fromList(imageData));
           completer.complete();
         });

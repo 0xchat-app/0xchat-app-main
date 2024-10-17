@@ -38,6 +38,7 @@ class ChatVideoMessageState extends State<ChatVideoMessage> {
   int? width;
   int? height;
   String? encryptedKey;
+  String? encryptedNonce;
   Stream<double>? stream;
 
   bool canOpen = false;
@@ -61,6 +62,7 @@ class ChatVideoMessageState extends State<ChatVideoMessage> {
     videoURL = VideoMessageEx(message).url;
     videoPath = VideoMessageEx(message).videoPath;
     encryptedKey = VideoMessageEx(message).encryptedKey;
+    encryptedNonce = VideoMessageEx(message).encryptedNonce;
     canOpen = VideoMessageEx(message).canOpen;
 
     width = VideoMessageEx(message).width;
@@ -93,14 +95,14 @@ class ChatVideoMessageState extends State<ChatVideoMessage> {
     if (videoURL.isEmpty) return ;
 
     File sourceFile;
-    final fileManager = OXFileCacheManager.get(encryptKey: encryptedKey);
+    final fileManager = OXFileCacheManager.get(encryptKey: encryptedKey, encryptNonce: encryptedNonce);
     final cacheFile = await fileManager.getFileFromCache(videoURL);
     if (cacheFile != null) {
       sourceFile = cacheFile.file;
     } else{
       sourceFile = await fileManager.getSingleFile(videoURL);
       if (encryptedKey != null) {
-        sourceFile = await DecryptedCacheManager.decryptFile(sourceFile, encryptedKey!);
+        sourceFile = await DecryptedCacheManager.decryptFile(sourceFile, encryptedKey!, nonce: encryptedNonce);
       }
     }
 
