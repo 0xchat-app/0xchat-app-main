@@ -88,10 +88,12 @@ class ImageEntry {
     required this.id,
     required this.url,
     this.decryptedKey,
+    this.decryptedNonce,
   });
   final String id;
   final String url;
   final String? decryptedKey;
+  final String? decryptedNonce;
 }
 
 class CommonImageGallery extends StatefulWidget {
@@ -482,6 +484,7 @@ class _CommonImageGalleryState extends State<CommonImageGallery>
     final pageIndex = _pageController.page?.round() ?? 0;
     final imageUri = widget.imageList[pageIndex].url;
     final decryptKey = widget.imageList[pageIndex].decryptedKey;
+    final decryptNonce = widget.imageList[pageIndex].decryptedNonce;
     final fileName = imageUri.split('/').lastOrNull?.split('?').firstOrNull ?? '';
     final isGIF = fileName.contains('.gif');
 
@@ -511,7 +514,7 @@ class _CommonImageGalleryState extends State<CommonImageGallery>
       final imageFile = File(imageUri);
       if (decryptKey != null) {
         final completer = Completer();
-        await DecryptedCacheManager.decryptFile(imageFile, decryptKey, bytesCallback: (imageData) async {
+        await DecryptedCacheManager.decryptFile(imageFile, decryptKey, nonce: decryptNonce, bytesCallback: (imageData) async {
           result = await ImageGallerySaver.saveImage(Uint8List.fromList(imageData));
           completer.complete();
         });
