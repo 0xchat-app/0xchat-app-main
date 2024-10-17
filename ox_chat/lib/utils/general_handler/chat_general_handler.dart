@@ -103,6 +103,7 @@ class ChatGeneralHandler {
 
   int unreadMessageCount;
   types.Message? unreadFirstMessage;
+  bool enableBottomWidget = true;
 
   static types.User _defaultAuthor() {
     UserDBISAR? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;

@@ -123,6 +123,7 @@ class Chat extends StatefulWidget {
     this.mentionUserListWidget,
     this.onFocusNodeInitialized,
     this.onInsertedContent,
+    this.enableBottomWidget = true,
     this.bottomHintParam,
     this.textFieldHasFocus,
     this.scrollToUnreadWidget,
@@ -132,6 +133,7 @@ class Chat extends StatefulWidget {
   });
 
   final ChatHintParam? bottomHintParam;
+  final bool enableBottomWidget;
 
   /// See [Message.audioMessageBuilder].
   final Widget Function(types.AudioMessage, {required int messageWidth})? audioMessageBuilder;
@@ -578,11 +580,14 @@ class ChatState extends State<Chat> {
                               ),
                             ),
                     ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: Adapt.px(12),
+                    Visibility(
+                      visible: widget.enableBottomWidget,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: Adapt.px(12),
+                        ),
+                        child: widget.customBottomWidget ?? _buildBottomInputArea(),
                       ),
-                      child: widget.customBottomWidget ?? _buildBottomInputArea(),
                     ),
                   ],
                 ),

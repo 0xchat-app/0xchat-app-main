@@ -186,6 +186,7 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
           ),
           imageMessageBuilder: ChatMessageBuilder.buildImageMessage,
           inputOptions: handler.inputOptions,
+          enableBottomWidget: handler.enableBottomWidget,
           inputBottomView: handler.replyHandler.buildReplyMessageWidget(),
           bottomHintParam: widget.bottomHintParam,
           onFocusNodeInitialized: handler.replyHandler.focusNodeSetter,
