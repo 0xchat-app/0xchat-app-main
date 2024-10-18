@@ -493,7 +493,7 @@ class _CommonImageGalleryState extends State<CommonImageGallery>
     var result;
     if (imageUri.isRemoteURL) {
       // Remote image
-      final imageManager = OXFileCacheManager.get(encryptKey: decryptKey);
+      final imageManager = OXFileCacheManager.get(encryptKey: decryptKey, encryptNonce: decryptNonce);
       try {
         final imageFile = await imageManager.getSingleFile(imageUri)
             .timeout(const Duration(seconds: 30), onTimeout: () {

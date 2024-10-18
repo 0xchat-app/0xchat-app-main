@@ -111,6 +111,7 @@ extension OXCachedImageProviderEx on CachedNetworkImageProvider {
     Map<String, String>? headers,
     BaseCacheManager? cacheManager,
     String? decryptedKey,
+    String? decryptedNonce,
   }) {
     final ratio = Adapt.devicePixelRatio;
 
@@ -133,7 +134,7 @@ extension OXCachedImageProviderEx on CachedNetworkImageProvider {
       provider = CachedNetworkImageProvider(
         uri,
         headers: headers,
-        cacheManager: cacheManager ?? OXFileCacheManager.get(encryptKey: decryptedKey),
+        cacheManager: cacheManager ?? OXFileCacheManager.get(encryptKey: decryptedKey, encryptNonce: decryptedNonce),
       );
     } else {
       provider = FileImage(File(uri));
