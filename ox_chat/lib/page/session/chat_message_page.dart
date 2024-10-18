@@ -1,4 +1,6 @@
 
+import 'dart:ui';
+
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_chat/model/constant.dart';
@@ -38,6 +40,7 @@ class ChatMessagePage extends StatefulWidget {
     String? anchorMsgId,
     int? unreadMessageCount,
     bool isPushWithReplace = false,
+    bool isLongPressShow = false,
   }) async {
 
     final handler = ChatGeneralHandler(
@@ -79,7 +82,69 @@ class ChatMessagePage extends StatefulWidget {
     }
 
     if (pageWidget == null) return ;
-
+    if (isLongPressShow){
+      handler.enableBottomWidget = false;
+      return showGeneralDialog(
+        context: context,
+        barrierDismissible: true,
+        barrierLabel: '',
+        barrierColor: Colors.transparent,
+        transitionBuilder: (context, animation1, animation2, child) {
+          return GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: () {
+              OXNavigator.pop(context);
+            },
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                    child: Container(
+                      color: Colors.black.withOpacity(0.2),
+                    ),
+                  ),
+                ),
+                ScaleTransition(
+                  scale: Tween<double>(begin: 0.0, end: 1.0).animate(
+                    CurvedAnimation(
+                      parent: animation1,
+                      curve: Curves.easeInOut,
+                    ),
+                  ),
+                  child: Container(
+                    margin: EdgeInsets.only(
+                        left: 20.px, top: Adapt.screenH * 0.1, right: 20.px, bottom: 24.px),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Container(
+                          height: Adapt.screenH * 0.6,
+                          child: pageWidget,
+                        ),
+                        SizedBox(height: 12.px),
+                        Container(
+                          width: 130.px,
+                          height: Adapt.screenH * 0.2,
+                          alignment: Alignment.bottomRight,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16.px),
+                            color: ThemeColor.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+        transitionDuration: Duration(milliseconds: 200),
+        pageBuilder: (context, animation1, animation2) => Container(),
+      );
+    }
     if (isPushWithReplace) {
       return OXNavigator.pushReplacement(context, pageWidget);
     }
