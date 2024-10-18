@@ -502,7 +502,6 @@ extension MessageDBToUIEx on MessageDBISAR {
       await Messages.saveMessageToDB(this);
       asyncUpdateHandler?.call(this);
     };
-
     return ChatMessageHelper.createUIMessage(
       messageId: messageId,
       remoteId: messageId,
@@ -516,6 +515,7 @@ extension MessageDBToUIEx on MessageDBISAR {
       previewData: previewData,
       sourceKey: plaintEvent,
       decryptSecret: decryptSecret,
+      decryptNonce: decryptNonce,
       expiration: expiration,
       reactionIds: reactionEventIds ?? [],
       zapsInfoIds: zapEventIds ?? [],

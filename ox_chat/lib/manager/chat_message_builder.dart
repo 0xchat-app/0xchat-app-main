@@ -85,6 +85,7 @@ class ChatMessageBuilder {
       imageHeight: message.height?.toInt(),
       maxWidth: messageWidth,
       decryptKey: message.decryptKey,
+      decryptNonce: message.decryptNonce
     );
   }
 
