@@ -1,4 +1,5 @@
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:convert';
 import 'dart:ui' as ui;
@@ -37,7 +38,7 @@ const String _keyThemeStyle = "themeSetting";
 class ThemeManager {
 
   List<Map<String, dynamic>> themeColors = [{},{}];
-  late ThemeStyle themeStyle;
+  ThemeStyle themeStyle = ThemeStyle.dark;
   Map<String, String> cache = {};
   List<VoidCallback> onThemeChangedCallbackList = [];
   //Default night mode
@@ -86,7 +87,7 @@ class ThemeManager {
     }
     assert(color != null, '** $colorKey not found');
 
-    return color!;
+    return color ?? Colors.transparent;
   }
 
   static int _hexToInt(String hex) {
