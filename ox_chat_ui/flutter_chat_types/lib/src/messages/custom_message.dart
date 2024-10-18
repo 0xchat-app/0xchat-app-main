@@ -216,6 +216,7 @@ class _CustomMessage extends CustomMessage {
             showStatus == _Unset ? this.showStatus : showStatus as bool?,
         status: status == _Unset ? this.status : status as Status?,
         decryptKey: decryptKey ?? this.decryptKey,
+        decryptNonce: decryptNonce ?? this.decryptNonce,
         updatedAt: updatedAt == _Unset ? this.updatedAt : updatedAt as int?,
         expiration: expiration ?? this.expiration,
         viewWithoutBubble: viewWithoutBubble ?? this.viewWithoutBubble,
