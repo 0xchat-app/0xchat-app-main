@@ -114,7 +114,7 @@ class UploadUtils {
       );
     }
 
-    return UploadResult.success(url, encryptedKey);
+    return UploadResult.success(url, encryptedKey, encryptedNonce);
   }
 
   static UplodAliyunType convertFileTypeToUploadAliyunType(FileType fileType) {
@@ -136,11 +136,12 @@ class UploadResult {
   final String url;
   final String? errorMsg;
   final String? encryptedKey;
+  final String? encryptedNonce;
 
-  UploadResult({required this.isSuccess, required this.url, this.errorMsg, this.encryptedKey});
+  UploadResult({required this.isSuccess, required this.url, this.errorMsg, this.encryptedKey, this.encryptedNonce});
 
-  factory UploadResult.success(String url, String? encryptedKey) {
-    return UploadResult(isSuccess: true, url: url, encryptedKey: encryptedKey);
+  factory UploadResult.success(String url, String? encryptedKey, String? encryptedNonce) {
+    return UploadResult(isSuccess: true, url: url, encryptedKey: encryptedKey, encryptedNonce: encryptedNonce);
   }
 
   factory UploadResult.error(String errorMsg) {
@@ -221,6 +222,7 @@ class UploadManager {
     required uploadId,
     required String? receivePubkey,
     String? encryptedKey,
+    String? encryptedNonce,
     bool autoStoreImage = true,
     Function(UploadResult, bool isFromCache)? completeCallback,
   }) async {
@@ -241,6 +243,7 @@ class UploadManager {
       filename: '${Uuid().v1()}.${filePath.getFileExtension()}',
       fileType: fileType,
       encryptedKey: encryptedKey,
+      encryptedNonce: encryptedNonce,
       autoStoreImage: autoStoreImage,
       onProgress: (progress) {
         streamController.add(progress);
