@@ -59,14 +59,15 @@ class ChatSessionListPage extends StatefulWidget {
 }
 
 class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
-    with AutomaticKeepAliveClientMixin, CommonStateViewMixin, OXUserInfoObserver, WidgetsBindingObserver, OXChatObserver {
+    with AutomaticKeepAliveClientMixin, CommonStateViewMixin, OXUserInfoObserver, WidgetsBindingObserver, OXChatObserver, SingleTickerProviderStateMixin{
   final _controller = ScrollController();
 
   _ChatSessionListPageState();
 
   RefreshController _refreshController = new RefreshController();
   List<ChatSessionModelISAR> _msgDatas = []; // Message List
-  List<CommunityMenuOptionModel> _menuOptionModelList = [];
+  List<ValueNotifier<double>> _scaleList = [];
+  // List<CommunityMenuOptionModel> _menuOptionModelList = [];
   Map<String, BadgeDBISAR> _badgeCache = {};
   Map<String, bool> _muteCache = {};
   Map<String, List<String>> _groupMembersCache = {};
@@ -85,7 +86,6 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
       addAutomaticKeepAlives = false;
       addRepaintBoundaries = false;
     }
-    _menuOptionModelList = CommunityMenuOptionModel.getOptionModelList();
     OXChatBinding.sharedInstance.addObserver(this);
     ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
     WidgetsBinding.instance.addObserver(this);
@@ -97,7 +97,6 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
 
   onLocaleChange() {
     _onRefresh();
-    _menuOptionModelList = CommunityMenuOptionModel.getOptionModelList();
     if (mounted) setState(() {});
   }
 
@@ -232,9 +231,6 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
               SliverToBoxAdapter(
                 child: _topSearch(),
               ),
-              SliverToBoxAdapter(
-                child: _menueWidget(),
-              ),
               _isLogin && _msgDatas.length > 0
                   ? SliverList(
                       delegate: SliverChildBuilderDelegate(
@@ -259,53 +255,6 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     );
   }
 
-  Widget _menueWidget() {
-    return Container(
-      height: Adapt.px(105),
-      color: ThemeColor.color200,
-      padding: EdgeInsets.symmetric(vertical: Adapt.px(10)),
-      child: ListView.builder(
-        padding: EdgeInsets.symmetric(horizontal: Adapt.px(24)),
-        scrollDirection: Axis.horizontal,
-        itemCount: _menuOptionModelList.length,
-        itemBuilder: (context, index) {
-          return _getTopWidget(index);
-        },
-      ),
-    );
-  }
-
-  Widget _getTopWidget(int index) {
-    CommunityMenuOptionModel model = _menuOptionModelList[index];
-    return Container(
-      margin: EdgeInsets.only(right: Adapt.px(25)),
-      child: InkWell(
-        highlightColor: Colors.transparent,
-        hoverColor: Colors.transparent,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              width: Adapt.px(60),
-              height: Adapt.px(60),
-              child: CommonImage(iconName: model.iconName, useTheme: true),
-            ),
-            SizedBox(
-              height: Adapt.px(4),
-            ),
-            Text(
-              model.content,
-              style: TextStyle(fontSize: Adapt.sp(12), color: ThemeColor.color40, fontWeight: FontWeight.w400),
-            ),
-          ],
-        ),
-        onTap: () {
-          CommunityMenuOptionModel.optionsOnTap(context, model.optionModel);
-        },
-      ),
-    );
-  }
-
   int itemCount() {
     return _msgDatas.length;
   }
@@ -326,6 +275,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
 
   void _merge() {
     _msgDatas.clear();
+    _scaleList.clear();
     _isLogin = OXUserInfoManager.sharedInstance.isLogin;
     if (!_isLogin) {
       if (this.mounted) {
@@ -348,6 +298,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
       setState(() {});
     }
     if (_msgDatas.length > 0) {
+      _scaleList = List.generate(_msgDatas.length, (index) => ValueNotifier(1.0));
       updateStateView(CommonStateView.CommonStateView_None);
       _updateReadStatus();
     } else {
@@ -457,7 +408,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
           child: Stack(
             key: tempKey,
             children: [
-              _buildBusinessInfo(item),
+              _buildBusinessInfo(item, index),
               item.alwaysTop
                   ? Container(
                 alignment: Alignment.topRight,
@@ -612,75 +563,98 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     );
   }
 
-  Widget _buildBusinessInfo(ChatSessionModelISAR item) {
-    return MaterialButton(
-        padding: EdgeInsets.only(top: Adapt.px(12), left: Adapt.px(16), bottom: Adapt.px(12), right: Adapt.px(16)),
-        minWidth: 30.0,
-        elevation: 0.0,
-        highlightElevation: 0.0,
-        highlightColor: Colors.transparent,
-        splashColor: Colors.transparent,
-        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Expanded(
+  Widget _buildBusinessInfo(ChatSessionModelISAR item, int index) {
+    return ValueListenableBuilder<double>(
+      valueListenable: _scaleList[index],
+      builder: (context, scale, child) {
+        return GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () {
+            _itemFn(item);
+          },
+          onLongPress: () async {
+            _scaleList[index].value = 0.96;
+            await Future.delayed(Duration(milliseconds: 80));
+            _scaleList[index].value = 1.0;
+            await Future.delayed(Duration(milliseconds: 80));
+            ChatMessagePage.open(
+              context: context,
+              communityItem: item,
+              unreadMessageCount: item.unreadCount,
+              isLongPressShow: true,
+            );
+          },
+          child: AnimatedScale(
+            scale: scale,
+            duration: Duration(milliseconds: 80),
+            curve: Curves.easeOut,
+            child: Container(
+              padding: EdgeInsets.only(top: Adapt.px(12), left: Adapt.px(16), bottom: Adapt.px(12), right: Adapt.px(16)),
+              constraints: BoxConstraints(
+                minWidth: 30.px,
+              ),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  _getMsgIcon(item),
                   Expanded(
-                    child: Container(
-                      alignment: Alignment.centerLeft,
-                      padding: EdgeInsets.only(left: Adapt.px(16), right: Adapt.px(16)),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Row(
-                            children: <Widget>[
-                              _buildItemName(item),
-                              if (_getChatSessionMute(item))
-                                CommonImage(
-                                  iconName: 'icon_session_mute.png',
-                                  width: Adapt.px(16),
-                                  height: Adapt.px(16),
-                                  package: 'ox_chat',
+                    child: Row(
+                      children: <Widget>[
+                        _getMsgIcon(item),
+                        Expanded(
+                          child: Container(
+                            alignment: Alignment.centerLeft,
+                            padding: EdgeInsets.only(left: Adapt.px(16), right: Adapt.px(16)),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Row(
+                                  children: <Widget>[
+                                    _buildItemName(item),
+                                    if (_getChatSessionMute(item))
+                                      CommonImage(
+                                        iconName: 'icon_session_mute.png',
+                                        width: Adapt.px(16),
+                                        height: Adapt.px(16),
+                                        package: 'ox_chat',
+                                      ),
+                                  ],
                                 ),
-                            ],
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(top: Adapt.px(5)),
-                            child: Container(
-                              constraints: BoxConstraints(maxWidth: _subTitleMaxW),
-                              child: _buildItemSubtitle(item),
+                                Padding(
+                                  padding: EdgeInsets.only(top: Adapt.px(5)),
+                                  child: Container(
+                                    constraints: BoxConstraints(maxWidth: _subTitleMaxW),
+                                    child: _buildItemSubtitle(item),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: <Widget>[
+                      _buildReadWidget(item),
+                      SizedBox(
+                        height: Adapt.px(18),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(bottom: 0),
+                        child: Text(OXDateUtils.convertTimeFormatString2(item.createTime* 1000, pattern: 'MM-dd'),
+                            textAlign: TextAlign.left, maxLines: 1, style: _Style.newsContentSub()),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: <Widget>[
-                _buildReadWidget(item),
-                SizedBox(
-                  height: Adapt.px(18),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(bottom: 0),
-                  child: Text(OXDateUtils.convertTimeFormatString2(item.createTime* 1000, pattern: 'MM-dd'),
-                      textAlign: TextAlign.left, maxLines: 1, style: _Style.newsContentSub()),
-                ),
-              ],
-            ),
-          ],
-        ),
-        onPressed: () {
-          _itemFn(item);
-        });
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildItemSubtitle(ChatSessionModelISAR announceItem) {
