@@ -562,6 +562,7 @@ class CustomMessageFactory implements MessageFactory {
         int? width = contentMap[ImageSendingMessageEx.metaWidthKey];
         int? height = contentMap[ImageSendingMessageEx.metaHeightKey];
         String? encryptedKey = contentMap[ImageSendingMessageEx.metaEncryptedKey];
+        String? encryptedNonce = contentMap[ImageSendingMessageEx.metaEncryptedNonce];
         return createImageSendingMessage(
           author: author,
           timestamp: timestamp,
@@ -578,6 +579,7 @@ class CustomMessageFactory implements MessageFactory {
           width: width,
           height: height,
           encryptedKey: encryptedKey,
+          encryptedNonce: encryptedNonce,
         );
 
       case CustomMessageType.video:
@@ -781,6 +783,7 @@ class CustomMessageFactory implements MessageFactory {
     required int? width,
     required int? height,
     required String? encryptedKey,
+    required String? encryptedNonce,
   }) {
     return types.CustomMessage(
       author: author,
@@ -796,9 +799,11 @@ class CustomMessageFactory implements MessageFactory {
         width: width,
         height: height,
         encryptedKey: encryptedKey,
+        encryptedNonce: encryptedNonce,
       ),
       type: types.MessageType.custom,
       decryptKey: encryptedKey,
+      decryptNonce: encryptedNonce,
       expiration: expiration,
       reactions: reactions,
       zapsInfoList: zapsInfoList,
