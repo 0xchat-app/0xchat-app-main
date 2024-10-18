@@ -451,7 +451,7 @@ class ChatMessageHelper {
       repliedMessageId: replyId,
       previewData: previewData,
       decryptKey: decryptSecret,
-
+      decryptNonce: decryptNonce,
       expiration: expiration,
       reactions: reactions,
       zapsInfoList: zapsInfoList,
@@ -471,7 +471,8 @@ class ChatMessageHelper {
       'previewData: $previewData'
       'sourceKey: $sourceKey'
       'decryptSecret: $decryptSecret'
-      'expiration: $expiration'
+          'decryptNonce: $decryptNonce'
+          'expiration: $expiration'
       'reactionIds: $reactionIds'
       'zapsInfoIds: $zapsInfoIds'
     );

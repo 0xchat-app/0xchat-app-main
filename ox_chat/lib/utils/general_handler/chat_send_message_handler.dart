@@ -308,6 +308,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       if (uploadResult?.isSuccess == true) {
         final url = uploadResult?.url;
         encryptedKey = uploadResult?.encryptedKey;
+        encryptedNonce = uploadResult?.encryptedNonce;
         if (url != null && url.isNotEmpty) {
           imageURL = generateUrlWithInfo(
             originalUrl: url,
@@ -387,6 +388,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
         width: imageWidth,
         height: imageHeight,
         encryptedKey: encryptedKey,
+        encryptedNonce: encryptedNonce,
       ));
     } catch (_) {}
     if (content.isEmpty) {
@@ -412,6 +414,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
           uploadId: fileId,
           receivePubkey: otherUser?.pubKey ?? '',
           encryptedKey: encryptedKey,
+          encryptedNonce: encryptedNonce,
           autoStoreImage: false,
           completeCallback: (uploadResult, isFromCache) async {
             var imageURL = uploadResult.url;
@@ -437,6 +440,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
               imageWidth: imageWidth,
               imageHeight: imageHeight,
               encryptedKey: encryptedKey,
+              encryptedNonce: encryptedNonce,
               replaceMessageId: sendMessage.id,
             );
           },
@@ -784,7 +788,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
 
 extension ChatMessageSendUtileEx on ChatGeneralHandler {
   String createEncryptKey() => bytesToHex(AesEncryptUtils.secureRandom());
-  String createEncryptNonce() => bytesToHex(AesEncryptUtils.secureRandom());
+  String createEncryptNonce() => bytesToHex(AesEncryptUtils.secureRandomNonce());
 
   Future<UploadResult> uploadFile({
     required FileType fileType,
