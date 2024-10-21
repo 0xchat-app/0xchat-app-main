@@ -500,7 +500,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
                 left: _calculateDialogPosition(context, index, position),
                 child: Container(
                   width: 180.px,
-                  height: _userCacheList.length * 44.px + (_userCacheList.isNotEmpty ? 18.px : 0),
+                  height: _userCacheList.length * 44.px + (_userCacheList.isNotEmpty ? 2.px : 0),
                   constraints: BoxConstraints(maxHeight: Adapt.screenH/2),
                   decoration: BoxDecoration(
                     color: ThemeColor.color180,
@@ -527,7 +527,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
                       return Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Visibility(visible: index == 0, child: Divider(height: 18.px, color: ThemeColor.color200)),
+                          Visibility(visible: index == 0, child: Container(height: 2.px, color: ThemeColor.color200)),
                           Container(
                             height: 44.px,
                             padding: EdgeInsets.symmetric(horizontal: 16.px, vertical: 10.px),

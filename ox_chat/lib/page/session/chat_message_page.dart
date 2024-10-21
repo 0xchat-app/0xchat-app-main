@@ -2,6 +2,7 @@
 import 'dart:ui';
 
 import 'package:chatcore/chat-core.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_chat/model/constant.dart';
 import 'package:ox_chat/page/session/chat_channel_message_page.dart';
@@ -123,14 +124,14 @@ class ChatMessagePage extends StatefulWidget {
                           height: Adapt.screenH * 0.6,
                           child: pageWidget,
                         ),
-                        SizedBox(height: 12.px),
+                        SizedBox(height: 8.px),
                         Container(
-                          width: 130.px,
+                          width: 180.px,
                           height: Adapt.screenH * 0.2,
                           alignment: Alignment.bottomRight,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(16.px),
-                            color: ThemeColor.white,
+                            color: ThemeColor.color180.withOpacity(0.72),
                           ),
                         ),
                       ],
@@ -157,7 +158,7 @@ class _ChatMessagePageState extends State<ChatMessagePage> {
   ChatGeneralHandler get handler => widget.handler;
   ChatSessionModelISAR get session => handler.session;
   UserDBISAR? get otherUser => handler.otherUser;
-
+  final _controller = ScrollController();
   bool isShowContactMenu = true;
 
   @override
@@ -182,6 +183,36 @@ class _ChatMessagePageState extends State<ChatMessagePage> {
 
   @override
   Widget build(BuildContext context) {
+    if (!handler.enableBottomWidget){
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(16.px),
+        child: CommonChatWidget(
+          handler: handler,
+          customTopWidget: CommonAppBarNoPreferredSize(
+            useLargeTitle: false,
+            centerTitle: true,
+            canBack: false,
+            title: otherUser?.getUserShowName() ?? '',
+            backgroundColor: ThemeColor.color200,
+            leading: SizedBox(),
+            actions: [
+              OXUserAvatar(
+                chatId: session.chatId,
+                user: otherUser,
+                size: Adapt.px(36),
+                isClickable: true,
+                onReturnFromNextPage: () {
+                  setState(() { });
+                },
+              ),
+              // SizedBox(
+              //   width: 16.px,
+              // ),
+            ],
+          ),
+        ),
+      );
+    }
     return Scaffold(
       backgroundColor: ThemeColor.color200,
       resizeToAvoidBottomInset: false,
@@ -205,14 +236,18 @@ class _ChatMessagePageState extends State<ChatMessagePage> {
           ).setPadding(EdgeInsets.only(right: Adapt.px(24))),
         ],
       ),
-      body: CommonChatWidget(
-        handler: handler,
-        customTopWidget: isShowContactMenu
+      body: _body(),
+    );
+  }
+
+  Widget _body(){
+   return CommonChatWidget(
+      handler: handler,
+      customTopWidget: isShowContactMenu
           ? NotContactTopWidget(
-            chatSessionModel: session,
-            onTap: _hideContactMenu,
-          ) : null,
-      ),
+        chatSessionModel: session,
+        onTap: _hideContactMenu,
+      ) : null,
     );
   }
 

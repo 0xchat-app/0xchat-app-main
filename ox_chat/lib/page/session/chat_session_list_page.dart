@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:chatcore/chat-core.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:ox_chat/model/community_menu_option_model.dart';
@@ -10,6 +11,7 @@ import 'package:ox_chat/page/contacts/contact_request.dart';
 import 'package:ox_chat/page/session/chat_channel_message_page.dart';
 import 'package:ox_chat/page/session/chat_group_message_page.dart';
 import 'package:ox_chat/page/session/chat_message_page.dart';
+import 'package:ox_chat/page/session/chat_new_message_page.dart';
 import 'package:ox_chat/page/session/chat_relay_group_msg_page.dart';
 import 'package:ox_chat/page/session/chat_secret_message_page.dart';
 import 'package:ox_chat/page/session/search_page.dart';
@@ -67,7 +69,6 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   RefreshController _refreshController = new RefreshController();
   List<ChatSessionModelISAR> _msgDatas = []; // Message List
   List<ValueNotifier<double>> _scaleList = [];
-  // List<CommunityMenuOptionModel> _menuOptionModelList = [];
   Map<String, BadgeDBISAR> _badgeCache = {};
   Map<String, bool> _muteCache = {};
   Map<String, List<String>> _groupMembersCache = {};
@@ -210,8 +211,18 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                 ),
               )),
           actions: <Widget>[
-            if (_isLogin)
-              RelayInfoWidget(),
+            GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              child: CommonImage(
+                iconName: 'icon_home_add.png',
+                size: 24.px,
+                useTheme: true,
+                package: 'ox_chat',
+              ),
+              onTap: () {
+                OXNavigator.pushPage(context, (context) => ChatNewMessagePage(), fullscreenDialog: true);
+              },
+            ),
             SizedBox(
               width: Adapt.px(24),
             ),
@@ -395,7 +406,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    assetIcon('icon_chat_delete.png', 32, 32),
+                    assetIcon('icon_chat_delete.png', 32, 32, color: ThemeColor.color0),
                     Text(
                       'delete'.localized(),
                       style: TextStyle(color: Colors.white, fontSize: Adapt.px(12)),
