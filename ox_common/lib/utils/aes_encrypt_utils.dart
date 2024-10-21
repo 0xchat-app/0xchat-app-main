@@ -20,22 +20,22 @@ class AesEncryptUtils {
   }
 
   static void encryptFile(File sourceFile, File encryptedFile, String key,
-      {String? nonce, AESMode mode = AESMode.sic}) {
+      {String? nonce, AESMode mode = AESMode.gcm}) {
     final sourceBytes = sourceFile.readAsBytesSync();
     final uint8list = hexToBytes(key);
     final encrypter = Encrypter(AES(Key(uint8list), mode: mode));
-    final iv = nonce != null ? IV.fromUtf8(nonce) : IV.fromLength(16);
+    final iv = (nonce != null && nonce.isNotEmpty) ? IV.fromUtf8(nonce) : IV.fromLength(16);
     final encryptedBytes = encrypter.encryptBytes(sourceBytes, iv: iv);
     encryptedFile.writeAsBytesSync(encryptedBytes.bytes);
   }
 
   static void decryptFile(File encryptedFile, File decryptedFile, String key,
-      {String? nonce, AESMode mode = AESMode.sic, Function(List<int>)? bytesCallback}) {
+      {String? nonce, AESMode mode = AESMode.gcm, Function(List<int>)? bytesCallback}) {
     final encryptedBytes = encryptedFile.readAsBytesSync();
     final uint8list = hexToBytes(key);
     final decrypter = Encrypter(AES(Key(uint8list), mode: mode));
     final encrypted = Encrypted(encryptedBytes);
-    final iv = nonce != null ? IV.fromUtf8(nonce) : IV.fromLength(16);
+    final iv = (nonce != null && nonce.isNotEmpty) ? IV.fromUtf8(nonce) : IV.fromLength(16);
     final decryptedBytes = decrypter.decryptBytes(encrypted, iv: iv);
     bytesCallback?.call(decryptedBytes);
     decryptedFile.writeAsBytesSync(decryptedBytes);
