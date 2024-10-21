@@ -556,6 +556,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       if (uploadResult?.isSuccess == true) {
         final url = uploadResult?.url;
         encryptedKey = uploadResult?.encryptedKey;
+        encryptedNonce = uploadResult?.encryptedNonce;
         if (url != null && url.isNotEmpty) {
           videoURL = generateUrlWithInfo(
             originalUrl: url,
@@ -646,6 +647,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
           uploadId: fileId,
           receivePubkey: otherUser?.pubKey ?? '',
           encryptedKey: encryptedKey,
+          encryptedNonce: encryptedNonce,
           completeCallback: (uploadResult, isFromCache) async {
             var videoURL = uploadResult.url;
             if (!uploadResult.isSuccess || videoURL.isEmpty) return;
@@ -684,6 +686,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
               imageHeight: imageHeight,
               replaceMessageId: sendMessage.id,
               encryptedKey: encryptedKey,
+              encryptedNonce: encryptedNonce
             );
           },
         );

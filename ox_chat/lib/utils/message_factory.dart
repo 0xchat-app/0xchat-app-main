@@ -216,6 +216,7 @@ class VideoMessageFactory implements MessageFactory {
       repliedMessageId: repliedMessageId,
       fileEncryptionType: fileEncryptionType,
       decryptKey: decryptKey,
+      decryptNonce: decryptNonce,
       expiration: expiration,
       reactions: reactions,
       zapsInfoList: zapsInfoList,
