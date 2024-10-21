@@ -451,7 +451,7 @@ class ChatMessageHelper {
       repliedMessageId: replyId,
       previewData: previewData,
       decryptKey: decryptSecret,
-
+      decryptNonce: decryptNonce,
       expiration: expiration,
       reactions: reactions,
       zapsInfoList: zapsInfoList,
@@ -471,7 +471,8 @@ class ChatMessageHelper {
       'previewData: $previewData'
       'sourceKey: $sourceKey'
       'decryptSecret: $decryptSecret'
-      'expiration: $expiration'
+          'decryptNonce: $decryptNonce'
+          'expiration: $expiration'
       'reactionIds: $reactionIds'
       'zapsInfoIds: $zapsInfoIds'
     );
@@ -501,7 +502,6 @@ extension MessageDBToUIEx on MessageDBISAR {
       await Messages.saveMessageToDB(this);
       asyncUpdateHandler?.call(this);
     };
-
     return ChatMessageHelper.createUIMessage(
       messageId: messageId,
       remoteId: messageId,
@@ -515,6 +515,7 @@ extension MessageDBToUIEx on MessageDBISAR {
       previewData: previewData,
       sourceKey: plaintEvent,
       decryptSecret: decryptSecret,
+      decryptNonce: decryptNonce,
       expiration: expiration,
       reactionIds: reactionEventIds ?? [],
       zapsInfoIds: zapEventIds ?? [],

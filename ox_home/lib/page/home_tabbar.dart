@@ -133,12 +133,12 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
       }
     }
 
-    return OXModuleService.invoke(
+    return OXModuleService.invoke<Widget>(
       tabModel.moduleName,
       tabModel.modulePage,
       [context],
       params
-    );
+    ) ?? SizedBox();
   }
 
   @override

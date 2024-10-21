@@ -118,8 +118,8 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
   }
 
   Future<void> claimEcash() async {
-    final token = await NpubCash.claim();
-    if(token != null){
+    final balance = await NpubCash.balance();
+    if(balance != null){
       OXCommonHintDialog.show(
         context,
         title: Localized.text('ox_usercenter.str_claim_ecash_hint_title'),
@@ -129,15 +129,18 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
             text: Localized.text('ox_usercenter.str_claim_ecash_confirm'),
             onTap: () async {
               OXNavigator.pop(context);
-              OXLoading.show();
-              final response = await Cashu.redeemEcash(
-                ecashString: token,
-              );
-              OXLoading.dismiss();
-              CommonToast.instance.show(
-                context,
-                Localized.text(response.isSuccess ? 'ox_usercenter.str_claim_ecash_success' : 'ox_usercenter.str_claim_ecash_fail'),
-              );
+              final token = await NpubCash.claim();
+              if(token != null){
+                OXLoading.show();
+                final response = await Cashu.redeemEcash(
+                  ecashString: token,
+                );
+                OXLoading.dismiss();
+                CommonToast.instance.show(
+                  context,
+                  Localized.text(response.isSuccess ? 'ox_usercenter.str_claim_ecash_success' : 'ox_usercenter.str_claim_ecash_fail'),
+                );
+              }
             },
           ),
         ],

@@ -16,6 +16,7 @@ class ImagePreviewWidget extends StatefulWidget {
     this.imageHeight,
     this.maxWidth,
     this.decryptKey,
+    this.decryptNonce,
     this.progressStream,
   });
 
@@ -24,6 +25,7 @@ class ImagePreviewWidget extends StatefulWidget {
   final int? imageHeight;
   final int? maxWidth;
   final String? decryptKey;
+  final String? decryptNonce;
   final Stream<double>? progressStream;
 
   @override
@@ -65,6 +67,7 @@ class ImagePreviewWidgetState extends State<ImagePreviewWidget> {
       width: width,
       height: height,
       decryptedKey: widget.decryptKey,
+      decryptedNonce: widget.decryptNonce
     );
 
     if (uri.isImageBase64) {

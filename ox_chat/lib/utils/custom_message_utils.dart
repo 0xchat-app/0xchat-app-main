@@ -114,7 +114,7 @@ extension CustomMessageEx on types.CustomMessage {
     int? width,
     int? height,
     String? encryptedKey,
-    String? encryptedNonce,
+    required String? encryptedNonce,
   }) {
     return _metaData(CustomMessageType.imageSending, {
       ImageSendingMessageEx.metaFileIdKey: fileId,

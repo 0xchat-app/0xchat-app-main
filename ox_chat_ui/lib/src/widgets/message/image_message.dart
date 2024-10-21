@@ -67,9 +67,10 @@ class _ImageMessageState extends State<ImageMessage> {
       }
     } else {
       final decryptKey = widget.message.decryptKey;
+      final decryptNonce = widget.message.decryptNonce;
       _image = CachedNetworkImageProvider(
         widget.message.uri,
-        cacheManager: OXFileCacheManager.get(encryptKey: decryptKey ?? ''),
+        cacheManager: OXFileCacheManager.get(encryptKey: decryptKey ?? '', encryptNonce: decryptNonce),
       );
     }
     _size = Size(widget.message.width ?? 0, widget.message.height ?? 0);

@@ -174,6 +174,7 @@ abstract class Message extends Equatable {
     int? updatedAt,
     EncryptionType? fileEncryptionType,
     String? decryptKey,
+    String? decryptNonce,
     int? expiration,
     List<Reaction>? reactions,
     List<ZapsInfo>? zapsInfoList,
