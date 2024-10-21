@@ -1,28 +1,21 @@
-import 'dart:async';
 import 'package:chatcore/chat-core.dart';
-import 'package:nostr_core_dart/nostr.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:ox_common/log_util.dart';
-import 'package:ox_common/model/chat_type.dart';
+import 'package:nostr_core_dart/nostr.dart';
+import 'package:ox_cache_manager/ox_cache_manager.dart';
+import 'package:ox_common/business_interface/ox_chat/contact_base_page_state.dart';
 import 'package:ox_common/model/msg_notification_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/app_initialization_manager.dart';
+import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
+import 'package:ox_common/widgets/base_page_state.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_home/widgets/translucent_navigation_bar.dart';
 import 'package:ox_localizable/ox_localizable.dart';
-import 'package:rive/rive.dart';
-import 'package:ox_common/utils/ox_chat_binding.dart';
-import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_module_service/ox_module_service.dart';
-import 'package:ox_theme/ox_theme.dart';
-import 'package:ox_cache_manager/ox_cache_manager.dart';
-import 'package:ox_common/business_interface/ox_discovery/ox_discovery_model.dart';
-import 'package:ox_common/business_interface/ox_chat/contact_base_page_state.dart';
-import 'package:ox_common/widgets/base_page_state.dart';
 
 class TabViewInfo {
   final String moduleName;
@@ -47,7 +40,6 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
   bool isLogin = false;
   final PageController _pageController = PageController();
 
-  GlobalKey<DiscoveryPageBaseState> discoveryGlobalKey = GlobalKey();
   GlobalKey<BasePageState> homeGlobalKey = GlobalKey();
   GlobalKey<ContactBasePageState> contactGlobalKey = GlobalKey();
 
@@ -63,10 +55,6 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
       modulePage: 'contractsPageWidget',
     ),
     TabViewInfo(
-      moduleName: 'ox_discovery',
-      modulePage: 'discoveryPageWidget',
-    ),
-    TabViewInfo(
       moduleName: 'ox_usercenter',
       modulePage: 'userCenterPageWidget',
     ),
@@ -74,7 +62,6 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     AppInitializationManager.shared.showInitializationLoading();
     isLogin = OXUserInfoManager.sharedInstance.isLogin;
@@ -87,7 +74,6 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
 
   @override
   void dispose() {
-    // TODO: implement dispose
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
     OXUserInfoManager.sharedInstance.removeObserver(this);
@@ -134,11 +120,6 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
 
   Widget _showPage(TabViewInfo tabModel){
     Map<Symbol, GlobalKey>? params;
-    if(tabModel.moduleName == 'ox_discovery'){
-      params = {
-        #discoveryGlobalKey: discoveryGlobalKey,
-      };
-    }
 
     if (tabModel.moduleName == 'ox_chat') {
       if (tabModel.modulePage == 'chatSessionListPageWidget') {
@@ -182,28 +163,15 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
   }
 
   void _handleDoubleTap(value,int currentSelect){
-    if(value == 2 && currentSelect == 2){
-      discoveryGlobalKey.currentState?.updateClickNum(2,false);
-    }
+
   }
 
-  void _tabClick(int value,int currentSelect) {
+  void _tabClick(int value, int currentSelect) {
     if(value == 0 && currentSelect == 0) {
       homeGlobalKey.currentState?.updateHomeTabClickAction(1, false);
     }
     if(value == 1 && currentSelect == 1) {
       contactGlobalKey.currentState?.updateContactTabClickAction(1, false);
-    }
-    if(value == 2 && currentSelect == 2){
-      discoveryGlobalKey.currentState?.updateClickNum(1,false);
-
-    }
-
-    if(value == 2){
-      discoveryGlobalKey.currentState?.updateClickNum(1,true);
-      Moment.sharedInstance.updateSubscriptions();
-    } else{
-      Moment.sharedInstance.closeSubscriptions();
     }
 
     _pageController.animateToPage(

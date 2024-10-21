@@ -10,6 +10,8 @@ import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/user_config_tool.dart';
+import 'package:ox_common/widgets/avatar.dart';
+import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_theme/ox_theme.dart';
 import 'package:rive/rive.dart' as river;
@@ -38,10 +40,10 @@ class TranslucentNavigationBar extends StatefulWidget {
   final double blur;
 
   /// Padding on the top and bottom of AppBar
-  final double verticalPadding;
+  final double? verticalPadding;
 
   /// Padding on the left and right sides of AppBar
-  final double horizontalPadding;
+  final double? horizontalPadding;
 
   /// Returns the index of the tab that was tapped.
   final Function(int,int)? onTap;
@@ -58,17 +60,17 @@ class TranslucentNavigationBar extends StatefulWidget {
   final Function()? onMainIconTap;
 
   const TranslucentNavigationBar({
-  super.key,
-  this.mainIconBackgroundColor = Colors.blue,
-  this.mainIconColor = Colors.white,
-  required this.onTap,
-  this.onMainIconTap,
-  this.handleDoubleTap,
-  this.height = 72.0,
-  this.borderRadius = 24.0,
-  this.blur = 2, // You use 5 for black and 1 for white
-  this.verticalPadding = 25.0,
-  this.horizontalPadding = 20.0,
+    super.key,
+    this.mainIconBackgroundColor = Colors.blue,
+    this.mainIconColor = Colors.white,
+    required this.onTap,
+    this.onMainIconTap,
+    this.handleDoubleTap,
+    this.height = 72.0,
+    this.borderRadius = 24.0,
+    this.blur = 2, // You use 5 for black and 1 for white
+    this.verticalPadding,
+    this.horizontalPadding,
   });
 
   @override
@@ -81,18 +83,21 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
   int selectedIndex = 0;
   double middleIndex = (4 / 2).floorToDouble();
 
-  List<TranslucentNavigationBarItem> tabBarList = [];
+  List<TranslucentNavigationBarItem> _tabBarList = [];
 
   bool hasVibrator = false;
 
   bool get isDark => ThemeManager.getCurrentThemeStyle() == ThemeStyle.dark;
 
   // State machine
-  final riveFileNames = ['Home','Contact', 'Discover', 'Me'];
-  final stateMachineNames = ['state_machine_home', 'state_machine_contact', 'state_machine_discover', 'state_machine_me'];
-  final riveInputs = ['Press', 'Press', 'Press', 'Press'];
-  late List<river.StateMachineController?> riveControllers = List<river.StateMachineController?>.filled(4, null);
-  late List<river.Artboard?> riveArtboards = List<river.Artboard?>.filled(4, null);
+  final riveFileNames = ['Home','Contact', 'Me'];
+  final stateMachineNames = ['state_machine_home', 'state_machine_contact', 'state_machine_me'];
+  final riveInputs = ['Press', 'Press', 'Press'];
+  late List<river.StateMachineController?> riveControllers = List<river.StateMachineController?>.filled(3, null);
+  late List<river.Artboard?> riveArtboards = List<river.Artboard?>.filled(3, null);
+
+  final List<GlobalKey> _navItemKeyList = [GlobalKey(), GlobalKey(), GlobalKey()];
+  List<MultipleUserModel> _userCacheList = [];
 
   isHasVibrator() async {
     hasVibrator = (await Vibrate.canVibrate);
@@ -107,16 +112,35 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     prepareMessageTimer();
     dataInit();
     isHasVibrator();
+    _loadLocalInfo();
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
     clearRefreshMessagesTimer();
     OXUserInfoManager.sharedInstance.removeObserver(this);
     OXChatBinding.sharedInstance.removeObserver(this);
+  }
+
+  void _loadLocalInfo() async {
+    UserDBISAR? currentUser = OXUserInfoManager.sharedInstance.currentUserInfo;
+    if (currentUser != null) {
+      //update user list
+      await UserConfigTool.saveUser(currentUser);
+    }
+    Map<String, MultipleUserModel> currentUserMap = await UserConfigTool.getAllUser();
+    _userCacheList = currentUserMap.values.toList();
+    if (_userCacheList.isNotEmpty) {
+      _userCacheList.add(MultipleUserModel(name: Localized.text('ox_usercenter.str_add_account')));
+    }
+    final int currentIndex = _userCacheList.indexWhere((user) => user.pubKey == (currentUser?.pubKey ?? ''));
+    if (currentIndex != -1) {
+      final currentUser = _userCacheList.removeAt(currentIndex);
+      _userCacheList.insert(0, currentUser);
+    }
+
   }
 
   _showLoginPage(BuildContext context) {
@@ -133,8 +157,8 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.symmetric(
-        vertical: widget.verticalPadding,
-        horizontal: widget.horizontalPadding,
+        vertical: widget.verticalPadding ?? 24.px,
+        horizontal: widget.horizontalPadding ?? 20.px,
       ),
       height: widget.height,
       width: double.infinity,
@@ -155,7 +179,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
           ),
         ],
       ),
-      child: createTabContainer(tabBarList, middleIndex),
+      child: createTabContainer(_tabBarList, middleIndex),
     );
   }
 
@@ -173,7 +197,6 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
             // Daytime pattern
             isDark ? const Color(0xB2444444) : const Color(0xB2FFFFFF),
             isDark ? const Color(0xB2444444) : const Color(0xB2FFFFFF),
-         //    Color(isDark ? 0xB2444444 : 0xB2FFFFFF),
           ],
           stops: const [
             0.1,
@@ -183,107 +206,97 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
-          //Lighting Mode
-
-          // Colors.white.withOpacity(0.1),
-          // Colors.white.withOpacity(0.1),
-          // Colors.white.withOpacity(0.1),
-          // Colors.white.withOpacity(0.1),
-
-          // Color(0x66F5F5F5),
-          // Color(0x66F5F5F5),
-          // Color(0x66F5F5F5),
-          // Color(0x66F5F5F5),
-
           isDark ?  const Color(0x0c595959) :  const Color(0x66F5F5F5),
           isDark ?  const Color(0x0c595959) : const Color(0x66F5F5F5),
           isDark ?  const Color(0x0c595959) : const Color(0x66F5F5F5),
           isDark ?  const Color(0x0c595959) : const Color(0x66F5F5F5),
-          // Dark mode
-          // Color(0x0c595959),
-          // Color(0x0c595959),
-          // Color(0x0c595959),
-          // Color(0x0c595959),
         ],
       ),
       height: widget.height,
       width: double.infinity,
-      child: Center(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            for (final item in tabBarList)
-              GestureDetector(
-                onTap: () {
-                  int draftIndex = selectedIndex;
-                  int index = tabBarList.indexOf(item);
-                  if (selectedIndex != index && hasVibrator == true && OXUserInfoManager.sharedInstance.canVibrate) {
-                    //Vibration feedback
-                    FeedbackType type = FeedbackType.impact;
-                    Vibrate.feedback(type);
-                  }
-                  if (!OXUserInfoManager.sharedInstance.isLogin && (index == 3)) {
-                    //jump login(value == 3 || value == 0)
-                    _showLoginPage(context);
-                    return;
-                  }
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          for (final item in _tabBarList)
+            GestureDetector(
+              onLongPress: () {
+                int index = _tabBarList.indexOf(item);
+                _showPopupDialog(context, index);
+              },
+              onTap: () {
+                int draftIndex = selectedIndex;
+                int index = _tabBarList.indexOf(item);
+                if (selectedIndex != index && hasVibrator == true && OXUserInfoManager.sharedInstance.canVibrate) {
+                  //Vibration feedback
+                  FeedbackType type = FeedbackType.impact;
+                  Vibrate.feedback(type);
+                }
+                if (!OXUserInfoManager.sharedInstance.isLogin && (index == 3)) {
+                  //jump login(value == 3 || value == 0)
+                  _showLoginPage(context);
+                  return;
+                }
 
-                  setState(() {
-                    selectedIndex = index;
-                    if (OXUserInfoManager.sharedInstance.isLogin) {
-                      fetchUnreadCount();
-                    }
-                  });
-                  clearRefreshMessagesTimer();
-
-                  widget.onTap!.call(index,draftIndex);
-
-                  for (int i = 0; i < 4; i++) {
-                    final controller = riveControllers[i];
-                    final input = controller?.findInput<bool>(riveInputs[i]);
-                    if (input != null && input.value) {
-                      input.value = false;
-                    }
+                setState(() {
+                  selectedIndex = index;
+                  if (OXUserInfoManager.sharedInstance.isLogin) {
+                    fetchUnreadCount();
                   }
-                  final input = riveControllers[index]?.findInput<bool>(riveInputs[index]);
-                  if (input != null) {
-                    input.value = true;
+                });
+                clearRefreshMessagesTimer();
+
+                widget.onTap!.call(index,draftIndex);
+
+                for (int i = 0; i < 3; i++) {
+                  final controller = riveControllers[i];
+                  final input = controller?.findInput<bool>(riveInputs[i]);
+                  if (input != null && input.value) {
+                    input.value = false;
                   }
-                },
-                onDoubleTap: tabBarList.indexOf(item) == selectedIndex ? () {
-                  widget.handleDoubleTap?.call(tabBarList.indexOf(item),selectedIndex);
-                } : null,
+                }
+                final input = riveControllers[index]?.findInput<bool>(riveInputs[index]);
+                if (input != null) {
+                  input.value = true;
+                }
+              },
+              onDoubleTap: _tabBarList.indexOf(item) == selectedIndex ? () {
+                widget.handleDoubleTap?.call(_tabBarList.indexOf(item),selectedIndex);
+              } : null,
+              child: _tabbarItemWidget(item, _navItemKeyList[_tabBarList.indexOf(item)]),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _tabbarItemWidget(TranslucentNavigationBarItem item, GlobalKey tabbarKey) {
+    return Stack(
+      key: tabbarKey,
+      alignment: Alignment.bottomCenter,
+      children: [
+        Container(
+          width: Adapt.px(70),
+          height: widget.height,
+          color: Colors.transparent,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: EdgeInsets.only(
+                  bottom: Adapt.px(2),
+                ),
+                width: Adapt.px(24),
                 child: Stack(
-                  alignment: Alignment.bottomCenter,
-                  children: [
-                    Container(
-                      width: Adapt.px(70),
-                      height: widget.height,
-                      color: Colors.transparent,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            padding: EdgeInsets.only(
-                              bottom: Adapt.px(2),
-                            ),
-                            width: Adapt.px(24),
-                            child: Stack(
-                              children: [_getMyTabBarIcon(item)],
-                            ),
-                          ),
-                          _getTabBarTitle(item),
-                        ],
-                      ),
-                    ),
-                    Positioned(bottom: Adapt.px(6),child: _promptWidget(item),),
-                  ],
+                  children: [_getMyTabBarIcon(item)],
                 ),
               ),
-          ],
+              _getTabBarTitle(item),
+            ],
+          ),
         ),
-      ),
+        Positioned(bottom: Adapt.px(6),child: _promptWidget(item),),
+      ],
     );
   }
 
@@ -323,7 +336,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     return Text(
       title,
       style: TextStyle(
-          fontSize: Adapt.px(10), fontWeight: FontWeight.w600,color: tabBarList.indexOf(item) == selectedIndex ? ThemeColor.gradientMainStart : ThemeColor.color100),
+          fontSize: Adapt.px(10), fontWeight: FontWeight.w600,color: _tabBarList.indexOf(item) == selectedIndex ? ThemeColor.gradientMainStart : ThemeColor.color100),
     );
   }
 
@@ -345,11 +358,11 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
 
   @override
   void didPromptToneCallBack(MessageDBISAR message, int type) {
-    if (tabBarList.isEmpty) return;
+    if (_tabBarList.isEmpty) return;
     if(type == ChatType.chatSecretStranger || type == ChatType.chatStranger){
-      tabBarList[1].unreadMsgCount += 1;
+      _tabBarList[1].unreadMsgCount += 1;
     } else {
-      tabBarList[0].unreadMsgCount += 1;
+      _tabBarList[0].unreadMsgCount += 1;
     }
     setState(() {});
   }
@@ -368,10 +381,10 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     // TODO: implement didLogout
     setState(() {
       isLogin = false;
-      if (tabBarList.isNotEmpty) {
-        tabBarList[0].unreadMsgCount = 0;
-        tabBarList[1].unreadMsgCount = 0;
-        tabBarList[3].unreadMsgCount = 0;
+      if (_tabBarList.isNotEmpty) {
+        _tabBarList[0].unreadMsgCount = 0;
+        _tabBarList[1].unreadMsgCount = 0;
+        _tabBarList[2].unreadMsgCount = 0;
       }
     });
   }
@@ -384,9 +397,9 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
   @override
   void didZapRecordsCallBack(ZapRecordsDBISAR zapRecordsDB) {
     super.didZapRecordsCallBack(zapRecordsDB);
-    if (tabBarList.isEmpty || !mounted) return;
+    if (_tabBarList.isEmpty || !mounted) return;
     setState(() {
-      tabBarList[3].unreadMsgCount = 1;
+      _tabBarList[2].unreadMsgCount = 1;
     });
   }
 
@@ -401,7 +414,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     }
 
     setState(() {
-      tabBarList = [
+      _tabBarList = [
         TranslucentNavigationBarItem(
             title: () => Localized.text('ox_home.${riveFileNames[0]}'),
             artboard: riveArtboards[0],
@@ -416,11 +429,6 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
             title: () => Localized.text('ox_home.${riveFileNames[2]}'),
             artboard: riveArtboards[2],
             animationController: riveControllers[2],
-            unreadMsgCount: 0),
-        TranslucentNavigationBarItem(
-            title: () => Localized.text('ox_home.${riveFileNames[3]}'),
-            artboard: riveArtboards[3],
-            animationController: riveControllers[3],
             unreadMsgCount: UserConfigTool.getSetting(StorageSettingKey.KEY_ZAP_BADGE.name, defaultValue: false) ? 1 : 0),
       ];
       if (OXUserInfoManager.sharedInstance.isLogin) {
@@ -430,11 +438,11 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
   }
 
   fetchUnreadCount() {
-    if (tabBarList.isEmpty) return;
+    if (_tabBarList.isEmpty) return;
     if (OXChatBinding.sharedInstance.unReadStrangerSessionCount > 0) {
-      tabBarList[1].unreadMsgCount = 1;
+      _tabBarList[1].unreadMsgCount = 1;
     } else {
-      tabBarList[1].unreadMsgCount = 0;
+      _tabBarList[1].unreadMsgCount = 0;
     }
   }
 
@@ -452,15 +460,131 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
   }
 
   bool updateNotificationListener(MsgNotification notification){
-    if(notification.msgNum != null && notification.msgNum! < 1 && tabBarList.isNotEmpty){
-      tabBarList[0].unreadMsgCount = 0;
+    if(notification.msgNum != null && notification.msgNum! < 1 && _tabBarList.isNotEmpty){
+      _tabBarList[0].unreadMsgCount = 0;
       setState(() {});
     }
-    if(notification.noticeNum != null && notification.noticeNum! <1 && tabBarList.isNotEmpty){
-      tabBarList[3].unreadMsgCount = 0;
+    if(notification.noticeNum != null && notification.noticeNum! <1 && _tabBarList.isNotEmpty){
+      _tabBarList[2].unreadMsgCount = 0;
       setState(() {});
     }
     // print('Received notification: ${notification.msgNum}');
     return true; //
+  }
+
+  void _showPopupDialog(BuildContext context, int index) {
+    if (index != 2) return;
+    final RenderBox renderBox =
+        _navItemKeyList[index].currentContext!.findRenderObject() as RenderBox;
+    final position = renderBox.localToGlobal(Offset.zero);
+
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: '',
+      barrierColor: Colors.black.withOpacity(0.5),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return StatefulBuilder(builder: (context, setState){
+          return Stack(
+            children: [
+              Positioned(
+                top: position.dy,
+                left: position.dx,
+                child: Material(
+                  color: Colors.transparent,
+                  child: _tabbarItemWidget(_tabBarList.elementAt(index), GlobalKey()),
+                ),
+              ),
+              Positioned(
+                bottom: Adapt.screenH - position.dy + 4.px,
+                left: _calculateDialogPosition(context, index, position),
+                child: Container(
+                  width: 180.px,
+                  height: _userCacheList.length * 44.px + (_userCacheList.isNotEmpty ? 18.px : 0),
+                  constraints: BoxConstraints(maxHeight: Adapt.screenH/2),
+                  decoration: BoxDecoration(
+                    color: ThemeColor.color180,
+                    borderRadius: BorderRadius.circular(16.px),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 8.px,
+                        spreadRadius: 0,
+                      ),
+                    ],
+                  ),
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    reverse: true,
+                    itemCount: _userCacheList.length,
+                    itemBuilder: (context, index) {
+                      MultipleUserModel? multipleUserModel;
+                      if (_userCacheList.isNotEmpty && index > -1) {
+                        multipleUserModel = _userCacheList[index];
+                      }
+                      String showName = multipleUserModel?.name ?? '';
+                      String showPicture = multipleUserModel?.picture ?? '';
+                      return Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Visibility(visible: index == 0, child: Divider(height: 18.px, color: ThemeColor.color200)),
+                          Container(
+                            height: 44.px,
+                            padding: EdgeInsets.symmetric(horizontal: 16.px, vertical: 10.px),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text(
+                                  showName,
+                                  style: TextStyle(
+                                    fontSize: 16.px,
+                                    color: ThemeColor.color0,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                showName == Localized.text('ox_usercenter.str_add_account')
+                                    ? CommonImage(
+                                  iconName: 'add_circle_icon.png',
+                                  size: 24.px,
+                                  package: 'ox_common',
+                                  useTheme: true,
+                                )
+                                    : OXUserAvatar(imageUrl: showPicture, size: 24.px),
+                              ],
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ],
+          );
+        });
+      },
+    );
+  }
+
+  double _calculateDialogPosition(BuildContext context, int index, Offset position) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final navBarItemWidth = (screenWidth - 40.px) / 3;
+    double dialogOffset;
+
+    switch (index) {
+      case 0:
+        dialogOffset = 20.px;
+        break;
+      case 1:
+        dialogOffset = position.dx + (navBarItemWidth / 2) - (180.px / 2) - 20.px;
+        break;
+      case 2:
+        dialogOffset = screenWidth - 180.px - 20.px ;
+        break;
+      default:
+        dialogOffset = position.dx;
+    }
+    return dialogOffset;
   }
 }
