@@ -32,6 +32,7 @@ class ContactWidget extends StatefulWidget {
   final bool shrinkWrap;
   ScrollPhysics? physics;
   final Widget? topWidget;
+  final Color? bgColor;
 
   ContactWidget({
     Key? key,
@@ -42,6 +43,7 @@ class ContactWidget extends StatefulWidget {
     this.shrinkWrap = false,
     this.physics,
     this.topWidget,
+    this.bgColor,
   }) : super(key: key);
 
   @override
@@ -147,7 +149,7 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: ThemeColor.color200,
+      color: widget.bgColor ?? ThemeColor.color200,
       child: Stack(
         alignment: AlignmentDirectional.centerEnd,
         children: <Widget>[
@@ -357,7 +359,6 @@ class HeaderWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: headerHeight,
-      color: ThemeColor.color200,
       alignment: Alignment.centerLeft,
       padding: EdgeInsets.only(
         left: Adapt.px(24.0),
@@ -438,7 +439,6 @@ class _ContractListItemState extends State<ContractListItem> {
       behavior: HitTestBehavior.translucent,
       onTap: widget.editable ? _onCheckChanged : _onItemClick,
       child: Container(
-        color: ThemeColor.color200,
         width: double.infinity,
         height: itemHeight,
         padding: EdgeInsets.only(left: Adapt.px(24.0), top: Adapt.px(10.0), bottom: Adapt.px(10.0)),

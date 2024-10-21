@@ -85,7 +85,7 @@
   "channel_id_item": "ChannelID",
   "relay_item": "Relay",
   "mute_item": "Mute",
-  "un_mute_item": "Mute",
+  "un_mute_item": "Unmute",
   "mute_fail_toast": "Mute(Unmute) failed, please try again later.",
   "leave_item": "Leave",
   "remark": "Remark",
@@ -329,5 +329,7 @@
   "str_dm_auto_delete_hint": "Messages auto-deleted after ${time}",
   "delete_message_me_action_mode": "Delete for me",
   "delete_message_everyone_action_mode": "Delete for everyone",
-  "str_group_admin_permission_add_fail_toast": "Permission can't be added."
+  "str_group_admin_permission_add_fail_toast": "Permission can't be added.",
+  "str_title_new_message": "New Message",
+  "str_mark_as_unread": "Mark as Unread"
 }

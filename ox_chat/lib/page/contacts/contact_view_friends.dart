@@ -18,7 +18,8 @@ class ContractViewFriends extends StatefulWidget {
   final ScrollPhysics? physics;
   final Widget? topWidget;
   final ScrollToTopStatus? scrollToTopStatus;
-  ContractViewFriends({Key? key, this.shrinkWrap = false, this.physics, this.topWidget, this.scrollToTopStatus}): super(key: key);
+  final Color? bgColor;
+  ContractViewFriends({Key? key, this.shrinkWrap = false, this.physics, this.topWidget, this.scrollToTopStatus, this.bgColor}): super(key: key);
 
   @override
   _ContractViewFriendsState createState() => _ContractViewFriendsState();
@@ -61,6 +62,7 @@ class _ContractViewFriendsState extends State<ContractViewFriends>
           shrinkWrap: widget.shrinkWrap,
           physics: widget.physics,
           topWidget: widget.topWidget,
+          bgColor: widget.bgColor,
         ),
     );
   }
