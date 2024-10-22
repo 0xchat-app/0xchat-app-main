@@ -12,6 +12,7 @@ import 'package:ox_chat/page/session/chat_secret_message_page.dart';
 import 'package:ox_chat/widget/common_chat_widget.dart';
 import 'package:ox_chat/widget/not_contact_top_widget.dart';
 import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
+import 'package:ox_chat/widget/session_longpress_menu_dialog.dart';
 import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -85,66 +86,7 @@ class ChatMessagePage extends StatefulWidget {
     if (pageWidget == null) return ;
     if (isLongPressShow){
       handler.enableBottomWidget = false;
-      return showGeneralDialog(
-        context: context,
-        barrierDismissible: true,
-        barrierLabel: '',
-        barrierColor: Colors.transparent,
-        transitionBuilder: (context, animation1, animation2, child) {
-          return GestureDetector(
-            behavior: HitTestBehavior.translucent,
-            onTap: () {
-              OXNavigator.pop(context);
-            },
-            child: Stack(
-              children: [
-                Positioned.fill(
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                    child: Container(
-                      color: Colors.black.withOpacity(0.2),
-                    ),
-                  ),
-                ),
-                ScaleTransition(
-                  scale: Tween<double>(begin: 0.0, end: 1.0).animate(
-                    CurvedAnimation(
-                      parent: animation1,
-                      curve: Curves.easeInOut,
-                    ),
-                  ),
-                  child: Container(
-                    margin: EdgeInsets.only(
-                        left: 20.px, top: Adapt.screenH * 0.1, right: 20.px, bottom: 24.px),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Container(
-                          height: Adapt.screenH * 0.6,
-                          child: pageWidget,
-                        ),
-                        SizedBox(height: 8.px),
-                        Container(
-                          width: 180.px,
-                          height: Adapt.screenH * 0.2,
-                          alignment: Alignment.bottomRight,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(16.px),
-                            color: ThemeColor.color180.withOpacity(0.72),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
-        transitionDuration: Duration(milliseconds: 200),
-        pageBuilder: (context, animation1, animation2) => Container(),
-      );
+      return SessionLongPressMenuDialog.showDialog(context: context, communityItem: communityItem, pageWidget: pageWidget);
     }
     if (isPushWithReplace) {
       return OXNavigator.pushReplacement(context, pageWidget);

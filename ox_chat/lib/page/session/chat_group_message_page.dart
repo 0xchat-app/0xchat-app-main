@@ -64,6 +64,35 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> {
   Widget build(BuildContext context) {
     GroupDBISAR? group = Groups.sharedInstance.groups[groupId];
     String showName = group?.name ?? '';
+    if (!handler.enableBottomWidget){
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(16.px),
+        child: CommonChatWidget(
+          handler: handler,
+          customTopWidget: CommonAppBarNoPreferredSize(
+            useLargeTitle: false,
+            centerTitle: true,
+            canBack: false,
+            title: showName,
+            backgroundColor: ThemeColor.color200,
+            leading: SizedBox(),
+            actions: [
+              OXGroupAvatar(
+                group: group,
+                size: 36.px,
+                isClickable: true,
+                onReturnFromNextPage: () {
+                  setState(() { });
+                },
+              ),
+              // SizedBox(
+              //   width: 16.px,
+              // ),
+            ],
+          ),
+        ),
+      );
+    }
     return Scaffold(
       backgroundColor: ThemeColor.color200,
       resizeToAvoidBottomInset: false,
@@ -80,7 +109,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> {
             alignment: Alignment.center,
             child: OXGroupAvatar(
               group: group,
-              size: 36,
+              size: 36.px,
               isClickable: true,
               onReturnFromNextPage: () {
                 setState(() { });

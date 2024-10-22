@@ -72,6 +72,32 @@ class _ChatChannelMessagePageState extends State<ChatChannelMessagePage> {
   Widget build(BuildContext context) {
     ChannelDBISAR? channelDB = Channels.sharedInstance.channels[channelId];
     String showName = channelDB?.name ?? '';
+    if (!handler.enableBottomWidget){
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(16.px),
+        child: CommonChatWidget(
+          handler: handler,
+          customTopWidget: CommonAppBarNoPreferredSize(
+            useLargeTitle: false,
+            centerTitle: true,
+            canBack: false,
+            title: showName,
+            backgroundColor: ThemeColor.color200,
+            leading: SizedBox(),
+            actions: [
+              OXChannelAvatar(
+                channel: channel,
+                size: 36.px,
+                isClickable: true,
+                onReturnFromNextPage: () {
+                  setState(() { });
+                },
+              ),
+            ],
+          ),
+        ),
+      );
+    }
     return Scaffold(
       backgroundColor: ThemeColor.color200,
       resizeToAvoidBottomInset: false,
@@ -88,7 +114,7 @@ class _ChatChannelMessagePageState extends State<ChatChannelMessagePage> {
             alignment: Alignment.center,
             child: OXChannelAvatar(
               channel: channel,
-              size: 36,
+              size: 36.px,
               isClickable: true,
               onReturnFromNextPage: () {
                 setState(() { });

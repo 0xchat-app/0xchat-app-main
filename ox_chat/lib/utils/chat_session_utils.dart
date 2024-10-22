@@ -4,6 +4,8 @@ import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/ox_chat_binding.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_image.dart';
 
 ///Title: chat_session_utils
@@ -157,5 +159,44 @@ class ChatSessionUtils {
         isMute = tempUserDB is UserDBISAR ? (tempUserDB?.mute ?? false) : false;
         return isMute;
     }
+  }
+
+  static void setChatMute(ChatSessionModelISAR model, bool muteValue) async {
+    switch (model.chatType) {
+      case ChatType.chatChannel:
+        if (muteValue) {
+          await Channels.sharedInstance.muteChannel(model.chatId);
+        } else {
+          await Channels.sharedInstance.unMuteChannel(model.chatId);
+        }
+        break;
+      case ChatType.chatSingle:
+      case ChatType.chatSecret:
+        if (muteValue) {
+          await Contacts.sharedInstance.muteFriend(model.chatId);
+        } else {
+          await Contacts.sharedInstance.unMuteFriend(model.chatId);
+        }
+        break;
+      case ChatType.chatGroup:
+        if (muteValue) {
+          await Groups.sharedInstance.muteGroup(model.chatId);
+        } else {
+          await Groups.sharedInstance.unMuteGroup(model.chatId);
+        }
+        break;
+      case ChatType.chatRelayGroup:
+        if (muteValue) {
+          await RelayGroup.sharedInstance.muteGroup(model.chatId);
+        } else {
+          await RelayGroup.sharedInstance.unMuteGroup(model.chatId);
+        }
+        break;
+    }
+    OXUserInfoManager.sharedInstance.setNotification().then((value) {
+      if (value) {
+        OXChatBinding.sharedInstance.sessionUpdate();
+      }
+    });
   }
 }

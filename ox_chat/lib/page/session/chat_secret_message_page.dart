@@ -115,6 +115,36 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
 
   @override
   Widget build(BuildContext context) {
+    if (!handler.enableBottomWidget){
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(16.px),
+        child: CommonChatWidget(
+          handler: handler,
+          customTopWidget: CommonAppBarNoPreferredSize(
+            useLargeTitle: false,
+            centerTitle: true,
+            canBack: false,
+            title: otherUser?.getUserShowName() ?? '',
+            backgroundColor: ThemeColor.color200,
+            leading: SizedBox(),
+            actions: [
+              OXUserAvatar(
+                chatId: session.chatId,
+                user: otherUser,
+                size: Adapt.px(36),
+                isClickable: true,
+                onReturnFromNextPage: () {
+                  setState(() { });
+                },
+              ),
+              // SizedBox(
+              //   width: 16.px,
+              // ),
+            ],
+          ),
+        ),
+      );
+    }
     return Scaffold(
       backgroundColor: ThemeColor.color200,
       resizeToAvoidBottomInset: false,
