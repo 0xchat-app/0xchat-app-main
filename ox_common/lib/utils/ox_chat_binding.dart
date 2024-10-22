@@ -196,17 +196,19 @@ class OXChatBinding {
       ChatSessionModelISAR.saveChatSessionModelToDB(tempModel);
     } else {
       if (messageDB.chatType == null || messageDB.chatType == ChatType.chatChannel) {
-        ChannelDBISAR? channelDB = Channels.sharedInstance.channels[messageDB.groupId];
-        sessionModel.avatar = channelDB?.picture ?? '';
-        sessionModel.chatName = channelDB?.name ?? messageDB.groupId;
+        ChannelDBISAR? channelDB = Channels.sharedInstance.myChannels[messageDB.groupId];
+        if (channelDB == null) return;
+        sessionModel.avatar = channelDB.picture ?? '';
+        sessionModel.chatName = channelDB.name ?? messageDB.groupId;
       } else if (messageDB.chatType == null || messageDB.chatType == ChatType.chatRelayGroup) {
         RelayGroupDBISAR? relayGroupDB = RelayGroup.sharedInstance.groups[messageDB.groupId];
         sessionModel.avatar = relayGroupDB?.picture ?? '';
         sessionModel.chatName = relayGroupDB?.name ?? messageDB.groupId;
       } else {
-        GroupDBISAR? groupDBDB = Groups.sharedInstance.groups[messageDB.groupId];
-        sessionModel.avatar = groupDBDB?.picture ?? '';
-        sessionModel.chatName = groupDBDB?.name ?? messageDB.groupId;
+        GroupDBISAR? groupDBDB = Groups.sharedInstance.myGroups[messageDB.groupId];
+        if (groupDBDB == null) return;
+        sessionModel.avatar = groupDBDB.picture ?? '';
+        sessionModel.chatName = groupDBDB.name;
       }
       if (!messageDB.read && messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
         sessionModel.unreadCount = 1;
