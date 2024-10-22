@@ -80,7 +80,7 @@ class TranslucentNavigationBar extends StatefulWidget {
 class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with OXUserInfoObserver, OXChatObserver, TickerProviderStateMixin, WidgetsBindingObserver {
   bool isLogin = false;
   Timer? _refreshMessagesTimer;
-  int selectedIndex = 0;
+  int selectedIndex = 1;
   double middleIndex = (4 / 2).floorToDouble();
 
   List<TranslucentNavigationBarItem> _tabBarList = [];
@@ -90,8 +90,8 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
   bool get isDark => ThemeManager.getCurrentThemeStyle() == ThemeStyle.dark;
 
   // State machine
-  final riveFileNames = ['Home','Contact', 'Me'];
-  final stateMachineNames = ['state_machine_home', 'state_machine_contact', 'state_machine_me'];
+  final riveFileNames = ['Contact', 'Home', 'Me'];
+  final stateMachineNames = ['state_machine_contact', 'state_machine_home', 'state_machine_me'];
   final riveInputs = ['Press', 'Press', 'Press'];
   late List<river.StateMachineController?> riveControllers = List<river.StateMachineController?>.filled(3, null);
   late List<river.Artboard?> riveArtboards = List<river.Artboard?>.filled(3, null);
@@ -404,12 +404,13 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
   }
 
   void dataInit() async {
-    for (int i = 0; i < riveFileNames.length; i++) {
-      await _loadRiveFile(i);
-    }
+    List<int> tempList = [0, 1, 2];
+    await Future.forEach(tempList, (element) async {
+      await _loadRiveFile(element);
+    });
 
-    if (riveControllers[0] != null) {
-      final input = riveControllers[0]!.findInput<bool>(riveInputs[0]);
+    if (riveControllers[1] != null) {
+      final input = riveControllers[1]!.findInput<bool>(riveInputs[1]);
       if (input != null) input.value = true;
     }
 
@@ -440,9 +441,9 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
   fetchUnreadCount() {
     if (_tabBarList.isEmpty) return;
     if (OXChatBinding.sharedInstance.unReadStrangerSessionCount > 0) {
-      _tabBarList[1].unreadMsgCount = 1;
+      _tabBarList[0].unreadMsgCount = 1;
     } else {
-      _tabBarList[1].unreadMsgCount = 0;
+      _tabBarList[0].unreadMsgCount = 0;
     }
   }
 
@@ -461,7 +462,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
 
   bool updateNotificationListener(MsgNotification notification){
     if(notification.msgNum != null && notification.msgNum! < 1 && _tabBarList.isNotEmpty){
-      _tabBarList[0].unreadMsgCount = 0;
+      _tabBarList[1].unreadMsgCount = 0;
       setState(() {});
     }
     if(notification.noticeNum != null && notification.noticeNum! <1 && _tabBarList.isNotEmpty){

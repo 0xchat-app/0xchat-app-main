@@ -38,7 +38,7 @@ class HomeTabBarPage extends StatefulWidget {
 
 class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver, OXChatObserver, TickerProviderStateMixin, WidgetsBindingObserver {
   bool isLogin = false;
-  final PageController _pageController = PageController();
+  final PageController _pageController = PageController(initialPage: 1);
 
   GlobalKey<BasePageState> homeGlobalKey = GlobalKey();
   GlobalKey<ContactBasePageState> contactGlobalKey = GlobalKey();
@@ -48,11 +48,11 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
   List<TabViewInfo> tabViewInfo = [
     TabViewInfo(
       moduleName: 'ox_chat',
-      modulePage: 'chatSessionListPageWidget',
+      modulePage: 'contractsPageWidget',
     ),
     TabViewInfo(
       moduleName: 'ox_chat',
-      modulePage: 'contractsPageWidget',
+      modulePage: 'chatSessionListPageWidget',
     ),
     TabViewInfo(
       moduleName: 'ox_usercenter',
