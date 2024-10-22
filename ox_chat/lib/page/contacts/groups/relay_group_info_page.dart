@@ -17,6 +17,7 @@ import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
@@ -712,6 +713,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
     await OXLoading.dismiss();
     if (result) {
       if (mounted)
+        OXChatBinding.sharedInstance.sessionUpdate();
         setState(() {
           _isMute = value;
         });
