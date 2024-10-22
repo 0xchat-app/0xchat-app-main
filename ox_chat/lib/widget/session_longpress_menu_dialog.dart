@@ -179,7 +179,7 @@ class SessionMenuOptionModel {
     );
     list.add(
       SessionMenuOptionModel(
-        content: isMute ? 'mute_item'.localized() : 'un_mute_item'.localized(),
+        content: isMute ? 'un_mute_item'.localized() : 'mute_item'.localized(),
         iconName: isMute ? 'icon_mute.png' : 'icon_session_mute.png',
         optionEnum: LongPressOptionEnum.muteOrUnmute,
       ),
