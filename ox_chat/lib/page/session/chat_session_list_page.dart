@@ -68,6 +68,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
 
   RefreshController _refreshController = new RefreshController();
   List<ChatSessionModelISAR> _msgDatas = []; // Message List
+  int _allUnreadCount = 0;
   List<ValueNotifier<double>> _scaleList = [];
   Map<String, BadgeDBISAR> _badgeCache = {};
   Map<String, bool> _muteCache = {};
@@ -346,6 +347,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
         readCount += i.unreadCount;
       }
     }
+    _allUnreadCount = readCount;
     if (mounted) {
       MsgNotification(msgNum: readCount).dispatch(context);
     }
@@ -584,6 +586,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
             _itemFn(item);
           },
           onLongPress: () async {
+            if (item.chatId == CommonConstant.NOTICE_CHAT_ID) return;
             _scaleList[index].value = 0.96;
             await Future.delayed(Duration(milliseconds: 80));
             _scaleList[index].value = 1.0;
@@ -724,10 +727,11 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     }
   }
 
-  void _setAllRead(ChatSessionModelISAR item) {
+  void _setReadBySession(ChatSessionModelISAR item) {
     setState(() {
+      _allUnreadCount = _allUnreadCount - item.unreadCount;
       item.unreadCount = 0;
-      _updateReadStatus();
+      MsgNotification(msgNum: _allUnreadCount).dispatch(context);
     });
     OXChatBinding.sharedInstance.updateChatSession(item.chatId ?? '', unreadCount: 0);
   }
@@ -931,7 +935,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
 
   void _itemFn(ChatSessionModelISAR item) async {
     final unreadMessageCount = item.unreadCount;
-    _setAllRead(item);
+    _setReadBySession(item);
     switch(item.chatType){
       case ChatType.chatRelayGroup:
       case ChatType.chatGroup:

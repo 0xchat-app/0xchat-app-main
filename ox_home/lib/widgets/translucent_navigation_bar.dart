@@ -461,15 +461,21 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
   }
 
   bool updateNotificationListener(MsgNotification notification){
-    if(notification.msgNum != null && notification.msgNum! < 1 && _tabBarList.isNotEmpty){
+    if (notification.msgNum != null && notification.msgNum! > 0 && _tabBarList.isNotEmpty) {
+      _tabBarList[1].unreadMsgCount = 1;
+      setState(() {});
+    } else if (notification.msgNum != null && notification.msgNum! < 1 && _tabBarList.isNotEmpty) {
       _tabBarList[1].unreadMsgCount = 0;
       setState(() {});
     }
-    if(notification.noticeNum != null && notification.noticeNum! <1 && _tabBarList.isNotEmpty){
+    if (notification.noticeNum != null && notification.noticeNum! > 0 && _tabBarList.isNotEmpty) {
+      _tabBarList[2].unreadMsgCount = 1;
+      setState(() {});
+    } else if (notification.noticeNum != null && notification.noticeNum! < 1 && _tabBarList.isNotEmpty) {
       _tabBarList[2].unreadMsgCount = 0;
       setState(() {});
     }
-    // print('Received notification: ${notification.msgNum}');
+    print('Received notification: ${notification.msgNum}');
     return true; //
   }
 
