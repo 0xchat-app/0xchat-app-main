@@ -92,19 +92,6 @@ extension UserCenterPageUI on UserCenterPageState{
                   OXNavigator.pushPage(context, (context) => const ZapsPage());
                 },
               ),
-            ],
-          ),
-        ),
-        SizedBox(height: Adapt.px(24)),
-        Container(
-          width: double.infinity,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(Adapt.px(16)),
-            color: ThemeColor.color180,
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
               FutureBuilder<BadgeDBISAR?>(
                 builder: (context, snapshot) {
                   return _topItemBuild(
@@ -134,6 +121,20 @@ extension UserCenterPageUI on UserCenterPageState{
         ),
         SizedBox(height: Adapt.px(24)),
         const SettingsPage(),
+        // SizedBox(height: Adapt.px(24)),
+        // Container(
+        //   width: double.infinity,
+        //   decoration: BoxDecoration(
+        //     borderRadius: BorderRadius.circular(Adapt.px(16)),
+        //     color: ThemeColor.color180,
+        //   ),
+        //   child: Column(
+        //     mainAxisAlignment: MainAxisAlignment.start,
+        //     children: [
+        //
+        //     ],
+        //   ),
+        // ),
         SizedBox(height: 130.px),
       ],
     );
