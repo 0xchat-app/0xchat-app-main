@@ -59,6 +59,8 @@ class TranslucentNavigationBar extends StatefulWidget {
   /// Main icon function on tap
   final Function()? onMainIconTap;
 
+  final bool visible;
+
   const TranslucentNavigationBar({
     super.key,
     this.mainIconBackgroundColor = Colors.blue,
@@ -71,6 +73,7 @@ class TranslucentNavigationBar extends StatefulWidget {
     this.blur = 2, // You use 5 for black and 1 for white
     this.verticalPadding,
     this.horizontalPadding,
+    this.visible = true,
   });
 
   @override
@@ -155,31 +158,34 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.symmetric(
-        vertical: widget.verticalPadding ?? 24.px,
-        horizontal: widget.horizontalPadding ?? 20.px,
-      ),
-      height: widget.height,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(widget.height),
-        boxShadow: const [
-          BoxShadow(
-            // color: Color(0x7FE3E3E3), // Daytime pattern
-            color: Color(0x33141414), // Dark mode
-            offset: Offset(
-              3.0,
-              1.0,
+    return Visibility(
+      visible: widget.visible,
+      child: Container(
+        margin: EdgeInsets.symmetric(
+          vertical: widget.verticalPadding ?? 24.px,
+          horizontal: widget.horizontalPadding ?? 20.px,
+        ),
+        height: widget.height,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(widget.height),
+          boxShadow: const [
+            BoxShadow(
+              // color: Color(0x7FE3E3E3), // Daytime pattern
+              color: Color(0x33141414), // Dark mode
+              offset: Offset(
+                3.0,
+                1.0,
+              ),
+              blurRadius: 20.0,
+              spreadRadius: 1.0,
+              // blurStyle: BlurStyle.solid
             ),
-            blurRadius: 20.0,
-            spreadRadius: 1.0,
-            // blurStyle: BlurStyle.solid
-          ),
-        ],
+          ],
+        ),
+        child: createTabContainer(_tabBarList, middleIndex),
       ),
-      child: createTabContainer(_tabBarList, middleIndex),
     );
   }
 
@@ -407,7 +413,6 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     await Future.forEach(tempList, (element) async {
       await _loadRiveFile(element);
     });
-
     if (riveControllers[1] != null) {
       final input = riveControllers[1]!.findInput<bool>(riveInputs[1]);
       if (input != null) input.value = true;

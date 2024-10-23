@@ -44,6 +44,7 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
   GlobalKey<ContactBasePageState> contactGlobalKey = GlobalKey();
 
   GlobalKey<TranslucentNavigationBarState> tabBarGlobalKey = GlobalKey();
+  bool _isBottomNavigationBarVisible = true;
 
   List<TabViewInfo> tabViewInfo = [
     TabViewInfo(
@@ -86,9 +87,10 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
       extendBody: true,
       bottomNavigationBar: TranslucentNavigationBar(
         key: tabBarGlobalKey,
-        onTap: (changeIndex,currentSelect) => _tabClick(changeIndex,currentSelect),
-        handleDoubleTap: (changeIndex,currentSelect) => _handleDoubleTap(changeIndex,currentSelect),
+        onTap: (changeIndex, currentSelect) => _tabClick(changeIndex, currentSelect),
+        handleDoubleTap: (changeIndex, currentSelect) => _handleDoubleTap(changeIndex, currentSelect),
         height: Adapt.px(72),
+        visible: _isBottomNavigationBarVisible,
       ),
       body: PageView(
         physics: const NeverScrollableScrollPhysics(),
@@ -133,12 +135,40 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
       }
     }
 
-    return OXModuleService.invoke<Widget>(
+    Widget page = OXModuleService.invoke<Widget>(
       tabModel.moduleName,
       tabModel.modulePage,
       [context],
       params
-    ) ?? SizedBox();
+    ) ?? const SizedBox();
+
+    return NotificationListener<ScrollNotification>(
+      onNotification: (scrollNotification) {
+        if (scrollNotification.metrics.axis == Axis.vertical) {
+          if (scrollNotification is ScrollStartNotification) {
+            if (_isBottomNavigationBarVisible) {
+              setState(() {
+                _isBottomNavigationBarVisible = false;
+              });
+            }
+          } else if (scrollNotification is ScrollEndNotification) {
+            if (!_isBottomNavigationBarVisible) {
+              setState(() {
+                _isBottomNavigationBarVisible = true;
+              });
+            }
+          }
+        }
+        return false;
+      },
+      child: NotificationListener<MsgNotification>(
+        onNotification: (msgNotification) {
+          if (tabBarGlobalKey.currentState == null) return false;
+          return tabBarGlobalKey.currentState!.updateNotificationListener(msgNotification);
+        },
+        child: page,
+      ),
+    );
   }
 
   @override
