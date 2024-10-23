@@ -129,12 +129,12 @@ CommonAppBar extends StatefulWidget implements PreferredSizeWidget {
     this.useMediumTitle = false,
     this.centerTitle = true,
     this.titleSpacing = NavigationToolbar.kMiddleSpacing,
-    this.leadingWidth
-     }) : preferredSize = Size.fromHeight(CommonBarHeight +
-            ((useLargeTitle == true &&
-                    (useMediumTitle == false || useMediumTitle != false))
+    this.leadingWidth,
+    Size? preferredSize,
+     }) : preferredSize = preferredSize ?? Size.fromHeight(CommonBarHeight +
+            (useLargeTitle == true
                 ? LargeTitleHeight
-                : (useLargeTitle == false && useMediumTitle == true)
+                : useMediumTitle == true
                     ? MediumTitleHeight
                     : 0));
 
@@ -252,7 +252,7 @@ class BaseAppBarState extends State<CommonAppBar> {
         },
       );
     }
-    return null;
+    return SizedBox();
   }
 }
 
