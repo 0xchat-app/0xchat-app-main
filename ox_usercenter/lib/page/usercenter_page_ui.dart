@@ -56,6 +56,55 @@ extension UserCenterPageUI on UserCenterPageState{
                   );
                 },
               ),
+              GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: () => OXNavigator.pushPage(context, (context) => const RelaysPage()),
+                child: itemView(
+                  'icon_settings_relays.png',
+                  'ox_usercenter.relays',
+                  '',
+                  true,
+                  devLogWidget: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      OXChatInterface.showRelayInfoWidget(showRelayIcon: false),
+                      CommonImage(
+                        iconName: 'icon_arrow_more.png',
+                        width: Adapt.px(24),
+                        height: Adapt.px(24),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              _topItemBuild(
+                title: 'zaps'.localized(),
+                iconName: 'icon_settings_zaps.png',
+                isShowDivider: false,
+                onTap: () {
+                  if (_isShowZapBadge) {
+                    MsgNotification(noticeNum: 0).dispatch(context);
+                    UserConfigTool.saveSetting(StorageSettingKey.KEY_ZAP_BADGE.name, false).then((value) {
+                      _updateState();
+                    });
+                  }
+                  claimEcash();
+                  OXNavigator.pushPage(context, (context) => const ZapsPage());
+                },
+              ),
+            ],
+          ),
+        ),
+        SizedBox(height: Adapt.px(24)),
+        Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(Adapt.px(16)),
+            color: ThemeColor.color180,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
               FutureBuilder<BadgeDBISAR?>(
                 builder: (context, snapshot) {
                   return _topItemBuild(
@@ -68,7 +117,7 @@ extension UserCenterPageUI on UserCenterPageState{
                           context,
                               (context) => UsercenterBadgeWallPage(userDB: OXUserInfoManager.sharedInstance.currentUserInfo),
                         ).then((value) {
-                          setState(() {});
+                          _updateState();
                         });
                       });
                 },
@@ -85,48 +134,6 @@ extension UserCenterPageUI on UserCenterPageState{
         ),
         SizedBox(height: Adapt.px(24)),
         const SettingsPage(),
-        SizedBox(height: Adapt.px(24)),
-        GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onTap: _switchAccount,
-          child: Container(
-            width: double.infinity,
-            height: Adapt.px(48),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              color: ThemeColor.color180,
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              Localized.text('ox_usercenter.str_switch_account'),
-              style: TextStyle(
-                color: ThemeColor.color0,
-                fontSize: Adapt.px(15),
-              ),
-            ),
-          ),
-        ),
-        SizedBox(height: Adapt.px(24)),
-        GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onTap: _logout,
-          child: Container(
-            width: double.infinity,
-            height: Adapt.px(48),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              color: ThemeColor.color180,
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              Localized.text('ox_usercenter.sign_out'),
-              style: TextStyle(
-                color: ThemeColor.color0,
-                fontSize: Adapt.px(15),
-              ),
-            ),
-          ),
-        ),
         SizedBox(height: 130.px),
       ],
     );
@@ -322,13 +329,11 @@ extension UserCenterPageUI on UserCenterPageState{
                 height: Adapt.px(32),
                 package: 'ox_usercenter',
               ),
-              title: Container(
-                child: Text(
-                  title ?? '',
-                  style: TextStyle(
-                    color: ThemeColor.color0,
-                    fontSize: Adapt.px(16),
-                  ),
+              title: Text(
+                title ?? '',
+                style: TextStyle(
+                  color: ThemeColor.color0,
+                  fontSize: Adapt.px(16),
                 ),
               ),
               trailing: SizedBox(

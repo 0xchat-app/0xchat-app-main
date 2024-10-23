@@ -231,8 +231,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
                   FeedbackType type = FeedbackType.impact;
                   Vibrate.feedback(type);
                 }
-                if (!OXUserInfoManager.sharedInstance.isLogin && (index == 3)) {
-                  //jump login(value == 3 || value == 0)
+                if (!OXUserInfoManager.sharedInstance.isLogin && (index == 2)) {
                   _showLoginPage(context);
                   return;
                 }

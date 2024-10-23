@@ -175,8 +175,8 @@ class OXChat extends OXFlutterModule {
     return null;
   }
 
-  Widget _showRelayInfoWidget() {
-    return RelayInfoWidget();
+  Widget _showRelayInfoWidget(bool showRelayIcon) {
+    return RelayInfoWidget(showRelayIcon: showRelayIcon);
   }
 
   void _showMyIdCardDialog(BuildContext context) {

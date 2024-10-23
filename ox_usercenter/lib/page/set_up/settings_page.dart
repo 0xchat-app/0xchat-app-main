@@ -225,6 +225,9 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
           case SettingItemType.fileServer:
             OXNavigator.pushPage(context, (context) => const FileServerPage());
             break;
+          case SettingItemType.none:
+            // TODO: Handle this case.
+            break;
         }
       },
       child: itemView(

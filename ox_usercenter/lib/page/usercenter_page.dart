@@ -4,9 +4,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cashu_dart/cashu_dart.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_common/business_interface/ox_chat/interface.dart';
 import 'package:ox_common/business_interface/ox_wallet/interface.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/mixin/common_state_view_mixin.dart';
+import 'package:ox_common/model/msg_notification_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/navigator/slide_bottom_to_top_route.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -30,8 +32,10 @@ import 'package:ox_theme/ox_theme.dart';
 import 'package:ox_usercenter/page/badge/usercenter_badge_wall_page.dart';
 import 'package:ox_usercenter/page/set_up/donate_page.dart';
 import 'package:ox_usercenter/page/set_up/profile_set_up_page.dart';
+import 'package:ox_usercenter/page/set_up/relays_page.dart';
 import 'package:ox_usercenter/page/set_up/settings_page.dart';
 import 'package:ox_usercenter/page/set_up/switch_account_page.dart';
+import 'package:ox_usercenter/page/set_up/zaps_page.dart';
 import 'package:ox_usercenter/utils/widget_tool.dart';
 part 'usercenter_page_ui.dart';
 
@@ -116,7 +120,7 @@ class UserCenterPageState extends State<UserCenterPage>
     }
   }
 
-  void _initInterface() async {
+  void _initInterface() {
     _isShowZapBadge = _getZapBadge();
     if (mounted) setState(() {});
   }
@@ -170,10 +174,10 @@ class UserCenterPageState extends State<UserCenterPage>
         useLargeTitle: false,
         centerTitle: false,
         canBack: false,
-        leading: IconButton(
-          splashColor: Colors.transparent,
+        leading: OXButton(
+          color: Colors.transparent,
           highlightColor: Colors.transparent,
-          icon: CommonImage(
+          child: CommonImage(
             iconName: 'icon_qrcode.png',
             size: 24.px,
             package: 'ox_usercenter',
@@ -242,10 +246,10 @@ class UserCenterPageState extends State<UserCenterPage>
 
   @override
   void didLogout() {
-    LogUtil.e("useercenter.didLogout");
     if (mounted) {
       setState(() {
         updateStateView(CommonStateView.CommonStateView_NotLogin);
+        LogUtil.e("usercenter.didLogout");
       });
     }
   }
@@ -323,24 +327,12 @@ class UserCenterPageState extends State<UserCenterPage>
     );
   }
 
-  void _logout() async {
-    OXCommonHintDialog.show(context,
-        title: Localized.text('ox_usercenter.warn_title'),
-        content: Localized.text('ox_usercenter.sign_out_dialog_content'),
-        actionList: [
-          OXCommonHintAction.cancel(onTap: () {
-            OXNavigator.pop(context);
-          }),
-          OXCommonHintAction.sure(
-              text: Localized.text('ox_common.confirm'),
-              onTap: () async {
-                OXNavigator.pop(context);
-                await OXLoading.show();
-                await OXUserInfoManager.sharedInstance.logout();
-                await OXLoading.dismiss();
-              }),
-        ],
-        isRowAction: true);
+  void _updateState() {
+    if (mounted) {
+      setState(() {
+        _isShowZapBadge = _getZapBadge();
+      });
+    }
   }
 
   void _switchAccount() {

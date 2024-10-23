@@ -276,6 +276,27 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
                       }
                     },
                   ),
+                  SizedBox(height: 24.px),
+                  GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onTap: _logout,
+                    child: Container(
+                      width: double.infinity,
+                      height: Adapt.px(48),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        color: ThemeColor.color180,
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        Localized.text('ox_usercenter.sign_out'),
+                        style: TextStyle(
+                          color: ThemeColor.color0,
+                          fontSize: Adapt.px(15),
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -596,6 +617,27 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
               text: Localized.text('ox_common.confirm'),
               onTap: () async {
                 OXNavigator.pop(context, true);
+              }),
+        ],
+        isRowAction: true);
+  }
+
+  void _logout() async {
+    OXCommonHintDialog.show(context,
+        title: Localized.text('ox_usercenter.warn_title'),
+        content: Localized.text('ox_usercenter.sign_out_dialog_content'),
+        actionList: [
+          OXCommonHintAction.cancel(onTap: () {
+            OXNavigator.pop(context);
+          }),
+          OXCommonHintAction.sure(
+              text: Localized.text('ox_common.confirm'),
+              onTap: () async {
+                OXNavigator.pop(context);
+                OXNavigator.pop(context);
+                await OXLoading.show();
+                await OXUserInfoManager.sharedInstance.logout();
+                await OXLoading.dismiss();
               }),
         ],
         isRowAction: true);

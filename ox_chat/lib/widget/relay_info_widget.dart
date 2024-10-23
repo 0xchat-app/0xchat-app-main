@@ -11,7 +11,8 @@ import 'package:chatcore/chat-core.dart';
 ///@author Michael
 ///CreateTime: 2024/8/5 19:56
 class RelayInfoWidget extends StatefulWidget {
-  RelayInfoWidget({Key? key}) : super(key: key);
+  bool showRelayIcon;
+  RelayInfoWidget({Key? key, this.showRelayIcon = true}) : super(key: key);
 
   @override
   RelayInfoWidgetState createState() => RelayInfoWidgetState();
@@ -39,14 +40,18 @@ class RelayInfoWidgetState extends State<RelayInfoWidget> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            CommonImage(
-              iconName: 'icon_relay_connected_amount.png',
-              width: Adapt.px(24),
-              height: Adapt.px(24),
-              fit: BoxFit.fill,
+            Visibility(
+              visible: widget.showRelayIcon,
+              child: CommonImage(
+                iconName: 'icon_relay_connected_amount.png',
+                width: Adapt.px(24),
+                height: Adapt.px(24),
+                fit: BoxFit.fill,
+              ),
             ),
-            SizedBox(
-              width: Adapt.px(4),
+            Visibility(
+              visible: widget.showRelayIcon,
+              child: SizedBox(width: 4.px),
             ),
             Text(
               '${Account.sharedInstance.getConnectedRelaysCount()}/${Account.sharedInstance.getAllRelaysCount()}',
