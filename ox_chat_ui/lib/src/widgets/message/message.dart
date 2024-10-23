@@ -196,13 +196,24 @@ class Message extends StatefulWidget {
   State<Message> createState() => MessageState();
 }
 
-
-
 class MessageState extends State<Message> {
 
   final CustomPopupMenuController _popController = CustomPopupMenuController();
 
   double get horizontalPadding => 12.px;
+  double get avatarPadding => 8.px;
+  double get avatarSize => 40.px; // Keep equal to avatarBuilder widget size
+  double get statusSize => 20.px;
+  double get statusPadding => 8.px;
+  double get messageGapPadding => 50.px;
+  int get contentMaxWidth =>
+      (widget.messageWidth.toDouble()
+      - avatarSize
+      - avatarPadding
+      - horizontalPadding
+      - statusSize
+      - statusPadding
+      - messageGapPadding).floor();
 
   Duration get flashDisplayDuration => const Duration(milliseconds: 300);
   Duration get flashDismissDuration => const Duration(milliseconds: 1000);
@@ -273,12 +284,9 @@ class MessageState extends State<Message> {
       children: [
         if (!currentUserIsAuthor && avatarBuilder != null)
           _avatarBuilder(avatarBuilder(widget.message)).setPaddingOnly(
-            right: 8.px,
+            right: avatarPadding,
           ),
-        ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: widget.messageWidth.toDouble(),
-          ),
+        Flexible(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -288,7 +296,7 @@ class MessageState extends State<Message> {
         ),
         if (currentUserIsAuthor && avatarBuilder != null)
           _avatarBuilder(avatarBuilder(widget.message)).setPaddingOnly(
-            left: 8.px,
+            left: avatarPadding,
           ),
       ],
     );
@@ -425,7 +433,7 @@ class MessageState extends State<Message> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         if (currentUserIsAuthor)
-          _buildStatusWidget().setPaddingOnly(right: 8.px),
+          _buildStatusWidget().setPaddingOnly(right: statusPadding),
         if (widget.message.repliedMessageId == null || widget.message.repliedMessageId!.isEmpty)
           Flexible(child: bubble,)
         else
@@ -439,7 +447,7 @@ class MessageState extends State<Message> {
                     alignment: Alignment.centerLeft,
                     child: widget.repliedMessageBuilder?.call(
                       widget.message,
-                      messageWidth: widget.messageWidth,
+                      messageWidth: contentMaxWidth,
                     ),
                   ),
                 ],
@@ -447,7 +455,7 @@ class MessageState extends State<Message> {
             ),
           ),
         if (!currentUserIsAuthor)
-          _buildStatusWidget().setPaddingOnly(left: 8.px),
+          _buildStatusWidget().setPaddingOnly(left: statusPadding),
       ],
     );
   }
@@ -459,7 +467,7 @@ class MessageState extends State<Message> {
       widget.onMessageStatusTap?.call(context, widget.message);
     },
     child: widget.customStatusBuilder?.call(widget.message, context: context)
-        ?? MessageStatus(status: widget.message.status),
+        ?? MessageStatus(size: statusSize, status: widget.message.status),
   );
 
   Widget _messageBuilder(BuildContext context, [bool addReaction = false]) {
@@ -469,7 +477,7 @@ class MessageState extends State<Message> {
         final audioMessage = widget.message as types.AudioMessage;
         messageContentWidget = widget.audioMessageBuilder?.call(
           audioMessage,
-          messageWidth: widget.messageWidth,
+          messageWidth: contentMaxWidth,
         ) ?? AudioMessagePage(
               message: audioMessage,
               fetchAudioFile: widget.onAudioDataFetched,
@@ -482,7 +490,7 @@ class MessageState extends State<Message> {
         final customMessage = widget.message as types.CustomMessage;
         messageContentWidget = widget.customMessageBuilder?.call(
           message: customMessage,
-          messageWidth: widget.messageWidth,
+          messageWidth: contentMaxWidth,
           reactionWidget: _reactionViewBuilder(),
         ) ?? const SizedBox();
         break ;
@@ -490,25 +498,25 @@ class MessageState extends State<Message> {
         final fileMessage = widget.message as types.FileMessage;
         messageContentWidget = widget.fileMessageBuilder?.call(
           fileMessage,
-          messageWidth: widget.messageWidth,
+          messageWidth: contentMaxWidth,
         ) ?? FileMessage(message: fileMessage);
         break ;
       case types.MessageType.image:
         final imageMessage = widget.message as types.ImageMessage;
         messageContentWidget = widget.imageMessageBuilder?.call(
           imageMessage,
-          messageWidth: widget.messageWidth,
+          messageWidth: contentMaxWidth,
         ) ?? ImageMessage(
               imageHeaders: widget.imageHeaders,
               message: imageMessage,
-              messageWidth: widget.messageWidth,
+              messageWidth: contentMaxWidth,
             );
         break ;
       case types.MessageType.text:
         final textMessage = widget.message as types.TextMessage;
         messageContentWidget = widget.textMessageBuilder?.call(
           textMessage,
-          messageWidth: widget.messageWidth,
+          messageWidth: contentMaxWidth,
           showName: widget.showName,
         ) ?? TextMessage(
           emojiEnlargementBehavior: widget.emojiEnlargementBehavior,
@@ -527,16 +535,23 @@ class MessageState extends State<Message> {
         final videoMessage = widget.message as types.VideoMessage;
         messageContentWidget = widget.videoMessageBuilder?.call(
           videoMessage,
-          messageWidth: widget.messageWidth,
+          messageWidth: contentMaxWidth,
         ) ?? VideoMessage(
               imageHeaders: widget.imageHeaders,
               message: videoMessage,
-              messageWidth: widget.messageWidth,
+              messageWidth: contentMaxWidth,
             );
         break ;
       default:
         return const SizedBox();
     }
+
+    messageContentWidget = ConstrainedBox(
+      constraints: BoxConstraints(
+        maxWidth: contentMaxWidth.toDouble(),
+      ),
+      child: messageContentWidget,
+    );
 
     if (addReaction) {
       messageContentWidget = _reactionWrapper(messageContentWidget);
@@ -556,7 +571,7 @@ class MessageState extends State<Message> {
 
   Widget _reactionViewBuilder() => widget.reactionViewBuilder?.call(
     widget.message,
-    messageWidth: widget.messageWidth,
+    messageWidth: contentMaxWidth,
   ) ?? const SizedBox();
 
   void flash() {

@@ -768,7 +768,6 @@ class ChatState extends State<Chat> {
       final message = map['message']! as types.Message;
 
       final Widget messageWidget;
-      final showUserAvatars = widget.avatarBuilder != null;
 
       widget.messageHasBuilder?.call(message, index);
 
@@ -776,9 +775,7 @@ class ChatState extends State<Chat> {
         messageWidget =
             widget.systemMessageBuilder?.call(message) ?? SystemMessage(message: message.text);
       } else {
-        final messageWidth = showUserAvatars && message.author.id != widget.user.id
-            ? min(constraints.maxWidth, 280.px).floor()
-            : min(constraints.maxWidth, 280.px).floor();
+        final messageWidth = constraints.maxWidth.floor();
 
         final messageId = message.id;
         final messageRemoteId = message.remoteId;
