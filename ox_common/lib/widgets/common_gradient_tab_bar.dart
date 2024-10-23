@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 
-class CommonGradientTabBar extends StatefulWidget {
+class CommonGradientTabBar extends StatefulWidget implements PreferredSizeWidget {
   const CommonGradientTabBar({
     super.key,
     required this.data,
@@ -24,6 +24,9 @@ class CommonGradientTabBar extends StatefulWidget {
 
   @override
   State<CommonGradientTabBar> createState() => _CommonGradientTabBarState();
+
+  @override
+  Size get preferredSize => Size.fromHeight(36.px);
 }
 
 class _CommonGradientTabBarState extends State<CommonGradientTabBar> with SingleTickerProviderStateMixin {
@@ -44,25 +47,16 @@ class _CommonGradientTabBarState extends State<CommonGradientTabBar> with Single
       controller: _controller,
       enableFeedback: true,
       automaticIndicatorColorAdjustment: true,
-      labelColor: widget.labelColor,
-      labelStyle: TextStyle(
-        fontWeight: FontWeight.w500,
-        fontSize: Adapt.px(16),
-      ),
-      unselectedLabelColor: widget.unselectedLabelColor ?? ThemeColor.color100,
-      unselectedLabelStyle: TextStyle(
-        fontSize: 14.px,
-        fontWeight: FontWeight.w500,
-      ),
       indicator: GradientUnderlineTabIndicator(
         gradient: LinearGradient(
-          colors: [ThemeColor.gradientMainStart, ThemeColor.gradientMainStart],
+          colors: [ThemeColor.gradientMainEnd, ThemeColor.gradientMainStart],
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
         ),
         strokeWidth: 2.px,
       ),
       indicatorPadding: EdgeInsets.zero,
+      labelPadding: EdgeInsets.only(right: 16.px),
       indicatorSize: TabBarIndicatorSize.label,
       tabs: widget.data.map((title) {
         return Container(
@@ -78,7 +72,7 @@ class _CommonGradientTabBarState extends State<CommonGradientTabBar> with Single
   Widget _buildLabel(String label) {
     final unSelectedLabel = Text(
       label,
-      style: TextStyle(color: ThemeColor.color160),
+      style: TextStyle(color: ThemeColor.color100),
     );
 
     return AnimatedBuilder(
@@ -97,8 +91,8 @@ class _CommonGradientTabBarState extends State<CommonGradientTabBar> with Single
                   shaderCallback: (Rect bounds) {
                     return LinearGradient(
                       colors: [
-                        ThemeColor.gradientMainStart,
                         ThemeColor.gradientMainEnd,
+                        ThemeColor.gradientMainStart,
                       ],
                     ).createShader(Offset.zero & bounds.size);
                   },
