@@ -45,6 +45,7 @@ class Chat extends StatefulWidget {
   /// Creates a chat widget.
   const Chat({
     super.key,
+    this.isContentInteractive = true,
     this.audioMessageBuilder,
     this.avatarBuilder,
     this.chatId,
@@ -132,6 +133,7 @@ class Chat extends StatefulWidget {
     this.isShowScrollToBottomButton = false,
   });
 
+  final bool isContentInteractive;
   final ChatHintParam? bottomHintParam;
   final bool enableBottomWidget;
 
@@ -508,7 +510,7 @@ class ChatState extends State<Chat> {
     var scrollToAnchorMsgAction = null;
     if (anchorMsgId != null && anchorMsgId.isNotEmpty)
       scrollToAnchorMsgAction = () => scrollToMessage(anchorMsgId);
-    final mentionUserListBottom = _getInputViewY() + Adapt.px(16);
+    final mentionUserListBottom = _getInputViewHeight() + Adapt.px(16);
     return InheritedUser(
       user: widget.user,
       child: InheritedChatTheme(
@@ -562,10 +564,13 @@ class ChatState extends State<Chat> {
                                     BuildContext context,
                                     BoxConstraints constraints,
                                   ) =>
-                                          _messageBuilder(
-                                            item,
-                                            constraints,
-                                            index,
+                                          IgnorePointer(
+                                            ignoring: !widget.isContentInteractive,
+                                            child: _messageBuilder(
+                                              item,
+                                              constraints,
+                                              index,
+                                            ),
                                           )),
                                   items: _chatMessages,
                                   keyboardDismissBehavior: widget.keyboardDismissBehavior,
@@ -620,7 +625,9 @@ class ChatState extends State<Chat> {
     );
   }
 
-  double? _getInputViewY() {
+  double? _getInputViewHeight() {
+    if (!widget.enableBottomWidget) return 0.0;
+
     if (_bottomWidgetKey.currentContext != null) {
       final renderBox = _bottomWidgetKey.currentContext!.findRenderObject() as RenderBox;
       // Do not delete this line of code, or you will mention that the user list view does not fit the keyboard

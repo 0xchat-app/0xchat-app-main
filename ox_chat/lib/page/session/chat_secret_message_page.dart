@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_chat/widget/common_chat_nav_bar.dart';
 import 'package:ox_chat/widget/common_chat_widget.dart';
 import 'package:ox_chat/widget/not_contact_top_widget.dart';
 import 'package:ox_chat/widget/secret_hint_widget.dart';
@@ -24,7 +25,6 @@ import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
-import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:screen_protector/screen_protector.dart';
 
@@ -115,106 +115,72 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
 
   @override
   Widget build(BuildContext context) {
-    if (!handler.enableBottomWidget){
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(16.px),
-        child: CommonChatWidget(
-          handler: handler,
-          customTopWidget: CommonAppBarNoPreferredSize(
-            useLargeTitle: false,
-            centerTitle: true,
-            canBack: false,
-            title: otherUser?.getUserShowName() ?? '',
-            backgroundColor: ThemeColor.color200,
-            leading: SizedBox(),
-            actions: [
-              OXUserAvatar(
-                chatId: session.chatId,
-                user: otherUser,
-                size: Adapt.px(36),
-                isClickable: true,
-                onReturnFromNextPage: () {
-                  setState(() { });
-                },
-              ),
-              // SizedBox(
-              //   width: 16.px,
-              // ),
-            ],
-          ),
-        ),
-      );
-    }
-    return Scaffold(
-      backgroundColor: ThemeColor.color200,
-      resizeToAvoidBottomInset: false,
-      appBar: CommonAppBar(
-        useLargeTitle: false,
-        centerTitle: true,
-        title: otherUser?.getUserShowName() ?? '',
-        titleWidget: Center(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: EdgeInsets.only(top: Adapt.px(2)),
-                child: CommonImage(
-                  iconName: 'icon_lock_secret.png',
-                  width: Adapt.px(16),
-                  height: Adapt.px(16),
-                  package: 'ox_chat',
-                ),
-              ),
-              SizedBox(
-                width: Adapt.px(4),
-              ),
-              Text(
-                otherUser?.getUserShowName() ?? '',
-                style: TextStyle(
-                  color: ThemeColor.color0,
-                  fontSize: Adapt.px(17),
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        ),
-        backgroundColor: ThemeColor.color200,
-        backCallback: () {
-          OXNavigator.popToRoot(context);
+    return CommonChatWidget(
+      handler: handler,
+      navBar: buildNavBar(),
+      customTopWidget: isShowContactMenu
+          ? NotContactTopWidget(chatSessionModel: session, onTap: _hideContactMenu)
+          : null,
+      customCenterWidget: ValueListenableBuilder(
+        valueListenable: handler.dataController.messageValueNotifier,
+        builder: (BuildContext context, messages, Widget? child) {
+          if (messages.isNotEmpty) return const SizedBox();
+          return SecretHintWidget(chatSessionModel: session);
         },
-        actions: [
-          Container(
-            alignment: Alignment.center,
-            child: OXUserAvatar(
-              isSecretChat:true,
-              chatId: session.chatId,
-              user: otherUser,
-              size: Adapt.px(36),
-              isClickable: true,
-              onReturnFromNextPage: () {
-                setState(() {});
-              },
+      ),
+      customBottomWidget: (_secretSessionDB == null || _secretSessionDB!.currentStatus == 2) ? null : customBottomWidget(),
+      bottomHintParam: bottomHintParam,
+    );
+  }
+
+  Widget buildNavBar() {
+    return CommonChatNavBar(
+      handler: handler,
+      title: otherUser?.getUserShowName() ?? '',
+      titleWidget: Center(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: EdgeInsets.only(top: Adapt.px(2)),
+              child: CommonImage(
+                iconName: 'icon_lock_secret.png',
+                width: Adapt.px(16),
+                height: Adapt.px(16),
+                package: 'ox_chat',
+              ),
             ),
-          ).setPadding(EdgeInsets.only(right: Adapt.px(24))),
-        ],
-      ),
-      body: CommonChatWidget(
-        handler: handler,
-        customTopWidget: isShowContactMenu
-            ? NotContactTopWidget(chatSessionModel: session, onTap: _hideContactMenu)
-            : null,
-        customCenterWidget: ValueListenableBuilder(
-          valueListenable: handler.dataController.messageValueNotifier,
-          builder: (BuildContext context, messages, Widget? child) {
-            if (messages.isNotEmpty) return const SizedBox();
-            return SecretHintWidget(chatSessionModel: session);
-          },
+            SizedBox(
+              width: Adapt.px(4),
+            ),
+            Text(
+              otherUser?.getUserShowName() ?? '',
+              style: TextStyle(
+                color: ThemeColor.color0,
+                fontSize: Adapt.px(17),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
         ),
-        customBottomWidget: (_secretSessionDB == null || _secretSessionDB!.currentStatus == 2) ? null : customBottomWidget(),
-        bottomHintParam: bottomHintParam,
       ),
+      actions: [
+        Container(
+          alignment: Alignment.center,
+          child: OXUserAvatar(
+            isSecretChat:true,
+            chatId: session.chatId,
+            user: otherUser,
+            size: Adapt.px(36),
+            isClickable: true,
+            onReturnFromNextPage: () {
+              if (!mounted) return ;
+              setState(() {});
+            },
+          ),
+        ).setPadding(EdgeInsets.only(right: Adapt.px(24))),
+      ],
     );
   }
 

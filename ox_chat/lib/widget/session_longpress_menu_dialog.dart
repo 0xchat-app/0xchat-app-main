@@ -27,6 +27,7 @@ class SessionLongPressMenuDialog extends StatefulWidget{
       barrierDismissible: true,
       barrierLabel: '',
       barrierColor: Colors.transparent,
+      routeSettings: OXRouteSettings(isShortLived: true),
       transitionBuilder: (context, animation1, animation2, child) {
         return GestureDetector(
           behavior: HitTestBehavior.translucent,
@@ -62,7 +63,10 @@ class SessionLongPressMenuDialog extends StatefulWidget{
                     children: [
                       Container(
                         height: Adapt.screenH * 0.6,
-                        child: pageWidget,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(16.px),
+                          child: pageWidget,
+                        ),
                       ),
                       SizedBox(height: 8.px),
                       SessionLongPressMenuDialog(communityItem: communityItem),
