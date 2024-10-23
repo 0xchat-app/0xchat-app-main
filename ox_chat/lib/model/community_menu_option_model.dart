@@ -33,9 +33,9 @@ class CommunityMenuOptionModel {
     List<CommunityMenuOptionModel> list = [];
     list.add(
       CommunityMenuOptionModel(
-        content: Localized.text('ox_common.str_add_friend'),
-        iconName: 'icon_new_friend.png',
-        optionModel: OptionModel.AddFriend,
+        content: Localized.text('ox_common.str_scan'),
+        iconName: 'icon_scan_qr.png',
+        optionModel: OptionModel.ScanQCode,
       ),
     );
     list.add(
@@ -45,6 +45,13 @@ class CommunityMenuOptionModel {
         optionModel: OptionModel.AddGroup,
       ),
     );
+    list.add(
+      CommunityMenuOptionModel(
+        content: Localized.text('ox_common.str_add_friend'),
+        iconName: 'icon_new_friend.png',
+        optionModel: OptionModel.AddFriend,
+      ),
+    );
     // list.add(
     //   CommunityMenuOptionModel(
     //     content: Localized.text('ox_common.str_new_channel'),
@@ -52,13 +59,6 @@ class CommunityMenuOptionModel {
     //     optionModel: OptionModel.NewChannel,
     //   ),
     // );
-    list.add(
-      CommunityMenuOptionModel(
-        content: Localized.text('ox_common.str_scan'),
-        iconName: 'icon_scan_qr.png',
-        optionModel: OptionModel.ScanQCode,
-      ),
-    );
     return list;
   }
 

@@ -55,7 +55,7 @@ class _ContractsPageState extends ContactBasePageState<ContractsPage>
   }
 
   void _loadData() {
-    _isShowTools = OXUserInfoManager.sharedInstance.isLogin;
+    // _isShowTools = OXUserInfoManager.sharedInstance.isLogin;
     tabItems = [
       CommonCategoryTitleItem(title: Localized.text('ox_chat.str_title_contacts')),
       CommonCategoryTitleItem(title: Localized.text('ox_chat.str_title_groups')),
