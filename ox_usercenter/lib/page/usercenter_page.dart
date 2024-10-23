@@ -206,11 +206,11 @@ class UserCenterPageState extends State<UserCenterPage>
                   ),
                 ),
                 onPressed: () {
-                  OXNavigator.push(
-                      context,
-                      SlideBottomToTopRoute(
-                          page: const ProfileSetUpPage()))
-                      .then((value) {
+                  OXNavigator.presentPage(
+                    context,
+                    fullscreenDialog: true,
+                        (_) => const ProfileSetUpPage(),
+                  ).then((value) {
                     setState(() {});
                   });
                 },

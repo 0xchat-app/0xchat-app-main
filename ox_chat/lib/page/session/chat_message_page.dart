@@ -1,14 +1,12 @@
-
-import 'dart:ui';
-
 import 'package:chatcore/chat-core.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:ox_chat/model/constant.dart';
 import 'package:ox_chat/page/session/chat_channel_message_page.dart';
 import 'package:ox_chat/page/session/chat_group_message_page.dart';
 import 'package:ox_chat/page/session/chat_relay_group_msg_page.dart';
 import 'package:ox_chat/page/session/chat_secret_message_page.dart';
+import 'package:ox_chat/widget/common_chat_nav_bar.dart';
 import 'package:ox_chat/widget/common_chat_widget.dart';
 import 'package:ox_chat/widget/not_contact_top_widget.dart';
 import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
@@ -20,8 +18,6 @@ import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/utils/adapt.dart';
-import 'package:ox_common/utils/theme_color.dart';
-import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
 class ChatMessagePage extends StatefulWidget {
@@ -85,7 +81,7 @@ class ChatMessagePage extends StatefulWidget {
 
     if (pageWidget == null) return ;
     if (isLongPressShow){
-      handler.enableBottomWidget = false;
+      handler.isPreviewMode = true;
       return SessionLongPressMenuDialog.showDialog(context: context, communityItem: communityItem, pageWidget: pageWidget);
     }
     if (isPushWithReplace) {
@@ -100,7 +96,6 @@ class _ChatMessagePageState extends State<ChatMessagePage> {
   ChatGeneralHandler get handler => widget.handler;
   ChatSessionModelISAR get session => handler.session;
   UserDBISAR? get otherUser => handler.otherUser;
-  final _controller = ScrollController();
   bool isShowContactMenu = true;
 
   @override
@@ -125,71 +120,36 @@ class _ChatMessagePageState extends State<ChatMessagePage> {
 
   @override
   Widget build(BuildContext context) {
-    if (!handler.enableBottomWidget){
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(16.px),
-        child: CommonChatWidget(
-          handler: handler,
-          customTopWidget: CommonAppBarNoPreferredSize(
-            useLargeTitle: false,
-            centerTitle: true,
-            canBack: false,
-            title: otherUser?.getUserShowName() ?? '',
-            backgroundColor: ThemeColor.color200,
-            leading: SizedBox(),
-            actions: [
-              OXUserAvatar(
-                chatId: session.chatId,
-                user: otherUser,
-                size: Adapt.px(36),
-                isClickable: true,
-                onReturnFromNextPage: () {
-                  setState(() { });
-                },
-              ),
-              // SizedBox(
-              //   width: 16.px,
-              // ),
-            ],
-          ),
-        ),
-      );
-    }
-    return Scaffold(
-      backgroundColor: ThemeColor.color200,
-      resizeToAvoidBottomInset: false,
-      appBar: CommonAppBar(
-        useLargeTitle: false,
-        centerTitle: true,
-        title: otherUser?.getUserShowName() ?? '',
-        backgroundColor: ThemeColor.color200,
-        actions: [
-          Container(
-            alignment: Alignment.center,
-            child: OXUserAvatar(
-              chatId: session.chatId,
-              user: otherUser,
-              size: Adapt.px(36),
-              isClickable: true,
-              onReturnFromNextPage: () {
-                setState(() { });
-              },
-            ),
-          ).setPadding(EdgeInsets.only(right: Adapt.px(24))),
-        ],
-      ),
-      body: _body(),
-    );
-  }
-
-  Widget _body(){
-   return CommonChatWidget(
+    return CommonChatWidget(
       handler: handler,
+      navBar: buildNavBar(),
       customTopWidget: isShowContactMenu
           ? NotContactTopWidget(
         chatSessionModel: session,
         onTap: _hideContactMenu,
       ) : null,
+    );
+  }
+
+  Widget buildNavBar() {
+    return CommonChatNavBar(
+      handler: handler,
+      title: otherUser?.getUserShowName() ?? '',
+      actions: [
+        Container(
+          alignment: Alignment.center,
+          child: OXUserAvatar(
+            chatId: session.chatId,
+            user: otherUser,
+            size: Adapt.px(36),
+            isClickable: true,
+            onReturnFromNextPage: () {
+              if (!mounted) return ;
+              setState(() { });
+            },
+          ),
+        ).setPadding(EdgeInsets.only(right: Adapt.px(24))),
+      ],
     );
   }
 
