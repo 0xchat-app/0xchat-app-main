@@ -228,5 +228,6 @@
   "use_socks_proxy":"Use SOCKS proxy",
   "use_socks_proxy_port":"Port",
   "use_socks_proxy_onion_host": "Use .onion hosts",
-  "use_socks_proxy_host": "Host"
+  "use_socks_proxy_host": "Host",
+  "str_add_other_account": "Add Other Account"
 }
