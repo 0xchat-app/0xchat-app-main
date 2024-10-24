@@ -49,10 +49,8 @@ extension UserCenterPageUI on UserCenterPageState{
                   OXModuleService.pushPage(
                     context,
                     'ox_discovery',
-                    'PersonMomentsPage',
-                    {
-                      'userDB': OXUserInfoManager.sharedInstance.currentUserInfo,
-                    },
+                    'jumpPublicMomentWidget',
+                    {}
                   );
                 },
               ),

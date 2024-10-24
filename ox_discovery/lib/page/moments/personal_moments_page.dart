@@ -39,8 +39,8 @@ class PersonMomentsPage extends StatefulWidget {
 
 class _PersonMomentsPageState extends State<PersonMomentsPage>
     with CommonStateViewMixin, AutomaticKeepAliveClientMixin {
-
-  bool get isCurrentUser => OXUserInfoManager.sharedInstance.isCurrentUser(widget.userDB.pubKey);
+  bool get isCurrentUser =>
+      OXUserInfoManager.sharedInstance.isCurrentUser(widget.userDB.pubKey);
   final RefreshController _refreshController = RefreshController();
   final List<NoteDBISAR> _notes = [];
   final Map<DateTime, List<NoteDBISAR>> _groupedNotes = {};
@@ -74,19 +74,42 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
 
   @override
   Widget build(BuildContext context) {
+    return OXSmartRefresher(
+        controller: _refreshController,
+        enablePullDown: false,
+        enablePullUp: true,
+        onLoading: () =>
+            _isLoadNotesFromRelay ? _loadNotesFromRelay() : _loadNotesFromDB(),
+        child: ListView.builder(
+          physics: ClampingScrollPhysics(), // 禁用回弹效果
+          primary: true,
+          controller: null,
+          shrinkWrap: true,
+          itemBuilder: (BuildContext context, int index) {
+            List<DateTime> keys = _groupedNotes.keys.toList();
+            DateTime dateTime = keys[index];
+            List<NoteDBISAR> notes = _groupedNotes[dateTime] ?? [];
+            return _buildGroupedMomentItem(notes);
+          },
+          itemCount: _groupedNotes.keys.length,
+        ));
     return Scaffold(
         backgroundColor: ThemeColor.color190,
         body: OXSmartRefresher(
           controller: _refreshController,
           enablePullDown: false,
           enablePullUp: true,
-          onLoading: () => _isLoadNotesFromRelay ? _loadNotesFromRelay() : _loadNotesFromDB(),
+          onLoading: () => _isLoadNotesFromRelay
+              ? _loadNotesFromRelay()
+              : _loadNotesFromDB(),
           child: CustomScrollView(
             physics: const ClampingScrollPhysics(),
             slivers: <Widget>[
               _buildAppBar(),
               SliverToBoxAdapter(
-                child: ContactInfoWidget(userDB: widget.userDB,).setPaddingOnly(bottom: 20.px),
+                child: ContactInfoWidget(
+                  userDB: widget.userDB,
+                ).setPaddingOnly(bottom: 20.px),
               ),
               SliverToBoxAdapter(
                 child: isCurrentUser ? _buildNotificationTips() : Container(),
@@ -102,7 +125,8 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
                           itemBuilder: (BuildContext context, int index) {
                             List<DateTime> keys = _groupedNotes.keys.toList();
                             DateTime dateTime = keys[index];
-                            List<NoteDBISAR> notes = _groupedNotes[dateTime] ?? [];
+                            List<NoteDBISAR> notes =
+                                _groupedNotes[dateTime] ?? [];
                             return _buildGroupedMomentItem(notes);
                           },
                           itemCount: _groupedNotes.keys.length,
@@ -117,11 +141,10 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
               ),
             ],
           ),
-        )
-    );
+        ));
   }
 
-  Widget _buildAppBar(){
+  Widget _buildAppBar() {
     return ExtendedSliverAppbar(
       toolBarColor: ThemeColor.color190,
       leading: IconButton(
@@ -150,8 +173,12 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
       actions: GestureDetector(
         onTap: () {
           final items = [
-            BottomItemModel(title: Localized.text('ox_discovery.notifications'), onTap: _jumpToNotificationsMomentsPage),
-            BottomItemModel(title: Localized.text('ox_discovery.change_cover_option'), onTap: _selectAssetDialog),
+            BottomItemModel(
+                title: Localized.text('ox_discovery.notifications'),
+                onTap: _jumpToNotificationsMomentsPage),
+            BottomItemModel(
+                title: Localized.text('ox_discovery.change_cover_option'),
+                onTap: _selectAssetDialog),
           ];
           MomentBottomSheetDialog.showBottomSheet(context, items);
         },
@@ -182,8 +209,7 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
     );
   }
 
-  Widget _buildContactOperation(){
-
+  Widget _buildContactOperation() {
     return Positioned(
       top: 210.px,
       right: 0,
@@ -195,11 +221,15 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
         child: Stack(
           children: [
             _buildAvatar(),
-            isCurrentUser ? Container() : Positioned(
-              right: 0,
-              bottom: 0,
-              child: MomentFollowWidget(userDB: widget.userDB,),
-            )
+            isCurrentUser
+                ? Container()
+                : Positioned(
+                    right: 0,
+                    bottom: 0,
+                    child: MomentFollowWidget(
+                      userDB: widget.userDB,
+                    ),
+                  )
           ],
         ),
       ),
@@ -245,24 +275,25 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
       children: [
         _buildTitle(notes.first.createAt),
         ListView.builder(
-          padding: EdgeInsets.zero,
-          physics: const NeverScrollableScrollPhysics(),
-          shrinkWrap: true,
-          itemCount: notes.length,
-          itemBuilder: (context, index) => _buildMomentItem(notes[index])
-        ),
+            padding: EdgeInsets.zero,
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemCount: notes.length,
+            itemBuilder: (context, index) => _buildMomentItem(notes[index])),
       ],
     );
   }
 
-  Widget _buildTitle(int timestamp){
+  Widget _buildTitle(int timestamp) {
     return SizedBox(
       height: 34.px,
       width: double.infinity,
       child: Stack(
         alignment: Alignment.centerLeft,
         children: [
-          StyledDate(timestamp: timestamp,),
+          StyledDate(
+            timestamp: timestamp,
+          ),
           // Positioned(
           //   right: 0,
           //   top: 0,
@@ -296,15 +327,17 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
   }
 
   void _jumpToNotificationsMomentsPage() {
-    OXNavigator.pushPage(context, (context) => const NotificationsMomentsPage());
+    OXNavigator.pushPage(
+        context, (context) => const NotificationsMomentsPage());
   }
 
-  void _selectAssetDialog(){
+  void _selectAssetDialog() {
     final items = [
       BottomItemModel(
         title: Localized.text('ox_usercenter.gallery'),
         onTap: () async {
-          await AlbumUtils.openAlbum(context, selectCount: 1, callback: _changeCover);
+          await AlbumUtils.openAlbum(context,
+              selectCount: 1, callback: _changeCover);
         },
       ),
       BottomItemModel(
@@ -318,7 +351,8 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
   }
 
   Future<void> _changeCover(List<String> filePathList) async {
-    UserDBISAR? currentUserInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
+    UserDBISAR? currentUserInfo =
+        OXUserInfoManager.sharedInstance.currentUserInfo;
     final pubkey = currentUserInfo?.pubKey ?? '';
     final currentTime = DateTime.now().microsecondsSinceEpoch.toString();
     final fileName = 'banner_${pubkey}_$currentTime.png';
@@ -326,11 +360,10 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
     File imageFile = File(filePath);
 
     UploadResult result = await UploadUtils.uploadFile(
-      showLoading: true,
-      fileType: FileType.image,
-      file: imageFile,
-      filename: fileName
-    );
+        showLoading: true,
+        fileType: FileType.image,
+        file: imageFile,
+        filename: fileName);
 
     if (result.isSuccess && result.url.isNotEmpty) {
       currentUserInfo?.banner = result.url;
@@ -338,7 +371,9 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
         await OXLoading.show();
         await Account.sharedInstance.updateProfile(currentUserInfo!);
         await OXLoading.dismiss();
-        setState(() {});
+        if(mounted){
+          setState(() {});
+        }
       } catch (e) {
         await OXLoading.dismiss();
       }
@@ -347,52 +382,78 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
     }
   }
 
-  void _refreshData(List<NoteDBISAR> noteList){
-    List<NoteDBISAR> filteredNoteList = noteList.where((element) => element.getNoteKind() != ENotificationsMomentType.like.kind).toList();
+  void _refreshData(List<NoteDBISAR> noteList) {
+    List<NoteDBISAR> filteredNoteList = noteList
+        .where((element) =>
+            element.getNoteKind() != ENotificationsMomentType.like.kind)
+        .toList();
     if (filteredNoteList.isEmpty) {
       updateStateView(CommonStateView.CommonStateView_NoData);
-      _refreshController.footerStatus == LoadStatus.idle ? _refreshController.loadComplete() : _refreshController.loadNoData();
-      if(mounted) setState(() {});
+      _refreshController.footerStatus == LoadStatus.idle
+          ? _refreshController.loadComplete()
+          : _refreshController.loadNoData();
+      if (mounted) setState(() {});
       return;
     }
     _notes.addAll(filteredNoteList);
     _groupedNotes.addAll(_groupedNotesFromDateTime(_notes));
     _lastTimestamp = noteList.last.createAt;
-    if(noteList.length < _limit) {
+    if (noteList.length < _limit) {
       _isLoadNotesFromRelay = true;
     }
     _refreshController.loadComplete();
-    if(mounted) setState(() {});
+    if (mounted) setState(() {});
   }
 
   Future<void> _loadNotesFromDB() async {
-    List<NoteDBISAR> noteList = await Moment.sharedInstance.loadUserNotesFromDB([widget.userDB.pubKey],limit: _limit,until: _lastTimestamp) ?? [];
-    Future.delayed(const Duration(milliseconds: 400),() => _refreshData(noteList));
+    List<NoteDBISAR> noteList = await Moment.sharedInstance.loadUserNotesFromDB(
+            [widget.userDB.pubKey],
+            limit: _limit, until: _lastTimestamp) ??
+        [];
+    Future.delayed(
+        const Duration(milliseconds: 400), () => _refreshData(noteList));
   }
 
   Future<void> _loadnewNotesFromRelay() async {
-    await Moment.sharedInstance.loadNewNotesFromRelay(authors: [widget.userDB.pubKey], limit: _limit) ?? [];
-    List<NoteDBISAR> noteList = await Moment.sharedInstance.loadUserNotesFromDB([widget.userDB.pubKey],limit: _limit) ?? [];
-    List<NoteDBISAR> newNoteList = noteList.where((element) => element.noteId != element.noteId).toList();
+    await Moment.sharedInstance.loadNewNotesFromRelay(
+            authors: [widget.userDB.pubKey], limit: _limit) ??
+        [];
+    List<NoteDBISAR> noteList = await Moment.sharedInstance
+            .loadUserNotesFromDB([widget.userDB.pubKey], limit: _limit) ??
+        [];
+    List<NoteDBISAR> newNoteList =
+        noteList.where((element) => element.noteId != element.noteId).toList();
     _refreshData(newNoteList);
   }
 
   Future<void> _loadNotesFromRelay() async {
     try {
-      List<NoteDBISAR> noteList = await Moment.sharedInstance.loadNewNotesFromRelay(authors: [widget.userDB.pubKey], until: _lastTimestamp, limit: _limit) ?? [];
+      List<NoteDBISAR> noteList = await Moment.sharedInstance
+              .loadNewNotesFromRelay(
+                  authors: [widget.userDB.pubKey],
+                  until: _lastTimestamp,
+                  limit: _limit) ??
+          [];
       if (noteList.isEmpty) {
         updateStateView(CommonStateView.CommonStateView_NoData);
-        _refreshController.footerStatus == LoadStatus.idle ? _refreshController.loadComplete() : _refreshController.loadNoData();
+        _refreshController.footerStatus == LoadStatus.idle
+            ? _refreshController.loadComplete()
+            : _refreshController.loadNoData();
         setState(() {});
         return;
       }
 
-      List<NoteDBISAR> filteredNoteList = noteList.where((element) => element.getNoteKind() != ENotificationsMomentType.like.kind).toList();
+      List<NoteDBISAR> filteredNoteList = noteList
+          .where((element) =>
+              element.getNoteKind() != ENotificationsMomentType.like.kind)
+          .toList();
       _notes.addAll(filteredNoteList);
       _groupedNotes.addAll(_groupedNotesFromDateTime(_notes));
       _lastTimestamp = noteList.last.createAt;
 
-      noteList.length < _limit ? _refreshController.loadNoData() : _refreshController.loadComplete();
+      noteList.length < _limit
+          ? _refreshController.loadNoData()
+          : _refreshController.loadComplete();
       setState(() {});
     } catch (e) {
       _refreshController.loadFailed();
@@ -400,14 +461,19 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
   }
 
   List<NoteDBISAR> _filterNotes(List<NoteDBISAR> noteList) {
-    return noteList.where((element) => element.getNoteKind() != ENotificationsMomentType.like.kind).toList();
+    return noteList
+        .where((element) =>
+            element.getNoteKind() != ENotificationsMomentType.like.kind)
+        .toList();
   }
 
-  Map<DateTime, List<NoteDBISAR>> _groupedNotesFromDateTime(List<NoteDBISAR> notes) {
+  Map<DateTime, List<NoteDBISAR>> _groupedNotesFromDateTime(
+      List<NoteDBISAR> notes) {
     Map<DateTime, List<NoteDBISAR>> groupedNotes = {};
 
     for (var note in notes) {
-      DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(note.createAt * 1000);
+      DateTime dateTime =
+          DateTime.fromMillisecondsSinceEpoch(note.createAt * 1000);
 
       final dateKey = DateTime(dateTime.year, dateTime.month, dateTime.day);
 
@@ -417,7 +483,7 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
 
       groupedNotes[dateKey]!.add(note);
     }
-    
+
     return groupedNotes;
   }
 
@@ -429,5 +495,4 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
 
   @override
   bool get wantKeepAlive => true;
-
 }

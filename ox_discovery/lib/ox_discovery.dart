@@ -7,6 +7,7 @@ import 'package:ox_discovery/page/discovery_page.dart';
 import 'package:ox_discovery/page/moments/group_moments_page.dart';
 import 'package:ox_discovery/page/moments/moments_page.dart';
 import 'package:ox_discovery/page/moments/personal_moments_page.dart';
+import 'package:ox_discovery/page/moments/public_moments_page.dart';
 import 'package:ox_discovery/page/widgets/moment_rich_text_widget.dart';
 import 'package:ox_discovery/utils/discovery_utils.dart';
 import 'package:ox_module_service/ox_module_service.dart';
@@ -32,7 +33,8 @@ class OXDiscovery extends OXFlutterModule {
   Map<String, Function> get interfaces => {
         'discoveryPageWidget': discoveryPageWidget,
         'momentPage': jumpMomentPage,
-        'momentRichTextWidget': momentRichTextWidget
+        'momentRichTextWidget': momentRichTextWidget,
+        'showPersonMomentsPage': showPersonMomentsPage,
       };
 
   @override
@@ -45,6 +47,9 @@ class OXDiscovery extends OXFlutterModule {
       case 'GroupMomentsPage':
         return OXNavigator.pushPage(context,
             (context) => GroupMomentsPage(groupId: params?['groupId']));
+      case 'jumpPublicMomentWidget':
+        return OXNavigator.pushPage(context,
+                (context) => PublicMomentsPage());
     }
     return null;
   }
@@ -73,7 +78,8 @@ class OXDiscovery extends OXFlutterModule {
   }
 
   void jumpMomentPage(BuildContext? context, {required String noteId}) async {
-    ValueNotifier<NotedUIModel?> notedUIModelNotifier = OXMomentCacheManager.getValueNotifierNoteToCache(noteId);
+    ValueNotifier<NotedUIModel?> notedUIModelNotifier =
+        OXMomentCacheManager.getValueNotifierNoteToCache(noteId);
     if (notedUIModelNotifier.value != null) {
       OXNavigator.pushPage(
         context!,
@@ -85,19 +91,27 @@ class OXDiscovery extends OXFlutterModule {
       return;
     }
 
-    ValueNotifier<NotedUIModel?> noteNotifier = await OXMomentCacheManager.getValueNotifierNoted(noteId);
+    ValueNotifier<NotedUIModel?> noteNotifier =
+        await OXMomentCacheManager.getValueNotifierNoted(noteId);
 
-    if(noteNotifier.value == null) {
+    if (noteNotifier.value == null) {
       return CommonToast.instance.show(context, 'Note not found !');
     }
 
     OXNavigator.pushPage(
       context!,
-          (context) => MomentsPage(
+      (context) => MomentsPage(
         isShowReply: false,
         notedUIModel: noteNotifier,
       ),
     );
+  }
 
+
+  Widget showPersonMomentsPage(BuildContext? context,
+      {required UserDBISAR userDB}) {
+    return PersonMomentsPage(
+      userDB: userDB,
+    );
   }
 }

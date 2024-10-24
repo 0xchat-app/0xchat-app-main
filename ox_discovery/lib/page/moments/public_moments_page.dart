@@ -8,6 +8,7 @@ import 'package:ox_common/utils/ox_moment_manager.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
+import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_pull_refresher.dart';
@@ -133,30 +134,37 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
   @override
   Widget build(BuildContext context) {
     if (!isLogin) return _noLoginWidget();
-    return Stack(
-      children: [
-        OXSmartRefresher(
-          scrollController: momentScrollController,
-          controller: refreshController,
-          enablePullDown: true,
-          enablePullUp: true,
-          onRefresh: () => updateNotesList(true),
-          onLoading: () => updateNotesList(false),
-          child: _getMomentListWidget(),
-        ),
-        Positioned(
-          top: 0,
-          left: 0,
-          right: 0,
-          child: Center(
-            child: Column(
-              children: [
-                _newMomentTipsWidget(),
-              ],
+    return Scaffold(
+      backgroundColor: ThemeColor.color200,
+      appBar: CommonAppBar(
+        backgroundColor: ThemeColor.color200,
+        title: '',
+      ),
+      body: Stack(
+        children: [
+          OXSmartRefresher(
+            scrollController: momentScrollController,
+            controller: refreshController,
+            enablePullDown: true,
+            enablePullUp: true,
+            onRefresh: () => updateNotesList(true),
+            onLoading: () => updateNotesList(false),
+            child: _getMomentListWidget(),
+          ),
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Column(
+                children: [
+                  _newMomentTipsWidget(),
+                ],
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:chatcore/chat-core.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nostr_core_dart/nostr.dart';
@@ -10,6 +11,8 @@ import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/log_util.dart';
+import 'package:ox_common/utils/custom_uri_helper.dart';
+import 'package:ox_common/widgets/common_gradient_tab_bar.dart';
 import 'package:ox_common/widgets/common_time_dialog.dart';
 import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/chat_type.dart';
@@ -29,36 +32,76 @@ import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
+import 'package:ox_theme/ox_theme.dart';
 
 import 'contact_create_secret_chat.dart';
+import 'contact_groups_widget.dart';
+import 'contact_links_widget.dart';
+import 'contact_media_widget.dart';
 
 class TabModel {
   Function onTap;
+  GestureTapDownCallback? onTapDown;
   final String iconName;
   final String content;
   TabModel(
-      {required this.onTap, required this.iconName, required this.content});
+      {required this.onTap,
+      required this.iconName,
+      required this.content,
+      this.onTapDown});
 }
 
 class ContactUserInfoPage extends StatefulWidget {
   final String pubkey;
   final String? chatId;
 
-  ContactUserInfoPage(
-      {Key? key, required this.pubkey, this.chatId})
+  ContactUserInfoPage({Key? key, required this.pubkey, this.chatId})
       : super(key: key);
 
   @override
   State<ContactUserInfoPage> createState() => _ContactUserInfoPageState();
 }
 
-enum OtherInfoItemType {
-  Remark,
-  Bio,
-  Pubkey,
-  Badges,
-  Mute,
-  Moments
+enum OtherInfoItemType { Remark, Bio, Pubkey, Badges, Mute, Moments, Link }
+
+enum EMoreOptionType {
+  secretChat,
+  messageTimer,
+  message,
+  userOption,
+  contactStatus,
+}
+
+extension MoreOptionTypeEx on EMoreOptionType {
+  String get text {
+    switch (this) {
+      case EMoreOptionType.contactStatus:
+        return "Remove Contact";
+      case EMoreOptionType.message:
+        return 'Clear messages';
+      case EMoreOptionType.messageTimer:
+        return 'Enable auto-delete';
+      case EMoreOptionType.secretChat:
+        return "Start secret chat";
+      case EMoreOptionType.userOption:
+        return 'Block user';
+    }
+  }
+
+  String get icon {
+    switch (this) {
+      case EMoreOptionType.contactStatus:
+        return "delete_icon.png";
+      case EMoreOptionType.message:
+        return 'chat_clear.png';
+      case EMoreOptionType.messageTimer:
+        return 'chat_auto_delete.png';
+      case EMoreOptionType.secretChat:
+        return "chat_secret.png";
+      case EMoreOptionType.userOption:
+        return 'chat_block.png';
+    }
+  }
 }
 
 extension OtherInfoItemStr on OtherInfoItemType {
@@ -76,18 +119,22 @@ extension OtherInfoItemStr on OtherInfoItemType {
         return Localized.text('ox_chat.mute_item');
       case OtherInfoItemType.Moments:
         return Localized.text('ox_discovery.moment');
+      case OtherInfoItemType.Link:
+        return 'Share Link';
     }
   }
 }
 
-class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
-
+class _ContactUserInfoPageState extends State<ContactUserInfoPage>
+    with SingleTickerProviderStateMixin {
   ChatSessionModelISAR? get _chatSessionModel {
     ChatSessionModelISAR? model =
-    OXChatBinding.sharedInstance.sessionMap[widget.chatId];
+        OXChatBinding.sharedInstance.sessionMap[widget.chatId];
     return model;
   }
 
+  double _appBarHeight = 0; // 初始的 AppBar 高度
+  final ScrollController _scrollController = ScrollController();
   Image _avatarPlaceholderImage = Image.asset(
     'assets/images/icon_user_default.png',
     fit: BoxFit.contain,
@@ -130,16 +177,62 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
 
   List<TabModel> modelList = [];
 
+  List<EMoreOptionType> moreOptionList = [
+    EMoreOptionType.secretChat,
+    EMoreOptionType.messageTimer,
+    EMoreOptionType.message,
+  ];
+  bool _isPinned = false; // 是否吸顶状态的标记
+  String _userQrCodeUrl = '';
+  late TabController tabController;
   @override
   void initState() {
     super.initState();
     _initData();
     _initModelList();
+    getShareLink();
+    tabController = TabController(length: 3, vsync: this);
+    _scrollController.addListener(() {
+      // 判断 SliverAppBar 是否吸顶，通过滚动位置来判断
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent - 50) {
+        // 吸顶时增高 AppBar
+        if (!_isPinned) {
+          setState(() {
+            _isPinned = true;
+            _appBarHeight = 50.0; // 吸顶时增高的 AppBar 高度
+          });
+        }
+      } else {
+        // 非吸顶时恢复 AppBar 高度
+        if (_isPinned) {
+          setState(() {
+            _isPinned = false;
+            _appBarHeight = 0; // 非吸顶时的 AppBar 高度
+          });
+        }
+      }
+    });
   }
 
   @override
   void dispose() {
     super.dispose();
+  }
+
+  void getShareLink() async {
+    List<String> relayAddressList = await Account.sharedInstance
+        .getMyGeneralRelayList()
+        .map((e) => e.url)
+        .toList();
+    List<String> relayList = relayAddressList.take(5).toList();
+    final nostrValue = Account.encodeProfile(
+      OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '',
+      relayList,
+    );
+    _userQrCodeUrl =
+        CustomURIHelper.createNostrURI(nostrValue).substring(0, 30) + '...';
+    setState(() {});
   }
 
   bool _isInBlockList() {
@@ -151,45 +244,79 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
     if (myPubkey != widget.pubkey)
       modelList = [
         TabModel(
-          iconName: 'icon_message.png',
-          onTap: _sendMsg,
-          content: Localized.text('ox_chat.send_message'),
-        ),
-        TabModel(
-          onTap: () {
-            OXNavigator.presentPage(
+          onTap: (){
+            if (userDB.pubKey ==
+                OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
+            return  CommonToast.instance.show(context, "Don't call yourself");
+            }
+            OXModuleService.pushPage(
               context,
-              (context) => ContactCreateSecret(userDB: userDB),
+              'ox_calling',
+              'CallPage',
+              {
+                'userDB': userDB,
+                'media': CallMessageType.audio.text
+              },
             );
-          },
-          iconName: 'icon_secret.png',
-          content: Localized.text('ox_chat.secret_chat'),
-        ),
-        TabModel(
-          onTap: () {
-            _clickCall();
           },
           iconName: 'icon_chat_call.png',
           content: Localized.text('ox_chat.call'),
         ),
         TabModel(
+          iconName: 'chat_camera.png',
+          onTap: () {
+            if (userDB.pubKey ==
+                OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
+              return  CommonToast.instance.show(context, "Don't call yourself");
+            }
+            OXModuleService.pushPage(
+              context,
+              'ox_calling',
+              'CallPage',
+              {
+                'userDB': userDB,
+                'media': CallMessageType.audio.text
+              },
+            );
+          },
+          content: 'Video',
+        ),
+        TabModel(
           onTap: () => _onChangedMute(!_isMute),
           iconName: _isMute ? 'icon_mute.png' : 'icon_unmute.png',
-          content: _isMute ? Localized.text('ox_chat.un_mute_item') : Localized.text('ox_chat.mute_item'),
+          content: _isMute
+              ? Localized.text('ox_chat.un_mute_item')
+              : Localized.text('ox_chat.mute_item'),
         ),
-        if (widget.chatId != null)
-          TabModel(
-            onTap: _chatMsgControlDialogWidget,
-            iconName: 'icon_more_gray.png',
-            content: Localized.text('ox_chat.more'),
-          ),
+        TabModel(
+          iconName: 'icon_chat_search.png',
+          onTap: () {},
+          content: 'Search',
+        ),
+        TabModel(
+          onTap: () {},
+          onTapDown: (details) => _chatMsgControlDialogWidget(details),
+          iconName: 'icon_more_gray.png',
+          content: Localized.text('ox_chat.more'),
+        ),
       ];
 
+    bool isAddBlock = !_isInBlockList() &&
+        !moreOptionList.contains(EMoreOptionType.userOption);
+    bool isAddContact = isFriend(userDB.pubKey) &&
+        !moreOptionList.contains(EMoreOptionType.contactStatus);
+    if (isAddBlock) {
+      moreOptionList.add(EMoreOptionType.userOption);
+    }
+    if (isAddContact) {
+      moreOptionList.add(EMoreOptionType.contactStatus);
+    }
     setState(() {});
   }
 
   void _initData() async {
-    userDB = Account.sharedInstance.userCache[widget.pubkey]?.value ?? UserDBISAR(pubKey: widget.pubkey);
+    userDB = Account.sharedInstance.userCache[widget.pubkey]?.value ??
+        UserDBISAR(pubKey: widget.pubkey);
     _isMute = userDB.mute ?? false;
     if (userDB.badges != null && userDB.badges!.isNotEmpty) {
       List<dynamic> badgeListDynamic = jsonDecode(userDB.badges!);
@@ -214,7 +341,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
     }
     Account.sharedInstance.reloadProfileFromRelay(userDB.pubKey).then((user) {
       userDB.updateWith(user);
-      if(mounted) setState(() {});
+      if (mounted) setState(() {});
     });
     OXChatBinding.sharedInstance.updateChatSession(userDB.pubKey,
         chatName: userDB.name, pic: userDB.picture);
@@ -223,81 +350,116 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: ThemeColor.color200,
-      resizeToAvoidBottomInset: false,
-      appBar: CommonAppBar(
-        useLargeTitle: false,
-        centerTitle: true,
-        title: Localized.text('ox_chat.details'),
-        backgroundColor: ThemeColor.color200,
-      ),
-      body: SingleChildScrollView(
-        physics: BouncingScrollPhysics(),
-        child: Column(
-          children: [
-            _buildHeadImage(),
-            SizedBox(
-              height: Adapt.px(16),
-            ),
-            _buildHeadName(),
-            _buildHeadDesc(),
-            _buildHeadPubKey(),
-            SizedBox(
-              height: Adapt.px(24),
-            ),
-            _tabContainerView(),
-            _contentList(),
-            userDB.about == null ||
-                    userDB.about!.isEmpty ||
-                    userDB.about == 'null'
-                ? SizedBox()
-                : _bioOrPubKeyWidget(
-                        OtherInfoItemType.Bio, userDB.about ?? '')
-                    .setPadding(
-                    EdgeInsets.only(
-                      top: Adapt.px(24),
+    return DefaultTabController(
+      length: 3, // Tab 的数量
+      child: Scaffold(
+        body: NestedScrollView(
+          controller: _scrollController,
+          headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+            return <Widget>[
+              SliverToBoxAdapter(
+                child: Column(
+                  children: [
+                    CommonAppBar(),
+                    Column(
+                      children: [
+                        _buildHeadImage(),
+                        SizedBox(
+                          height: Adapt.px(16),
+                        ),
+                        _buildHeadName(),
+                        _buildHeadDesc(),
+                        _buildHeadPubKey(),
+                        SizedBox(
+                          height: Adapt.px(16),
+                        ),
+                        _tabContainerView(),
+                        SizedBox(
+                          height: Adapt.px(16),
+                        ),
+                        _contentList(),
+                        _bioOrPubKeyWidget(
+                                OtherInfoItemType.Link, _userQrCodeUrl)
+                            .setPaddingOnly(top: 16.px),
+                        userDB.about == null ||
+                                userDB.about!.isEmpty ||
+                                userDB.about == 'null'
+                            ? SizedBox()
+                            : _bioOrPubKeyWidget(
+                                OtherInfoItemType.Bio, userDB.about ?? '').setPaddingOnly(top: 16.px),
+                        _delOrAddFriendBtnView().setPaddingOnly(top: 16.px),
+                        if (myPubkey != widget.pubkey) _blockStatusBtnView(),
+                      ],
+                    ).setPadding(EdgeInsets.symmetric(horizontal: 24.px)),
+                  ],
+                ),
+              ),
+              SliverAppBar(
+                pinned: true, // 吸顶效果
+                floating: false, // 不设置为浮动
+                snap: false, // 配合 floating 使用的 snap，默认不需要
+
+                primary: false,
+                toolbarHeight: 52,
+                backgroundColor: ThemeColor.color190,
+                automaticallyImplyLeading: false,
+                // pinned: true,  // 吸顶效果，滚动到顶部时固定
+                // floating: false,  // 控制是否在下滑时立即显示
+
+                bottom: PreferredSize(
+                  preferredSize: Size.fromHeight(40.0), // TabBar 高度
+                  child: Align(
+                    alignment: Alignment.centerLeft, // 左对齐 TabBar
+                    child: CommonGradientTabBar(
+                      data: ['Media', 'Posts', 'Groups'],
+                      controller: tabController,
                     ),
+                  ).setPadding(
+                    EdgeInsets.symmetric(horizontal: 24.px),
                   ),
-            SizedBox(
-              height: Adapt.px(24),
-            ),
-            _bioOrPubKeyWidget(
-                OtherInfoItemType.Pubkey, userDB.encodedPubkey),
-            SizedBox(
-              height: Adapt.px(24),
-            ),
-            _delOrAddFriendBtnView(),
-            if (myPubkey != widget.pubkey) _blockStatusBtnView(),
-            SizedBox(
-              height: Adapt.px(44),
-            ),
-          ],
+                ),
+              ),
+            ];
+          },
+          body: TabBarView(
+            controller: tabController,
+            children: [
+              ContactMediaWidget(userDB: userDB,),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 24.px),
+                child: OXModuleService.invoke(
+                  'ox_discovery',
+                  'showPersonMomentsPage',
+                  [context],
+                  {#userDB:userDB},
+                ),
+              ),
+              ContactGroupsWidget(userDB: userDB,),
+              // ContactLinksWidget(),
+            ],
+          ).setPaddingOnly(top: 8.px),
         ),
-      ).setPadding(EdgeInsets.only(
-          left: Adapt.px(24), right: Adapt.px(24), top: Adapt.px(16))),
+      ),
     );
   }
 
   Widget _tabContainerView() {
-    if (!(!_isInBlockList())) return Container();
-    bool isShowMore = widget.chatId != null;
+    // if (!(!_isInBlockList())) return Container();
+    // bool isShowMore = widget.chatId != null;
     return Container(
-      margin: EdgeInsets.only(
-        bottom: 16.px,
-      ),
       child: GridView.builder(
         shrinkWrap: true,
         padding: const EdgeInsets.only(top: 0),
         physics: NeverScrollableScrollPhysics(),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: isShowMore ? 5 : 4,
-          crossAxisSpacing: isShowMore ? 4.px : 20.px,
-          childAspectRatio:  1.1,
+          crossAxisCount: 5,
+          crossAxisSpacing: 4.px,
+          childAspectRatio: 1.1,
           // mainAxisExtent: _imageWH + Adapt.px(8 + 34),
         ),
         itemBuilder: (BuildContext context, int index) {
           return _tabWidget(
+              onTapDown: modelList[index].onTapDown,
               content: modelList[index].content,
               onTap: modelList[index].onTap,
               iconName: modelList[index].iconName);
@@ -308,9 +470,13 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
   }
 
   Widget _tabWidget(
-      {required onTap, required String iconName, required String content}) {
+      {required onTap,
+      required String iconName,
+      required String content,
+      GestureTapDownCallback? onTapDown}) {
     return GestureDetector(
       onTap: onTap,
+      onTapDown: (details) => onTapDown?.call(details),
       child: Container(
         padding: EdgeInsets.symmetric(
           vertical: Adapt.px(8),
@@ -398,7 +564,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
       width: double.infinity,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(Adapt.px(16)),
-        color: ThemeColor.color190,
+        color: ThemeColor.color180,
       ),
       padding: EdgeInsets.symmetric(
           horizontal: Adapt.px(16), vertical: Adapt.px(12)),
@@ -432,19 +598,23 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
                   maxLines: null,
                 ),
               ),
-              type == OtherInfoItemType.Pubkey
+              type == OtherInfoItemType.Link
                   ? GestureDetector(
                       behavior: HitTestBehavior.translucent,
-                      onTap: () => _clickKey(content),
+                      onTap: () {
+                        OXModuleService.invoke(
+                            'ox_chat', 'showMyIdCardDialog', [context]);
+                      },
                       child: Container(
                         width: Adapt.px(48),
                         alignment: Alignment.center,
                         child: CommonImage(
-                          iconName: copyStatusIcon,
+                          iconName: 'icon_qrcode.png',
                           width: Adapt.px(24),
                           height: Adapt.px(24),
                           fit: BoxFit.fill,
-                          useTheme: !_publicKeyCopied,
+                          package: 'ox_usercenter',
+                          color: ThemeColor.color100,
                         ),
                       ),
                     )
@@ -469,11 +639,12 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
 
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap:() => _clickKey(encodedPubKey),
+      onTap: () => _clickKey(encodedPubKey),
       child: Container(
         height: Adapt.px(33),
         margin: EdgeInsets.only(top: Adapt.px(8)),
-        padding: EdgeInsets.symmetric(horizontal: Adapt.px(12),vertical: Adapt.px(8)),
+        padding: EdgeInsets.symmetric(
+            horizontal: Adapt.px(12), vertical: Adapt.px(8)),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(Adapt.px(12)),
           color: ThemeColor.color180,
@@ -509,11 +680,13 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
     bool friendsStatus = false;
     String showTxt = '';
     if (myPubkey == widget.pubkey) {
-      showTxt = Localized.text('ox_chat.send_message');
+      return SizedBox();
+      // showTxt = Localized.text('ox_chat.send_message');
     } else {
-      if (_isInBlockList()) return Container();
       friendsStatus = isFriend(userDB.pubKey ?? '');
-      showTxt = isFriend(userDB.pubKey ?? '') == false ? Localized.text('ox_chat.add_friend') : Localized.text('ox_chat.remove_contacts');
+
+      if (friendsStatus) return SizedBox();
+      showTxt = Localized.text('ox_chat.add_friend');
     }
     return GestureDetector(
       child: Container(
@@ -537,21 +710,24 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
         child: Text(
           showTxt,
           style: TextStyle(
-            color: myPubkey != widget.pubkey && friendsStatus ? ThemeColor.red : Colors.white,
+            color: myPubkey != widget.pubkey && friendsStatus
+                ? ThemeColor.red
+                : Colors.white,
             fontSize: Adapt.px(16),
             fontWeight: FontWeight.w600,
           ),
         ),
       ),
-      onTap: myPubkey == widget.pubkey ? _sendMsg : (friendsStatus ? _removeFriend : _addFriends),
+      onTap: myPubkey == widget.pubkey
+          ? _sendMsg
+          : (friendsStatus ? _removeFriend : _addFriends),
     );
   }
 
   Widget _blockStatusBtnView() {
     bool isInBlocklist = _isInBlockList();
-    String btnContent = isInBlocklist
-        ? Localized.text('ox_chat.message_menu_un_block')
-        : Localized.text('ox_chat.message_menu_block');
+    if (!isInBlocklist) return SizedBox();
+    String btnContent = Localized.text('ox_chat.message_menu_un_block');
     return GestureDetector(
       child: Container(
         margin: EdgeInsets.only(
@@ -584,6 +760,11 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
       if (!event.status) {
         CommonToast.instance
             .show(context, Localized.text('ox_chat.un_block_fail'));
+      } else {
+        if (!moreOptionList.contains(EMoreOptionType.userOption)) {
+          moreOptionList.add(EMoreOptionType.userOption);
+          setState(() {});
+        }
       }
     } else {
       OXCommonHintDialog.show(context,
@@ -596,9 +777,16 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
             OXCommonHintAction.sure(
                 text: Localized.text('ox_common.confirm'),
                 onTap: () async {
-                  OKEvent event =  await Contacts.sharedInstance.addToBlockList(pubKey);
-                  if(!event.status){
-                    CommonToast.instance.show(context, Localized.text('ox_chat.block_fail'));
+                  OKEvent event =
+                      await Contacts.sharedInstance.addToBlockList(pubKey);
+                  if (!event.status) {
+                    CommonToast.instance
+                        .show(context, Localized.text('ox_chat.block_fail'));
+                  } else {
+                    if (moreOptionList.contains(EMoreOptionType.userOption)) {
+                      moreOptionList.remove(EMoreOptionType.userOption);
+                      setState(() {});
+                    }
                   }
                   OXChatBinding.sharedInstance.deleteSession([pubKey]);
                   OXNavigator.pop(context, true);
@@ -667,15 +855,19 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
                             child: ListView.separated(
                                 itemCount: _badgeDBList.length,
                                 scrollDirection: Axis.horizontal,
-                                separatorBuilder: (context, index) => Divider(height: 1),
+                                separatorBuilder: (context, index) =>
+                                    Divider(height: 1),
                                 itemBuilder: (context, index) {
                                   BadgeDBISAR tempItem = _badgeDBList[index];
-                                  LogUtil.e('Michael: _badgeDBList.length =${_badgeDBList.length}');
+                                  LogUtil.e(
+                                      'Michael: _badgeDBList.length =${_badgeDBList.length}');
                                   return OXCachedNetworkImage(
                                     imageUrl: tempItem.thumb ?? '',
                                     fit: BoxFit.contain,
-                                    placeholder: (context, url) => _badgePlaceholderImage,
-                                    errorWidget: (context, url, error) => _badgePlaceholderImage,
+                                    placeholder: (context, url) =>
+                                        _badgePlaceholderImage,
+                                    errorWidget: (context, url, error) =>
+                                        _badgePlaceholderImage,
                                     width: Adapt.px(32),
                                     height: Adapt.px(32),
                                   );
@@ -782,10 +974,9 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
   }
 
   Widget _buildHeadName() {
-    String showName =
-        userDB.nickName != null && userDB.nickName!.isNotEmpty
-            ? userDB.nickName!
-            : (userDB.name ?? '');
+    String showName = userDB.nickName != null && userDB.nickName!.isNotEmpty
+        ? userDB.nickName!
+        : (userDB.name ?? '');
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -819,11 +1010,11 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
           ),
           dns.isNotEmpty && _isVerifiedDNS
               ? CommonImage(
-            iconName: "icon_npi05_verified.png",
-            width: Adapt.px(16),
-            height: Adapt.px(16),
-            package: 'ox_common',
-          )
+                  iconName: "icon_npi05_verified.png",
+                  width: Adapt.px(16),
+                  height: Adapt.px(16),
+                  package: 'ox_common',
+                )
               : Container(),
         ],
       ),
@@ -847,6 +1038,10 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
                       .addToContact([userDB.pubKey]);
                   await OXLoading.dismiss();
                   if (okEvent.status) {
+                    if (!moreOptionList
+                        .contains(EMoreOptionType.contactStatus)) {
+                      moreOptionList.add(EMoreOptionType.contactStatus);
+                    }
                     OXChatBinding.sharedInstance.contactUpdatedCallBack();
                     OXChatBinding.sharedInstance
                         .changeChatSessionTypeAll(userDB.pubKey, true);
@@ -894,6 +1089,9 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
                 await OXLoading.dismiss();
                 OXNavigator.pop(context);
                 if (okEvent.status) {
+                  if (moreOptionList.contains(EMoreOptionType.contactStatus)) {
+                    moreOptionList.remove(EMoreOptionType.contactStatus);
+                  }
                   OXChatBinding.sharedInstance.contactUpdatedCallBack();
                   setState(() {});
                   CommonToast.instance.show(context,
@@ -906,7 +1104,8 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
         isRowAction: true);
   }
 
-  void _chatMsgControlDialogWidget() {
+  void _chatMsgControlDialogWidget(details) {
+    return _showMoreOptionMore(context, details.globalPosition);
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -929,8 +1128,9 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
                 children: [
                   _chatControlDialogItemWidget(
                       isSelect: _autoDelExTime != 0,
-                      content:
-                      Localized.text('ox_chat.option_auto_delete').replaceAll(r'${option}', '${_autoDelExTime > 0 ? Localized.text('ox_chat.set') : Localized.text('ox_chat.enable')}'),
+                      content: Localized.text('ox_chat.option_auto_delete')
+                          .replaceAll(r'${option}',
+                              '${_autoDelExTime > 0 ? Localized.text('ox_chat.set') : Localized.text('ox_chat.enable')}'),
                       onTap: _updateAutoDel),
                   // Divider(
                   //   height: Adapt.px(0.5),
@@ -977,25 +1177,37 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
       builder: (BuildContext context) {
         return CommonTimeDialog(
           callback: (time) async {
-            if(widget.chatId == null) OXNavigator.pop(context);
-            await OXChatBinding.sharedInstance.updateChatSession(widget.chatId!, expiration: time);
+            if (widget.chatId == null) OXNavigator.pop(context);
+            await OXChatBinding.sharedInstance
+                .updateChatSession(widget.chatId!, expiration: time);
             String username = Account.sharedInstance.me?.name ?? '';
             String timeStr;
-            if(time >= 24 * 3600){
-              timeStr = (time ~/ (24*3600)).toString() + ' ' + Localized.text('ox_chat.day');
-            } else if (time >= 3600){
-              timeStr = '${(time ~/ 3600).toString()} ${Localized.text('ox_chat.hours')} ${Localized.text('ox_chat.and')} ${((time % 3600) ~/ 60).toString()} ${Localized.text('ox_chat.minutes')}';
+            if (time >= 24 * 3600) {
+              timeStr = (time ~/ (24 * 3600)).toString() +
+                  ' ' +
+                  Localized.text('ox_chat.day');
+            } else if (time >= 3600) {
+              timeStr =
+                  '${(time ~/ 3600).toString()} ${Localized.text('ox_chat.hours')} ${Localized.text('ox_chat.and')} ${((time % 3600) ~/ 60).toString()} ${Localized.text('ox_chat.minutes')}';
             } else {
-              timeStr = (time ~/ 60).toString() + ' ' + Localized.text('ox_chat.minutes');
+              timeStr = (time ~/ 60).toString() +
+                  ' ' +
+                  Localized.text('ox_chat.minutes');
             }
-            String setMsgContent = Localized.text('ox_chat.set_msg_auto_delete_system').replaceAll(r'${username}', username).replaceAll(r'${time}', timeStr );
-            String disableMsgContent = Localized.text('ox_chat.disabled_msg_auto_delete_system').replaceAll(r'${username}', username);
-            String content =  time > 0 ? setMsgContent : disableMsgContent;
+            String setMsgContent =
+                Localized.text('ox_chat.set_msg_auto_delete_system')
+                    .replaceAll(r'${username}', username)
+                    .replaceAll(r'${time}', timeStr);
+            String disableMsgContent =
+                Localized.text('ox_chat.disabled_msg_auto_delete_system')
+                    .replaceAll(r'${username}', username);
+            String content = time > 0 ? setMsgContent : disableMsgContent;
 
-            _sendSystemMsg(content: content,localTextKey: content);
+            _sendSystemMsg(content: content, localTextKey: content);
 
             setState(() {});
-            CommonToast.instance.show(context, Localized.text('ox_chat.success'));
+            CommonToast.instance
+                .show(context, Localized.text('ox_chat.success'));
             OXNavigator.pop(context);
             OXNavigator.pop(context);
           },
@@ -1011,15 +1223,18 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
 
     int kind = _safeChatStatus ? 4 : 1059;
 
-    await OXChatBinding.sharedInstance.updateChatSession(chatId, messageKind: kind);
+    await OXChatBinding.sharedInstance
+        .updateChatSession(chatId, messageKind: kind);
     String username = Account.sharedInstance.me?.name ?? '';
 
+    String normalDmContent = Localized.text('ox_chat.set_normal_dm_system')
+        .replaceAll(r'${username}', username);
+    String giftWrappedDmContent =
+        Localized.text('ox_chat.set_gift_wrapped_dm_system')
+            .replaceAll(r'${username}', username);
+    String content = kind == 4 ? normalDmContent : giftWrappedDmContent;
 
-    String normalDmContent = Localized.text('ox_chat.set_normal_dm_system').replaceAll(r'${username}', username);
-    String giftWrappedDmContent = Localized.text('ox_chat.set_gift_wrapped_dm_system').replaceAll(r'${username}', username);
-    String content =  kind == 4 ? normalDmContent : giftWrappedDmContent;
-
-    _sendSystemMsg(content:content, localTextKey:content);
+    _sendSystemMsg(content: content, localTextKey: content);
 
     CommonToast.instance.show(context, 'Success');
     OXNavigator.pop(context);
@@ -1149,7 +1364,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
           'userDB': userDB,
         },
       );
-    } else if(type == OtherInfoItemType.Moments) {
+    } else if (type == OtherInfoItemType.Moments) {
       OXModuleService.pushPage(
         context,
         'ox_discovery',
@@ -1162,7 +1377,8 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
   }
 
   Future<BadgeDBISAR?> _getUserSelectedBadgeInfo(UserDBISAR friendDB) async {
-    UserDBISAR? friendUserDB = await Account.sharedInstance.getUserInfo(friendDB.pubKey);
+    UserDBISAR? friendUserDB =
+        await Account.sharedInstance.getUserInfo(friendDB.pubKey);
     LogUtil.e(
         'Michael: friend_user_info_page  _getUserSelectedBadgeInfo : ${friendUserDB!.name ?? ''}; badges =${friendUserDB.badges ?? 'badges null'}');
     if (friendUserDB == null) {
@@ -1186,7 +1402,8 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
   }
 
   void _verifiedDNS() async {
-    var isVerifiedDNS = await OXUserInfoManager.sharedInstance.checkDNS(userDB: userDB);
+    var isVerifiedDNS =
+        await OXUserInfoManager.sharedInstance.checkDNS(userDB: userDB);
     if (this.mounted) {
       setState(() {
         _isVerifiedDNS = isVerifiedDNS;
@@ -1194,7 +1411,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
     }
   }
 
-  void _sendSystemMsg({required String localTextKey,required String content}){
+  void _sendSystemMsg({required String localTextKey, required String content}) {
     OXModuleService.invoke('ox_chat', 'sendSystemMsg', [
       context
     ], {
@@ -1202,6 +1419,91 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
       Symbol('localTextKey'): localTextKey,
       Symbol('chatId'): widget.chatId,
     });
+  }
 
+  void _showMoreOptionMore(BuildContext context, Offset position) async {
+    final RenderBox overlay =
+        Overlay.of(context).context.findRenderObject() as RenderBox;
+    // List<EMomentMoreOptionType> optionList = momentOptionMoreList;
+    // String noteAuthor = notedUIModel?.value?.noteDB.author ?? '';
+    // String btnContent = '';
+    // bool isInBlocklist = Contacts.sharedInstance.inBlockList(noteAuthor);
+    // String myPubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
+    // if(myPubkey.toUpperCase() != noteAuthor.toUpperCase()){
+    //   btnContent = isInBlocklist
+    //       ? Localized.text('ox_chat.message_menu_un_block')
+    //       : Localized.text('ox_chat.message_menu_block');
+    //   optionList = [...momentOptionMoreList, ...[EMomentMoreOptionType.block]];
+    // }
+
+    await showMenu(
+      context: context,
+      position: RelativeRect.fromLTRB(
+        position.dx,
+        position.dy + 10,
+        overlay.size.width - position.dx,
+        overlay.size.height - position.dy + 10,
+      ),
+      color: ThemeColor.color180,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(16.0)),
+      ),
+      items: <PopupMenuEntry<EMoreOptionType>>[
+        ...moreOptionList.map((EMoreOptionType type) {
+          return PopupMenuItem<EMoreOptionType>(
+            value: type,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Center(
+                  child: Text(
+                    type.text,
+                    // type == EMoreOptionType.block ? btnContent : type.text,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 14.px,
+                      color: ThemeColor.color100,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ),
+                CommonImage(
+                  iconName: type.icon,
+                  size: 24.px,
+                  package: 'ox_chat',
+                ),
+              ],
+            ),
+          );
+        }).toList()
+      ],
+    ).then((value) async {
+      // NoteDBISAR? noteDB = notedUIModel?.value?.noteDB;
+      // if (noteDB == null) {
+      //   CommonToast.instance.show(context, 'Option fail');
+      //   return;
+      // }
+      if (value == null) return;
+
+      switch (value) {
+        case EMoreOptionType.userOption:
+          _blockOptionFn();
+          break;
+        case EMoreOptionType.messageTimer:
+          _selectTimeDialog();
+          break;
+        case EMoreOptionType.message:
+          break;
+        case EMoreOptionType.secretChat:
+          OXNavigator.presentPage(
+            context,
+            (context) => ContactCreateSecret(userDB: userDB),
+          );
+          break;
+        case EMoreOptionType.contactStatus:
+          _removeFriend();
+          break;
+      }
+    });
   }
 }
