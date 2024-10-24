@@ -45,6 +45,7 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
 
   GlobalKey<TranslucentNavigationBarState> tabBarGlobalKey = GlobalKey();
   bool _isBottomNavigationBarVisible = true;
+  double _previousScrollOffset = 0.0;
 
   List<TabViewInfo> tabViewInfo = [
     TabViewInfo(
@@ -145,12 +146,19 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
     return NotificationListener<ScrollNotification>(
       onNotification: (scrollNotification) {
         if (scrollNotification.metrics.axis == Axis.vertical) {
-          if (scrollNotification is ScrollStartNotification) {
-            if (_isBottomNavigationBarVisible) {
-              setState(() {
-                _isBottomNavigationBarVisible = false;
-              });
+          double currentOffset = scrollNotification.metrics.pixels;
+          if (scrollNotification is ScrollUpdateNotification) {
+            if (currentOffset < 0) {
+              return false;
             }
+            if (currentOffset > _previousScrollOffset) {
+              if (_isBottomNavigationBarVisible) {
+                setState(() {
+                  _isBottomNavigationBarVisible = false;
+                });
+              }
+            }
+            _previousScrollOffset = currentOffset;
           } else if (scrollNotification is ScrollEndNotification) {
             if (!_isBottomNavigationBarVisible) {
               setState(() {
