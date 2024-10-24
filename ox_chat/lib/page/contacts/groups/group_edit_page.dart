@@ -70,7 +70,7 @@ class _GroupEditPageState extends State<GroupEditPage> {
   }
 
   void _groupInfoInit() async {
-    GroupDBISAR? groupDB = await Groups.sharedInstance.myGroups[widget.groupId];
+    GroupDBISAR? groupDB = await Groups.sharedInstance.myGroups[widget.groupId]?.value;
 
     if (groupDB != null) {
       groupDBInfo = groupDB;

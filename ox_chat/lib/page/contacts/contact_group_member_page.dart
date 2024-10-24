@@ -64,7 +64,7 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
     List<UserDBISAR> allContacts = Contacts.sharedInstance.allContacts.values.toList();
     String owner = '';
     if (widget.groupType ==null || widget.groupType == GroupType.privateGroup) {
-      GroupDBISAR? groupDB = Groups.sharedInstance.groups[groupId];
+      GroupDBISAR? groupDB = Groups.sharedInstance.groups[groupId]?.value;
       if (groupDB != null) owner = groupDB.owner;
     } else {
       RelayGroupDBISAR? groupDB = RelayGroup.sharedInstance.groups[groupId]?.value;

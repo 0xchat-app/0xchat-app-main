@@ -382,7 +382,7 @@ class _GroupContactListItemState extends State<GroupContactListItem> {
     String showName = '';
     switch (widget.item.chatType) {
       case ChatType.chatGroup:
-        GroupDBISAR? tempGroupDB = Groups.sharedInstance.myGroups[widget.item.groupId];
+        GroupDBISAR? tempGroupDB = Groups.sharedInstance.myGroups[widget.item.groupId]?.value;
         iconAvatar = OXGroupAvatar(group: tempGroupDB);
         showName = tempGroupDB?.name ?? '';
         if (showName.isEmpty) showName = Groups.encodeGroup(widget.item.groupId, null, null);

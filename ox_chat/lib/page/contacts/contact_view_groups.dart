@@ -76,9 +76,9 @@ class _ContactViewGroupsState extends State<ContactViewGroups> with SingleTicker
 
   void _loadData() {
     groups.clear();
-    Map<String, GroupDBISAR> privateGroupMap = Groups.sharedInstance.myGroups;
+    Map<String, ValueNotifier<GroupDBISAR>> privateGroupMap = Groups.sharedInstance.myGroups;
     if(privateGroupMap.length>0) {
-      List<GroupDBISAR> tempGroups = privateGroupMap.values.toList();
+      List<GroupDBISAR> tempGroups = privateGroupMap.values.map((e) => e.value).toList();
       tempGroups.forEach((element) {
         GroupUIModel tempUIModel= GroupUIModel.groupdbToUIModel(element);
         groups.add(tempUIModel);

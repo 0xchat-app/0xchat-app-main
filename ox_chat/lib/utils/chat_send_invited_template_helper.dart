@@ -14,7 +14,7 @@ class ChatSendInvitedTemplateHelper {
     String groupOwner = '';
     String groupPic = '';
     if (groupType == GroupType.privateGroup) {
-      GroupDBISAR? groupDB = Groups.sharedInstance.groups[groupId];
+      GroupDBISAR? groupDB = Groups.sharedInstance.groups[groupId]?.value;
       groupName = groupDB?.name ?? '';
       groupOwner = groupDB?.owner ?? '';
       groupPic = groupDB?.picture ?? '';

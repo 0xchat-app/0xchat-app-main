@@ -374,7 +374,7 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
 
   void _groupInfoInit() async {
     if (widget.groupType == GroupType.privateGroup) {
-      GroupDBISAR? groupDB = await Groups.sharedInstance.myGroups[widget.groupId];
+      GroupDBISAR? groupDB = await Groups.sharedInstance.myGroups[widget.groupId]?.value;
       if (groupDB != null) {
         groupName = groupDB.name;
         _getGroupQrcode(groupDB);

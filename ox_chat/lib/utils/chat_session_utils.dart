@@ -26,7 +26,7 @@ class ChatSessionUtils {
         showName = Account.sharedInstance.userCache[model.getOtherPubkey]?.value.name ?? '';
         break;
       case ChatType.chatGroup:
-        showName = Groups.sharedInstance.groups[model.chatId]?.name ?? '';
+        showName = Groups.sharedInstance.groups[model.chatId]?.value.name ?? '';
         if (showName.isEmpty) showName = Groups.encodeGroup(model.chatId, null, null);
         break;
       case ChatType.chatRelayGroup:
@@ -51,7 +51,7 @@ class ChatSessionUtils {
         showPicUrl = Account.sharedInstance.userCache[model.getOtherPubkey]?.value.picture ?? '';
         break;
       case ChatType.chatGroup:
-        showPicUrl = Groups.sharedInstance.groups[model.chatId]?.picture ?? '';
+        showPicUrl = Groups.sharedInstance.groups[model.chatId]?.value.picture ?? '';
         break;
       case ChatType.chatRelayGroup:
         showPicUrl = RelayGroup.sharedInstance.groups[model.chatId]?.value.picture ?? '';
@@ -98,7 +98,7 @@ class ChatSessionUtils {
         }
         break;
       case ChatType.chatGroup:
-        GroupDBISAR? groupDB = Groups.sharedInstance.groups[model.chatId];
+        GroupDBISAR? groupDB = Groups.sharedInstance.groups[model.chatId]?.value;
         if (groupDB != null) {
           isMute = groupDB.mute;
         }
@@ -147,7 +147,7 @@ class ChatSessionUtils {
         isMute = channelDB?.mute ?? false;
         return isMute;
       case ChatType.chatGroup:
-        GroupDBISAR? groupDB = Groups.sharedInstance.myGroups[message.groupId];
+        GroupDBISAR? groupDB = Groups.sharedInstance.myGroups[message.groupId]?.value;
         isMute = groupDB?.mute ?? false;
         return isMute;
       case ChatType.chatRelayGroup:

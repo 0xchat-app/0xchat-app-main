@@ -39,7 +39,7 @@ class _GroupNoticePageState extends State<GroupNoticePage> {
   }
 
   void _groupInfoInit() async {
-    GroupDBISAR? groupDB = await Groups.sharedInstance.myGroups[widget.groupId];
+    GroupDBISAR? groupDB = await Groups.sharedInstance.myGroups[widget.groupId]?.value;
     if (groupDB == null) return;
     setState(() {
       groupDBInfo = groupDB;

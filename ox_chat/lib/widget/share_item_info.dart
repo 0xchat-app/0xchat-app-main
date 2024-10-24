@@ -33,7 +33,7 @@ mixin ShareItemInfoMixin {
         showName = Account.sharedInstance.userCache[item.getOtherPubkey]?.value.name ?? '';
         break;
       case ChatType.chatGroup:
-        showName = Groups.sharedInstance.groups[item.chatId]?.name ?? '';
+        showName = Groups.sharedInstance.groups[item.chatId]?.value.name ?? '';
         break;
     }
     return Container(
@@ -97,7 +97,7 @@ mixin ShareItemInfoMixin {
           localAvatarPath = 'user_image.png';
           break;
         case ChatType.chatGroup:
-          showPicUrl = Groups.sharedInstance.groups[item.chatId]?.picture ?? '';
+          showPicUrl = Groups.sharedInstance.groups[item.chatId]?.value.picture ?? '';
           localAvatarPath = 'icon_group_default.png';
           break;
         case ChatType.chatNotice:
