@@ -382,19 +382,19 @@ class _GroupContactListItemState extends State<GroupContactListItem> {
     String showName = '';
     switch (widget.item.chatType) {
       case ChatType.chatGroup:
-        GroupDBISAR? tempGroupDB = Groups.sharedInstance.myGroups[widget.item.groupId];
+        GroupDBISAR? tempGroupDB = Groups.sharedInstance.myGroups[widget.item.groupId]?.value;
         iconAvatar = OXGroupAvatar(group: tempGroupDB);
         showName = tempGroupDB?.name ?? '';
         if (showName.isEmpty) showName = Groups.encodeGroup(widget.item.groupId, null, null);
         break;
       case ChatType.chatRelayGroup:
-        RelayGroupDBISAR? tempRelayGroupDB = RelayGroup.sharedInstance.myGroups[widget.item.groupId];
+        RelayGroupDBISAR? tempRelayGroupDB = RelayGroup.sharedInstance.myGroups[widget.item.groupId]?.value;
         iconAvatar = OXRelayGroupAvatar(relayGroup: tempRelayGroupDB);
         showName = tempRelayGroupDB?.name ?? '';
         if (showName.isEmpty) showName = tempRelayGroupDB?.shortGroupId ?? '';
         break;
       case ChatType.chatChannel:
-        ChannelDBISAR? tempChannelDB = Channels.sharedInstance.channels[widget.item.groupId];
+        ChannelDBISAR? tempChannelDB = Channels.sharedInstance.channels[widget.item.groupId]?.value;
         iconAvatar = OXChannelAvatar(channel: tempChannelDB);
         showName = tempChannelDB?.name ?? '';
         if (showName.isEmpty) showName = tempChannelDB?.shortChannelId ?? '';

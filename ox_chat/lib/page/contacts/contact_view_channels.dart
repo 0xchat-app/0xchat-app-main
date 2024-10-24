@@ -70,10 +70,10 @@ class _ContactViewChannelsState extends State<ContactViewChannels> with SingleTi
   }
 
   void _loadData() async {
-    Map<String, ChannelDBISAR> channelsMap = Channels.sharedInstance.myChannels;
-    channels = channelsMap.values.toList();
+    Map<String, ValueNotifier<ChannelDBISAR>> channelsMap = Channels.sharedInstance.myChannels;
+    channels = channelsMap.values.map((e) => e.value).toList();
     if(Channels.sharedInstance.myChannels.length>0) {
-      channels = Channels.sharedInstance.myChannels.values.toList();
+      channels = Channels.sharedInstance.myChannels.values.map((e) => e.value).toList();
     }
     _showView();
   }

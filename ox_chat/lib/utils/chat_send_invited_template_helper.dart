@@ -14,7 +14,7 @@ class ChatSendInvitedTemplateHelper {
     String groupOwner = '';
     String groupPic = '';
     if (groupType == GroupType.privateGroup) {
-      GroupDBISAR? groupDB = Groups.sharedInstance.groups[groupId];
+      GroupDBISAR? groupDB = Groups.sharedInstance.groups[groupId]?.value;
       groupName = groupDB?.name ?? '';
       groupOwner = groupDB?.owner ?? '';
       groupPic = groupDB?.picture ?? '';
@@ -36,7 +36,7 @@ class ChatSendInvitedTemplateHelper {
         );
       });
     } else if (groupType == GroupType.openGroup || groupType == GroupType.closeGroup) {
-      RelayGroupDBISAR? groupDB = RelayGroup.sharedInstance.groups[groupId];
+      RelayGroupDBISAR? groupDB = RelayGroup.sharedInstance.groups[groupId]?.value;
       groupName = groupDB?.name ?? '';
       groupOwner = groupDB?.author ?? '';
       groupPic = groupDB?.picture ?? '';

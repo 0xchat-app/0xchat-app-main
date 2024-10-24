@@ -76,25 +76,25 @@ class _ContactViewGroupsState extends State<ContactViewGroups> with SingleTicker
 
   void _loadData() {
     groups.clear();
-    Map<String, GroupDBISAR> privateGroupMap = Groups.sharedInstance.myGroups;
+    Map<String, ValueNotifier<GroupDBISAR>> privateGroupMap = Groups.sharedInstance.myGroups;
     if(privateGroupMap.length>0) {
-      List<GroupDBISAR> tempGroups = privateGroupMap.values.toList();
+      List<GroupDBISAR> tempGroups = privateGroupMap.values.map((e) => e.value).toList();
       tempGroups.forEach((element) {
         GroupUIModel tempUIModel= GroupUIModel.groupdbToUIModel(element);
         groups.add(tempUIModel);
       });
     }
-    Map<String, RelayGroupDBISAR> relayGroupMap = RelayGroup.sharedInstance.myGroups;
+    Map<String, ValueNotifier<RelayGroupDBISAR>> relayGroupMap = RelayGroup.sharedInstance.myGroups;
     if(relayGroupMap.length>0) {
-      List<RelayGroupDBISAR> tempRelayGroups = relayGroupMap.values.toList();
+      List<RelayGroupDBISAR> tempRelayGroups = relayGroupMap.values.map((e) => e.value).toList();
       tempRelayGroups.forEach((element) {
         GroupUIModel uIModel= GroupUIModel.relayGroupdbToUIModel(element);
         groups.add(uIModel);
       });
     }
-    Map<String, ChannelDBISAR> channelsMap = Channels.sharedInstance.myChannels;
+    Map<String, ValueNotifier<ChannelDBISAR>> channelsMap = Channels.sharedInstance.myChannels;
     if (channelsMap.length > 0) {
-      List<ChannelDBISAR> channels = channelsMap.values.toList();
+      List<ChannelDBISAR> channels = channelsMap.values.map((e) => e.value).toList();
       channels.forEach((element) {
         GroupUIModel uIModel= GroupUIModel.channeldbToUIModel(element);
         groups.add(uIModel);

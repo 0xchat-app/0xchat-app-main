@@ -734,7 +734,7 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
 
   void _groupInfoInit() async {
     String groupId = widget.groupId;
-    GroupDBISAR? groupDB = await Groups.sharedInstance.myGroups[groupId];
+    GroupDBISAR? groupDB = await Groups.sharedInstance.myGroups[groupId]?.value;
     List<UserDBISAR>? groupList =
         await Groups.sharedInstance.getAllGroupMembers(groupId);
 

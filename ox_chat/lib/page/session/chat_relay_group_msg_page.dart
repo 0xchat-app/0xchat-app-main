@@ -50,7 +50,7 @@ class _ChatRelayGroupMsgPageState extends State<ChatRelayGroupMsgPage> with OXCh
   Future<void> setupGroup() async {
     final groupId = session.groupId;
     if (groupId == null) return ;
-    relayGroup = RelayGroup.sharedInstance.groups[groupId];
+    relayGroup = RelayGroup.sharedInstance.groups[groupId]?.value;
     if (relayGroup == null) {
       RelayGroup.sharedInstance.getGroupMetadataFromRelay(groupId).then((relayGroupDB) {
         if (!mounted) return ;
@@ -89,7 +89,7 @@ class _ChatRelayGroupMsgPageState extends State<ChatRelayGroupMsgPage> with OXCh
   }
 
   Widget buildNavBar() {
-    RelayGroupDBISAR? tempDb = RelayGroup.sharedInstance.groups[groupId];
+    RelayGroupDBISAR? tempDb = RelayGroup.sharedInstance.groups[groupId]?.value;
     String showName = tempDb?.name ?? '';
     return CommonChatNavBar(
       handler: handler,

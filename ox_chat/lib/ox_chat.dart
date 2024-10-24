@@ -214,7 +214,7 @@ class OXChat extends OXFlutterModule {
   }
 
   Future<void> _contactChanneDetailsPage(BuildContext? context,{required String channelId}) async {
-    ChannelDBISAR? channelDB = Channels.sharedInstance.channels[channelId];
+    ChannelDBISAR? channelDB = Channels.sharedInstance.channels[channelId]?.value;
     if(channelDB == null){
       await OXLoading.show();
       channelDB = await Channels.sharedInstance.searchChannel(channelId, null);

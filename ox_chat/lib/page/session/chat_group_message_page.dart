@@ -51,7 +51,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> {
   void setupGroup() {
     final groupId = session.groupId;
     if (groupId == null) return ;
-    group = Groups.sharedInstance.groups[groupId];
+    group = Groups.sharedInstance.groups[groupId]?.value;
   }
 
   void prepareData() {
@@ -68,7 +68,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> {
   }
 
   Widget buildNavBar() {
-    GroupDBISAR? group = Groups.sharedInstance.groups[groupId];
+    GroupDBISAR? group = Groups.sharedInstance.groups[groupId]?.value;
     String showName = group?.name ?? '';
     return CommonChatNavBar(
       handler: handler,

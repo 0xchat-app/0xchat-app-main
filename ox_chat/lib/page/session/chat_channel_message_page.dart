@@ -49,7 +49,7 @@ class _ChatChannelMessagePageState extends State<ChatChannelMessagePage> {
   void setupChannel() {
     final channelId = session.groupId;
     if (channelId == null) return ;
-    channel = Channels.sharedInstance.channels[channelId];
+    channel = Channels.sharedInstance.channels[channelId]?.value;
     if (channel == null) {
       Channels.sharedInstance.searchChannel(channelId, null).then((c) {
         if (!mounted) return ;
@@ -76,7 +76,7 @@ class _ChatChannelMessagePageState extends State<ChatChannelMessagePage> {
   }
 
   Widget buildNavBar() {
-    ChannelDBISAR? channelDB = Channels.sharedInstance.channels[channelId];
+    ChannelDBISAR? channelDB = Channels.sharedInstance.channels[channelId]?.value;
     String showName = channelDB?.name ?? '';
     return CommonChatNavBar(
       handler: handler,
