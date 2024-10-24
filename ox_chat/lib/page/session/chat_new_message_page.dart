@@ -4,14 +4,20 @@ import 'package:ox_chat/model/community_menu_option_model.dart';
 import 'package:ox_chat/page/contacts/contact_view_friends.dart';
 import 'package:ox_chat/page/session/search_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
+import 'package:ox_chat/widget/contact.dart';
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/mixin/common_state_view_mixin.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/ox_chat_binding.dart';
+import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
-import 'package:ox_theme/ox_theme.dart';
+import 'package:chatcore/chat-core.dart';
 
 class ChatNewMessagePage extends StatefulWidget {
+  ChatNewMessagePage({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _ChatNewMessagePageState();
@@ -19,14 +25,40 @@ class ChatNewMessagePage extends StatefulWidget {
 }
 
 class _ChatNewMessagePageState extends State<ChatNewMessagePage>
-    with CommonStateViewMixin {
+    with CommonStateViewMixin, OXChatObserver {
   final _controller = ScrollController();
   List<CommunityMenuOptionModel> _menuOptionModelList = [];
+  GlobalKey<ContactWidgetState> contractWidgetKey = new GlobalKey<ContactWidgetState>();
+  List<UserDBISAR> userList = [];
 
   @override
   void initState() {
     super.initState();
+    OXChatBinding.sharedInstance.addObserver(this);
     _menuOptionModelList = CommunityMenuOptionModel.getOptionModelList();
+    _loadData();
+  }
+
+  @override
+  void dispose() {
+    OXChatBinding.sharedInstance.removeObserver(this);
+    super.dispose();
+  }
+
+  void _loadData() {
+    Iterable<UserDBISAR> tempList =  Contacts.sharedInstance.allContacts.values;
+    userList.clear();
+    if (tempList.isNotEmpty) userList.addAll(tempList);
+    _showView();
+  }
+
+  void _showView() {
+    if (this.mounted) {
+      contractWidgetKey.currentState?.updateContactData(userList);
+      setState(() {
+        updateStateView(CommonStateView.CommonStateView_None);
+      });
+    }
   }
 
   @override
@@ -59,29 +91,23 @@ class _ChatNewMessagePageState extends State<ChatNewMessagePage>
   }
 
   Widget _body() {
-    return Container(
-      color: ThemeColor.color190,
-      child: CustomScrollView(
-        physics: BouncingScrollPhysics(),
-        controller: _controller,
-        slivers: [
-          SliverToBoxAdapter(
-            child: _topSearch(),
-          ),
-          SliverToBoxAdapter(
-            child: _menueWidget(),
-          ),
-          SliverToBoxAdapter(
-            child: ContractViewFriends(
-              shrinkWrap: true,
-              bgColor: ThemeColor.color190,
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: SizedBox(height: 120.px),
-          ),
-        ],
-      ),
+    return ContactWidget(
+      key: contractWidgetKey,
+      data: userList,
+      physics: const BouncingScrollPhysics(),
+      topWidget: _topView(),
+      bgColor: ThemeColor.color190,
+    );
+  }
+
+  Widget _topView() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _topSearch(),
+        _menueWidget(),
+      ],
     );
   }
 
@@ -169,5 +195,11 @@ class _ChatNewMessagePageState extends State<ChatNewMessagePage>
         ),
       ),
     );
+  }
+
+  @override
+  void didContactUpdatedCallBack() {
+    LogUtil.e('Michael: chat_new_message didFriendUpdatedCallBack friends.length=${Contacts.sharedInstance.allContacts.length}');
+    _loadData();
   }
 }
