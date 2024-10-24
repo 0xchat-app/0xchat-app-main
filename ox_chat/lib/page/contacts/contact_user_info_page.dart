@@ -133,7 +133,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
     return model;
   }
 
-  double _appBarHeight = 0; // 初始的 AppBar 高度
+
   final ScrollController _scrollController = ScrollController();
   Image _avatarPlaceholderImage = Image.asset(
     'assets/images/icon_user_default.png',
@@ -182,7 +182,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
     EMoreOptionType.messageTimer,
     EMoreOptionType.message,
   ];
-  bool _isPinned = false; // 是否吸顶状态的标记
+
   String _userQrCodeUrl = '';
   late TabController tabController;
   @override
@@ -192,27 +192,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
     _initModelList();
     getShareLink();
     tabController = TabController(length: 3, vsync: this);
-    _scrollController.addListener(() {
-      // 判断 SliverAppBar 是否吸顶，通过滚动位置来判断
-      if (_scrollController.position.pixels >=
-          _scrollController.position.maxScrollExtent - 50) {
-        // 吸顶时增高 AppBar
-        if (!_isPinned) {
-          setState(() {
-            _isPinned = true;
-            _appBarHeight = 50.0; // 吸顶时增高的 AppBar 高度
-          });
-        }
-      } else {
-        // 非吸顶时恢复 AppBar 高度
-        if (_isPinned) {
-          setState(() {
-            _isPinned = false;
-            _appBarHeight = 0; // 非吸顶时的 AppBar 高度
-          });
-        }
-      }
-    });
+
   }
 
   @override
