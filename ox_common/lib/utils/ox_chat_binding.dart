@@ -205,7 +205,7 @@ class OXChatBinding {
         sessionModel.avatar = relayGroupDB?.picture ?? '';
         sessionModel.chatName = relayGroupDB?.name ?? messageDB.groupId;
       } else {
-        GroupDBISAR? groupDBDB = Groups.sharedInstance.myGroups[messageDB.groupId];
+        GroupDBISAR? groupDBDB = Groups.sharedInstance.myGroups[messageDB.groupId]?.value;
         if (groupDBDB == null) return;
         sessionModel.avatar = groupDBDB.picture ?? '';
         sessionModel.chatName = groupDBDB.name;
