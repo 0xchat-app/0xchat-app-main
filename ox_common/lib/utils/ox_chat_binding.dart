@@ -196,7 +196,7 @@ class OXChatBinding {
       ChatSessionModelISAR.saveChatSessionModelToDB(tempModel);
     } else {
       if (messageDB.chatType == null || messageDB.chatType == ChatType.chatChannel) {
-        ChannelDBISAR? channelDB = Channels.sharedInstance.myChannels[messageDB.groupId];
+        ChannelDBISAR? channelDB = Channels.sharedInstance.myChannels[messageDB.groupId]?.value;
         if (channelDB == null) return;
         sessionModel.avatar = channelDB.picture ?? '';
         sessionModel.chatName = channelDB.name ?? messageDB.groupId;
