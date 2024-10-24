@@ -126,12 +126,7 @@ class CommonScanPageState extends State<CommonScanPage> with SingleTickerProvide
                           SizedBox(
                             height: Adapt.px(20),
                           ),
-                          CommonImage(
-                            iconName: 'icon_business_card.png',
-                            width: Adapt.px(54),
-                            height: Adapt.px(54),
-                            useTheme: true,
-                          ),
+                          _itemView('icon_business_card.png'),
                           SizedBox(
                             height: Adapt.px(7),
                           ),
@@ -163,12 +158,7 @@ class CommonScanPageState extends State<CommonScanPage> with SingleTickerProvide
                           SizedBox(
                             height: Adapt.px(20),
                           ),
-                          CommonImage(
-                            iconName: 'icon_scan_qr.png',
-                            width: Adapt.px(54),
-                            height: Adapt.px(54),
-                            useTheme: true,
-                          ),
+                          _itemView('icon_scan_qr.png'),
                           SizedBox(
                             height: Adapt.px(7),
                           ),
@@ -190,6 +180,29 @@ class CommonScanPageState extends State<CommonScanPage> with SingleTickerProvide
           ),
         ],
       ),
+    );
+  }
+
+
+  Widget _itemView(String iconName) {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Center(
+          child: CommonImage(
+            iconName: 'icon_btn_bg.png',
+            size: 54.px,
+            color: ThemeColor.gray5,
+          ),
+        ),
+        Center(
+          child: CommonImage(
+            iconName: iconName,
+            size: 24.px,
+            color: ThemeColor.color0,
+          ),
+        ),
+      ],
     );
   }
 
