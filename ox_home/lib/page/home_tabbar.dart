@@ -44,8 +44,10 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
   GlobalKey<ContactBasePageState> contactGlobalKey = GlobalKey();
 
   GlobalKey<TranslucentNavigationBarState> tabBarGlobalKey = GlobalKey();
-  bool _isBottomNavigationBarVisible = true;
   double _previousScrollOffset = 0.0;
+  double _bottomNavOffset = 0.0;
+  final double _bottomNavHeight = 72.0;
+  final double _bottomNavMargin = 24.0.px;
 
   List<TabViewInfo> tabViewInfo = [
     TabViewInfo(
@@ -86,12 +88,14 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
   Widget build(BuildContext context) {
     return Scaffold(
       extendBody: true,
-      bottomNavigationBar: TranslucentNavigationBar(
-        key: tabBarGlobalKey,
-        onTap: (changeIndex, currentSelect) => _tabClick(changeIndex, currentSelect),
-        handleDoubleTap: (changeIndex, currentSelect) => _handleDoubleTap(changeIndex, currentSelect),
-        height: Adapt.px(72),
-        visible: _isBottomNavigationBarVisible,
+      bottomNavigationBar: Transform.translate(
+        offset: Offset(0, _bottomNavOffset),
+        child: TranslucentNavigationBar(
+          key: tabBarGlobalKey,
+          onTap: (changeIndex, currentSelect) => _tabClick(changeIndex, currentSelect),
+          handleDoubleTap: (changeIndex, currentSelect) => _handleDoubleTap(changeIndex, currentSelect),
+          height: _bottomNavHeight,
+        ),
       ),
       body: PageView(
         physics: const NeverScrollableScrollPhysics(),
@@ -147,24 +151,28 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
       onNotification: (scrollNotification) {
         if (scrollNotification.metrics.axis == Axis.vertical) {
           double currentOffset = scrollNotification.metrics.pixels;
+
           if (scrollNotification is ScrollUpdateNotification) {
             if (currentOffset < 0) {
               return false;
             }
-            if (currentOffset > _previousScrollOffset) {
-              if (_isBottomNavigationBarVisible) {
-                setState(() {
-                  _isBottomNavigationBarVisible = false;
-                });
+
+            double delta = currentOffset - _previousScrollOffset;
+
+            setState(() {
+              if (delta > 0) {
+                _bottomNavOffset += delta;
+                if (_bottomNavOffset > (_bottomNavHeight + _bottomNavMargin)) {
+                  _bottomNavOffset = _bottomNavHeight + _bottomNavMargin;
+                }
+              } else if (delta < 0) {
+                _bottomNavOffset += delta;
+                if (_bottomNavOffset < 0) {
+                  _bottomNavOffset = 0;
+                }
               }
-            }
+            });
             _previousScrollOffset = currentOffset;
-          } else if (scrollNotification is ScrollEndNotification) {
-            if (!_isBottomNavigationBarVisible) {
-              setState(() {
-                _isBottomNavigationBarVisible = true;
-              });
-            }
           }
         }
         return false;
