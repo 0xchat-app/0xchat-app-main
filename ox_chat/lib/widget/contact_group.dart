@@ -388,7 +388,7 @@ class _GroupContactListItemState extends State<GroupContactListItem> {
         if (showName.isEmpty) showName = Groups.encodeGroup(widget.item.groupId, null, null);
         break;
       case ChatType.chatRelayGroup:
-        RelayGroupDBISAR? tempRelayGroupDB = RelayGroup.sharedInstance.myGroups[widget.item.groupId];
+        RelayGroupDBISAR? tempRelayGroupDB = RelayGroup.sharedInstance.myGroups[widget.item.groupId]?.value;
         iconAvatar = OXRelayGroupAvatar(relayGroup: tempRelayGroupDB);
         showName = tempRelayGroupDB?.name ?? '';
         if (showName.isEmpty) showName = tempRelayGroupDB?.shortGroupId ?? '';

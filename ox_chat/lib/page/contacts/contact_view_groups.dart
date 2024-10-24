@@ -84,9 +84,9 @@ class _ContactViewGroupsState extends State<ContactViewGroups> with SingleTicker
         groups.add(tempUIModel);
       });
     }
-    Map<String, RelayGroupDBISAR> relayGroupMap = RelayGroup.sharedInstance.myGroups;
+    Map<String, ValueNotifier<RelayGroupDBISAR>> relayGroupMap = RelayGroup.sharedInstance.myGroups;
     if(relayGroupMap.length>0) {
-      List<RelayGroupDBISAR> tempRelayGroups = relayGroupMap.values.toList();
+      List<RelayGroupDBISAR> tempRelayGroups = relayGroupMap.values.map((e) => e.value).toList();
       tempRelayGroups.forEach((element) {
         GroupUIModel uIModel= GroupUIModel.relayGroupdbToUIModel(element);
         groups.add(uIModel);

@@ -278,7 +278,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
           mainAxisAlignment: MainAxisAlignment.start,
           children: getNotificationGroupNotesToMap.keys.map((String groupId) {
             RelayGroupDBISAR? groupDB =
-                RelayGroup.sharedInstance.myGroups[groupId];
+                RelayGroup.sharedInstance.myGroups[groupId]?.value;
             if(groupDB == null) return const SizedBox();
             return _groupNotificationItem(groupDB);
           }).toList(),

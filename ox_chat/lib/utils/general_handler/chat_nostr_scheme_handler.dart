@@ -116,7 +116,7 @@ class ChatNostrSchemeHandle {
         RelayGroupDBISAR? relayGroupDB;
         if (RelayGroup.sharedInstance.groups.containsKey(eventId)) {
            relayGroupDB =
-              RelayGroup.sharedInstance.groups[eventId];
+              RelayGroup.sharedInstance.groups[eventId]?.value;
         }
         if(relays != null && relays.isNotEmpty){
           relayGroupDB = await RelayGroup.sharedInstance

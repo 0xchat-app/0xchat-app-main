@@ -30,7 +30,7 @@ class ChatSessionUtils {
         if (showName.isEmpty) showName = Groups.encodeGroup(model.chatId, null, null);
         break;
       case ChatType.chatRelayGroup:
-        showName = RelayGroup.sharedInstance.groups[model.chatId]?.name ?? '';
+        showName = RelayGroup.sharedInstance.groups[model.chatId]?.value.name ?? '';
         if (showName.isEmpty) showName = RelayGroup.sharedInstance.encodeGroup(model.chatId) ?? '';
         break;
       case ChatType.chatNotice:
@@ -54,7 +54,7 @@ class ChatSessionUtils {
         showPicUrl = Groups.sharedInstance.groups[model.chatId]?.picture ?? '';
         break;
       case ChatType.chatRelayGroup:
-        showPicUrl = RelayGroup.sharedInstance.groups[model.chatId]?.picture ?? '';
+        showPicUrl = RelayGroup.sharedInstance.groups[model.chatId]?.value.picture ?? '';
         break;
     }
     return showPicUrl;
@@ -104,7 +104,7 @@ class ChatSessionUtils {
         }
         break;
       case ChatType.chatRelayGroup:
-        RelayGroupDBISAR? relayGroupDB = RelayGroup.sharedInstance.groups[model.chatId];
+        RelayGroupDBISAR? relayGroupDB = RelayGroup.sharedInstance.groups[model.chatId]?.value;
         if (relayGroupDB != null) {
           isMute = relayGroupDB.mute;
         }
@@ -123,7 +123,7 @@ class ChatSessionUtils {
         iconName = 'icon_type_private_group.png';
         break;
       case ChatType.chatRelayGroup:
-        RelayGroupDBISAR? relayGroupDB = RelayGroup.sharedInstance.groups[chatId];
+        RelayGroupDBISAR? relayGroupDB = RelayGroup.sharedInstance.groups[chatId]?.value;
         if (relayGroupDB != null){
           if (relayGroupDB.closed){
             iconName = 'icon_type_close_group.png';
@@ -151,7 +151,7 @@ class ChatSessionUtils {
         isMute = groupDB?.mute ?? false;
         return isMute;
       case ChatType.chatRelayGroup:
-        RelayGroupDBISAR? relayGroupDB = RelayGroup.sharedInstance.myGroups[message.groupId];
+        RelayGroupDBISAR? relayGroupDB = RelayGroup.sharedInstance.myGroups[message.groupId]?.value;
         isMute = relayGroupDB?.mute ?? false;
         return isMute;
       default:

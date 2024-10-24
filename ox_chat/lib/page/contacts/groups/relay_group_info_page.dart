@@ -579,7 +579,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
       await OXLoading.dismiss();
       if (!event.status) return CommonToast.instance.show(context, event.message);
       setState(() {
-        RelayGroupDBISAR? groupDB = RelayGroup.sharedInstance.groups[widget.groupId];
+        RelayGroupDBISAR? groupDB = RelayGroup.sharedInstance.groups[widget.groupId]?.value;
         if (groupDB != null) {
           groupDBInfo = groupDB;
         }
@@ -602,7 +602,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
       await OXLoading.dismiss();
       if (!event.status) return CommonToast.instance.show(context, event.message);
       setState(() {
-        RelayGroupDBISAR? groupDB = RelayGroup.sharedInstance.groups[widget.groupId];
+        RelayGroupDBISAR? groupDB = RelayGroup.sharedInstance.groups[widget.groupId]?.value;
         if (groupDB != null) {
           groupDBInfo = groupDB;
         }
@@ -754,7 +754,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
 
   void _groupInfoInit() {
     String groupId = widget.groupId;
-    RelayGroupDBISAR? groupDB = RelayGroup.sharedInstance.groups[groupId];
+    RelayGroupDBISAR? groupDB = RelayGroup.sharedInstance.groups[groupId]?.value;
     if (groupDB != null) {
       groupDBInfo = groupDB;
       _isMute = groupDB.mute;
