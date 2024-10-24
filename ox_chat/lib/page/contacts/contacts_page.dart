@@ -7,6 +7,7 @@ import 'package:ox_chat/page/contacts/contact_view_friends.dart';
 import 'package:ox_chat/page/contacts/contact_view_groups.dart';
 import 'package:ox_chat/page/contacts/groups/relay_group_request.dart';
 import 'package:ox_chat/page/session/search_page.dart';
+import 'package:ox_chat/page/session/unified_search_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -258,7 +259,7 @@ class _ContractsPageState extends ContactBasePageState<ContractsPage>
       children: [
         InkWell(
           onTap: () {
-            SearchPage(searchPageType: SearchPageType.all).show(context);
+            UnifiedSearchPage().show(context);
           },
           child: Container(
             width: double.infinity,

@@ -29,6 +29,19 @@ enum SearchItemType {
   message,
 }
 
+enum SearchType {
+  chat(label: 'Chats'),
+  contact(label: 'Contact'),
+  group(label: 'Groups'),
+  ecash(label: 'Ecash'),
+  media(label: 'Media'),
+  link(label: 'Links');
+
+  final String label;
+
+  const SearchType({required this.label});
+}
+
 class Group {
   final String title;
   final SearchItemType type;
