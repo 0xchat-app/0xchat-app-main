@@ -92,9 +92,9 @@ class _ContactViewGroupsState extends State<ContactViewGroups> with SingleTicker
         groups.add(uIModel);
       });
     }
-    Map<String, ChannelDBISAR> channelsMap = Channels.sharedInstance.myChannels;
+    Map<String, ValueNotifier<ChannelDBISAR>> channelsMap = Channels.sharedInstance.myChannels;
     if (channelsMap.length > 0) {
-      List<ChannelDBISAR> channels = channelsMap.values.toList();
+      List<ChannelDBISAR> channels = channelsMap.values.map((e) => e.value).toList();
       channels.forEach((element) {
         GroupUIModel uIModel= GroupUIModel.channeldbToUIModel(element);
         groups.add(uIModel);

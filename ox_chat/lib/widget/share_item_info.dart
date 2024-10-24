@@ -26,7 +26,7 @@ mixin ShareItemInfoMixin {
     String showName = '';
     switch (item.chatType) {
       case ChatType.chatChannel:
-        showName = Channels.sharedInstance.channels[item.chatId]?.name ?? '';
+        showName = Channels.sharedInstance.channels[item.chatId]?.value.name ?? '';
         break;
       case ChatType.chatSingle:
       case ChatType.chatSecret:
@@ -88,7 +88,7 @@ mixin ShareItemInfoMixin {
       String localAvatarPath = '';
       switch (item.chatType) {
         case ChatType.chatChannel:
-          showPicUrl = Channels.sharedInstance.channels[item.chatId]?.picture ?? '';
+          showPicUrl = Channels.sharedInstance.channels[item.chatId]?.value.picture ?? '';
           localAvatarPath = 'icon_group_default.png';
           break;
         case ChatType.chatSingle:

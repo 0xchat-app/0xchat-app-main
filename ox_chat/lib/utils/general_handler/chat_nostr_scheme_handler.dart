@@ -92,7 +92,7 @@ class ChatNostrSchemeHandle {
       case 40:
         if (Channels.sharedInstance.channels.containsKey(eventId)) {
           return channelToMessageContent(
-              Channels.sharedInstance.channels[eventId]);
+              Channels.sharedInstance.channels[eventId]?.value);
         } else if (event != null) {
           Channel channel = Nip28.getChannelCreation(event);
           ChannelDBISAR channelDB =

@@ -18,7 +18,7 @@ class ChatSessionUtils {
     String showName = '';
     switch (model.chatType) {
       case ChatType.chatChannel:
-        showName = Channels.sharedInstance.channels[model.chatId]?.name ?? '';
+        showName = Channels.sharedInstance.channels[model.chatId]?.value.name ?? '';
         if (showName.isEmpty) showName = Channels.encodeChannel(model.chatId, null, null);
         break;
       case ChatType.chatSingle:
@@ -44,7 +44,7 @@ class ChatSessionUtils {
     String showPicUrl = '';
     switch (model.chatType) {
       case ChatType.chatChannel:
-        showPicUrl = Channels.sharedInstance.channels[model.chatId]?.picture ?? '';
+        showPicUrl = Channels.sharedInstance.channels[model.chatId]?.value.picture ?? '';
         break;
       case ChatType.chatSingle:
       case ChatType.chatSecret:
@@ -85,7 +85,7 @@ class ChatSessionUtils {
     bool isMute = false;
     switch (model.chatType) {
       case ChatType.chatChannel:
-        ChannelDBISAR? channelDB = Channels.sharedInstance.channels[model.chatId];
+        ChannelDBISAR? channelDB = Channels.sharedInstance.channels[model.chatId]?.value;
         if (channelDB != null) {
           isMute = channelDB.mute ?? false;
         }
@@ -143,7 +143,7 @@ class ChatSessionUtils {
     bool isMute = false;
     switch (type) {
       case ChatType.chatChannel:
-        ChannelDBISAR? channelDB = Channels.sharedInstance.channels[message.groupId];
+        ChannelDBISAR? channelDB = Channels.sharedInstance.channels[message.groupId]?.value;
         isMute = channelDB?.mute ?? false;
         return isMute;
       case ChatType.chatGroup:

@@ -394,7 +394,7 @@ class _GroupContactListItemState extends State<GroupContactListItem> {
         if (showName.isEmpty) showName = tempRelayGroupDB?.shortGroupId ?? '';
         break;
       case ChatType.chatChannel:
-        ChannelDBISAR? tempChannelDB = Channels.sharedInstance.channels[widget.item.groupId];
+        ChannelDBISAR? tempChannelDB = Channels.sharedInstance.channels[widget.item.groupId]?.value;
         iconAvatar = OXChannelAvatar(channel: tempChannelDB);
         showName = tempChannelDB?.name ?? '';
         if (showName.isEmpty) showName = tempChannelDB?.shortChannelId ?? '';
