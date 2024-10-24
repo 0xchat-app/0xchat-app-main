@@ -174,7 +174,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
         ),
         TabModel(
           onTap: () => _onChangedMute(!_isMute),
-          iconName: _isMute ? 'icon_session_mute.png' : 'icon_mute.png',
+          iconName: _isMute ? 'icon_mute.png' : 'icon_unmute.png',
           content: _isMute ? Localized.text('ox_chat.un_mute_item') : Localized.text('ox_chat.mute_item'),
         ),
         if (widget.chatId != null)
@@ -331,6 +331,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
               width: Adapt.px(24),
               height: Adapt.px(24),
               package: 'ox_chat',
+              color: ThemeColor.color100,
             ),
             SizedBox(
               height: Adapt.px(2),

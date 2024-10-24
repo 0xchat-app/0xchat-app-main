@@ -34,7 +34,7 @@ extension ChatSessionListPageUI on ChatSessionListPageState{
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    assetIcon(isMuteCurrent ? 'icon_mute.png' : 'icon_session_mute.png', 32, 32, color: ThemeColor.color0),
+                    assetIcon(isMuteCurrent ? 'icon_unmute.png' : 'icon_mute.png', 32, 32, color: ThemeColor.color0),
                     Text(
                       (isMuteCurrent ? 'un_mute_item' : 'mute_item').localized(),
                       style: TextStyle(color: Colors.white, fontSize: Adapt.px(12)),
@@ -150,7 +150,7 @@ extension ChatSessionListPageUI on ChatSessionListPageState{
                                     _buildItemName(item),
                                     if (_getChatSessionMute(item))
                                       CommonImage(
-                                        iconName: 'icon_session_mute.png',
+                                        iconName: 'icon_mute.png',
                                         width: Adapt.px(16),
                                         height: Adapt.px(16),
                                         package: 'ox_chat',

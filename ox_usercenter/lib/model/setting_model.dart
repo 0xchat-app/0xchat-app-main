@@ -22,7 +22,7 @@ class SettingModel {
   static List<SettingModel> getItemData(List<SettingModel> settingModelList){
     settingModelList.clear();
     settingModelList.add(SettingModel(
-      iconName: 'icon_mute.png',
+      iconName: 'icon_settings_notification.png',
       title: 'ox_usercenter.notifications',
       rightContent: '',
       settingItemType: SettingItemType.messageNotification,

@@ -115,7 +115,6 @@ class _ChatNewMessagePageState extends State<ChatNewMessagePage>
               child: CommonImage(
                 iconName: model.iconName,
                 size: 24.px,
-                useTheme: true,
                 color: ThemeColor.color100,
               ),
             ),

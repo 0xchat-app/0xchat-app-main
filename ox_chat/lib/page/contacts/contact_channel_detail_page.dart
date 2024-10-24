@@ -439,7 +439,7 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
                                         color: ThemeColor.color160,
                                       ),
                                       _itemView(
-                                        iconName: 'icon_mute.png',
+                                        iconName: 'icon_unmute.png',
                                         iconPackage: 'ox_common',
                                         type: OtherInfoItemType.Mute,
                                       ),

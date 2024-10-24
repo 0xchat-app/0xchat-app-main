@@ -337,7 +337,7 @@ Widget itemView(String iconName, String title, String rightContent, bool showDiv
               iconName: iconName,
               width: Adapt.px(32),
               height: Adapt.px(32),
-              package: iconName == 'icon_mute.png' ? 'ox_common' : 'ox_usercenter',
+              package: 'ox_usercenter',
             ),
             title: Text(
               Localized.text(title),
