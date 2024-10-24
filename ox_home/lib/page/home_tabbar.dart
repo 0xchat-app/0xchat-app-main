@@ -161,12 +161,12 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
 
             setState(() {
               if (delta > 0) {
-                _bottomNavOffset += delta;
+                _bottomNavOffset += delta / 2;
                 if (_bottomNavOffset > (_bottomNavHeight + _bottomNavMargin)) {
                   _bottomNavOffset = _bottomNavHeight + _bottomNavMargin;
                 }
               } else if (delta < 0) {
-                _bottomNavOffset += delta;
+                _bottomNavOffset += delta / 2;
                 if (_bottomNavOffset < 0) {
                   _bottomNavOffset = 0;
                 }
