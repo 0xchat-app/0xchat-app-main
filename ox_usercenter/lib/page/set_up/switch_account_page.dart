@@ -122,7 +122,6 @@ class _SwitchAccountPageState extends State<SwitchAccountPage> {
           await OXLoading.dismiss();
           _selectedIndex = index;
           setState(() {});
-          OXNavigator.pop(context);
         }
       },
       child: Container(
