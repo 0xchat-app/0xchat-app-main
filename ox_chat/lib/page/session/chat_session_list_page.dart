@@ -39,6 +39,7 @@ import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_pull_refresher.dart';
 import 'package:ox_common/widgets/highlighted_clickable_text.dart';
 import 'package:ox_localizable/ox_localizable.dart';
+import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_theme/ox_theme.dart';
 
 part 'chat_session_list_page_ui.dart';
@@ -215,7 +216,11 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                 package: 'ox_chat',
               ),
               onTap: () {
-                OXNavigator.pushPage(context, (context) => ChatNewMessagePage(), fullscreenDialog: true);
+                if (_isLogin) {
+                  OXNavigator.pushPage(context, (context) => ChatNewMessagePage(), fullscreenDialog: true);
+                } else {
+                  OXModuleService.pushPage(context, "ox_login", "LoginPage", {});
+                }
               },
             ),
             SizedBox(
