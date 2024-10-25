@@ -14,6 +14,27 @@ import 'package:ox_common/widgets/common_image.dart';
 ///@author Michael
 ///CreateTime: 2024/4/1 07:58
 class ChatSessionUtils {
+  static ValueNotifier? getChatValueNotifier(ChatSessionModelISAR model) {
+    ValueNotifier? valueNotifier;
+
+    switch (model.chatType) {
+      case ChatType.chatSingle:
+      case ChatType.chatSecret:
+        valueNotifier = Account.sharedInstance.getUserNotifier(model.getOtherPubkey);
+        break;
+      case ChatType.chatChannel:
+        valueNotifier = Channels.sharedInstance.getChannelNotifier(model.chatId);
+        break;
+      case ChatType.chatGroup:
+        valueNotifier = Groups.sharedInstance.getPrivateGroupNotifier(model.chatId);
+        break;
+      case ChatType.chatRelayGroup:
+        valueNotifier = RelayGroup.sharedInstance.getRelayGroupNotifier(model.chatId);
+        break;
+    }
+    return valueNotifier;
+  }
+
   static String getChatName(ChatSessionModelISAR model) {
     String showName = '';
     switch (model.chatType) {

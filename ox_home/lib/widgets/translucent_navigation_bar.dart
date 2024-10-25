@@ -99,6 +99,14 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
   final List<GlobalKey> _navItemKeyList = [GlobalKey(), GlobalKey(), GlobalKey()];
   List<MultipleUserModel> _userCacheList = [];
 
+  double navOffset = 0.0;
+
+  void updateOffset(double offset) {
+    setState(() {
+      navOffset = offset;
+    });
+  }
+
   isHasVibrator() async {
     hasVibrator = (await Vibrate.canVibrate);
   }
@@ -155,7 +163,9 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return Transform.translate(
+      offset: Offset(0, navOffset),
+      child: Container(
       margin: EdgeInsets.symmetric(
         vertical: widget.verticalPadding ?? 24.px,
         horizontal: widget.horizontalPadding ?? 20.px,
@@ -180,7 +190,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
         ],
       ),
       child: createTabContainer(_tabBarList, middleIndex),
-    );
+    ),);
   }
 
   Widget createTabContainer(
