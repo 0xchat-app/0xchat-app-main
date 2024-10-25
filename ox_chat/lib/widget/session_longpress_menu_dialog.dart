@@ -115,6 +115,8 @@ class _SessionLongPressMenuDialogState extends State<SessionLongPressMenuDialog>
       child: ListView.builder(
         shrinkWrap: true,
         reverse: true,
+        padding: EdgeInsets.zero,
+        physics: const NeverScrollableScrollPhysics(),
         itemCount: _menulist.length,
         itemBuilder: (context, index) {
           SessionMenuOptionModel model = _menulist[index];

@@ -8,6 +8,7 @@ import 'package:ox_chat/page/session/chat_relay_group_msg_page.dart';
 import 'package:ox_chat/page/session/chat_secret_message_page.dart';
 import 'package:ox_chat/widget/common_chat_nav_bar.dart';
 import 'package:ox_chat/widget/common_chat_widget.dart';
+import 'package:ox_chat/widget/contact_longpress_menu_dialog.dart';
 import 'package:ox_chat/widget/not_contact_top_widget.dart';
 import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
 import 'package:ox_chat/widget/session_longpress_menu_dialog.dart';
@@ -39,6 +40,7 @@ class ChatMessagePage extends StatefulWidget {
     int? unreadMessageCount,
     bool isPushWithReplace = false,
     bool isLongPressShow = false,
+    int fromWhere = 0,//0 session; 1 contact.
   }) async {
 
     final handler = ChatGeneralHandler(
@@ -82,6 +84,9 @@ class ChatMessagePage extends StatefulWidget {
     if (pageWidget == null) return ;
     if (isLongPressShow){
       handler.isPreviewMode = true;
+      if (fromWhere == 1){
+        return ContactLongPressMenuDialog.showDialog(context: context, communityItem: communityItem, pageWidget: pageWidget);
+      }
       return SessionLongPressMenuDialog.showDialog(context: context, communityItem: communityItem, pageWidget: pageWidget);
     }
     if (isPushWithReplace) {

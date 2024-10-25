@@ -63,6 +63,7 @@ class _ContractViewFriendsState extends State<ContractViewFriends>
           physics: widget.physics,
           topWidget: widget.topWidget,
           bgColor: widget.bgColor,
+          supportLongPress: true,
         ),
     );
   }

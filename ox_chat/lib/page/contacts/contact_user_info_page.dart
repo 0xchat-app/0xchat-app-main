@@ -91,7 +91,7 @@ extension MoreOptionTypeEx on EMoreOptionType {
   String get icon {
     switch (this) {
       case EMoreOptionType.contactStatus:
-        return "delete_icon.png";
+        return "icon_chat_delete.png";
       case EMoreOptionType.message:
         return 'chat_clear.png';
       case EMoreOptionType.messageTimer:
@@ -1461,6 +1461,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
                   iconName: type.icon,
                   size: 24.px,
                   package: 'ox_chat',
+                  color: ThemeColor.color100,
                 ),
               ],
             ),

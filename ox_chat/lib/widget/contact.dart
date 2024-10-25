@@ -38,6 +38,7 @@ class ContactWidget extends StatefulWidget {
   ScrollPhysics? physics;
   final Widget? topWidget;
   final Color? bgColor;
+  final bool supportLongPress;
 
   ContactWidget({
     Key? key,
@@ -49,6 +50,7 @@ class ContactWidget extends StatefulWidget {
     this.physics,
     this.topWidget,
     this.bgColor,
+    this.supportLongPress = false,
   }) : super(key: key);
 
   @override
@@ -164,7 +166,7 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
             shrinkWrap: widget.shrinkWrap,
             controller: scrollController,
           ),
-          userList == null || userList!.isEmpty
+          userList.isEmpty
               ? SizedBox()
               : Container(
                   child: _buildAlphaBar(),
@@ -285,7 +287,7 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
         ),
       );
     }
-    if (userList == null || userList!.isEmpty) {
+    if (userList.isEmpty) {
       slivers.add(SliverToBoxAdapter(child: _emptyWidget()));
     } else {
       noteList.forEach((item) {
@@ -305,6 +307,7 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
                     editable: widget.editable,
                     onCheckChanged: _onCheckChangedListener,
                     hostName: widget.hostName,
+                    supportLongPress: widget.supportLongPress,
                   );
                 },
                 childCount: item.childList.length,
@@ -385,12 +388,14 @@ class ContractListItem extends StatefulWidget {
   final bool editable;
 
   String hostName = ''; //The current domain
+  final bool supportLongPress;
 
   ContractListItem({
     required this.item,
     this.editable = false,
     this.onCheckChanged,
     this.hostName = 'ox.com',
+    this.supportLongPress = false,
   });
 
   @override
@@ -401,12 +406,35 @@ class ContractListItem extends StatefulWidget {
 
 class _ContractListItemState extends State<ContractListItem> {
   bool isChecked = false;
+  ValueNotifier<double> valueNotifier = ValueNotifier(1.0);
 
   void _onCheckChanged() {
     setState(() {
       isChecked = !isChecked;
     });
     widget.onCheckChanged(isChecked, widget.item);
+  }
+
+  void _itemLongPress() async {
+    if (widget.supportLongPress && widget.item.pubKey.isNotEmpty) {
+      valueNotifier.value = 0.96;
+      await Future.delayed(Duration(milliseconds: 80));
+      valueNotifier.value = 1.0;
+      await Future.delayed(Duration(milliseconds: 80));
+      UserDBISAR? userDB = Contacts.sharedInstance.allContacts[widget.item.pubKey] as UserDBISAR;
+      ChatMessagePage.open(
+        context: context,
+        communityItem: ChatSessionModelISAR(
+          chatId: userDB.pubKey,
+          chatName: userDB.name,
+          sender: OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey,
+          receiver: userDB.pubKey,
+          chatType: ChatType.chatSingle,
+        ),
+        isLongPressShow: true,
+        fromWhere: 1,
+      );
+    }
   }
 
   void _onItemClick() async {
@@ -451,61 +479,82 @@ class _ContractListItemState extends State<ContractListItem> {
             24.0,
             useTheme: true,
           );
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onTap: widget.editable ? _onCheckChanged : _onItemClick,
-      child: Container(
-        width: double.infinity,
-        height: itemHeight,
-        padding: EdgeInsets.only(left: Adapt.px(24.0), top: Adapt.px(10.0), bottom: Adapt.px(10.0)),
-        child: Row(
-          children: <Widget>[
-            widget.editable
-                ? Container(
-                    margin: EdgeInsets.only(right: Adapt.px(7.0)),
-                    child: checkWidget,
-                  )
-                : SizedBox(),
-            Stack(
-              children: [
-                iconAvatar,
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: FutureBuilder<BadgeDBISAR?>(
-                    builder: (context, snapshot) {
-                      return (snapshot.data !=null) ? OXCachedNetworkImage(
-                        imageUrl: snapshot.data?.thumb ?? '',
-                        errorWidget: (context, url, error) => badgePlaceholderImage,
-                        width: Adapt.px(20),
-                        height: Adapt.px(20),
-                        fit: BoxFit.cover,
-                      ) : SizedBox();
-                    },
-                    future: _getUserSelectedBadgeInfo(widget.item),
+    return ValueListenableBuilder<double>(
+      valueListenable: valueNotifier,
+      builder: (context, scale, child) {
+        return GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: widget.editable ? _onCheckChanged : _onItemClick,
+          onLongPress: _itemLongPress,
+          child: AnimatedScale(
+            scale: scale,
+            duration: Duration(milliseconds: 80),
+            curve: Curves.easeOut,
+            child: Container(
+              width: double.infinity,
+              height: itemHeight,
+              padding: EdgeInsets.only(
+                  left: Adapt.px(24.0),
+                  top: Adapt.px(10.0),
+                  bottom: Adapt.px(10.0)),
+              child: Row(
+                children: <Widget>[
+                  widget.editable
+                      ? Container(
+                          margin: EdgeInsets.only(right: Adapt.px(7.0)),
+                          child: checkWidget,
+                        )
+                      : SizedBox(),
+                  Stack(
+                    children: [
+                      iconAvatar,
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: FutureBuilder<BadgeDBISAR?>(
+                          builder: (context, snapshot) {
+                            return (snapshot.data != null)
+                                ? OXCachedNetworkImage(
+                                    imageUrl: snapshot.data?.thumb ?? '',
+                                    errorWidget: (context, url, error) =>
+                                        badgePlaceholderImage,
+                                    width: Adapt.px(20),
+                                    height: Adapt.px(20),
+                                    fit: BoxFit.cover,
+                                  )
+                                : SizedBox();
+                          },
+                          future: _getUserSelectedBadgeInfo(widget.item),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
-            Container(
-              width: Adapt.screenW - Adapt.px(120),
-              margin: EdgeInsets.only(left: Adapt.px(16.0)),
-              child: ValueListenableBuilder<UserDBISAR>(
-                valueListenable: Account.sharedInstance.getUserNotifier(widget.item.pubKey),
-                builder: (context, value, child) {
-                  return MyText(
-                    (widget.item.nickName != null && widget.item.nickName!.isNotEmpty) ? widget.item.nickName! : widget.item.name ?? '',
-                    18,
-                    ThemeColor.white02,
-                    fontWeight: FontWeight.bold,
-                    overflow: TextOverflow.ellipsis,
-                  );
-                },
+                  Container(
+                    width: Adapt.screenW - Adapt.px(120),
+                    margin: EdgeInsets.only(left: Adapt.px(16.0)),
+                    child: ValueListenableBuilder<UserDBISAR>(
+                      valueListenable: Account.sharedInstance
+                          .getUserNotifier(widget.item.pubKey),
+                      builder: (context, value, child) {
+                        return MyText(
+                          (widget.item.nickName != null &&
+                                  widget.item.nickName!.isNotEmpty)
+                              ? widget.item.nickName!
+                              : widget.item.name ?? '',
+                          18,
+                          ThemeColor.white02,
+                          fontWeight: FontWeight.bold,
+                          overflow: TextOverflow.ellipsis,
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
