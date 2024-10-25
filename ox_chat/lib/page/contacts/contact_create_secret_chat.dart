@@ -320,7 +320,6 @@ class _ContactCreateSecret extends State<ContactCreateSecret> {
         ChatSessionModelISAR? chatModel =
             await OXChatBinding.sharedInstance.localCreateSecretChat(db);
         if (chatModel != null) {
-          OXNavigator.pop(context);
           ChatMessagePage.open(
             context: context,
             communityItem: chatModel,
