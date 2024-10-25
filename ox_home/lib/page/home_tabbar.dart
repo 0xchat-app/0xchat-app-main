@@ -108,18 +108,12 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
   List<Widget> _containerView(BuildContext context) {
     return tabViewInfo.map(
       (TabViewInfo tabModel) {
-        return NotificationListener<MsgNotification>(
-          onNotification: (notification) {
-            if(tabBarGlobalKey.currentState == null) return false;
-            return tabBarGlobalKey.currentState!.updateNotificationListener(notification);
-          },
-          child: Container(
-            constraints: const BoxConstraints.expand(
-              width: double.infinity,
-              height: double.infinity,
-            ),
-            child: _showPage(tabModel),
+        return Container(
+          constraints: const BoxConstraints.expand(
+            width: double.infinity,
+            height: double.infinity,
           ),
+          child: _showPage(tabModel),
         );
       },
     ).toList();
@@ -146,7 +140,6 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
       [context],
       params
     ) ?? const SizedBox();
-
     return NotificationListener<ScrollNotification>(
       onNotification: (scrollNotification) {
         if (scrollNotification.metrics.axis == Axis.vertical) {
@@ -159,19 +152,20 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
 
             double delta = currentOffset - _previousScrollOffset;
 
-            setState(() {
-              if (delta > 0) {
-                _bottomNavOffset += delta / 2;
-                if (_bottomNavOffset > (_bottomNavHeight + _bottomNavMargin)) {
-                  _bottomNavOffset = _bottomNavHeight + _bottomNavMargin;
-                }
-              } else if (delta < 0) {
-                _bottomNavOffset += delta / 2;
-                if (_bottomNavOffset < 0) {
-                  _bottomNavOffset = 0;
-                }
+            if (delta > 0) {
+              _bottomNavOffset += delta / 2;
+              if (_bottomNavOffset > (_bottomNavHeight + _bottomNavMargin)) {
+                _bottomNavOffset = _bottomNavHeight + _bottomNavMargin;
               }
-            });
+            } else if (delta < 0) {
+              _bottomNavOffset += delta / 2;
+              if (_bottomNavOffset < 0) {
+                _bottomNavOffset = 0;
+              }
+            }
+            if (tabBarGlobalKey.currentState != null) {
+              tabBarGlobalKey.currentState!.updateOffset(_bottomNavOffset);
+            }
             _previousScrollOffset = currentOffset;
           }
         }
