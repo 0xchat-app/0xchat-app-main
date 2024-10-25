@@ -133,7 +133,6 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
     return model;
   }
 
-
   final ScrollController _scrollController = ScrollController();
   Image _avatarPlaceholderImage = Image.asset(
     'assets/images/icon_user_default.png',
@@ -192,7 +191,6 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
     _initModelList();
     getShareLink();
     tabController = TabController(length: 3, vsync: this);
-
   }
 
   @override
@@ -224,19 +222,16 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
     if (myPubkey != widget.pubkey)
       modelList = [
         TabModel(
-          onTap: (){
+          onTap: () {
             if (userDB.pubKey ==
                 OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
-            return  CommonToast.instance.show(context, "Don't call yourself");
+              return CommonToast.instance.show(context, "Don't call yourself");
             }
             OXModuleService.pushPage(
               context,
               'ox_calling',
               'CallPage',
-              {
-                'userDB': userDB,
-                'media': CallMessageType.audio.text
-              },
+              {'userDB': userDB, 'media': CallMessageType.audio.text},
             );
           },
           iconName: 'icon_chat_call.png',
@@ -247,16 +242,13 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
           onTap: () {
             if (userDB.pubKey ==
                 OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
-              return  CommonToast.instance.show(context, "Don't call yourself");
+              return CommonToast.instance.show(context, "Don't call yourself");
             }
             OXModuleService.pushPage(
               context,
               'ox_calling',
               'CallPage',
-              {
-                'userDB': userDB,
-                'media': CallMessageType.audio.text
-              },
+              {'userDB': userDB, 'media': CallMessageType.audio.text},
             );
           },
           content: 'Video',
@@ -363,7 +355,8 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
                                 userDB.about == 'null'
                             ? SizedBox()
                             : _bioOrPubKeyWidget(
-                                OtherInfoItemType.Bio, userDB.about ?? '').setPaddingOnly(top: 16.px),
+                                    OtherInfoItemType.Bio, userDB.about ?? '')
+                                .setPaddingOnly(top: 16.px),
                         _delOrAddFriendBtnView().setPaddingOnly(top: 16.px),
                         if (myPubkey != widget.pubkey) _blockStatusBtnView(),
                       ],
@@ -401,17 +394,21 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
           body: TabBarView(
             controller: tabController,
             children: [
-              ContactMediaWidget(userDB: userDB,),
+              ContactMediaWidget(
+                userDB: userDB,
+              ),
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 24.px),
                 child: OXModuleService.invoke(
                   'ox_discovery',
                   'showPersonMomentsPage',
                   [context],
-                  {#userDB:userDB},
+                  {#userDB: userDB},
                 ),
               ),
-              ContactGroupsWidget(userDB: userDB,),
+              ContactGroupsWidget(
+                userDB: userDB,
+              ),
               // ContactLinksWidget(),
             ],
           ).setPaddingOnly(top: 8.px),
@@ -545,59 +542,51 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
       ),
       padding: EdgeInsets.symmetric(
           horizontal: Adapt.px(16), vertical: Adapt.px(12)),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Container(
-            alignment: Alignment.topLeft,
-            margin: EdgeInsets.only(bottom: Adapt.px(4)),
-            child: Text(
-              type.text,
-              style: TextStyle(
-                fontSize: Adapt.px(14),
-                color: ThemeColor.color100,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            crossAxisAlignment: CrossAxisAlignment.center,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
+              Container(
+                alignment: Alignment.topLeft,
+                margin: EdgeInsets.only(bottom: Adapt.px(4)),
                 child: Text(
-                  content,
+                  type.text,
                   style: TextStyle(
-                      fontSize: Adapt.px(14),
-                      color: ThemeColor.color0,
-                      fontWeight: FontWeight.w400),
-                  maxLines: null,
+                    fontSize: Adapt.px(14),
+                    color: ThemeColor.color100,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
-              type == OtherInfoItemType.Link
-                  ? GestureDetector(
-                      behavior: HitTestBehavior.translucent,
-                      onTap: () {
-                        OXModuleService.invoke(
-                            'ox_chat', 'showMyIdCardDialog', [context]);
-                      },
-                      child: Container(
-                        width: Adapt.px(48),
-                        alignment: Alignment.center,
-                        child: CommonImage(
-                          iconName: 'icon_qrcode.png',
-                          width: Adapt.px(24),
-                          height: Adapt.px(24),
-                          fit: BoxFit.fill,
-                          package: 'ox_usercenter',
-                          color: ThemeColor.color100,
-                        ),
-                      ),
-                    )
-                  : Container(),
+              Text(
+                content,
+                style: TextStyle(
+                    fontSize: Adapt.px(14),
+                    color: ThemeColor.color0,
+                    fontWeight: FontWeight.w400),
+                maxLines: null,
+              ),
             ],
           ),
+          type == OtherInfoItemType.Link
+              ? GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: () {
+                    OXModuleService.invoke(
+                        'ox_chat', 'showMyIdCardDialog', [context],{#otherUser:userDB});
+                  },
+                  child: CommonImage(
+                    iconName: 'icon_qrcode.png',
+                    width: 20.px,
+                    height: 20.px,
+                    fit: BoxFit.fill,
+                    package: 'ox_usercenter',
+                    color: ThemeColor.color100,
+                  ),
+                )
+              : Container(),
         ],
       ),
     );

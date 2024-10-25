@@ -135,10 +135,11 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
         titleSpacing: 0.0,
         actions: _actionWidget(),
         title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(
-              width: Adapt.px(24),
-            ),
+            // SizedBox(
+            //   width: Adapt.px(24),
+            // ),
             GestureDetector(
               onTap: () {
                 setState(() {
@@ -158,31 +159,31 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
                     ]),
               ),
             ),
-            SizedBox(
-              width: Adapt.px(24),
-            ),
-            GestureDetector(
-              onTap: () {
-                setState(() {
-                  pageType = EDiscoveryPageType.channel;
-                });
-              },
-              child: Container(
-                constraints: BoxConstraints(maxWidth: discoveryMm),
-                child: GradientText(Localized.text('ox_discovery.group'),
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: Adapt.px(20),
-                        color: ThemeColor.titleColor),
-                    colors: [
-                      pageType == EDiscoveryPageType.channel ? ThemeColor.gradientMainStart : ThemeColor.color120,
-                      pageType == EDiscoveryPageType.channel ? ThemeColor.gradientMainEnd : ThemeColor.color120,
-                    ]),
-              ),
-            ),
-            SizedBox(
-              width: Adapt.px(24),
-            ),
+            // SizedBox(
+            //   width: Adapt.px(24),
+            // ),
+            // GestureDetector(
+            //   onTap: () {
+            //     setState(() {
+            //       pageType = EDiscoveryPageType.channel;
+            //     });
+            //   },
+            //   child: Container(
+            //     constraints: BoxConstraints(maxWidth: discoveryMm),
+            //     child: GradientText(Localized.text('ox_discovery.group'),
+            //         style: TextStyle(
+            //             fontWeight: FontWeight.bold,
+            //             fontSize: Adapt.px(20),
+            //             color: ThemeColor.titleColor),
+            //         colors: [
+            //           pageType == EDiscoveryPageType.channel ? ThemeColor.gradientMainStart : ThemeColor.color120,
+            //           pageType == EDiscoveryPageType.channel ? ThemeColor.gradientMainEnd : ThemeColor.color120,
+            //         ]),
+            //   ),
+            // ),
+            // SizedBox(
+            //   width: Adapt.px(24),
+            // ),
           ],
         ),
       ),
