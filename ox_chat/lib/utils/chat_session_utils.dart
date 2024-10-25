@@ -14,8 +14,8 @@ import 'package:ox_common/widgets/common_image.dart';
 ///@author Michael
 ///CreateTime: 2024/4/1 07:58
 class ChatSessionUtils {
-  static ValueNotifier getChatValueNotifier(ChatSessionModelISAR model) {
-    late ValueNotifier valueNotifier;
+  static ValueNotifier? getChatValueNotifier(ChatSessionModelISAR model) {
+    ValueNotifier? valueNotifier;
 
     switch (model.chatType) {
       case ChatType.chatSingle:
