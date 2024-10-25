@@ -248,7 +248,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
               context,
               'ox_calling',
               'CallPage',
-              {'userDB': userDB, 'media': CallMessageType.audio.text},
+              {'userDB': userDB, 'media': CallMessageType.video.text},
             );
           },
           content: 'Video',
@@ -560,13 +560,17 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
                   ),
                 ),
               ),
-              Text(
-                content,
-                style: TextStyle(
+              Container(
+                width:  MediaQuery.of(context).size.width - 110.px,
+                child: Text(
+                  content,
+                  style: TextStyle(
                     fontSize: Adapt.px(14),
                     color: ThemeColor.color0,
-                    fontWeight: FontWeight.w400),
-                maxLines: null,
+                    fontWeight: FontWeight.w400,
+                  ),
+                  maxLines: null,
+                ),
               ),
             ],
           ),
@@ -574,8 +578,8 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
               ? GestureDetector(
                   behavior: HitTestBehavior.translucent,
                   onTap: () {
-                    OXModuleService.invoke(
-                        'ox_chat', 'showMyIdCardDialog', [context],{#otherUser:userDB});
+                    OXModuleService.invoke('ox_chat', 'showMyIdCardDialog',
+                        [context], {#otherUser: userDB});
                   },
                   child: CommonImage(
                     iconName: 'icon_qrcode.png',
@@ -1037,6 +1041,26 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
     );
   }
 
+  void _clearMessage() async {
+    OXCommonHintDialog.show(context,
+        title: 'Clear Message',
+        content: 'Confirm whether to delete all records of the chat ?',
+        actionList: [
+          OXCommonHintAction.cancel(onTap: () {
+            OXNavigator.pop(context);
+          }),
+          OXCommonHintAction.sure(
+              text: Localized.text('ox_common.confirm'),
+              onTap: () async {
+                String myPubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
+                Messages.deleteSingleChatMessagesFromDB(myPubkey, userDB.pubKey);
+                Messages.deleteSingleChatMessagesFromDB(userDB.pubKey, myPubkey);
+                OXNavigator.popToRoot(context);
+              }),
+        ],
+        isRowAction: true);
+  }
+
   void _removeFriend() async {
     OXCommonHintDialog.show(context,
         title: Localized.text('ox_chat.remove_contacts'),
@@ -1459,6 +1483,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
           _selectTimeDialog();
           break;
         case EMoreOptionType.message:
+          _clearMessage();
           break;
         case EMoreOptionType.secretChat:
           OXNavigator.presentPage(

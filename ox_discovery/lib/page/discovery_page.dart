@@ -3,6 +3,8 @@ import 'dart:ui';
 
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/business_interface/ox_chat/interface.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_discovery/enum/group_type.dart';
@@ -54,6 +56,8 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
 
   GroupType _groupType = GroupType.openGroup;
 
+  String saveMomentFilterKey = 'momentFilterKey';
+
 
   EDiscoveryPageType pageType = EDiscoveryPageType.moment;
 
@@ -61,7 +65,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
   GlobalKey<PublicMomentsPageState> publicMomentPageKey = GlobalKey<PublicMomentsPageState>();
   GlobalKey<GroupsPageState> groupsPageState = GlobalKey<GroupsPageState>();
 
-  EPublicMomentsPageType publicMomentsPageType = EPublicMomentsPageType.all;
+  EPublicMomentsPageType publicMomentsPageType = EPublicMomentsPageType.contacts;
 
   bool _isLogin = false;
 
@@ -70,6 +74,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
     super.initState();
     OXUserInfoManager.sharedInstance.addObserver(this);
     _isLogin = OXUserInfoManager.sharedInstance.isLogin;
+    getMomentPublicFilter();
   }
 
   void _momentPublic(bool isChangeToDiscovery){
@@ -393,45 +398,10 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
         mainAxisSize: MainAxisSize.min,
         children: [
           _buildMomentItem(
-            isSelect: publicMomentsPageType == EPublicMomentsPageType.all,
-            EPublicMomentsPageType.all.text,
-            index: 0,
-            onTap: () {
-              OXNavigator.pop(context);
-              if(mounted){
-                publicMomentsPageType = EPublicMomentsPageType.all;
-              }
-            },
-          ),
-          Divider(
-            color: ThemeColor.color170,
-            height: Adapt.px(0.5),
-          ),
-          _buildMomentItem(
             isSelect: publicMomentsPageType == EPublicMomentsPageType.contacts,
             EPublicMomentsPageType.contacts.text,
             index: 1,
-            onTap: () {
-              OXNavigator.pop(context);
-              if(mounted){
-                publicMomentsPageType = EPublicMomentsPageType.contacts;
-              }
-            },
-          ),
-          Divider(
-            color: ThemeColor.color170,
-            height: Adapt.px(0.5),
-          ),
-          _buildMomentItem(
-            isSelect: publicMomentsPageType == EPublicMomentsPageType.follows,
-            EPublicMomentsPageType.follows.text,
-            index: 1,
-            onTap: () {
-              OXNavigator.pop(context);
-              if(mounted){
-                publicMomentsPageType = EPublicMomentsPageType.follows;
-              }
-            },
+            onTap: () => setMomentPublicFilter(EPublicMomentsPageType.contacts),
           ),
           Divider(
             color: ThemeColor.color170,
@@ -441,12 +411,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
             isSelect: publicMomentsPageType == EPublicMomentsPageType.reacted,
             EPublicMomentsPageType.reacted.text,
             index: 1,
-            onTap: () {
-              OXNavigator.pop(context);
-              if(mounted){
-                publicMomentsPageType = EPublicMomentsPageType.reacted;
-              }
-            },
+            onTap: () => setMomentPublicFilter(EPublicMomentsPageType.reacted),
           ),
           Divider(
             color: ThemeColor.color170,
@@ -456,12 +421,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
             isSelect: publicMomentsPageType == EPublicMomentsPageType.private,
             EPublicMomentsPageType.private.text,
             index: 1,
-            onTap: () {
-              OXNavigator.pop(context);
-              if(mounted){
-                publicMomentsPageType = EPublicMomentsPageType.private;
-              }
-            },
+            onTap: () => setMomentPublicFilter(EPublicMomentsPageType.private),
           ),
           Divider(
             color: ThemeColor.color170,
@@ -480,6 +440,25 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
         ],
       ),
     );
+  }
+
+
+
+  void setMomentPublicFilter(EPublicMomentsPageType type)async {
+    OXNavigator.pop(context);
+    await OXCacheManager.defaultOXCacheManager.saveForeverData(saveMomentFilterKey, type.changeInt);
+    if(mounted){
+      publicMomentsPageType = type;
+    }
+  }
+
+  void getMomentPublicFilter()async {
+   final result = await OXCacheManager.defaultOXCacheManager
+        .getForeverData(saveMomentFilterKey);
+   if(result != null){
+     publicMomentsPageType = EPublicMomentsPageTypeEx.getEnumType(result);
+     setState(() {});
+   }
   }
 
   Widget _buildMomentItem(String title,

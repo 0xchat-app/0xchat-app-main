@@ -67,12 +67,16 @@ class ContactGroupsWidgetState extends State<ContactGroupsWidget> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                groups[index].name,
-                style: TextStyle(
-                  color: ThemeColor.color0,
-                  fontSize: 14.px,
-                  fontWeight: FontWeight.w600,
+              Container(
+                width: 200.px,
+                child: Text(
+                  groups[index].name,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: ThemeColor.color0,
+                    fontSize: 14.px,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ).setPaddingOnly(bottom: 2.px),
               Text(

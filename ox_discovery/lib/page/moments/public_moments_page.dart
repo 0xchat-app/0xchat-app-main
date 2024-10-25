@@ -28,21 +28,41 @@ import 'moments_page.dart';
 import 'notifications_moments_page.dart';
 import 'package:flutter/services.dart';
 
-enum EPublicMomentsPageType { all, contacts, follows, reacted, private }
+enum EPublicMomentsPageType { contacts, reacted, private }
 
 extension EPublicMomentsPageTypeEx on EPublicMomentsPageType {
   String get text {
     switch (this) {
-      case EPublicMomentsPageType.all:
-        return Localized.text('ox_discovery.all');
       case EPublicMomentsPageType.contacts:
         return 'Contacts';
-      case EPublicMomentsPageType.follows:
-        return 'Follows';
       case EPublicMomentsPageType.reacted:
         return 'Liked & Zapped';
       case EPublicMomentsPageType.private:
         return 'Private';
+    }
+  }
+
+  int get changeInt {
+    switch (this) {
+      case EPublicMomentsPageType.contacts:
+        return 0;
+      case EPublicMomentsPageType.reacted:
+        return 1;
+      case EPublicMomentsPageType.private:
+        return 2;
+    }
+  }
+
+  static EPublicMomentsPageType getEnumType(int type) {
+    switch (type) {
+      case 0:
+        return EPublicMomentsPageType.contacts;
+      case 1:
+        return EPublicMomentsPageType.reacted;
+      case 2:
+        return EPublicMomentsPageType.private;
+      default:
+        return EPublicMomentsPageType.contacts;
     }
   }
 }
@@ -50,7 +70,7 @@ extension EPublicMomentsPageTypeEx on EPublicMomentsPageType {
 class PublicMomentsPage extends StatefulWidget {
   final EPublicMomentsPageType publicMomentsPageType;
   const PublicMomentsPage(
-      {Key? key, this.publicMomentsPageType = EPublicMomentsPageType.all})
+      {Key? key, this.publicMomentsPageType = EPublicMomentsPageType.contacts})
       : super(key: key);
 
   @override
@@ -462,12 +482,8 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
   Future<List<NoteDBISAR>> _getNoteTypeToDB(bool isInit) async {
     int? until = isInit ? null : _allNotesFromDBLastTimestamp;
     switch (widget.publicMomentsPageType) {
-      case EPublicMomentsPageType.all:
-        return await Moment.sharedInstance.loadAllNotesFromDB(until: until, limit: _limit) ?? [];
       case EPublicMomentsPageType.contacts:
         return await Moment.sharedInstance.loadContactsNotesFromDB(until: until, limit: _limit) ?? [];
-      case EPublicMomentsPageType.follows:
-        return await Moment.sharedInstance.loadFollowsNotesFromDB(until: until, limit: _limit) ?? [];
       case EPublicMomentsPageType.reacted:
         return await Moment.sharedInstance.loadMyReactedNotesFromDB(until: until, limit: _limit) ?? [];
       case EPublicMomentsPageType.private:
@@ -477,12 +493,8 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
 
   Future<List<NoteDBISAR>> _getNoteTypeToRelay() async {
     switch (widget.publicMomentsPageType) {
-      case EPublicMomentsPageType.all:
-        return await Moment.sharedInstance.loadAllNewNotesFromRelay(until: _allNotesFromDBLastTimestamp, limit: _limit) ?? [];
       case EPublicMomentsPageType.contacts:
         return await Moment.sharedInstance.loadContactsNewNotesFromRelay(until: _allNotesFromDBLastTimestamp, limit: _limit) ?? [];
-      case EPublicMomentsPageType.follows:
-        return await Moment.sharedInstance.loadFollowsNewNotesFromRelay(until: _allNotesFromDBLastTimestamp, limit: _limit) ?? [];
       case EPublicMomentsPageType.reacted:
         return [];
       case EPublicMomentsPageType.private:
