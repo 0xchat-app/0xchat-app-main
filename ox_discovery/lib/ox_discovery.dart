@@ -50,13 +50,15 @@ class OXDiscovery extends OXFlutterModule {
       case 'jumpPublicMomentWidget':
         return OXNavigator.pushPage(context,
                 (context) => PublicMomentsPage());
+      case 'discoveryPageWidget':
+        return OXNavigator.pushPage(context,
+                (context) => DiscoveryPage());
     }
     return null;
   }
 
-  Widget discoveryPageWidget(BuildContext context,
-      {required GlobalKey discoveryGlobalKey}) {
-    return DiscoveryPage(key: discoveryGlobalKey);
+  Widget discoveryPageWidget(BuildContext context) {
+    return DiscoveryPage();
   }
 
   Widget momentRichTextWidget(

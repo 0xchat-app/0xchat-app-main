@@ -24,10 +24,12 @@ import 'package:ox_localizable/ox_localizable.dart';
 class MyIdCardDialog extends StatefulWidget {
   int type; // 0 Friend QRCode， 1 Channel QRCode
   ChannelDBISAR? channelDB;
+  UserDBISAR? otherUser;
 
   MyIdCardDialog({
     int? type,
     this.channelDB,
+    this.otherUser,
   }) : this.type = type ?? CommonConstant.qrCodeUser;
 
   @override
@@ -58,14 +60,21 @@ class _MyIdCardDialogState extends BasePageState<MyIdCardDialog> {
   String get routeName => 'MyIdCardDialog';
 
   void _initData() async {
-    List<String> relayAddressList = await Account.sharedInstance.getMyGeneralRelayList().map((e) => e.url).toList();
+    List<String> relayAddressList;
+    if(widget.otherUser != null){
+      relayAddressList = await Account.sharedInstance.getUserGeneralRelayList(widget.otherUser?.pubKey ?? '');
+    }else{
+      relayAddressList = Account.sharedInstance.getMyGeneralRelayList().map((e) => e.url).toList();
+
+    }
     List<String> relayList = relayAddressList.take(5).toList();
     if (widget.type == CommonConstant.qrCodeUser) {
-      _showName = OXUserInfoManager.sharedInstance.currentUserInfo?.name ?? '';
-      _imgUrl = OXUserInfoManager.sharedInstance.currentUserInfo?.picture ?? '';
+
+      _showName = widget.otherUser?.name ??  OXUserInfoManager.sharedInstance.currentUserInfo?.name ?? '';
+      _imgUrl = widget.otherUser?.picture ?? OXUserInfoManager.sharedInstance.currentUserInfo?.picture ?? '';
       _showScanHint = 'str_scan_user_qrcode_hint'.localized();
       final nostrValue = Account.encodeProfile(
-        OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '',
+        widget.otherUser?.pubKey ?? OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '',
         relayList,
       );
       _userQrCodeUrl = CustomURIHelper.createNostrURI(nostrValue);

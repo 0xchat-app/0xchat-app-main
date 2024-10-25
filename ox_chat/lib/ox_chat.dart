@@ -179,12 +179,12 @@ class OXChat extends OXFlutterModule {
     return RelayInfoWidget(showRelayIcon: showRelayIcon);
   }
 
-  void _showMyIdCardDialog(BuildContext context) {
+  void _showMyIdCardDialog(BuildContext context,{UserDBISAR? otherUser}) {
     showDialog(
         context: context,
         barrierDismissible: true,
         builder: (BuildContext context) {
-          return MyIdCardDialog();
+          return MyIdCardDialog(otherUser:otherUser);
         });
   }
 

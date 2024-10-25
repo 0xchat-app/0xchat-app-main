@@ -49,7 +49,7 @@ extension UserCenterPageUI on UserCenterPageState{
                   OXModuleService.pushPage(
                     context,
                     'ox_discovery',
-                    'jumpPublicMomentWidget',
+                    'discoveryPageWidget',
                     {}
                   );
                 },

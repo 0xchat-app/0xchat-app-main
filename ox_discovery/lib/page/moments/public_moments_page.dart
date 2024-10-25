@@ -103,6 +103,8 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
     isLogin = OXUserInfoManager.sharedInstance.isLogin;
     OXUserInfoManager.sharedInstance.addObserver(this);
     OXMomentManager.sharedInstance.addObserver(this);
+    Moment.sharedInstance.updateSubscriptions();
+
     ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
     updateNotesList(true);
     _notificationUpdateNotes(OXMomentManager.sharedInstance.notes);
@@ -122,6 +124,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
   @override
   void dispose() {
     refreshController.dispose();
+    Moment.sharedInstance.closeSubscriptions();
     OXUserInfoManager.sharedInstance.removeObserver(this);
     OXMomentManager.sharedInstance.removeObserver(this);
     super.dispose();
@@ -134,37 +137,30 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
   @override
   Widget build(BuildContext context) {
     if (!isLogin) return _noLoginWidget();
-    return Scaffold(
-      backgroundColor: ThemeColor.color200,
-      appBar: CommonAppBar(
-        backgroundColor: ThemeColor.color200,
-        title: '',
-      ),
-      body: Stack(
-        children: [
-          OXSmartRefresher(
-            scrollController: momentScrollController,
-            controller: refreshController,
-            enablePullDown: true,
-            enablePullUp: true,
-            onRefresh: () => updateNotesList(true),
-            onLoading: () => updateNotesList(false),
-            child: _getMomentListWidget(),
-          ),
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: Column(
-                children: [
-                  _newMomentTipsWidget(),
-                ],
-              ),
+    return Stack(
+      children: [
+        OXSmartRefresher(
+          scrollController: momentScrollController,
+          controller: refreshController,
+          enablePullDown: true,
+          enablePullUp: true,
+          onRefresh: () => updateNotesList(true),
+          onLoading: () => updateNotesList(false),
+          child: _getMomentListWidget(),
+        ),
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          child: Center(
+            child: Column(
+              children: [
+                _newMomentTipsWidget(),
+              ],
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
