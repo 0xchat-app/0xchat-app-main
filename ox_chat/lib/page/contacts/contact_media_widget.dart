@@ -85,7 +85,7 @@ class ContactMediaWidgetState extends State<ContactMediaWidget> {
 
   Widget _noDataWidget() {
     return Container(
-      height: 300.px,
+      height: 200.px,
       padding: EdgeInsets.only(
         top: 100.px,
       ),
