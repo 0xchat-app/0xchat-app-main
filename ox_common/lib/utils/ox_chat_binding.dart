@@ -176,11 +176,8 @@ class OXChatBinding {
 
   void _syncGroupChat(ChatSessionModelISAR sessionModel, MessageDBISAR messageDB) {
     sessionModel.chatId = messageDB.groupId;
-    if (messageDB.chatType == 4) {
-      sessionModel.chatType = ChatType.chatRelayGroup;
-    } else {
-      sessionModel.chatType = messageDB.chatType ?? ChatType.chatChannel;
-    }
+    sessionModel.chatType = ChatType.convertMessageChatType(messageDB.chatType!);
+
     ChatSessionModelISAR? tempModel = sessionMap[messageDB.groupId];
     if (tempModel != null) {
       if (messageDB.createTime >= tempModel.createTime) {
@@ -195,12 +192,12 @@ class OXChatBinding {
       sessionMap[messageDB.groupId] = tempModel;
       ChatSessionModelISAR.saveChatSessionModelToDB(tempModel);
     } else {
-      if (messageDB.chatType == null || messageDB.chatType == ChatType.chatChannel) {
+      if (messageDB.chatType == null || sessionModel.chatType == ChatType.chatChannel) {
         ChannelDBISAR? channelDB = Channels.sharedInstance.myChannels[messageDB.groupId]?.value;
         if (channelDB == null) return;
         sessionModel.avatar = channelDB.picture ?? '';
         sessionModel.chatName = channelDB.name ?? messageDB.groupId;
-      } else if (messageDB.chatType == null || messageDB.chatType == ChatType.chatRelayGroup) {
+      } else if (messageDB.chatType == null || sessionModel.chatType == ChatType.chatRelayGroup) {
         RelayGroupDBISAR? relayGroupDB = RelayGroup.sharedInstance.myGroups[messageDB.groupId]?.value;
         if (relayGroupDB == null) return;
         sessionModel.avatar = relayGroupDB.picture ?? '';
