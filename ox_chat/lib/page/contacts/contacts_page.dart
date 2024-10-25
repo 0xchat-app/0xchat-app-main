@@ -1,5 +1,6 @@
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_chat/model/search_chat_model.dart';
 import 'package:ox_chat/page/contacts/contact_qrcode_add_friend.dart';
 import 'package:ox_chat/page/contacts/contact_request.dart';
 import 'package:ox_chat/page/contacts/contact_view_channels.dart';
@@ -259,7 +260,11 @@ class _ContractsPageState extends ContactBasePageState<ContractsPage>
       children: [
         InkWell(
           onTap: () {
-            UnifiedSearchPage().show(context);
+            UnifiedSearchPage(
+              initialIndex: _selectedType == ContactsItemType.contact
+                  ? SearchType.contact.index
+                  : SearchType.group.index,
+            ).show(context);
           },
           child: Container(
             width: double.infinity,

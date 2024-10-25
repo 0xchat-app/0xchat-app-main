@@ -14,7 +14,9 @@ import 'package:ox_localizable/ox_localizable.dart';
 import 'package:chatcore/chat-core.dart';
 
 class UnifiedSearchPage extends StatefulWidget {
-  const UnifiedSearchPage({super.key});
+  final int initialIndex;
+
+  const UnifiedSearchPage({super.key, this.initialIndex = 0});
 
   @override
   State<UnifiedSearchPage> createState() => _UnifiedSearchPageState();
@@ -35,7 +37,11 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
   @override
   void initState() {
     super.initState();
-    _controller = TabController(length: SearchType.values.length, vsync: this);
+    _controller = TabController(
+      length: SearchType.values.length,
+      vsync: this,
+      initialIndex: widget.initialIndex,
+    );
   }
 
   void _loadContactsData() async {
