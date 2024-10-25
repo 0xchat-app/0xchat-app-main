@@ -354,10 +354,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
                           height: Adapt.px(16),
                         ),
                         _tabContainerView(),
-                        SizedBox(
-                          height: Adapt.px(16),
-                        ),
-                        _contentList(),
+                        // _contentList(),
                         _bioOrPubKeyWidget(
                                 OtherInfoItemType.Link, _userQrCodeUrl)
                             .setPaddingOnly(top: 16.px),
@@ -554,7 +551,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
         children: [
           Container(
             alignment: Alignment.topLeft,
-            margin: EdgeInsets.only(bottom: Adapt.px(12)),
+            margin: EdgeInsets.only(bottom: Adapt.px(4)),
             child: Text(
               type.text,
               style: TextStyle(
