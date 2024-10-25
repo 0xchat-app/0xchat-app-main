@@ -184,6 +184,8 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
 
   String _userQrCodeUrl = '';
   late TabController tabController;
+
+  final GlobalKey _moreIconKey = GlobalKey();
   @override
   void initState() {
     super.initState();
@@ -452,6 +454,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
       onTap: onTap,
       onTapDown: (details) => onTapDown?.call(details),
       child: Container(
+        key: iconName == 'icon_more_gray.png' ? _moreIconKey : null,
         padding: EdgeInsets.symmetric(
           vertical: Adapt.px(8),
         ),
@@ -1412,28 +1415,21 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
   }
 
   void _showMoreOptionMore(BuildContext context, Offset position) async {
-    final RenderBox overlay =
-        Overlay.of(context).context.findRenderObject() as RenderBox;
-    // List<EMomentMoreOptionType> optionList = momentOptionMoreList;
-    // String noteAuthor = notedUIModel?.value?.noteDB.author ?? '';
-    // String btnContent = '';
-    // bool isInBlocklist = Contacts.sharedInstance.inBlockList(noteAuthor);
-    // String myPubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
-    // if(myPubkey.toUpperCase() != noteAuthor.toUpperCase()){
-    //   btnContent = isInBlocklist
-    //       ? Localized.text('ox_chat.message_menu_un_block')
-    //       : Localized.text('ox_chat.message_menu_block');
-    //   optionList = [...momentOptionMoreList, ...[EMomentMoreOptionType.block]];
-    // }
+    final RenderBox iconBox = _moreIconKey.currentContext?.findRenderObject() as RenderBox;
+    final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
+
+    final Offset iconPosition = iconBox.localToGlobal(Offset.zero, ancestor: overlay);
+    final Size iconSize = iconBox.size;
+    final RelativeRect position = RelativeRect.fromLTRB(
+      iconPosition.dx - iconSize.width,                                 // left
+      iconPosition.dy + iconSize.height + 2,                // top
+      overlay.size.width - iconPosition.dx - iconSize.width,             // right
+      overlay.size.height - (iconPosition.dy + iconSize.height) + 2, // bottom
+    );
 
     await showMenu(
       context: context,
-      position: RelativeRect.fromLTRB(
-        position.dx,
-        position.dy + 10,
-        overlay.size.width - position.dx,
-        overlay.size.height - position.dy + 10,
-      ),
+      position: position,
       color: ThemeColor.color180,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(16.0)),
