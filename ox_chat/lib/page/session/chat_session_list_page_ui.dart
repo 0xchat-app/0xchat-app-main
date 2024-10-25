@@ -254,16 +254,17 @@ extension ChatSessionListPageUI on ChatSessionListPageState{
 
   Widget _buildItemName(ChatSessionModelISAR item) {
     late Widget nameView;
-    String showName = ChatSessionUtils.getChatName(item);
-    if (item.chatType == ChatType.chatSingle || item.chatType == ChatType.chatSecret){
-      nameView = ValueListenableBuilder<UserDBISAR>(
-        valueListenable: Account.sharedInstance.getUserNotifier(item.getOtherPubkey),
+    ValueNotifier tempValueNotifier = ChatSessionUtils.getChatValueNotifier(item);
+    if (item.chatType == ChatType.chatNotice) {
+      nameView = MyText(item.chatName ?? '', 16.px, ThemeColor.color10, textAlign: TextAlign.left, maxLines: 1, overflow: TextOverflow.ellipsis, fontWeight: FontWeight.w600);
+    } else {
+      nameView = ValueListenableBuilder(
+        valueListenable: tempValueNotifier,
         builder: (context, value, child) {
-          return MyText(showName, 16.px, ThemeColor.color10, textAlign: TextAlign.left, maxLines: 1, overflow: TextOverflow.ellipsis, fontWeight: FontWeight.w600);
+          LogUtil.e('Michael:-------value.name =${value.name ?? ''}--------');
+          return MyText(value.name ?? '', 16.px, ThemeColor.color10, textAlign: TextAlign.left, maxLines: 1, overflow: TextOverflow.ellipsis, fontWeight: FontWeight.w600);
         },
       );
-    } else {
-      nameView =MyText(showName, 16.px, ThemeColor.color10, textAlign: TextAlign.left, maxLines: 1, overflow: TextOverflow.ellipsis, fontWeight: FontWeight.w600);
     }
     return Container(
       margin: EdgeInsets.only(right: Adapt.px(4)),
