@@ -44,7 +44,7 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
     );
   }
 
-  void _loadContactsData() async {
+  void _loadContactsData() {
     List<UserDBISAR>? contactList = SearchTxtUtil.loadChatFriendsWithSymbol(_searchQuery);
     if (contactList != null && contactList.length > 0) {
       _searchResult[SearchType.contact] = contactList;
@@ -56,6 +56,7 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
     if (chatMessageList.isNotEmpty) {
       _searchResult[SearchType.chat] = chatMessageList;
     }
+    setState(() {});
   }
 
   void _loadGroupsData() async {
