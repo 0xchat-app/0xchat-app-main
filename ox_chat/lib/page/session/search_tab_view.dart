@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ox_chat/model/group_ui_model.dart';
-import 'package:ox_chat/model/recent_search_user_isar.dart';
 import 'package:ox_chat/model/search_chat_model.dart';
-import 'package:ox_chat/model/search_history_model_isar.dart';
 import 'package:ox_chat/widget/search_tab_grouped_view.dart';
-import 'package:ox_common/log_util.dart';
 import 'package:ox_common/mixin/common_state_view_mixin.dart';
-import 'package:ox_common/model/chat_type.dart';
 import 'package:chatcore/chat-core.dart';
 
 class SearchTabView extends StatefulWidget {
@@ -65,11 +61,14 @@ class _SearchTabViewState extends State<SearchTabView> with CommonStateViewMixin
   Widget _buildContentView() {
     switch (widget.type) {
       case SearchType.chat:
-        List<GroupedModel<ChatMessage>> groupedChatMessages = _groupedChatMessage();
-        return ChatMessageGroupedListView(
-          data: groupedChatMessages,
-          searchQuery: widget.searchQuery,
-        );
+        if (widget.data is List<GroupedModel<ChatMessage>>) {
+          final data = widget.data as List<GroupedModel<ChatMessage>>;
+          return ChatMessageGroupedListView(
+            data: data,
+            searchQuery: widget.searchQuery,
+          );
+        }
+        break;
       case SearchType.contact:
         if (widget.data is List<GroupedModel<UserDBISAR>>) {
           final data = widget.data as List<GroupedModel<UserDBISAR>>;
@@ -117,59 +116,4 @@ class _SearchTabViewState extends State<SearchTabView> with CommonStateViewMixin
     }
     setState(() {});
   }
-
-  List<GroupedModel<ChatMessage>> _groupedChatMessage() {
-    List<GroupedModel<ChatMessage>> groupedChatMessage = [];
-    GroupedModel<ChatMessage> personChatMessage = GroupedModel(title: 'Person', items: []);
-    GroupedModel<ChatMessage> groupChatMessage = GroupedModel(title: 'Group', items: []);
-    GroupedModel<ChatMessage> channelChatMessage = GroupedModel(title: 'Channel', items: []);
-    GroupedModel<ChatMessage> otherChatMessage = GroupedModel(title: 'Other', items: []);
-    if (widget.data is List<ChatMessage>) {
-      List<ChatMessage> messages = widget.data as List<ChatMessage>;
-      for (var message in messages) {
-        if (message.chatType == ChatType.chatSingle) {
-          personChatMessage.items.add(message);
-        } else if (message.chatType == ChatType.chatGroup ||
-            message.chatType == ChatType.chatRelayGroup) {
-          groupChatMessage.items.add(message);
-        } else if (message.chatType == ChatType.chatChannel) {
-          channelChatMessage.items.add(message);
-        } else {
-          otherChatMessage.items.add(message);
-        }
-      }
-    }
-    groupedChatMessage.add(personChatMessage);
-    groupedChatMessage.add(groupChatMessage);
-    groupedChatMessage.add(channelChatMessage);
-    groupedChatMessage.add(otherChatMessage);
-
-    return groupedChatMessage;
-  }
-
-  Future<void> _updateSearchHistory(UserDBISAR? userDB) async {
-    final userPubkey = userDB?.pubKey;
-    if (userPubkey != null) {
-      await DBISAR.sharedInstance.saveToDB(RecentSearchUserISAR(pubKey: userPubkey));
-    } else {
-      await DBISAR.sharedInstance.saveToDB(SearchHistoryModelISAR(
-        searchTxt: widget.searchQuery,
-        pubKey: userDB?.pubKey ?? null,
-        name: userDB?.name ?? null,
-        picture: userDB?.picture ?? null,
-      ));
-      LogUtil.e('Michael: _updateSearchHistory count =');
-    }
-  }
 }
-
-class GridSearchTabContentView extends StatelessWidget {
-  const GridSearchTabContentView({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Placeholder();
-  }
-}
-
-
