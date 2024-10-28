@@ -366,7 +366,7 @@ class GroupsPageState extends State<GroupsPage>
               width: 8.px,
             ),
             Text(
-              Localized.text('ox_chat.search_discovery'),
+              'Please enter Group name',
               style: TextStyle(
                 fontWeight: FontWeight.w400,
                 fontSize: 15.sp,
