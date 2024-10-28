@@ -36,7 +36,6 @@ class AesEncryptUtils {
     final uint8list = hexToBytes(key);
     final decrypter = Encrypter(AES(Key(uint8list), mode: mode));
     final encrypted = Encrypted(encryptedBytes);
-    print('${StackTrace.current.toString()}');
     final iv = (nonce != null && nonce.isNotEmpty) ? IV.fromUtf8(nonce) : IV.allZerosOfLength(16);
     final decryptedBytes = decrypter.decryptBytes(encrypted, iv: iv);
     bytesCallback?.call(decryptedBytes);
