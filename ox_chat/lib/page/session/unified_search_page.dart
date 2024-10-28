@@ -5,6 +5,7 @@ import 'package:ox_chat/page/session/search_tab_view.dart';
 import 'package:ox_chat/utils/search_txt_util.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_chat/widget/search_tab_grouped_view.dart';
+import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
@@ -53,7 +54,7 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
 
   void _loadContactsData() {
     _contacts.clear();
-    List<UserDBISAR>? contactList = SearchTxtUtil.loadChatFriendsWithSymbol(_searchQuery);
+    List<UserDBISAR>? contactList = SearchTxtUtil.loadChatFriendsWithSymbol(searchQuery);
     if (contactList != null && contactList.length > 0) {
       _contacts.add(
         GroupedModel(
@@ -86,16 +87,17 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
   }
 
   void _loadChatMessagesData({String? chatId}) async {
-    List<ChatMessage> chatMessageList = await SearchTxtUtil.loadChatMessagesWithSymbol(_searchQuery, chatId: chatId);
+    List<ChatMessage> chatMessageList = await SearchTxtUtil.loadChatMessagesWithSymbol(searchQuery, chatId: chatId);
     if (chatMessageList.isNotEmpty) {
-      _searchResult[SearchType.chat] = chatMessageList;
+      List<GroupedModel<ChatMessage>> groupedChatMessage = _groupedChatMessage(chatMessageList);
+      _searchResult[SearchType.chat] = groupedChatMessage;
     }
     setState(() {});
   }
 
   void _loadGroupsData() async {
     _groups.clear();
-    List<GroupUIModel>? groupList = await SearchTxtUtil.loadChatGroupWithSymbol(_searchQuery);
+    List<GroupUIModel>? groupList = await SearchTxtUtil.loadChatGroupWithSymbol(searchQuery);
     if (groupList != null && groupList.length > 0) {
       _groups.add(GroupedModel<GroupUIModel>(title: 'Groups', items: groupList));
       _searchResult[SearchType.group] = _groups;
@@ -103,7 +105,7 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
   }
 
   void _loadChannelsData() async {
-    List<ChannelDBISAR>? channelList = SearchTxtUtil.loadChatChannelsWithSymbol(_searchQuery);
+    List<ChannelDBISAR>? channelList = SearchTxtUtil.loadChatChannelsWithSymbol(searchQuery);
     if (channelList != null && channelList.length > 0) {
       _channels.add(GroupedModel<ChannelDBISAR>(title: 'Channels', items: channelList));
       _searchResult[SearchType.channel] = _channels;
@@ -111,6 +113,8 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
   }
 
   void _loadOnlineGroupsAndChannelsData() async {
+    _groups.clear();
+    _channels.clear();
     if (searchQuery.startsWith('nevent') ||
         searchQuery.startsWith('naddr') ||
         searchQuery.startsWith('nostr:') ||
@@ -136,7 +140,6 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
           }
         }
       }
-
       _searchResult[SearchType.group] = _groups;
       _searchResult[SearchType.channel] = _channels;
       if (mounted) {
@@ -152,7 +155,7 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
   }
 
   void _loadAllData() async {
-    if (_searchQuery.trim().isNotEmpty) {
+    if (searchQuery.trim().isNotEmpty) {
       _loadChatMessagesData();
       _loadContactsData();
       _loadGroupsData();
@@ -167,6 +170,33 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
   void _onTextChanged(value) {
     _searchQuery = value;
     _prepareData();
+  }
+
+  List<GroupedModel<ChatMessage>> _groupedChatMessage(List<ChatMessage> messages) {
+    List<GroupedModel<ChatMessage>> groupedChatMessage = [];
+    GroupedModel<ChatMessage> singleChatCategory = GroupedModel(title: 'Person', items: []);
+    GroupedModel<ChatMessage> groupChatCategory = GroupedModel(title: 'Group', items: []);
+    GroupedModel<ChatMessage> channelChatCategory = GroupedModel(title: 'Channel', items: []);
+    GroupedModel<ChatMessage> otherChatCategory = GroupedModel(title: 'Other', items: []);
+    for (var message in messages) {
+      if (message.chatType == ChatType.chatSingle) {
+        singleChatCategory.items.add(message);
+      } else if (message.chatType == ChatType.chatGroup ||
+          message.chatType == ChatType.chatRelayGroup) {
+        groupChatCategory.items.add(message);
+      } else if (message.chatType == ChatType.chatChannel) {
+        channelChatCategory.items.add(message);
+      } else {
+        otherChatCategory.items.add(message);
+      }
+    }
+
+    groupedChatMessage.add(singleChatCategory);
+    groupedChatMessage.add(groupChatCategory);
+    groupedChatMessage.add(channelChatCategory);
+    groupedChatMessage.add(otherChatCategory);
+
+    return groupedChatMessage;
   }
 
   @override
@@ -188,7 +218,7 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
                     (searchType) => SearchTabView(
                       data: _searchResult[searchType] ?? [],
                       type: searchType,
-                      searchQuery: _searchQuery,
+                      searchQuery: searchQuery,
                     ),
                   ).toList(),
             ),
@@ -256,15 +286,12 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
                 ),
               ),
             ),
-            onTap: () {
-              OXNavigator.pop(context);
-            },
+            onTap: () => OXNavigator.pop(context),
           ),
         ],
       ),
     );
   }
-
 
   @override
   void dispose() {

@@ -133,7 +133,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
     );
   }
 
-  Widget buildNavBar() {
+  PreferredSizeWidget buildNavBar() {
     return CommonChatNavBar(
       handler: handler,
       title: otherUser?.getUserShowName() ?? '',

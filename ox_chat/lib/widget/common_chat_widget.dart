@@ -36,7 +36,7 @@ class CommonChatWidget extends StatefulWidget {
   // Basic
 
   final ChatGeneralHandler handler;
-  final Widget? navBar;
+  final PreferredSizeWidget? navBar;
 
   // Custom
 
@@ -110,19 +110,20 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
   
   @override
   Widget build(BuildContext context) {
-    final content = Column(
-      children: [
-        widget.navBar ?? const SizedBox(),
-        Expanded(child: buildChatContentWidget())
-      ],
-    );
-
-    if (widget.handler.isPreviewMode) return content;
+    if (widget.handler.isPreviewMode) {
+      return Column(
+        children: [
+          widget.navBar ?? const SizedBox(),
+          Expanded(child: buildChatContentWidget()),
+        ],
+      );
+    }
 
     return Scaffold(
       backgroundColor: ThemeColor.color200,
       resizeToAvoidBottomInset: false,
-      body: content,
+      appBar: widget.navBar,
+      body: buildChatContentWidget(),
     );
   }
 

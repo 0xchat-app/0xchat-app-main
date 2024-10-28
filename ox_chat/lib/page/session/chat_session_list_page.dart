@@ -217,7 +217,7 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
               ),
               onTap: () {
                 if (_isLogin) {
-                  OXNavigator.pushPage(context, (context) => ChatNewMessagePage(), fullscreenDialog: true);
+                  OXNavigator.presentPage(context, (context) => ChatNewMessagePage());
                 } else {
                   OXModuleService.pushPage(context, "ox_login", "LoginPage", {});
                 }

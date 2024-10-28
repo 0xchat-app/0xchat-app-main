@@ -22,7 +22,6 @@ import '../../models/send_button_visibility_mode.dart';
 import '../../util.dart';
 import '../giphy/giphy_picker.dart';
 import '../state/inherited_chat_theme.dart';
-import '../state/inherited_l10n.dart';
 import 'attachment_button.dart';
 import 'input_more_page.dart';
 import 'input_text_field_controller.dart';
@@ -93,6 +92,7 @@ class Input extends StatefulWidget {
 class InputState extends State<Input>{
 
   final _itemSpacing = Adapt.px(12);
+  double get inputSuffixIconSize => 24.px;
 
   InputType inputType = InputType.inputTypeDefault;
   late final _inputFocusNode = FocusNode(
@@ -327,59 +327,61 @@ class InputState extends State<Input>{
       );
 
   Widget _buildInputTextField() =>
-      TextField(
-        enabled: widget.options.enabled,
-        autocorrect: widget.options.autocorrect,
-        enableSuggestions: widget.options.enableSuggestions,
-        controller: _textController,
-        cursorColor: InheritedChatTheme.of(context)
-            .theme
-            .inputTextCursorColor,
-        decoration: InheritedChatTheme.of(context)
-            .theme
-            .inputTextDecoration
-            .copyWith(
-          hintStyle: InheritedChatTheme.of(context)
+      Container(
+        constraints: BoxConstraints(minHeight: inputSuffixIconSize),
+        child: TextField(
+          enabled: widget.options.enabled,
+          autocorrect: widget.options.autocorrect,
+          enableSuggestions: widget.options.enableSuggestions,
+          controller: _textController,
+          cursorColor: InheritedChatTheme.of(context)
+              .theme
+              .inputTextCursorColor,
+          decoration: InheritedChatTheme.of(context)
+              .theme
+              .inputTextDecoration
+              .copyWith(
+            hintStyle: InheritedChatTheme.of(context)
+                .theme
+                .inputTextStyle
+                .copyWith(
+              color: InheritedChatTheme.of(context)
+                  .theme
+                  .inputTextColor
+                  .withOpacity(0.5),
+            ),
+            hintText: Localized.text('ox_chat_ui.chat_input_hint_text'),
+            // InheritedL10n.of(context).l10n.inputPlaceholder,
+          ),
+          focusNode: _inputFocusNode,
+          keyboardType: widget.options.keyboardType,
+          maxLines: 10,
+          minLines: 1,
+          onChanged: widget.options.onTextChanged,
+          onTap: (){
+            widget.options.onTextFieldTap;
+
+            setState(() {
+              inputType = InputType.inputTypeText;
+            });
+          },
+          style: InheritedChatTheme.of(context)
               .theme
               .inputTextStyle
               .copyWith(
             color: InheritedChatTheme.of(context)
                 .theme
-                .inputTextColor
-                .withOpacity(0.5),
+                .inputTextColor,
           ),
-          hintText:
-          Localized.text('ox_chat_ui.chat_input_hint_text'),
-          // InheritedL10n.of(context).l10n.inputPlaceholder,
-        ),
-        focusNode: _inputFocusNode,
-        keyboardType: widget.options.keyboardType,
-        maxLines: 10,
-        minLines: 1,
-        onChanged: widget.options.onTextChanged,
-        onTap: (){
-          widget.options.onTextFieldTap;
-
-          setState(() {
-            inputType = InputType.inputTypeText;
-          });
-        },
-        style: InheritedChatTheme.of(context)
-            .theme
-            .inputTextStyle
-            .copyWith(
-          color: InheritedChatTheme.of(context)
-              .theme
-              .inputTextColor,
-        ),
-        textCapitalization: TextCapitalization.sentences,
-        contentInsertionConfiguration:  ContentInsertionConfiguration(
-          allowedMimeTypes: const <String>['image/png', 'image/gif', 'image/webp'],
-          onContentInserted: (KeyboardInsertedContent data) async {
-            if (data.data != null) {
-              widget.onInsertedContent?.call(data);
-            }
-          },
+          textCapitalization: TextCapitalization.sentences,
+          contentInsertionConfiguration:  ContentInsertionConfiguration(
+            allowedMimeTypes: const <String>['image/png', 'image/gif', 'image/webp'],
+            onContentInserted: (KeyboardInsertedContent data) async {
+              if (data.data != null) {
+                widget.onInsertedContent?.call(data);
+              }
+            },
+          ),
         ),
       );
 
@@ -395,7 +397,7 @@ class InputState extends State<Input>{
       onTap: _selectChatTimeDialog,
       child: CommonImage(
         iconName: 'chat_time.png',
-        size: 24.px,
+        size: inputSuffixIconSize,
         useTheme: true,
         package: 'ox_chat',
       ),
@@ -414,7 +416,7 @@ class InputState extends State<Input>{
           });
         },
         iconName: 'chat_emoti_icon.png',
-        size: 24.px,
+        size: inputSuffixIconSize,
         package: 'ox_chat_ui',
         padding: EdgeInsets.symmetric(horizontal: _itemSpacing),
       );
@@ -428,7 +430,7 @@ class InputState extends State<Input>{
           });
         },
         iconName: 'chat_more_icon.png',
-        size: 24.px,
+        size: inputSuffixIconSize,
         package: 'ox_chat_ui',
         padding: EdgeInsets.symmetric(horizontal: _itemSpacing),
       );

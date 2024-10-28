@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:ox_chat/model/community_menu_option_model.dart';
 import 'package:ox_chat/page/contacts/contact_view_friends.dart';
 import 'package:ox_chat/page/session/search_page.dart';
+import 'package:ox_chat/page/session/unified_search_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_chat/widget/contact.dart';
 import 'package:ox_common/log_util.dart';
@@ -64,7 +65,7 @@ class _ChatNewMessagePageState extends State<ChatNewMessagePage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ThemeColor.color200,
+      backgroundColor: Colors.transparent,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(56.px),
         child: SafeArea(
@@ -158,7 +159,7 @@ class _ChatNewMessagePageState extends State<ChatNewMessagePage>
   Widget _topSearch() {
     return GestureDetector(
       onTap: () {
-        SearchPage().show(context);
+        UnifiedSearchPage().show(context);
       },
       behavior: HitTestBehavior.translucent,
       child: Container(

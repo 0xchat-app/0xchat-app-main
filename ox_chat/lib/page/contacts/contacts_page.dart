@@ -379,14 +379,14 @@ class _ContractsPageState extends ContactBasePageState<ContractsPage>
   @override
   void didLoginSuccess(UserDBISAR? userInfo) {
     setState(() {
-      _isShowTools = true;
+      // _isShowTools = true;
     });
   }
 
   @override
   void didLogout() {
     setState(() {
-      _isShowTools = false;
+      // _isShowTools = false;
     });
   }
 

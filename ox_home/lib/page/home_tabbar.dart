@@ -78,24 +78,26 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
     OXUserInfoManager.sharedInstance.removeObserver(this);
     OXChatBinding.sharedInstance.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant HomeTabBarPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       extendBody: true,
-      bottomNavigationBar: Transform.translate(
-        offset: Offset(0, _bottomNavOffset),
-        child: TranslucentNavigationBar(
-          key: tabBarGlobalKey,
-          onTap: (changeIndex, currentSelect) => _tabClick(changeIndex, currentSelect),
-          handleDoubleTap: (changeIndex, currentSelect) => _handleDoubleTap(changeIndex, currentSelect),
-          height: _bottomNavHeight,
-        ),
+      bottomNavigationBar: TranslucentNavigationBar(
+        key: tabBarGlobalKey,
+        onTap: (changeIndex, currentSelect) => _tabClick(changeIndex, currentSelect),
+        handleDoubleTap: (changeIndex, currentSelect) => _handleDoubleTap(changeIndex, currentSelect),
+        height: _bottomNavHeight,
       ),
       body: PageView(
         physics: const NeverScrollableScrollPhysics(),
@@ -144,14 +146,12 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
       onNotification: (scrollNotification) {
         if (scrollNotification.metrics.axis == Axis.vertical) {
           double currentOffset = scrollNotification.metrics.pixels;
-
           if (scrollNotification is ScrollUpdateNotification) {
             if (currentOffset < 0) {
               return false;
             }
 
             double delta = currentOffset - _previousScrollOffset;
-
             if (delta > 0) {
               _bottomNavOffset += delta / 2;
               if (_bottomNavOffset > (_bottomNavHeight + _bottomNavMargin)) {
@@ -251,6 +251,8 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
   }
 
   onLocaleChange() {
-    if (mounted) setState(() {});
+    if (mounted) {
+      setState(() {});
+    }
   }
 }

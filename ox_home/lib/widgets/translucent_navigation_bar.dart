@@ -148,7 +148,6 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
       final currentUser = _userCacheList.removeAt(currentIndex);
       _userCacheList.insert(0, currentUser);
     }
-
   }
 
   _showLoginPage(BuildContext context) {
@@ -231,6 +230,11 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
             GestureDetector(
               onLongPress: () {
                 int index = _tabBarList.indexOf(item);
+                if (index != 2) return;
+                if (hasVibrator == true && OXUserInfoManager.sharedInstance.canVibrate) {
+                  FeedbackType type = FeedbackType.impact;
+                  Vibrate.feedback(type);
+                }
                 _showPopupDialog(context, index);
               },
               onTap: () {
@@ -371,17 +375,17 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     if(type == ChatType.chatSecretStranger || type == ChatType.chatStranger){
       _tabBarList[1].unreadMsgCount += 1;
     } else {
-      _tabBarList[0].unreadMsgCount += 1;
+      // _tabBarList[0].unreadMsgCount += 1;
     }
     setState(() {});
   }
 
   @override
   void didLoginSuccess(UserDBISAR? userInfo) {
-    // TODO: implement didLoginSuccess
     setState(() {
       isLogin = true;
       fetchUnreadCount();
+      _loadLocalInfo();
     });
   }
 
@@ -449,7 +453,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
   fetchUnreadCount() {
     if (_tabBarList.isEmpty) return;
     if (OXChatBinding.sharedInstance.unReadStrangerSessionCount > 0) {
-      _tabBarList[0].unreadMsgCount = 1;
+      // _tabBarList[0].unreadMsgCount = 1;
     } else {
       _tabBarList[0].unreadMsgCount = 0;
     }
@@ -488,7 +492,6 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
   }
 
   void _showPopupDialog(BuildContext context, int index) {
-    if (index != 2) return;
     final RenderBox renderBox =
         _navItemKeyList[index].currentContext!.findRenderObject() as RenderBox;
     final position = renderBox.localToGlobal(Offset.zero);
