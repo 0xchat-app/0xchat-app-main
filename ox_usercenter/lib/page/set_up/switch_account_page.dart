@@ -125,7 +125,7 @@ class _SwitchAccountPageState extends State<SwitchAccountPage> {
         }
       },
       child: Container(
-        height: 52.px,
+        height: 57.px,
         padding: EdgeInsets.symmetric(horizontal: 16.px, vertical: 10.px),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
