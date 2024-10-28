@@ -136,7 +136,7 @@ class _ChatMessagePageState extends State<ChatMessagePage> {
     );
   }
 
-  Widget buildNavBar() {
+  PreferredSizeWidget buildNavBar() {
     return CommonChatNavBar(
       handler: handler,
       title: otherUser?.getUserShowName() ?? '',

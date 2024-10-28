@@ -75,7 +75,7 @@ class _ChatChannelMessagePageState extends State<ChatChannelMessagePage> {
     );
   }
 
-  Widget buildNavBar() {
+  PreferredSizeWidget buildNavBar() {
     ChannelDBISAR? channelDB = Channels.sharedInstance.channels[channelId]?.value;
     String showName = channelDB?.name ?? '';
     return CommonChatNavBar(

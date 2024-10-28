@@ -4,7 +4,7 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 
-class CommonChatNavBar extends StatelessWidget {
+class CommonChatNavBar extends StatelessWidget implements PreferredSizeWidget {
   CommonChatNavBar({
     super.key,
     required this.handler,
@@ -43,4 +43,7 @@ class CommonChatNavBar extends StatelessWidget {
       actions: actions,
     );
   }
+
+  @override
+  Size get preferredSize => Size.fromHeight(CommonBarHeight);
 }

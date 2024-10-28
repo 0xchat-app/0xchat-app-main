@@ -88,7 +88,7 @@ class _ChatRelayGroupMsgPageState extends State<ChatRelayGroupMsgPage> with OXCh
     );
   }
 
-  Widget buildNavBar() {
+  PreferredSizeWidget buildNavBar() {
     RelayGroupDBISAR? tempDb = RelayGroup.sharedInstance.groups[groupId]?.value;
     String showName = tempDb?.name ?? '';
     return CommonChatNavBar(
