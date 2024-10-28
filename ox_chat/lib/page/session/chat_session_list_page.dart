@@ -249,8 +249,8 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                           return _buildListViewItem(context, index);
                         },
                         childCount: itemCount(),
-                        addAutomaticKeepAlives: false,
-                        addRepaintBoundaries: false,
+                        // addAutomaticKeepAlives: false,
+                        // addRepaintBoundaries: false,
                       ),
                     )
                   : SliverToBoxAdapter(

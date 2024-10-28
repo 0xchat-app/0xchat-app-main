@@ -3,18 +3,12 @@ import 'package:ox_chat/model/group_ui_model.dart';
 import 'package:ox_chat/model/recent_search_user_isar.dart';
 import 'package:ox_chat/model/search_chat_model.dart';
 import 'package:ox_chat/model/search_history_model_isar.dart';
-import 'package:ox_chat/page/session/chat_message_page.dart';
-import 'package:ox_chat/page/session/search_chat_detail_page.dart';
-import 'package:ox_chat/widget/search_result_item.dart';
+import 'package:ox_chat/widget/categorized_list_search_tab_content_view.dart';
+import 'package:ox_chat/widget/list_search_tab_content_view.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/mixin/common_state_view_mixin.dart';
-import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/chat_type.dart';
-import 'package:ox_common/navigator/navigator.dart';
-import 'package:ox_common/utils/adapt.dart';
 import 'package:chatcore/chat-core.dart';
-import 'package:ox_common/utils/ox_chat_binding.dart';
-import 'package:ox_common/utils/ox_userinfo_manager.dart';
 
 class SearchTabContentView extends StatefulWidget {
   final String searchQuery;
@@ -65,68 +59,44 @@ class _SearchTabContentViewState extends State<SearchTabContentView> with Common
     _handleNoData();
     return commonStateViewWidget(
       context,
-      ListView.builder(
-        itemBuilder: (BuildContext context, int index) {
-          final item = widget.data[index];
-          switch (widget.type) {
-            case SearchType.chat:
-              if (item is ChatMessage) {
-                return SearchResultItem(
-                  isUser: false,
-                  searchQuery: widget.searchQuery,
-                  avatarURL: item.picture,
-                  title: item.name,
-                  subTitle: item.subtitle,
-                  onTap: () {
-                    bool hasSingleRelatedRecord = item.relatedCount > 1;
-                    if (hasSingleRelatedRecord) {
-                      _gotoSearchChatDetailPage(item);
-                    } else {
-                      _gotoChatMessagePage(item);
-                    }
-                  },
-                );
-              }
-              break;
-            case SearchType.contact:
-              if (item is UserDBISAR) {
-                return SearchResultItem(
-                  isUser: true,
-                  searchQuery: widget.searchQuery,
-                  avatarURL: item.picture,
-                  title: item.name,
-                  subTitle: item.about ?? '',
-                  onTap: () => _gotoContactSession(item),
-                );
-              }
-              break;
-            case SearchType.group:
-              if (item is GroupUIModel) {
-                return SearchResultItem(
-                  isUser: true,
-                  searchQuery: widget.searchQuery,
-                  avatarURL: item.picture,
-                  title: item.name,
-                  subTitle: item.about ?? '',
-                  onTap: () => _gotoGroupSession(item),
-                );
-              }
-              break;
-            case SearchType.ecash:
-              break;
-            case SearchType.media:
-              break;
-            case SearchType.link:
-              break;
-            default:
-              break;
-          }
-          return Container();
-        },
-        itemCount: widget.data.length,
-        padding: EdgeInsets.symmetric(horizontal: 24.px),
-      ),
+      _buildContentView(),
     );
+  }
+
+  Widget _buildContentView() {
+    switch (widget.type) {
+      case SearchType.chat:
+        Map<String, List<ChatMessage>> categorizedMessages = _groupedChatMessage();
+        return ChatMessageCategorizedListView(
+          categorizedData: categorizedMessages,
+          searchQuery: widget.searchQuery,
+        );
+      case SearchType.contact:
+        if (widget.data is List<UserDBISAR>) {
+          final data = widget.data as List<UserDBISAR>;
+          return ContactListView(
+            data: data,
+          );
+        }
+        break;
+      case SearchType.group:
+        if (widget.data is List<GroupUIModel>) {
+          final data = widget.data as List<GroupUIModel>;
+          return GroupListView(
+            data: data,
+          );
+        }
+        break;
+      case SearchType.ecash:
+        break;
+      case SearchType.media:
+        break;
+      case SearchType.link:
+        break;
+      default:
+        break;
+    }
+    return Container();
   }
 
   void _handleNoData() {
@@ -136,6 +106,30 @@ class _SearchTabContentViewState extends State<SearchTabContentView> with Common
       updateStateView(CommonStateView.CommonStateView_None);
     }
     setState(() {});
+  }
+
+  Map<String, List<ChatMessage>> _groupedChatMessage() {
+    Map<String, List<ChatMessage>> categorizedMessages = {
+      'Person': [],
+      'Group': [],
+      'Channel': []
+    };
+    if (widget.data is List<ChatMessage>) {
+      List<ChatMessage> messages = widget.data as List<ChatMessage>;
+      for (var message in messages) {
+        if (message.chatType == ChatType.chatSingle) {
+          categorizedMessages['Person']!.add(message);
+        } else if (message.chatType == ChatType.chatGroup ||
+            message.chatType == ChatType.chatRelayGroup) {
+          categorizedMessages['Group']!.add(message);
+        } else if (message.chatType == ChatType.chatChannel) {
+          categorizedMessages['Channel']!.add(message);
+        } else {
+          categorizedMessages['Other'] = [message];
+        }
+      }
+    }
+    return categorizedMessages;
   }
 
   Future<void> _updateSearchHistory(UserDBISAR? userDB) async {
@@ -152,65 +146,15 @@ class _SearchTabContentViewState extends State<SearchTabContentView> with Common
       LogUtil.e('Michael: _updateSearchHistory count =');
     }
   }
-
-  void _gotoSearchChatDetailPage(ChatMessage chatMessage) {
-    OXNavigator.pushPage(
-      context,
-      (context) => SearchChatDetailPage(
-        searchQuery: widget.searchQuery,
-        chatMessage: chatMessage,
-      ),
-    );
-  }
-
-  void _gotoChatMessagePage(ChatMessage item) {
-    final type = item.chatType;
-    final sessionModel = OXChatBinding.sharedInstance.sessionMap[item.chatId];
-    if (sessionModel == null) return;
-    switch (type) {
-      case ChatType.chatSingle:
-      case ChatType.chatChannel:
-      case ChatType.chatSecret:
-      case ChatType.chatGroup:
-      case ChatType.chatRelayGroup:
-        ChatMessagePage.open(
-          context: context,
-          communityItem: sessionModel,
-          anchorMsgId: item.msgId,
-        );
-        break;
-    }
-  }
-
-  void _gotoContactSession(UserDBISAR userDB) {
-    _updateSearchHistory(userDB);
-    ChatMessagePage.open(
-      context: context,
-      communityItem: ChatSessionModelISAR(
-        chatId: userDB.pubKey,
-        chatName: userDB.name,
-        sender: OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey,
-        receiver: userDB.pubKey,
-        chatType: ChatType.chatSingle,
-      ),
-    );
-  }
-
-  void _gotoGroupSession(GroupUIModel groupUIModel) {
-    if (groupUIModel.chatType == ChatType.chatGroup || groupUIModel.chatType == ChatType.chatRelayGroup) {
-      ChatMessagePage.open(
-        context: context,
-        communityItem: ChatSessionModelISAR(
-          chatId: groupUIModel.groupId,
-          chatName: groupUIModel.name,
-          chatType: groupUIModel.chatType,
-          avatar: groupUIModel.picture,
-          groupId: groupUIModel.groupId,
-        ),
-      );
-    }
-  }
 }
 
+class GridSearchTabContentView extends StatelessWidget {
+  const GridSearchTabContentView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Placeholder();
+  }
+}
 
 

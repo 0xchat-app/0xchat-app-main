@@ -39,7 +39,7 @@
   "disconnect_wallet_warning": "斷開錢包連接？",
   "disconnect_wallet_confirm": "確認",
   "zaps": "打閃",
-  "wallet": "閃電錢包",
+  "wallet": "Cashu 錢包",
   "show_wallet_selector": "顯示錢包選擇",
   "select_default_wallet": "選擇預設錢包",
   "zaps_record": "打閃紀錄",

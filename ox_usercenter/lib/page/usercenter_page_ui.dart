@@ -95,6 +95,13 @@ extension UserCenterPageUI on UserCenterPageState{
                   OXNavigator.pushPage(context, (context) => const ZapsPage());
                 },
               ),
+              Visibility(
+                visible: true,
+                child: Divider(
+                  height: Adapt.px(0.5),
+                  color: ThemeColor.color160,
+                ),
+              ),
               FutureBuilder<BadgeDBISAR?>(
                 builder: (context, snapshot) {
                   return _topItemBuild(
@@ -381,7 +388,7 @@ extension UserCenterPageUI on UserCenterPageState{
 
   Future<void> claimEcash() async {
     final balance = await NpubCash.balance();
-    if(balance != null){
+    if(balance != null && balance > 0){
       OXCommonHintDialog.show(
         context,
         title: Localized.text('ox_usercenter.str_claim_ecash_hint_title'),

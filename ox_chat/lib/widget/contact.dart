@@ -312,8 +312,8 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
                   );
                 },
                 childCount: item.childList.length,
-                addAutomaticKeepAlives: addAutomaticKeepAlives,
-                addRepaintBoundaries: addRepaintBoundaries,
+                // addAutomaticKeepAlives: addAutomaticKeepAlives,
+                // addRepaintBoundaries: addRepaintBoundaries,
               ),
             ),
           ),

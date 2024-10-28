@@ -408,7 +408,7 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
   Future<void> _loadNotesFromDB() async {
     List<NoteDBISAR> noteList = await Moment.sharedInstance.loadUserNotesFromDB(
             [widget.userDB.pubKey],
-            limit: _limit, until: _lastTimestamp) ??
+            limit: _limit, until: _lastTimestamp, root: '') ??
         [];
     Future.delayed(
         const Duration(milliseconds: 400), () => _refreshData(noteList));
@@ -419,7 +419,7 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
             authors: [widget.userDB.pubKey], limit: _limit) ??
         [];
     List<NoteDBISAR> noteList = await Moment.sharedInstance
-            .loadUserNotesFromDB([widget.userDB.pubKey], limit: _limit) ??
+            .loadUserNotesFromDB([widget.userDB.pubKey], limit: _limit, root: '') ??
         [];
     List<NoteDBISAR> newNoteList =
         noteList.where((element) => element.noteId != element.noteId).toList();

@@ -190,8 +190,8 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
       controller: null,
       shrinkWrap: false,
       itemCount: notesList.length,
-      addAutomaticKeepAlives: addAutomaticKeepAlives,
-      addRepaintBoundaries: addRepaintBoundaries,
+      // addAutomaticKeepAlives: addAutomaticKeepAlives,
+      // addRepaintBoundaries: addRepaintBoundaries,
       itemBuilder: (context, index) {
         ValueNotifier<NotedUIModel?> notedUIModel = notesList[index];
         if (index == 0) {
