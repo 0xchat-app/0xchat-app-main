@@ -24,6 +24,8 @@ class SearchItemClickHandler {
       gotoContactSession(context, item);
     } else if (item is GroupUIModel) {
       gotoGroupSession(context, item);
+    } else if (item is ChannelDBISAR) {
+      gotoChatChannelSession(context, item);
     }
   }
 
@@ -89,5 +91,19 @@ class SearchItemClickHandler {
         ),
       );
     }
+  }
+
+  static void gotoChatChannelSession(BuildContext context, ChannelDBISAR channelDB) {
+    ChatMessagePage.open(
+      context: context,
+      communityItem: ChatSessionModelISAR(
+        chatId: channelDB.channelId,
+        chatName: channelDB.name,
+        chatType: ChatType.chatChannel,
+        avatar: channelDB.picture,
+        groupId: channelDB.channelId,
+        createTime: channelDB.createTime,
+      ),
+    );
   }
 }

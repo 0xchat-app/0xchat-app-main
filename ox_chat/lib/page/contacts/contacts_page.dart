@@ -22,6 +22,7 @@ import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_common/business_interface/ox_chat/contact_base_page_state.dart';
+import 'package:ox_module_service/ox_module_service.dart';
 
 import 'contact_add_follows.dart';
 
@@ -359,7 +360,16 @@ class _ContractsPageState extends ContactBasePageState<ContractsPage>
   }
 
   void _gotoAddFriend() {
-    OXNavigator.pushPage(context, (context) => CommunityQrcodeAddFriend());
+    if(_selectedType == ContactsItemType.contact){
+      OXNavigator.pushPage(context, (context) => CommunityQrcodeAddFriend());
+    }else{
+      OXModuleService.pushPage(
+          context,
+          'ox_discovery',
+          'discoveryPageWidget',
+          {'typeInt':2}
+      );
+    }
   }
 
   int _getButtonCount(){

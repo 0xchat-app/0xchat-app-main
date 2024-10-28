@@ -34,6 +34,7 @@ import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_theme/ox_theme.dart';
 
+import '../session/unified_search_page.dart';
 import 'contact_create_secret_chat.dart';
 import 'contact_groups_widget.dart';
 import 'contact_links_widget.dart';
@@ -69,14 +70,34 @@ enum EMoreOptionType {
   messageTimer,
   message,
   userOption,
-  contactStatus,
 }
+
+enum EInformationType {
+  media,
+  badges,
+  moments,
+  groups,
+}
+
+extension EInformationTypeEx on EInformationType{
+  String get text {
+    switch(this){
+      case EInformationType.media:
+        return 'Media';
+      case EInformationType.badges:
+        return 'Badges';
+      case EInformationType.moments:
+        return 'Moment';
+      case EInformationType.groups:
+        return 'Groups';
+    }
+  }
+}
+
 
 extension MoreOptionTypeEx on EMoreOptionType {
   String get text {
     switch (this) {
-      case EMoreOptionType.contactStatus:
-        return "Remove Contact";
       case EMoreOptionType.message:
         return 'Clear messages';
       case EMoreOptionType.messageTimer:
@@ -90,8 +111,6 @@ extension MoreOptionTypeEx on EMoreOptionType {
 
   String get icon {
     switch (this) {
-      case EMoreOptionType.contactStatus:
-        return "icon_chat_delete.png";
       case EMoreOptionType.message:
         return 'chat_clear.png';
       case EMoreOptionType.messageTimer:
@@ -192,7 +211,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
     _initData();
     _initModelList();
     getShareLink();
-    tabController = TabController(length: 3, vsync: this);
+    tabController = TabController(length: EInformationType.values.length, vsync: this);
   }
 
   @override
@@ -210,8 +229,9 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
       OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '',
       relayList,
     );
+    String link = CustomURIHelper.createNostrURI(nostrValue);
     _userQrCodeUrl =
-        CustomURIHelper.createNostrURI(nostrValue).substring(0, 30) + '...';
+        link.substring(0, 15) + '...' + link.substring(link.length - 15);
     setState(() {});
   }
 
@@ -264,7 +284,9 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
         ),
         TabModel(
           iconName: 'icon_chat_search.png',
-          onTap: () {},
+          onTap: () {
+            OXNavigator.pushPage(context, (context) => UnifiedSearchPage());
+          },
           content: 'Search',
         ),
         TabModel(
@@ -277,13 +299,8 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
 
     bool isAddBlock = !_isInBlockList() &&
         !moreOptionList.contains(EMoreOptionType.userOption);
-    bool isAddContact = isFriend(userDB.pubKey) &&
-        !moreOptionList.contains(EMoreOptionType.contactStatus);
     if (isAddBlock) {
       moreOptionList.add(EMoreOptionType.userOption);
-    }
-    if (isAddContact) {
-      moreOptionList.add(EMoreOptionType.contactStatus);
     }
     setState(() {});
   }
@@ -369,7 +386,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
                 ).setPaddingOnly(bottom: 16.px),
               ),
               SliverAppBar(
-                toolbarHeight:38,
+                toolbarHeight: 38,
                 pinned: true,
                 floating: false,
                 snap: false,
@@ -377,11 +394,11 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
                 backgroundColor: ThemeColor.color200,
                 automaticallyImplyLeading: false,
                 bottom: PreferredSize(
-                  preferredSize: Size.fromHeight(0), // TabBar 高度
+                  preferredSize: Size.fromHeight(0),
                   child: Align(
-                    alignment: Alignment.centerLeft, // 左对齐 TabBar
+                    alignment: Alignment.centerLeft,
                     child: CommonGradientTabBar(
-                      data: ['Media', 'Posts', 'Groups'],
+                      data: EInformationType.values.map((type) => type.text).toList(),
                       controller: tabController,
                     ),
                   ).setPadding(
@@ -396,6 +413,12 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
             children: [
               ContactMediaWidget(
                 userDB: userDB,
+              ),
+              OXModuleService.invoke(
+                'ox_usercenter',
+                'showUserCenterBadgeWallPage',
+                [context],
+                {#userDB: userDB,#isShowTabBar:false},
               ),
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 24.px),
@@ -472,7 +495,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
               width: Adapt.px(24),
               height: Adapt.px(24),
               package: 'ox_chat',
-              color: ThemeColor.color100,
+              color:   ThemeColor.color100,
             ),
             SizedBox(
               height: Adapt.px(2),
@@ -487,47 +510,6 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _contentList() {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        color: ThemeColor.color180,
-      ),
-      child: Column(
-        children: [
-          isFriend(userDB.pubKey ?? '')
-              ? _itemView(
-                  iconName: 'icon_remark.png',
-                  iconPackage: 'ox_chat',
-                  type: OtherInfoItemType.Remark,
-                  rightHint: userDB.nickName,
-                )
-              : Container(),
-          isFriend(userDB.pubKey ?? '')
-              ? Divider(
-                  height: Adapt.px(0.5),
-                  color: ThemeColor.color160,
-                )
-              : Container(),
-          _itemView(
-            iconName: 'icon_settings_badges.png',
-            iconPackage: 'ox_usercenter',
-            type: OtherInfoItemType.Badges,
-          ),
-          Divider(
-            height: Adapt.px(0.5),
-            color: ThemeColor.color160,
-          ),
-          _itemView(
-            iconName: 'icon_moment.png',
-            iconPackage: 'ox_usercenter',
-            type: OtherInfoItemType.Moments,
-          ),
-        ],
       ),
     );
   }
@@ -687,9 +669,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
           ),
         ),
       ),
-      onTap: myPubkey == widget.pubkey
-          ? _sendMsg
-          : (friendsStatus ? _removeFriend : _addFriends),
+      onTap: myPubkey == widget.pubkey ? _sendMsg : _addFriends,
     ).setPaddingOnly(top: 16.px);
   }
 
@@ -777,84 +757,6 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
         .show(context, 'copied_to_clipboard'.commonLocalized());
     _publicKeyCopied = true;
     setState(() {});
-  }
-
-  Widget _itemView({
-    String? iconName,
-    String? iconPackage,
-    OtherInfoItemType type = OtherInfoItemType.Remark,
-    String? rightHint,
-  }) {
-    return Container(
-      width: double.infinity,
-      height: Adapt.px(52),
-      alignment: Alignment.center,
-      child: ListTile(
-        leading: CommonImage(
-          iconName: iconName ?? '',
-          width: Adapt.px(32),
-          height: Adapt.px(32),
-          package: iconPackage ?? 'ox_chat',
-        ),
-        title: Text(
-          type.text,
-          style: TextStyle(
-            fontSize: Adapt.px(16),
-            color: ThemeColor.color0,
-          ),
-        ),
-        trailing: type == OtherInfoItemType.Mute
-            ? Switch(
-                value: _isMute,
-                activeColor: Colors.white,
-                activeTrackColor: ThemeColor.gradientMainStart,
-                inactiveThumbColor: Colors.white,
-                inactiveTrackColor: ThemeColor.color160,
-                onChanged: _onChangedMute,
-                materialTapTargetSize: MaterialTapTargetSize.padded,
-              )
-            : Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  type == OtherInfoItemType.Badges
-                      ? Container(
-                          width: Adapt.px(100),
-                          child: Directionality(
-                            textDirection: TextDirection.rtl,
-                            child: ListView.separated(
-                                itemCount: _badgeDBList.length,
-                                scrollDirection: Axis.horizontal,
-                                separatorBuilder: (context, index) =>
-                                    Divider(height: 1),
-                                itemBuilder: (context, index) {
-                                  BadgeDBISAR tempItem = _badgeDBList[index];
-                                  LogUtil.e(
-                                      'Michael: _badgeDBList.length =${_badgeDBList.length}');
-                                  return OXCachedNetworkImage(
-                                    imageUrl: tempItem.thumb ?? '',
-                                    fit: BoxFit.contain,
-                                    placeholder: (context, url) =>
-                                        _badgePlaceholderImage,
-                                    errorWidget: (context, url, error) =>
-                                        _badgePlaceholderImage,
-                                    width: Adapt.px(32),
-                                    height: Adapt.px(32),
-                                  );
-                                }),
-                          ),
-                        )
-                      : Container(),
-                  CommonImage(
-                    iconName: 'icon_arrow_more.png',
-                    width: Adapt.px(24),
-                    height: Adapt.px(24),
-                  ),
-                ],
-              ),
-        onTap: () => _itemClick(type),
-      ),
-    );
   }
 
   Widget _buildHeadImage() {
@@ -991,37 +893,33 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
 
   void _addFriends() async {
     if (isFriend(userDB.pubKey) == false) {
-      OXCommonHintDialog.show(context,
-          content: Localized.text('ox_chat.add_contact_dialog_title'),
-          actionList: [
-            OXCommonHintAction.cancel(onTap: () {
-              OXNavigator.pop(context, false);
-            }),
-            OXCommonHintAction.sure(
-                text: Localized.text('ox_common.confirm'),
-                onTap: () async {
-                  OXNavigator.pop(context, true);
-                  await OXLoading.show();
-                  final OKEvent okEvent = await Contacts.sharedInstance
-                      .addToContact([userDB.pubKey]);
-                  await OXLoading.dismiss();
-                  if (okEvent.status) {
-                    if (!moreOptionList.contains(EMoreOptionType.contactStatus)) {
-                      moreOptionList.add(EMoreOptionType.contactStatus);
-                    }
-                    OXChatBinding.sharedInstance.contactUpdatedCallBack();
-                    OXChatBinding.sharedInstance.changeChatSessionTypeAll(userDB.pubKey, true);
-                    setState(() {});
-                    CommonToast.instance.show(
-                        context, Localized.text('ox_chat.sent_successfully'));
-                    _sendMsg();
-                  } else {
-                    CommonToast.instance.show(context, okEvent.message);
-                  }
-                },
-            ),
-          ],
-          isRowAction: true,
+      OXCommonHintDialog.show(
+        context,
+        content: Localized.text('ox_chat.add_contact_dialog_title'),
+        actionList: [
+          OXCommonHintAction.cancel(onTap: () {
+            OXNavigator.pop(context, false);
+          }),
+          OXCommonHintAction.sure(
+            text: Localized.text('ox_common.confirm'),
+            onTap: () async {
+              OXNavigator.pop(context, true);
+              await OXLoading.show();
+              final OKEvent okEvent =
+                  await Contacts.sharedInstance.addToContact([userDB.pubKey]);
+              await OXLoading.dismiss();
+              if (okEvent.status) {
+                OXChatBinding.sharedInstance.contactUpdatedCallBack();
+                OXChatBinding.sharedInstance.changeChatSessionTypeAll(userDB.pubKey, true);
+                CommonToast.instance.show(context, Localized.text('ox_chat.sent_successfully'));
+                _sendMsg();
+              } else {
+                CommonToast.instance.show(context, okEvent.message);
+              }
+            },
+          ),
+        ],
+        isRowAction: true,
       );
     }
   }
@@ -1064,105 +962,8 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
         isRowAction: true);
   }
 
-  void _removeFriend() async {
-    OXCommonHintDialog.show(
-      context,
-      title: Localized.text('ox_chat.remove_contacts'),
-      content: Localized.text('ox_chat.remove_contacts_dialog_content')
-          .replaceAll(r'${name}', '${userDB.name}'),
-      actionList: [
-        OXCommonHintAction.cancel(onTap: () {
-          OXNavigator.pop(context);
-        }),
-        OXCommonHintAction.sure(
-          text: Localized.text('ox_common.confirm'),
-          onTap: () async {
-            await OXLoading.show();
-            final OKEvent okEvent = await Contacts.sharedInstance
-                .removeContact(userDB.pubKey ?? '');
-            await OXLoading.dismiss();
-            OXNavigator.pop(context);
-            if (okEvent.status) {
-              if (moreOptionList.contains(EMoreOptionType.contactStatus)) {
-                moreOptionList.remove(EMoreOptionType.contactStatus);
-              }
-              OXChatBinding.sharedInstance.contactUpdatedCallBack();
-              setState(() {});
-              CommonToast.instance.show(context,
-                  Localized.text('ox_chat.remove_contacts_success_toast'));
-            } else {
-              CommonToast.instance.show(context, okEvent.message);
-            }
-          },
-        ),
-      ],
-      isRowAction: true,
-    );
-  }
-
   void _chatMsgControlDialogWidget(details) {
     return _showMoreOptionMore(context, details.globalPosition);
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (BuildContext context) {
-        return Material(
-          type: MaterialType.transparency,
-          child: Opacity(
-            opacity: 1,
-            child: Container(
-              alignment: Alignment.bottomCenter,
-              height: Adapt.px(142),
-              decoration: BoxDecoration(
-                color: ThemeColor.color180,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  _chatControlDialogItemWidget(
-                      isSelect: _autoDelExTime != 0,
-                      content: Localized.text('ox_chat.option_auto_delete')
-                          .replaceAll(r'${option}',
-                              '${_autoDelExTime > 0 ? Localized.text('ox_chat.set') : Localized.text('ox_chat.enable')}'),
-                      onTap: _updateAutoDel),
-                  // Divider(
-                  //   height: Adapt.px(0.5),
-                  //   color: ThemeColor.color160,
-                  // ),
-                  Container(
-                    height: Adapt.px(8),
-                    color: ThemeColor.color190,
-                  ),
-                  GestureDetector(
-                    behavior: HitTestBehavior.translucent,
-                    onTap: () {
-                      OXNavigator.pop(context);
-                    },
-                    child: Container(
-                      padding: EdgeInsets.only(
-                        top: Adapt.px(17),
-                      ),
-                      width: double.infinity,
-                      height: Adapt.px(68),
-                      color: ThemeColor.color180,
-                      child: Text(
-                        Localized.text('ox_common.cancel'),
-                        textAlign: TextAlign.center,
-                        style:
-                            TextStyle(fontSize: 16, color: ThemeColor.color0),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
   }
 
   void _selectTimeDialog() {
@@ -1267,46 +1068,6 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
         ),
       ),
     );
-  }
-
-  void _clickCall() async {
-    if (userDB.pubKey ==
-        OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
-      CommonToast.instance.show(context, "Don't call yourself");
-    } else {
-      OXActionModel? oxActionModel = await OXActionDialog.show(
-        context,
-        data: [
-          OXActionModel(
-              identify: 0,
-              text: 'str_video_call'.localized(),
-              iconName: 'icon_call_video.png',
-              package: 'ox_chat',
-              isUseTheme: true),
-          OXActionModel(
-              identify: 1,
-              text: 'str_voice_call'.localized(),
-              iconName: 'icon_call_voice.png',
-              package: 'ox_chat',
-              isUseTheme: true),
-        ],
-        backGroundColor: ThemeColor.color180,
-        separatorCancelColor: ThemeColor.color190,
-      );
-      if (oxActionModel != null) {
-        OXModuleService.pushPage(
-          context,
-          'ox_calling',
-          'CallPage',
-          {
-            'userDB': userDB,
-            'media': oxActionModel.identify == 1
-                ? CallMessageType.audio.text
-                : CallMessageType.video.text,
-          },
-        );
-      }
-    }
   }
 
   ///Determine if it's a friend
@@ -1454,7 +1215,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 14.px,
-                      color: ThemeColor.color100,
+                      color: type == EMoreOptionType.userOption ? ThemeColor.red : ThemeColor.color100,
                       fontWeight: FontWeight.w400,
                     ),
                   ),
@@ -1463,35 +1224,34 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
                   iconName: type.icon,
                   size: 24.px,
                   package: 'ox_chat',
-                  color: ThemeColor.color100,
+                  color: type == EMoreOptionType.userOption ? ThemeColor.red : ThemeColor.color100,
                 ),
               ],
             ),
           );
         }).toList()
       ],
-    ).then((value) async {
-      if (value == null) return;
-      switch (value) {
-        case EMoreOptionType.userOption:
-          _blockOptionFn();
-          break;
-        case EMoreOptionType.messageTimer:
-          _selectTimeDialog();
-          break;
-        case EMoreOptionType.message:
-          _clearMessage();
-          break;
-        case EMoreOptionType.secretChat:
-          OXNavigator.presentPage(
-            context,
-            (context) => ContactCreateSecret(userDB: userDB),
-          );
-          break;
-        case EMoreOptionType.contactStatus:
-          _removeFriend();
-          break;
-      }
-    });
+    ).then(
+      (value) async {
+        if (value == null) return;
+        switch (value) {
+          case EMoreOptionType.userOption:
+            _blockOptionFn();
+            break;
+          case EMoreOptionType.messageTimer:
+            _selectTimeDialog();
+            break;
+          case EMoreOptionType.message:
+            _clearMessage();
+            break;
+          case EMoreOptionType.secretChat:
+            OXNavigator.presentPage(
+              context,
+              (context) => ContactCreateSecret(userDB: userDB),
+            );
+            break;
+        }
+      },
+    );
   }
 }

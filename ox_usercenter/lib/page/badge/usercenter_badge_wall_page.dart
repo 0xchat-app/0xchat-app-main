@@ -24,8 +24,8 @@ import 'package:nostr_core_dart/nostr.dart';
 ///CreateTime: 2023/5/6 16:21
 class UsercenterBadgeWallPage extends StatefulWidget {
   final UserDBISAR? userDB;
-
-  const UsercenterBadgeWallPage({Key? key, required this.userDB}) : super(key: key);
+  final bool isShowTabBar;
+  const UsercenterBadgeWallPage({Key? key, required this.userDB,this.isShowTabBar = true}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -149,6 +149,7 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
 
   @override
   Widget build(BuildContext context) {
+    if(!widget.isShowTabBar) return _body();
     return Scaffold(
       appBar: CommonAppBar(
         useLargeTitle: false,

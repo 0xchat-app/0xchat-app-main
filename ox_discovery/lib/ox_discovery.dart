@@ -31,7 +31,6 @@ class OXDiscovery extends OXFlutterModule {
 
   @override
   Map<String, Function> get interfaces => {
-        'discoveryPageWidget': discoveryPageWidget,
         'momentPage': jumpMomentPage,
         'momentRichTextWidget': momentRichTextWidget,
         'showPersonMomentsPage': showPersonMomentsPage,
@@ -52,14 +51,11 @@ class OXDiscovery extends OXFlutterModule {
                 (context) => PublicMomentsPage());
       case 'discoveryPageWidget':
         return OXNavigator.pushPage(context,
-                (context) => DiscoveryPage());
+                (context) => DiscoveryPage(typeInt: params?['typeInt']));
     }
     return null;
   }
 
-  Widget discoveryPageWidget(BuildContext context) {
-    return DiscoveryPage();
-  }
 
   Widget momentRichTextWidget(
     BuildContext context, {
@@ -110,8 +106,7 @@ class OXDiscovery extends OXFlutterModule {
   }
 
 
-  Widget showPersonMomentsPage(BuildContext? context,
-      {required UserDBISAR userDB}) {
+  Widget showPersonMomentsPage(BuildContext? context, {required UserDBISAR userDB}) {
     return PersonMomentsPage(
       userDB: userDB,
     );
