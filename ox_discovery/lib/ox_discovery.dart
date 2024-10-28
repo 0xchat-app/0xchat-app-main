@@ -106,8 +106,7 @@ class OXDiscovery extends OXFlutterModule {
   }
 
 
-  Widget showPersonMomentsPage(BuildContext? context,
-      {required UserDBISAR userDB}) {
+  Widget showPersonMomentsPage(BuildContext? context, {required UserDBISAR userDB}) {
     return PersonMomentsPage(
       userDB: userDB,
     );

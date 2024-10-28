@@ -48,6 +48,7 @@ class OXUserCenter extends OXFlutterModule {
         'userCenterPageWidget': userCenterPageWidget,
         'showZapsInvoiceDialog': _showZapsInvoiceDialog,
         'getInvoice': _getInvoice,
+        'showUserCenterBadgeWallPage':showUserCenterBadgeWallPage
       };
 
   @override
@@ -180,5 +181,9 @@ class OXUserCenter extends OXFlutterModule {
       receiver: receiver,
       groupId: groupId
     );
+  }
+
+  Widget showUserCenterBadgeWallPage(BuildContext? context, {required UserDBISAR userDB,bool isShowTabBar = true}) {
+    return  UsercenterBadgeWallPage(userDB: userDB, isShowTabBar:isShowTabBar);
   }
 }

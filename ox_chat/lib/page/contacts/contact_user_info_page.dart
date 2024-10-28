@@ -72,6 +72,29 @@ enum EMoreOptionType {
   userOption,
 }
 
+enum EInformationType {
+  media,
+  badges,
+  moments,
+  groups,
+}
+
+extension EInformationTypeEx on EInformationType{
+  String get text {
+    switch(this){
+      case EInformationType.media:
+        return 'Media';
+      case EInformationType.badges:
+        return 'Badges';
+      case EInformationType.moments:
+        return 'Moment';
+      case EInformationType.groups:
+        return 'Groups';
+    }
+  }
+}
+
+
 extension MoreOptionTypeEx on EMoreOptionType {
   String get text {
     switch (this) {
@@ -188,7 +211,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
     _initData();
     _initModelList();
     getShareLink();
-    tabController = TabController(length: 3, vsync: this);
+    tabController = TabController(length: EInformationType.values.length, vsync: this);
   }
 
   @override
@@ -371,11 +394,11 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
                 backgroundColor: ThemeColor.color200,
                 automaticallyImplyLeading: false,
                 bottom: PreferredSize(
-                  preferredSize: Size.fromHeight(0), // TabBar 高度
+                  preferredSize: Size.fromHeight(0),
                   child: Align(
-                    alignment: Alignment.centerLeft, // 左对齐 TabBar
+                    alignment: Alignment.centerLeft,
                     child: CommonGradientTabBar(
-                      data: ['Media', 'Moments', 'Groups'],
+                      data: EInformationType.values.map((type) => type.text).toList(),
                       controller: tabController,
                     ),
                   ).setPadding(
@@ -390,6 +413,12 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
             children: [
               ContactMediaWidget(
                 userDB: userDB,
+              ),
+              OXModuleService.invoke(
+                'ox_usercenter',
+                'showUserCenterBadgeWallPage',
+                [context],
+                {#userDB: userDB,#isShowTabBar:false},
               ),
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 24.px),
