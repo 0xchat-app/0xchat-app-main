@@ -6,23 +6,21 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:lpinyin/lpinyin.dart';
-import 'package:ox_chat/page/contacts/contact_user_info_page.dart';
+import 'package:ox_chat/page/session/chat_message_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_chat/widget/alpha.dart';
-import 'package:ox_common/business_interface/ox_chat/utils.dart';
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/chat_type.dart';
-import 'package:ox_common/utils/ox_userinfo_manager.dart';
-import 'package:ox_common/widgets/avatar.dart';
-import 'package:ox_common/log_util.dart';
-import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
+import 'package:flutter_vibrate/flutter_vibrate.dart';
 
-import '../page/session/chat_message_page.dart';
 
 double headerHeight = Adapt.px(24);
 double itemHeight = Adapt.px(68.0);
@@ -39,6 +37,7 @@ class ContactWidget extends StatefulWidget {
   final Widget? topWidget;
   final Color? bgColor;
   final bool supportLongPress;
+  final bool hasVibrator;
 
   ContactWidget({
     Key? key,
@@ -51,6 +50,7 @@ class ContactWidget extends StatefulWidget {
     this.topWidget,
     this.bgColor,
     this.supportLongPress = false,
+    this.hasVibrator = false,
   }) : super(key: key);
 
   @override
@@ -308,6 +308,7 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
                     onCheckChanged: _onCheckChangedListener,
                     hostName: widget.hostName,
                     supportLongPress: widget.supportLongPress,
+                    hasVibrator: widget.hasVibrator,
                   );
                 },
                 childCount: item.childList.length,
@@ -389,6 +390,7 @@ class ContractListItem extends StatefulWidget {
 
   String hostName = ''; //The current domain
   final bool supportLongPress;
+  final bool hasVibrator;
 
   ContractListItem({
     required this.item,
@@ -396,6 +398,7 @@ class ContractListItem extends StatefulWidget {
     this.onCheckChanged,
     this.hostName = 'ox.com',
     this.supportLongPress = false,
+    this.hasVibrator = false,
   });
 
   @override
@@ -417,6 +420,10 @@ class _ContractListItemState extends State<ContractListItem> {
 
   void _itemLongPress() async {
     if (widget.supportLongPress && widget.item.pubKey.isNotEmpty) {
+      if (widget.hasVibrator == true && OXUserInfoManager.sharedInstance.canVibrate) {
+        FeedbackType type = FeedbackType.impact;
+        Vibrate.feedback(type);
+      }
       valueNotifier.value = 0.96;
       await Future.delayed(Duration(milliseconds: 80));
       valueNotifier.value = 1.0;
