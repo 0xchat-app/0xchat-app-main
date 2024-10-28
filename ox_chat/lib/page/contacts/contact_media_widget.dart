@@ -55,6 +55,7 @@ class ContactMediaWidgetState extends State<ContactMediaWidget> {
   @override
   Widget build(BuildContext context) {
     if(messagesList.isEmpty) return _noDataWidget();
+    final widgetWidth = int.parse((MediaQuery.of(context).size.width / 3).floor().toString());
     return GridView.builder(
       padding: EdgeInsets.zero,
       shrinkWrap: true,
@@ -62,12 +63,15 @@ class ContactMediaWidgetState extends State<ContactMediaWidget> {
       itemCount: messagesList.length,
       itemBuilder: (context, index) {
         if(MessageDBISAR.stringtoMessageType(messagesList[index].type) == MessageType.image || MessageDBISAR.stringtoMessageType(messagesList[index].type) == MessageType.encryptedImage){
-          return ImagePreviewWidget(
-            uri: messagesList[index].decryptContent,
-            imageWidth: 40,
-            imageHeight: 40,
-            decryptKey: messagesList[index].decryptSecret,
-            decryptNonce: messagesList[index].decryptNonce,
+          return  Container(
+            color: ThemeColor.red,
+            child: ImagePreviewWidget(
+              uri: messagesList[index].decryptContent,
+              imageWidth: widgetWidth,
+              imageHeight: widgetWidth,
+              decryptKey: messagesList[index].decryptSecret,
+              decryptNonce: messagesList[index].decryptNonce,
+            ),
           );
         }
 
@@ -134,9 +138,7 @@ class MediaVideoWidgetState extends State<MediaVideoWidget> {
   }
 
   Future<void> _initializeThumbnail() async {
-    final String? thumbPath = (await OXVideoUtils.getVideoThumbnailImage(
-            videoURL: widget.messageDBISAR.decryptContent))
-        ?.path;
+    final String? thumbPath = (await OXVideoUtils.getVideoThumbnailImage(videoURL: widget.messageDBISAR.decryptContent))?.path;
     if (mounted) {
       setState(() {
         if (thumbPath != null) {

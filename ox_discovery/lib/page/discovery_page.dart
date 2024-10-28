@@ -1,17 +1,13 @@
-import 'dart:math';
 import 'dart:ui';
 
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
-import 'package:ox_common/business_interface/ox_chat/interface.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_discovery/enum/group_type.dart';
 import 'package:ox_discovery/page/moments/groups_page.dart';
 import 'package:ox_discovery/page/widgets/group_selector_dialog.dart';
-import 'package:ox_discovery/utils/discovery_utils.dart';
-import 'package:simple_gradient_text/simple_gradient_text.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/mixin/common_state_view_mixin.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -20,9 +16,6 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
-import '../enum/moment_enum.dart';
-import '../model/moment_extension_model.dart';
-import 'moments/create_moments_page.dart';
 import 'moments/notifications_moments_page.dart';
 import 'moments/public_moments_page.dart';
 import 'package:ox_common/business_interface/ox_discovery/ox_discovery_model.dart';
