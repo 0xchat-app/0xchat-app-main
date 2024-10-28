@@ -66,6 +66,7 @@ class ContactGroupsWidgetState extends State<ContactGroupsWidget> {
           ).setPaddingOnly(right: 16.px),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
                 width: 200.px,
@@ -79,14 +80,19 @@ class ContactGroupsWidgetState extends State<ContactGroupsWidget> {
                   ),
                 ),
               ).setPaddingOnly(bottom: 2.px),
-              Text(
-                groups[index].about,
-                style: TextStyle(
-                  color: ThemeColor.color120,
-                  fontSize: 12.px,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
+             if(groups[index].about.isNotEmpty)
+             Container(
+               width: 200.px,
+               child:Text(
+                 groups[index].about,
+                 overflow: TextOverflow.ellipsis,
+                 style: TextStyle(
+                   color: ThemeColor.color120,
+                   fontSize: 12.px,
+                   fontWeight: FontWeight.w400,
+                 ),
+               ),
+             ),
             ],
           ),
         ],
