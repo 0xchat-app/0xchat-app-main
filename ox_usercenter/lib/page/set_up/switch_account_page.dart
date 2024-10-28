@@ -105,7 +105,7 @@ class _SwitchAccountPageState extends State<SwitchAccountPage> {
 
     String showName = multipleUserModel?.name ?? '';
     String showPicture = multipleUserModel?.picture ?? '';
-    String showDns = multipleUserModel?.dns ?? '';
+    String showDns = '';//multipleUserModel?.dns ?? '';
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () async {
