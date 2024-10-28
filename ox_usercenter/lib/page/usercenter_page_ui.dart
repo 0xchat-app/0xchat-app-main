@@ -41,19 +41,24 @@ extension UserCenterPageUI on UserCenterPageState{
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              _topItemBuild(
-                iconName: 'icon_moment.png',
-                title: Localized.text('ox_discovery.moment'),
-                isShowDivider: true,
-                onTap: () {
-                  OXModuleService.pushPage(
-                    context,
-                    'ox_discovery',
-                    'discoveryPageWidget',
-                    {}
-                  );
-                },
-              ),
+              GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: () {
+                    _isShowMomentUnread = false;
+                    OXModuleService.pushPage(
+                        context, 'ox_discovery', 'discoveryPageWidget', {});
+                  },
+                  child: itemView(
+                    'icon_moment.png',
+                    'ox_discovery.moment',
+                    '',
+                    true,
+                    isShowZapBadge: true,
+                    badge: Visibility(
+                      visible: _isShowMomentUnread,
+                      child: _buildUnreadWidget(),
+                    ),
+                  )),
               GestureDetector(
                 behavior: HitTestBehavior.translucent,
                 onTap: () => OXNavigator.pushPage(context, (context) => const RelaysPage()),
@@ -236,7 +241,7 @@ extension UserCenterPageUI on UserCenterPageState{
     );
   }
 
-  Widget _buildZapBadgeWidget(){
+  Widget _buildUnreadWidget(){
     return Container(
       color: Colors.transparent,
       width: Adapt.px(6),
@@ -342,7 +347,7 @@ extension UserCenterPageUI on UserCenterPageState{
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     badgeImgUrl == null
-                        ? (_isShowZapBadge && iconName == 'icon_settings.png' ? _buildZapBadgeWidget() :const SizedBox())
+                        ? (_isShowZapBadge && iconName == 'icon_settings.png' ? _buildUnreadWidget() :const SizedBox())
                         : OXCachedNetworkImage(
                       imageUrl: badgeImgUrl,
                       placeholder: (context, url) => placeholderImage,
