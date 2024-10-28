@@ -76,7 +76,7 @@ extension MoreOptionTypeEx on EMoreOptionType {
   String get text {
     switch (this) {
       case EMoreOptionType.contactStatus:
-        return "Remove Contact";
+        return "Delete Contact";
       case EMoreOptionType.message:
         return 'Clear messages';
       case EMoreOptionType.messageTimer:
