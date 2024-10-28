@@ -383,7 +383,7 @@ extension UserCenterPageUI on UserCenterPageState{
 
   Future<void> claimEcash() async {
     final balance = await NpubCash.balance();
-    if(balance != null){
+    if(balance != null && balance > 0){
       OXCommonHintDialog.show(
         context,
         title: Localized.text('ox_usercenter.str_claim_ecash_hint_title'),
