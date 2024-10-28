@@ -64,7 +64,7 @@ class _ChatNewMessagePageState extends State<ChatNewMessagePage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ThemeColor.color200,
+      backgroundColor: Colors.transparent,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(56.px),
         child: SafeArea(
