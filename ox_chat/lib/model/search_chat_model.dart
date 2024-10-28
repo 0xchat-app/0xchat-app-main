@@ -31,7 +31,7 @@ enum SearchItemType {
 
 enum SearchType {
   chat(label: 'Chats'),
-  contact(label: 'Contact'),
+  contact(label: 'Contacts'),
   group(label: 'Groups'),
   channel(label: 'Channel'),
   ecash(label: 'Ecash'),
