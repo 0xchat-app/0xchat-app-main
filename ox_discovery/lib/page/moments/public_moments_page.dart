@@ -19,10 +19,12 @@ import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_theme/ox_theme.dart';
 import 'package:ox_common/model/msg_notification_model.dart';
 
+import '../../enum/moment_enum.dart';
 import '../../model/moment_ui_model.dart';
 import '../../utils/discovery_utils.dart';
 import '../../utils/moment_widgets_utils.dart';
 import '../widgets/moment_widget.dart';
+import 'create_moments_page.dart';
 import 'group_moments_page.dart';
 import 'moments_page.dart';
 import 'notifications_moments_page.dart';
@@ -177,6 +179,52 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
               children: [
                 _newMomentTipsWidget(),
               ],
+            ),
+          ),
+        ),
+        Positioned(
+          bottom: 50.px,
+          right: 20.px,
+          child: GestureDetector(
+            onLongPress: () {
+              OXNavigator.presentPage(
+                  context,
+                  (context) =>
+                      const CreateMomentsPage(type: EMomentType.content));
+            },
+            onTap: () {
+              CreateMomentDraft? createMomentMediaDraft =
+                  OXMomentCacheManager.sharedInstance.createMomentMediaDraft;
+              if (createMomentMediaDraft != null) {
+                final type = createMomentMediaDraft.type;
+                final imageList = type == EMomentType.picture
+                    ? createMomentMediaDraft.imageList
+                    : null;
+                final videoPath = type == EMomentType.video
+                    ? createMomentMediaDraft.videoPath
+                    : null;
+                final videoImagePath = type == EMomentType.video
+                    ? createMomentMediaDraft.videoImagePath
+                    : null;
+
+                OXNavigator.presentPage(
+                  context,
+                  (context) => CreateMomentsPage(
+                    type: type,
+                    imageList: imageList,
+                    videoPath: videoPath,
+                    videoImagePath: videoImagePath,
+                  ),
+                );
+                return;
+              }
+              OXNavigator.presentPage(
+                  context, (context) => const CreateMomentsPage(type: null));
+            },
+            child: CommonImage(
+              iconName: 'theme_add_icon.png',
+              size: 48.px,
+              package: 'ox_discovery',
             ),
           ),
         ),

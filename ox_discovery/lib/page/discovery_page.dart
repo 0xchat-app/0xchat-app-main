@@ -23,6 +23,7 @@ import 'package:ox_localizable/ox_localizable.dart';
 import '../enum/moment_enum.dart';
 import '../model/moment_extension_model.dart';
 import 'moments/create_moments_page.dart';
+import 'moments/notifications_moments_page.dart';
 import 'moments/public_moments_page.dart';
 import 'package:ox_common/business_interface/ox_discovery/ox_discovery_model.dart';
 import 'package:flutter/cupertino.dart';
@@ -38,6 +39,15 @@ extension EDiscoveryPageTypeEx on EDiscoveryPageType {
         return EDiscoveryPageType.group;
       default:
         return EDiscoveryPageType.moment;
+    }
+  }
+
+  String get text {
+    switch (this) {
+      case EDiscoveryPageType.moment:
+        return 'Moments';
+      case EDiscoveryPageType.group:
+        return 'Add Group';
     }
   }
 }
@@ -130,55 +140,15 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
         elevation: 0,
         titleSpacing: 0.0,
         actions: _actionWidget(),
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // SizedBox(
-            //   width: Adapt.px(24),
-            // ),
-            if (pageType == EDiscoveryPageType.moment)
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    pageType = EDiscoveryPageType.moment;
-                  });
-                },
-                child: Container(
-                  child: Text(
-                    'Moments',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: Adapt.px(20),
-                      color: ThemeColor.titleColor,
-                    ),
-                  ),
-                ),
-              ),
-            SizedBox(
-              width: Adapt.px(24),
+        title: Center(
+          child: Text(
+            pageType.text,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: Adapt.px(20),
+              color: ThemeColor.titleColor,
             ),
-            if (pageType == EDiscoveryPageType.group)
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    pageType = EDiscoveryPageType.group;
-                  });
-                },
-                child: Container(
-                  child: Text(
-                    'Add Group',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: Adapt.px(20),
-                      color: ThemeColor.titleColor,
-                    ),
-                  ),
-                ),
-              ),
-            SizedBox(
-              width: Adapt.px(24),
-            ),
-          ],
+          ).setPaddingOnly(left: 36.px),
         ),
       ),
       body: _body(),
@@ -193,10 +163,10 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
         GestureDetector(
           behavior: HitTestBehavior.translucent,
           child: CommonImage(
-            iconName: "moment_option.png",
+            iconName: "menu_icon.png",
             width: Adapt.px(24),
             height: Adapt.px(24),
-            color: ThemeColor.color100,
+            color: ThemeColor.color0,
             package: 'ox_discovery',
           ),
           onTap: () {
@@ -212,46 +182,15 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
         GestureDetector(
           behavior: HitTestBehavior.translucent,
           child: CommonImage(
-            iconName: "moment_add_icon.png",
+            iconName: "icon_mute.png",
             width: Adapt.px(24),
             height: Adapt.px(24),
-            color: ThemeColor.color100,
+            color: ThemeColor.color0,
             package: 'ox_discovery',
           ),
-          onLongPress: () {
-            OXNavigator.presentPage(
-                context,
-                (context) =>
-                    const CreateMomentsPage(type: EMomentType.content));
-          },
           onTap: () {
-            CreateMomentDraft? createMomentMediaDraft =
-                OXMomentCacheManager.sharedInstance.createMomentMediaDraft;
-            if (createMomentMediaDraft != null) {
-              final type = createMomentMediaDraft.type;
-              final imageList = type == EMomentType.picture
-                  ? createMomentMediaDraft.imageList
-                  : null;
-              final videoPath = type == EMomentType.video
-                  ? createMomentMediaDraft.videoPath
-                  : null;
-              final videoImagePath = type == EMomentType.video
-                  ? createMomentMediaDraft.videoImagePath
-                  : null;
-
-              OXNavigator.presentPage(
-                context,
-                (context) => CreateMomentsPage(
-                  type: type,
-                  imageList: imageList,
-                  videoPath: videoPath,
-                  videoImagePath: videoImagePath,
-                ),
-              );
-              return;
-            }
-            OXNavigator.presentPage(
-                context, (context) => const CreateMomentsPage(type: null));
+            OXNavigator.pushPage(context,
+                    (context) => const NotificationsMomentsPage());
           },
         ),
         SizedBox(
