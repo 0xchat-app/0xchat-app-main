@@ -381,7 +381,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
                   child: Align(
                     alignment: Alignment.centerLeft, // 左对齐 TabBar
                     child: CommonGradientTabBar(
-                      data: ['Media', 'Posts', 'Groups'],
+                      data: ['Media', 'Moments', 'Groups'],
                       controller: tabController,
                     ),
                   ).setPadding(
