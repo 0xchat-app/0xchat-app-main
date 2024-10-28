@@ -103,7 +103,6 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
             controller: _controller,
             data: SearchType.values.map((element) => element.label).toList(),
           ).setPaddingOnly(left: 24.px),
-          _buildRecentText(),
           Expanded(
             child: TabBarView(
               controller: _controller,
@@ -188,23 +187,6 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
     );
   }
 
-  Widget _buildRecentText() {
-    return Container(
-      alignment: Alignment.centerLeft,
-      color: ThemeColor.color190,
-      height: 28.px,
-      width: double.infinity,
-      padding: EdgeInsets.only(left: 24.px),
-      child: Text(
-        'Recent',
-        style: TextStyle(
-          color: ThemeColor.color10,
-          fontSize: 14.px,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
 
   @override
   void dispose() {
