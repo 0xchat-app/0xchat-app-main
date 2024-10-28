@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:ox_chat/model/group_ui_model.dart';
 import 'package:ox_chat/model/search_chat_model.dart';
-import 'package:ox_chat/page/session/search_tab_content_view.dart';
+import 'package:ox_chat/page/session/search_tab_view.dart';
 import 'package:ox_chat/utils/search_txt_util.dart';
+import 'package:ox_chat/utils/widget_tool.dart';
+import 'package:ox_chat/widget/search_tab_grouped_view.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
@@ -32,7 +34,12 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
   String _searchQuery = '';
   TextEditingController _searchBarController = TextEditingController();
   Map<SearchType, List<dynamic>> _searchResult = {};
+  List<GroupedModel<UserDBISAR>> _contacts = [];
+  List<GroupedModel<GroupUIModel>> _groups = [];
+  List<GroupedModel<ChannelDBISAR>> _channels = [];
   late final TabController _controller;
+
+  String get searchQuery => _searchQuery;
 
   @override
   void initState() {
@@ -45,13 +52,40 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
   }
 
   void _loadContactsData() {
+    _contacts.clear();
     List<UserDBISAR>? contactList = SearchTxtUtil.loadChatFriendsWithSymbol(_searchQuery);
     if (contactList != null && contactList.length > 0) {
-      _searchResult[SearchType.contact] = contactList;
+      _contacts.add(
+        GroupedModel(
+          title: 'Contacts',
+          items: contactList,
+        ),
+      );
+      _searchResult[SearchType.contact] = _contacts;
     }
   }
 
-  void _loadMessagesData({String? chatId}) async {
+  void _loadUsersData() async {
+    if (searchQuery.startsWith('npub')) {
+      String? pubkey = UserDBISAR.decodePubkey(searchQuery);
+      if (pubkey != null) {
+        UserDBISAR? user = await Account.sharedInstance.getUserInfo(pubkey);
+        if (user == null) return;
+        _contacts.add(
+          GroupedModel(
+            title: 'str_title_top_hins_contacts'.localized(),
+            items: List<UserDBISAR>.from([user]),
+          ),
+        );
+      }
+      _searchResult[SearchType.contact] = _contacts;
+    }
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  void _loadChatMessagesData({String? chatId}) async {
     List<ChatMessage> chatMessageList = await SearchTxtUtil.loadChatMessagesWithSymbol(_searchQuery, chatId: chatId);
     if (chatMessageList.isNotEmpty) {
       _searchResult[SearchType.chat] = chatMessageList;
@@ -60,11 +94,57 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
   }
 
   void _loadGroupsData() async {
+    _groups.clear();
     List<GroupUIModel>? groupList = await SearchTxtUtil.loadChatGroupWithSymbol(_searchQuery);
     if (groupList != null && groupList.length > 0) {
-      _searchResult[SearchType.group] = groupList;
+      _groups.add(GroupedModel<GroupUIModel>(title: 'Groups', items: groupList));
+      _searchResult[SearchType.group] = _groups;
     }
   }
+
+  void _loadChannelsData() async {
+    List<ChannelDBISAR>? channelList = SearchTxtUtil.loadChatChannelsWithSymbol(_searchQuery);
+    if (channelList != null && channelList.length > 0) {
+      _channels.add(GroupedModel<ChannelDBISAR>(title: 'Channels', items: channelList));
+      _searchResult[SearchType.channel] = _channels;
+    }
+  }
+
+  void _loadOnlineGroupsAndChannelsData() async {
+    if (searchQuery.startsWith('nevent') ||
+        searchQuery.startsWith('naddr') ||
+        searchQuery.startsWith('nostr:') ||
+        searchQuery.startsWith('note')) {
+      Map<String, dynamic>? map = Channels.decodeChannel(searchQuery);
+      if (map != null) {
+        final kind = map['kind'];
+        if (kind == 40 || kind == 41) {
+          String decodeNote = map['channelId'].toString();
+          List<String> relays = List<String>.from(map['relays']);
+          ChannelDBISAR? c = await Channels.sharedInstance.searchChannel(decodeNote, relays);
+          if (c != null) {
+            List<ChannelDBISAR> result = [c];
+            _channels.add(GroupedModel(title: 'Online Channels', items: result));
+          }
+        } else if (kind == 39000) {
+          final groupId = map['channelId'];
+          final relays = map['relays'];
+          RelayGroupDBISAR? relayGroupDB = await RelayGroup.sharedInstance.searchGroupsMetadataWithGroupID(groupId, relays[0]);
+          if (relayGroupDB != null) {
+            List<GroupUIModel> result = [GroupUIModel.relayGroupdbToUIModel(relayGroupDB)];
+            _groups.add(GroupedModel(title: 'Online Groups', items: result));
+          }
+        }
+      }
+
+      _searchResult[SearchType.group] = _groups;
+      _searchResult[SearchType.channel] = _channels;
+      if (mounted) {
+        setState(() {});
+      }
+    }
+  }
+
   void _prepareData() {
     _searchResult.clear();
     if (!OXUserInfoManager.sharedInstance.isLogin) return;
@@ -73,14 +153,12 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
 
   void _loadAllData() async {
     if (_searchQuery.trim().isNotEmpty) {
+      _loadChatMessagesData();
       _loadContactsData();
-      // _loadChannelsData();
       _loadGroupsData();
-      _loadMessagesData();
-      // loadOnlineChannelsData();
-      // _loadUsersData();
-    } else {
-      // _loadHistory();
+      _loadChannelsData();
+      _loadOnlineGroupsAndChannelsData();
+      _loadUsersData();
     }
     setState(() {});
   }
@@ -107,7 +185,7 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
             child: TabBarView(
               controller: _controller,
               children: SearchType.values.map(
-                    (searchType) => SearchTabContentView(
+                    (searchType) => SearchTabView(
                       data: _searchResult[searchType] ?? [],
                       type: searchType,
                       searchQuery: _searchQuery,
