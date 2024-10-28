@@ -134,8 +134,8 @@ class GroupsPageState extends State<GroupsPage>
       physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
       itemCount: _groupList.values.length,
-      addAutomaticKeepAlives: addAutomaticKeepAlives,
-      addRepaintBoundaries: addRepaintBoundaries,
+      // addAutomaticKeepAlives: addAutomaticKeepAlives,
+      // addRepaintBoundaries: addRepaintBoundaries,
       itemBuilder: (context, index) {
         final group = _groupList.values.elementAt(index);
         return _buildHotGroupCard(group);

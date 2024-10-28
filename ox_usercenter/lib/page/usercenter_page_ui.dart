@@ -90,6 +90,13 @@ extension UserCenterPageUI on UserCenterPageState{
                   OXNavigator.pushPage(context, (context) => const ZapsPage());
                 },
               ),
+              Visibility(
+                visible: true,
+                child: Divider(
+                  height: Adapt.px(0.5),
+                  color: ThemeColor.color160,
+                ),
+              ),
               FutureBuilder<BadgeDBISAR?>(
                 builder: (context, snapshot) {
                   return _topItemBuild(
