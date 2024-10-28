@@ -60,8 +60,15 @@ class OXMomentManager {
   void newNotesCallBackCallBack(List<NoteDBISAR> notes) {
     notes.removeWhere((element) => element.getNoteKind() == _reactionKind);
     _notes = notes;
+    List<NoteDBISAR> personalNoteDBList = [];
+    for (NoteDBISAR noteDB in notes) {
+      bool isGroupNoted = noteDB.groupId.isNotEmpty;
+      if(!isGroupNoted) {
+        personalNoteDBList.add(noteDB);
+      }
+    }
     for (OXMomentObserver observer in _observers) {
-      observer.didNewNotesCallBackCallBack(notes);
+      observer.didNewNotesCallBackCallBack(personalNoteDBList);
     }
   }
 
