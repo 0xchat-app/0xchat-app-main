@@ -148,7 +148,6 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
       final currentUser = _userCacheList.removeAt(currentIndex);
       _userCacheList.insert(0, currentUser);
     }
-
   }
 
   _showLoginPage(BuildContext context) {
@@ -383,10 +382,10 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
 
   @override
   void didLoginSuccess(UserDBISAR? userInfo) {
-    // TODO: implement didLoginSuccess
     setState(() {
       isLogin = true;
       fetchUnreadCount();
+      _loadLocalInfo();
     });
   }
 
