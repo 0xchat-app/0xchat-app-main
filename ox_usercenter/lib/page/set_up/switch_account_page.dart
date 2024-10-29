@@ -27,12 +27,11 @@ class SwitchAccountPage extends StatefulWidget {
   State<SwitchAccountPage> createState() => _SwitchAccountPageState();
 }
 
-class _SwitchAccountPageState extends State<SwitchAccountPage> {
+class _SwitchAccountPageState extends State<SwitchAccountPage> with OXUserInfoObserver{
   ThemeStyle? themeStyle;
-  int _selectedIndex = 0;
+  int _selectedIndex = -1;
   Map<String, MultipleUserModel> _currentUserMap = {};
   List<MultipleUserModel> _userCacheList = [];
-  bool _isManage = false;
 
   @override
   void initState() {
@@ -49,9 +48,8 @@ class _SwitchAccountPageState extends State<SwitchAccountPage> {
     _currentUserMap = await UserConfigTool.getAllUser();
     _userCacheList = _currentUserMap.values.toList();
     LogUtil.e('Michael:---_loadLocalInfo---_userCacheList =${_userCacheList}');
-    _selectedIndex = _userCacheList
-        .indexWhere((user) => user.pubKey == (_currentUser?.pubKey ?? ''));
-    LogUtil.e('Michael:---_loadLocalInfo---_selectedIndex =${_selectedIndex}');
+    // _selectedIndex = _userCacheList.indexWhere((user) => user.pubKey == (_currentUser?.pubKey ?? ''));
+    _userCacheList.removeWhere((user) => user.pubKey == (_currentUser?.pubKey ?? ''));
     if (mounted) setState(() {});
   }
 
@@ -120,7 +118,7 @@ class _SwitchAccountPageState extends State<SwitchAccountPage> {
           await OXLoading.show();
           await OXUserInfoManager.sharedInstance.switchAccount(pubKey);
           await OXLoading.dismiss();
-          _selectedIndex = index;
+          // _selectedIndex = index;
           setState(() {});
         }
       },
@@ -170,15 +168,15 @@ class _SwitchAccountPageState extends State<SwitchAccountPage> {
                           : const SizedBox(),
                     ],
                   ),
-            const Spacer(),
-            Visibility(
-              visible: _selectedIndex == index && !isAdd,
-              child: CommonImage(
-                iconName: 'icon_item_selected.png',
-                size: 24.px,
-                package: 'ox_usercenter',
-              ),
-            ),
+            // const Spacer(),
+            // Visibility(
+            //   visible: _selectedIndex == index && !isAdd,
+            //   child: CommonImage(
+            //     iconName: 'icon_item_selected.png',
+            //     size: 24.px,
+            //     package: 'ox_usercenter',
+            //   ),
+            // ),
             // Visibility(
             //   visible: _isManage && _selectedIndex != index && !isAdd,
             //   child: GestureDetector(
@@ -233,5 +231,20 @@ class _SwitchAccountPageState extends State<SwitchAccountPage> {
       }
       if (mounted) setState(() {});
     }
+  }
+
+  @override
+  void didLoginSuccess(UserDBISAR? userInfo) {
+    // TODO: implement didLoginSuccess
+  }
+
+  @override
+  void didLogout() {
+    // TODO: implement didLogout
+  }
+
+  @override
+  void didSwitchUser(UserDBISAR? userInfo) {
+    // TODO: implement didSwitchUser
   }
 }
