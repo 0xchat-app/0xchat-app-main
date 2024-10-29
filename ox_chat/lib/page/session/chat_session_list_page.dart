@@ -91,6 +91,7 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     OXUserInfoManager.sharedInstance.addObserver(this);
     Localized.addLocaleChangedCallback(onLocaleChange); //fetchNewestNotice
     _merge();
+    isHasVibrator();
     SchemeHelper.tryHandlerForOpenAppScheme();
   }
 

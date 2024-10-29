@@ -2,7 +2,9 @@ import 'package:avatar_stack/avatar_stack.dart';
 import 'package:avatar_stack/positions.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_chat/model/option_model.dart';
+import 'package:ox_chat/utils/chat_session_utils.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
+import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
@@ -481,101 +483,8 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
           ),
         ),
       ),
-      onTap: _leaveConfirmWidget,
-    );
-  }
-
-  void _leaveConfirmWidget() {
-    String tips = _isGroupOwner
-        ? Localized.text('ox_chat.delete_group_tips')
-        : Localized.text('ox_chat.leave_group_tips');
-    String content = _isGroupOwner ? Localized.text('ox_chat.delete_and_leave_item') : Localized.text('ox_chat.str_leave_group');
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (BuildContext context) {
-        return Material(
-          type: MaterialType.transparency,
-          child: Opacity(
-            opacity: 1,
-            child: Container(
-              alignment: Alignment.bottomCenter,
-              height: Adapt.px(175),
-              decoration: BoxDecoration(
-                color: ThemeColor.color180,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      vertical: Adapt.px(8),
-                    ),
-                    child: Text(
-                      tips,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: Adapt.px(14),
-                        fontWeight: FontWeight.w400,
-                        color: ThemeColor.color100,
-                      ),
-                    ),
-                  ),
-                  Divider(
-                    height: Adapt.px(0.5),
-                    color: ThemeColor.color160,
-                  ),
-                  GestureDetector(
-                    behavior: HitTestBehavior.translucent,
-                    onTap: _isGroupOwner ? _disbandGroupFn : _leaveGroupFn,
-                    child: Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.symmetric(
-                        vertical: Adapt.px(17),
-                      ),
-                      child: Text(
-                        content,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: Adapt.px(16),
-                          fontWeight: FontWeight.w400,
-                          color: ThemeColor.red,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    height: Adapt.px(8),
-                    color: ThemeColor.color190,
-                  ),
-                  GestureDetector(
-                    behavior: HitTestBehavior.translucent,
-                    onTap: () {
-                      OXNavigator.pop(context);
-                    },
-                    child: Container(
-                      padding: EdgeInsets.only(
-                        top: Adapt.px(17),
-                      ),
-                      width: double.infinity,
-                      height: Adapt.px(80),
-                      color: ThemeColor.color180,
-                      child: Text(
-                        Localized.text('ox_common.cancel'),
-                        textAlign: TextAlign.center,
-                        style:
-                            TextStyle(fontSize: 16, color: ThemeColor.color0),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
+      onTap: () {
+        ChatSessionUtils.leaveConfirmWidget(context, ChatType.chatGroup, widget.groupId, isGroupOwner: _isGroupOwner);
       },
     );
   }
@@ -683,53 +592,6 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
       ),
     );
     if (result != null && result) _groupInfoInit();
-  }
-
-  void _leaveGroupFn() async {
-    if (requestTag) {
-      _changeRequestTagStatus(false);
-      OXLoading.show();
-      UserDBISAR? userInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
-      OKEvent event = await Groups.sharedInstance
-          .leaveGroup(widget.groupId, Localized.text('ox_chat.leave_group_system_message').replaceAll(r'${name}', '${userInfo?.name}'));
-
-      if (!event.status) {
-        _changeRequestTagStatus(true);
-        CommonToast.instance.show(context, event.message);
-        OXLoading.dismiss();
-        return;
-      }
-
-      OXLoading.dismiss();
-      CommonToast.instance.show(context, Localized.text('ox_chat.leave_group_success_toast'));
-      OXNavigator.popToRoot(context);
-    }
-  }
-
-  void _disbandGroupFn() async {
-    if (requestTag) {
-      _changeRequestTagStatus(false);
-      OXLoading.show();
-      OKEvent event = await Groups.sharedInstance
-          .deleteAndLeave(widget.groupId, Localized.text('ox_chat.disband_group_toast'));
-
-      if (!event.status) {
-        _changeRequestTagStatus(true);
-        CommonToast.instance.show(context, event.message);
-        OXLoading.dismiss();
-        return;
-      }
-
-      OXLoading.dismiss();
-      CommonToast.instance.show(context, Localized.text('ox_chat.disband_group_toast'));
-      OXNavigator.popToRoot(context);
-    }
-  }
-
-  void _changeRequestTagStatus(bool status) {
-    setState(() {
-      requestTag = status;
-    });
   }
 
   void _groupInfoInit() async {

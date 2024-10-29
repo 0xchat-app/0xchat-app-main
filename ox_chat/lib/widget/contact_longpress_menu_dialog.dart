@@ -3,11 +3,14 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:ox_chat/page/contacts/contact_create_secret_chat.dart';
 import 'package:ox_chat/page/session/chat_message_page.dart';
+import 'package:ox_chat/utils/chat_session_utils.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/model/chat_session_model_isar.dart';
+import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
@@ -109,7 +112,7 @@ class _ContactLongPressMenuDialogState extends State<ContactLongPressMenuDialog>
   @override
   void initState() {
     super.initState();
-    _menulist = CLongPressOptionTypeEx.getOptionModelList();
+    _menulist = CLongPressOptionTypeEx.getOptionModelList(widget.communityItem);
   }
 
 
@@ -129,6 +132,7 @@ class _ContactLongPressMenuDialogState extends State<ContactLongPressMenuDialog>
         padding: EdgeInsets.zero,
         itemBuilder: (context, index) {
           CLongPressOptionType optionType = _menulist[index];
+          String showItemName = CLongPressOptionTypeEx.getOptionName(widget.communityItem, optionType);
           return GestureDetector(
             behavior: HitTestBehavior.translucent,
             onTap: () {
@@ -142,7 +146,7 @@ class _ContactLongPressMenuDialogState extends State<ContactLongPressMenuDialog>
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    optionType.text,
+                    showItemName,
                     style: TextStyle(
                       fontSize: 14.px,
                       color: ThemeColor.color100,
@@ -172,6 +176,7 @@ enum CLongPressOptionType {
   voiceCall,
   videoCall,
   deleteContact,
+  leaveGroupOrChannel,
 }
 
 extension CLongPressOptionTypeEx on CLongPressOptionType {
@@ -187,6 +192,8 @@ extension CLongPressOptionTypeEx on CLongPressOptionType {
         return 'str_video_call'.localized();
       case CLongPressOptionType.deleteContact:
         return 'str_delete_contact'.localized();
+      case CLongPressOptionType.leaveGroupOrChannel:
+        return 'delete'.localized();
     }
   }
 
@@ -202,16 +209,43 @@ extension CLongPressOptionTypeEx on CLongPressOptionType {
         return "icon_call_video.png";
       case CLongPressOptionType.deleteContact:
         return 'icon_chat_delete.png';
+      case CLongPressOptionType.leaveGroupOrChannel:
+        return 'icon_chat_delete.png';
     }
   }
 
-  static List<CLongPressOptionType> getOptionModelList() {
-    List<CLongPressOptionType> list = CLongPressOptionType.values.toList();
-    return list;
+  static String getOptionName(ChatSessionModelISAR chatSessionModelISAR, CLongPressOptionType type){
+    if (type == CLongPressOptionType.leaveGroupOrChannel){
+      if (chatSessionModelISAR.chatType == ChatType.chatChannel){
+        return 'leave_item'.localized();
+      } else {
+        return 'str_leave_group'.localized();
+      }
+    }
+    return type.text;
+  }
+
+  static List<CLongPressOptionType> getOptionModelList(ChatSessionModelISAR chatSessionModelISAR) {
+    if (chatSessionModelISAR.chatType == ChatType.chatSingle ||
+        chatSessionModelISAR.chatType == ChatType.chatStranger ||
+        chatSessionModelISAR.chatType == ChatType.chatSecret ||
+        chatSessionModelISAR.chatType == ChatType.chatSecretStranger) {
+      return [
+        CLongPressOptionType.sendMessage,
+        CLongPressOptionType.startSecretChat,
+        CLongPressOptionType.voiceCall,
+        CLongPressOptionType.videoCall,
+        CLongPressOptionType.deleteContact,
+      ];
+    } else {
+      return [
+        CLongPressOptionType.sendMessage,
+        CLongPressOptionType.leaveGroupOrChannel,
+      ];
+    }
   }
 
   static void optionsOnTap(BuildContext context, CLongPressOptionType optionType, ChatSessionModelISAR sessionModelISAR) async {
-    UserDBISAR? userDB = Contacts.sharedInstance.allContacts[sessionModelISAR.getOtherPubkey] as UserDBISAR;
     switch(optionType){
       case CLongPressOptionType.sendMessage:
         ChatMessagePage.open(
@@ -221,8 +255,10 @@ extension CLongPressOptionTypeEx on CLongPressOptionType {
         );
         break;
       case CLongPressOptionType.startSecretChat:
+        UserDBISAR? userDB = Contacts.sharedInstance.allContacts[sessionModelISAR.getOtherPubkey] as UserDBISAR;
         OXNavigator.pushPage(context, (context) => ContactCreateSecret(userDB: userDB));
       case CLongPressOptionType.voiceCall:
+        UserDBISAR? userDB = Contacts.sharedInstance.allContacts[sessionModelISAR.getOtherPubkey] as UserDBISAR;
         if (userDB.pubKey == OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
           return CommonToast.instance.show(context, "Don't call yourself");
         }
@@ -237,6 +273,7 @@ extension CLongPressOptionTypeEx on CLongPressOptionType {
         );
         break;
       case CLongPressOptionType.videoCall:
+        UserDBISAR? userDB = Contacts.sharedInstance.allContacts[sessionModelISAR.getOtherPubkey] as UserDBISAR;
         if (userDB.pubKey == OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
           return  CommonToast.instance.show(context, "Don't call yourself");
         }
@@ -249,7 +286,9 @@ extension CLongPressOptionTypeEx on CLongPressOptionType {
             'media': CallMessageType.video.text
           },
         );
+        break;
       case CLongPressOptionType.deleteContact:
+        UserDBISAR? userDB = Contacts.sharedInstance.allContacts[sessionModelISAR.getOtherPubkey] as UserDBISAR;
         OXCommonHintDialog.show(context,
             title: Localized.text('ox_chat.remove_contacts'),
             content: Localized.text('ox_chat.remove_contacts_dialog_content')
@@ -276,6 +315,56 @@ extension CLongPressOptionTypeEx on CLongPressOptionType {
                   }),
             ],
             isRowAction: true);
+          break;
+        case CLongPressOptionType.leaveGroupOrChannel:
+          if (sessionModelISAR.chatType == ChatType.chatChannel){
+            OXCommonHintDialog.show(context,
+                title: Localized.text('ox_common.tips'),
+                content: Localized.text('ox_chat.leave_channel_tips'),
+                actionList: [
+                  OXCommonHintAction.cancel(onTap: () {
+                    OXNavigator.pop(context);
+                  }),
+                  OXCommonHintAction.sure(
+                      text: Localized.text('ox_common.confirm'),
+                      onTap: () async {
+                        await OXLoading.show();
+                        final OKEvent okEvent = await Channels.sharedInstance.leaveChannel(sessionModelISAR.chatId);
+                        OXUserInfoManager.sharedInstance.setNotification();
+                        await OXLoading.dismiss();
+                        if (okEvent.status) {
+                          OXChatBinding.sharedInstance.channelsUpdatedCallBack();
+                          OXNavigator.popToRoot(context);
+                        } else {
+                          OXNavigator.pop(context);
+                          CommonToast.instance.show(context, okEvent.message);
+                        }
+                      }),
+                ],
+                isRowAction: true);
+          } else if (sessionModelISAR.chatType == ChatType.chatGroup){
+            UserDBISAR? userInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
+            GroupDBISAR? groupDBInfo = await Groups.sharedInstance.myGroups[sessionModelISAR.chatId]?.value;
+            bool isGroupOwner = (userInfo == null || groupDBInfo == null) ? false : userInfo.pubKey == groupDBInfo.owner;
+            ChatSessionUtils.leaveConfirmWidget(context, sessionModelISAR.chatType, sessionModelISAR.chatId, isGroupOwner: isGroupOwner);
+          } else if (sessionModelISAR.chatType == ChatType.chatRelayGroup){
+            String groupId = sessionModelISAR.chatId;
+            UserDBISAR? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
+            RelayGroupDBISAR? groupDB = RelayGroup.sharedInstance.groups[groupId]?.value;
+            List<UserDBISAR> memberUserDBs = await RelayGroup.sharedInstance.getGroupMembersFromLocal(groupId);
+            bool isGroupMember = false;
+            bool hasDeleteGroupPermission = RelayGroup.sharedInstance.hasPermissions(groupDB?.admins ?? [], userDB?.pubKey??'', [GroupActionKind.deleteGroup]);
+            if (memberUserDBs.isNotEmpty) {
+              UserDBISAR? userInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
+              if (userInfo == null) {
+                isGroupMember = false;
+              } else {
+                isGroupMember = memberUserDBs.any((userDB) => userDB.pubKey == userInfo.pubKey);
+              }
+            }
+            ChatSessionUtils.leaveConfirmWidget(context, sessionModelISAR.chatType, sessionModelISAR.chatId, isGroupMember: isGroupMember, hasDeleteGroupPermission: hasDeleteGroupPermission);
+          }
+          break;
     }
 
   }
