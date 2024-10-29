@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import 'package:ox_chat/widget/image_preview_widget.dart';
+import 'package:ox_chat/widget/chat_image_preview_widget.dart';
 import 'package:ox_common/upload/upload_utils.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/video_utils.dart';
@@ -149,7 +149,7 @@ class ChatVideoMessageState extends State<ChatVideoMessage> {
   );
 
   Widget snapshotBuilder(String imagePath) {
-    return ImagePreviewWidget(
+    return ChatImagePreviewWidget(
       uri: imagePath,
       imageWidth: width,
       imageHeight: height,
