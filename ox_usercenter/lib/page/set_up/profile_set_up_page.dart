@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:chatcore/chat-core.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/log_util.dart';
@@ -243,6 +244,12 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
               delegate: SliverChildListDelegate(
                 <Widget>[
                   _buildHeadImgView(),
+                  SizedBox(height: 16.px),
+                  Align(
+                    alignment: Alignment.topCenter,
+                    child: abbrText('str_set_new_photo'.localized(), 14, ThemeColor.gradientMainStart, fontWeight: FontWeight.w600),
+                  ),
+                  SizedBox(height: 24.px),
                   _itemView(
                       Localized.text('ox_usercenter.username'), Localized.text('ox_usercenter.username_hint_text'),
                       editingController: _userNameTextEditingController),
