@@ -91,7 +91,7 @@ class CallManager {
 
     _signaling?.onRemoveLocalStream = (() async {
       localRenderer.srcObject = null;
-      localRenderer.dispose();
+      // await localRenderer.dispose();
     });
 
     _signaling?.onAddRemoteStream = ((_, stream) async {
@@ -100,9 +100,9 @@ class CallManager {
       callStateHandler?.call(null);
     });
 
-    _signaling?.onRemoveRemoteStream = ((_, stream) {
+    _signaling?.onRemoveRemoteStream = ((_, stream) async {
       remoteRenderer.srcObject = null;
-      remoteRenderer.dispose();
+      // await remoteRenderer.dispose();
     });
     initListener();
   }
