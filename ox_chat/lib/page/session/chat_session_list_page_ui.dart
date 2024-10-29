@@ -109,18 +109,8 @@ extension ChatSessionListPageUI on ChatSessionListPageState{
           onTap: () {
             _itemFn(item);
           },
-          onLongPress: () async {
-            if (item.chatId == CommonConstant.NOTICE_CHAT_ID) return;
-            _scaleList[index].value = 0.96;
-            await Future.delayed(Duration(milliseconds: 80));
-            _scaleList[index].value = 1.0;
-            await Future.delayed(Duration(milliseconds: 80));
-            ChatMessagePage.open(
-              context: context,
-              communityItem: item,
-              unreadMessageCount: item.unreadCount,
-              isLongPressShow: true,
-            );
+          onLongPress: () {
+            _itemLongPressFn(item, index);
           },
           child: AnimatedScale(
             scale: scale,

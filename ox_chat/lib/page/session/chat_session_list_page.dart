@@ -41,6 +41,7 @@ import 'package:ox_common/widgets/highlighted_clickable_text.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_theme/ox_theme.dart';
+import 'package:flutter_vibrate/flutter_vibrate.dart';
 
 part 'chat_session_list_page_ui.dart';
 
@@ -75,6 +76,7 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   bool addAutomaticKeepAlives = true;
   bool addRepaintBoundaries = true;
   final _throttle = ThrottleUtils(delay: Duration(milliseconds: 3000));
+  bool _hasVibrator = false;
 
   @override
   void initState() {
@@ -103,6 +105,11 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     WidgetsBinding.instance.removeObserver(this);
     OXUserInfoManager.sharedInstance.removeObserver(this);
     super.dispose();
+  }
+
+  isHasVibrator() async {
+    _hasVibrator = await Vibrate.canVibrate;
+    setState(() {});
   }
 
   @override
@@ -508,6 +515,24 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
         });
         break;
     }
+  }
+
+  void _itemLongPressFn(ChatSessionModelISAR item, int index) async {
+    if (_hasVibrator && OXUserInfoManager.sharedInstance.canVibrate) {
+      FeedbackType type = FeedbackType.impact;
+      Vibrate.feedback(type);
+    }
+    if (item.chatId == CommonConstant.NOTICE_CHAT_ID) return;
+    _scaleList[index].value = 0.96;
+    await Future.delayed(Duration(milliseconds: 80));
+    _scaleList[index].value = 1.0;
+    await Future.delayed(Duration(milliseconds: 80));
+    ChatMessagePage.open(
+      context: context,
+      communityItem: item,
+      unreadMessageCount: item.unreadCount,
+      isLongPressShow: true,
+    );
   }
 
   @override

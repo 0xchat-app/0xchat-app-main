@@ -238,39 +238,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
                 _showPopupDialog(context, index);
               },
               onTap: () {
-                int draftIndex = selectedIndex;
-                int index = _tabBarList.indexOf(item);
-                if (selectedIndex != index && hasVibrator == true && OXUserInfoManager.sharedInstance.canVibrate) {
-                  //Vibration feedback
-                  FeedbackType type = FeedbackType.impact;
-                  Vibrate.feedback(type);
-                }
-                if (!OXUserInfoManager.sharedInstance.isLogin && (index == 2)) {
-                  _showLoginPage(context);
-                  return;
-                }
-
-                setState(() {
-                  selectedIndex = index;
-                  if (OXUserInfoManager.sharedInstance.isLogin) {
-                    fetchUnreadCount();
-                  }
-                });
-                clearRefreshMessagesTimer();
-
-                widget.onTap!.call(index,draftIndex);
-
-                for (int i = 0; i < 3; i++) {
-                  final controller = riveControllers[i];
-                  final input = controller?.findInput<bool>(riveInputs[i]);
-                  if (input != null && input.value) {
-                    input.value = false;
-                  }
-                }
-                final input = riveControllers[index]?.findInput<bool>(riveInputs[index]);
-                if (input != null) {
-                  input.value = true;
-                }
+                _tabBarItemOnTap(item);
               },
               onDoubleTap: _tabBarList.indexOf(item) == selectedIndex ? () {
                 widget.handleDoubleTap?.call(_tabBarList.indexOf(item),selectedIndex);
@@ -280,6 +248,42 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
         ],
       ),
     );
+  }
+
+  void _tabBarItemOnTap(TranslucentNavigationBarItem item) {
+    int draftIndex = selectedIndex;
+    int index = _tabBarList.indexOf(item);
+    if (selectedIndex != index && hasVibrator == true && OXUserInfoManager.sharedInstance.canVibrate) {
+      //Vibration feedback
+      FeedbackType type = FeedbackType.impact;
+      Vibrate.feedback(type);
+    }
+    if (!OXUserInfoManager.sharedInstance.isLogin && (index == 2)) {
+      _showLoginPage(context);
+      return;
+    }
+
+    setState(() {
+      selectedIndex = index;
+      if (OXUserInfoManager.sharedInstance.isLogin) {
+        fetchUnreadCount();
+      }
+    });
+    clearRefreshMessagesTimer();
+
+    widget.onTap!.call(index,draftIndex);
+
+    for (int i = 0; i < 3; i++) {
+      final controller = riveControllers[i];
+      final input = controller?.findInput<bool>(riveInputs[i]);
+      if (input != null && input.value) {
+        input.value = false;
+      }
+    }
+    final input = riveControllers[index]?.findInput<bool>(riveInputs[index]);
+    if (input != null) {
+      input.value = true;
+    }
   }
 
   Widget _tabbarItemWidget(TranslucentNavigationBarItem item, GlobalKey tabbarKey) {
@@ -385,6 +389,9 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     setState(() {
       isLogin = true;
       fetchUnreadCount();
+      if (_tabBarList.isNotEmpty) {
+        _tabBarItemOnTap(_tabBarList.elementAt(1));
+      }
       _loadLocalInfo();
     });
   }

@@ -420,7 +420,7 @@ class _ContractListItemState extends State<ContractListItem> {
 
   void _itemLongPress() async {
     if (widget.supportLongPress && widget.item.pubKey.isNotEmpty) {
-      if (widget.hasVibrator == true && OXUserInfoManager.sharedInstance.canVibrate) {
+      if (widget.hasVibrator && OXUserInfoManager.sharedInstance.canVibrate) {
         FeedbackType type = FeedbackType.impact;
         Vibrate.feedback(type);
       }

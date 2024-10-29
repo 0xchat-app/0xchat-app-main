@@ -40,7 +40,7 @@ class ChatMessagePage extends StatefulWidget {
     int? unreadMessageCount,
     bool isPushWithReplace = false,
     bool isLongPressShow = false,
-    int fromWhere = 0,//0 session; 1 contact.
+    int fromWhere = 0,//0 session; 1 contacts.
   }) async {
 
     final handler = ChatGeneralHandler(

@@ -32,7 +32,7 @@ class _ContractViewFriendsState extends State<ContractViewFriends>
   List<UserDBISAR> userList = [];
 
   GlobalKey<ContactWidgetState> contractWidgetKey = new GlobalKey<ContactWidgetState>();
-  bool hasVibrator = false;
+  bool _hasVibrator = false;
 
   @override
   void initState() {
@@ -54,7 +54,8 @@ class _ContractViewFriendsState extends State<ContractViewFriends>
   }
 
   isHasVibrator() async {
-    hasVibrator = (await Vibrate.canVibrate);
+    _hasVibrator = await Vibrate.canVibrate;
+    setState(() {});
   }
 
   @override
@@ -70,7 +71,7 @@ class _ContractViewFriendsState extends State<ContractViewFriends>
           topWidget: widget.topWidget,
           bgColor: widget.bgColor,
           supportLongPress: true,
-          hasVibrator: hasVibrator,
+          hasVibrator: _hasVibrator,
         ),
     );
   }
