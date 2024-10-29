@@ -9,11 +9,10 @@ import 'package:ox_common/utils/video_utils.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_image_gallery.dart';
+import 'package:ox_common/widgets/gallery/gallery_image_widget.dart';
 
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_video_page.dart';
-
-import '../../widget/image_preview_widget.dart';
 
 class ContactMediaWidget extends StatefulWidget {
   final UserDBISAR userDB;
@@ -76,15 +75,11 @@ class ContactMediaWidgetState extends State<ContactMediaWidget> {
                 initialPage: 0,
               );
             },
-            child: Container(
-              color: ThemeColor.red,
-              child: ImagePreviewWidget(
-                uri: messagesList[index].decryptContent,
-                imageWidth: widgetWidth,
-                imageHeight: widgetWidth,
-                decryptKey: messagesList[index].decryptSecret,
-                decryptNonce: messagesList[index].decryptNonce,
-              ),
+            child: GalleryImageWidget(
+              uri: messagesList[index].decryptContent,
+              fit: BoxFit.cover,
+              decryptKey: messagesList[index].decryptSecret,
+              decryptNonce: messagesList[index].decryptNonce,
             ),
           );
         }
