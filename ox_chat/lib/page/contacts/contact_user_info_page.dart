@@ -418,7 +418,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
                 'ox_usercenter',
                 'showUserCenterBadgeWallPage',
                 [context],
-                {#userDB: userDB,#isShowTabBar:false},
+                {#userDB: userDB,#isShowTabBar:false,#isShowBadgeAwards:false},
               ),
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 24.px),

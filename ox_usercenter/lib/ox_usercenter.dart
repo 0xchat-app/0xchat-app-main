@@ -183,7 +183,7 @@ class OXUserCenter extends OXFlutterModule {
     );
   }
 
-  Widget showUserCenterBadgeWallPage(BuildContext? context, {required UserDBISAR userDB,bool isShowTabBar = true}) {
-    return  UsercenterBadgeWallPage(userDB: userDB, isShowTabBar:isShowTabBar);
+  Widget showUserCenterBadgeWallPage(BuildContext? context, {required UserDBISAR userDB,bool isShowTabBar = true,bool isShowBadgeAwards = true,}) {
+    return  UsercenterBadgeWallPage(userDB: userDB, isShowTabBar:isShowTabBar,isShowBadgeAwards:isShowBadgeAwards);
   }
 }
