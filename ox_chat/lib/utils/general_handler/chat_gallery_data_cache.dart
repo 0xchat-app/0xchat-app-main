@@ -58,6 +58,7 @@ class ChatGalleryDataCache {
       id: message.id,
       uri: imageURL,
       decryptSecret: message.decryptKey,
+      decryptNonce: message.decryptNonce,
     );
     if (isInsertToFirst) {
       gallery.insert(0, model);

@@ -141,7 +141,7 @@ extension InputMoreItemEx on InputMoreItem {
   static InputMoreItem ecash(ChatGeneralHandler handler) =>
       InputMoreItem(
         id: 'ecash',
-        title: () => 'Ecash',
+        title: () => Localized.text('ox_chat_ui.input_more_nuts'),
         iconName: 'chat_ecash_icon.png',
         action: (context) {
           handler.ecashPressHandler(context);

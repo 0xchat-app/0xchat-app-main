@@ -25,7 +25,8 @@ import 'package:nostr_core_dart/nostr.dart';
 class UsercenterBadgeWallPage extends StatefulWidget {
   final UserDBISAR? userDB;
   final bool isShowTabBar;
-  const UsercenterBadgeWallPage({Key? key, required this.userDB,this.isShowTabBar = true}) : super(key: key);
+  final bool isShowBadgeAwards;
+  const UsercenterBadgeWallPage({Key? key, required this.userDB,this.isShowTabBar = true,this.isShowBadgeAwards = true}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -176,7 +177,6 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
           children: [
             _topView(),
             Container(
-              margin: EdgeInsets.only(top: Adapt.px(24)),
               padding: EdgeInsets.symmetric(horizontal: Adapt.px(24), vertical: Adapt.px(16)),
               decoration: BoxDecoration(
                 color: ThemeColor.color180,
@@ -302,6 +302,7 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
   }
 
   Widget _topView(){
+    if(!widget.isShowBadgeAwards) return const SizedBox();
     CommonImage defaultProfileBadge = CommonImage(
       iconName: 'icon_badge_default.png',
       fit: BoxFit.cover,
@@ -310,6 +311,7 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
       useTheme: true,
     );
     return Container(
+      margin: EdgeInsets.only(bottom: 24.px),
       height: Adapt.px(140),
       decoration: BoxDecoration(
         color: ThemeColor.color180,

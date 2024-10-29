@@ -8,11 +8,11 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/video_utils.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_image_gallery.dart';
+import 'package:ox_common/widgets/gallery/gallery_image_widget.dart';
 
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_video_page.dart';
-
-import '../../widget/image_preview_widget.dart';
 
 class ContactMediaWidget extends StatefulWidget {
   final UserDBISAR userDB;
@@ -55,6 +55,7 @@ class ContactMediaWidgetState extends State<ContactMediaWidget> {
   @override
   Widget build(BuildContext context) {
     if(messagesList.isEmpty) return _noDataWidget();
+    final widgetWidth = int.parse((MediaQuery.of(context).size.width / 3).floor().toString());
     return GridView.builder(
       padding: EdgeInsets.zero,
       shrinkWrap: true,
@@ -62,12 +63,24 @@ class ContactMediaWidgetState extends State<ContactMediaWidget> {
       itemCount: messagesList.length,
       itemBuilder: (context, index) {
         if(MessageDBISAR.stringtoMessageType(messagesList[index].type) == MessageType.image || MessageDBISAR.stringtoMessageType(messagesList[index].type) == MessageType.encryptedImage){
-          return ImagePreviewWidget(
-            uri: messagesList[index].decryptContent,
-            imageWidth: 40,
-            imageHeight: 40,
-            decryptKey: messagesList[index].decryptSecret,
-            decryptNonce: messagesList[index].decryptNonce,
+          return  GestureDetector(
+            onTap: (){
+              CommonImageGallery.show(
+                context: context,
+                imageList: [messagesList[index]].map((e) => ImageEntry(
+                  id: index.toString(),
+                  url: e.decryptContent,
+                  decryptedKey: e.decryptSecret,
+                )).toList(),
+                initialPage: 0,
+              );
+            },
+            child: GalleryImageWidget(
+              uri: messagesList[index].decryptContent,
+              fit: BoxFit.cover,
+              decryptKey: messagesList[index].decryptSecret,
+              decryptNonce: messagesList[index].decryptNonce,
+            ),
           );
         }
 
@@ -134,9 +147,7 @@ class MediaVideoWidgetState extends State<MediaVideoWidget> {
   }
 
   Future<void> _initializeThumbnail() async {
-    final String? thumbPath = (await OXVideoUtils.getVideoThumbnailImage(
-            videoURL: widget.messageDBISAR.decryptContent))
-        ?.path;
+    final String? thumbPath = (await OXVideoUtils.getVideoThumbnailImage(videoURL: widget.messageDBISAR.decryptContent))?.path;
     if (mounted) {
       setState(() {
         if (thumbPath != null) {

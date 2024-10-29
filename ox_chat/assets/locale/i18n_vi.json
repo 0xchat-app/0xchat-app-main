@@ -202,7 +202,7 @@
   "disabled_msg_auto_delete_system": "${username} Đã vô hiệu hóa bộ đếm thời gian tự động xóa",
   "set_normal_dm_system": "${username} Đã thiết lập cuộc trò chuyện hiện tại là DM thông thường",
   "set_gift_wrapped_dm_system": "${username} Đã thiết lập cuộc trò chuyện hiện tại là DM quà tặng",
-  "ecash_text": "Ecash",
+  "ecash_text": "Cashu Nuts",
   "ecash_random_amount": "Số Tiền Ngẫu Nhiên",
   "ecash_identical_amount": "Số Tiền Giống Nhau",
   "ecash_exclusive": "Độc Quyền",

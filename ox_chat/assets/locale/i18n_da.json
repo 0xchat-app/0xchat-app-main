@@ -202,7 +202,7 @@
   "disabled_msg_auto_delete_system": "${username} Deaktiverede den automatiske slette-timer",
   "set_normal_dm_system": "${username} Indstillede den aktuelle samtale som normal DM",
   "set_gift_wrapped_dm_system": "${username} Indstillede den aktuelle samtale som gaveindpakket DM",
-  "ecash_text": "Ecash",
+  "ecash_text": "Cashu Nuts",
   "ecash_random_amount": "Tilfældigt beløb",
   "ecash_identical_amount": "Identisk beløb",
   "ecash_exclusive": "Eksklusiv",

@@ -67,7 +67,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> {
     );
   }
 
-  Widget buildNavBar() {
+  PreferredSizeWidget buildNavBar() {
     GroupDBISAR? group = Groups.sharedInstance.groups[groupId]?.value;
     String showName = group?.name ?? '';
     return CommonChatNavBar(
