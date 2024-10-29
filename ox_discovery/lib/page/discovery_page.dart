@@ -141,7 +141,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
               fontSize: Adapt.px(20),
               color: ThemeColor.titleColor,
             ),
-          ).setPaddingOnly(left: 36.px),
+          ).setPaddingOnly(left: pageType == EDiscoveryPageType.moment ?  36.px : 0.px),
         ),
       ),
       body: _body(),
@@ -201,7 +201,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
           height: Adapt.px(24),
           color: ThemeColor.color0,
           package: 'ox_discovery',
-        ),
+        ).setPaddingOnly(left: 10.px),
         onTap: () async {
           // showModalBottomSheet(context: context, backgroundColor: Colors.transparent, builder: (context) => _buildChannelBottomDialog());
           await showModalBottomSheet(
