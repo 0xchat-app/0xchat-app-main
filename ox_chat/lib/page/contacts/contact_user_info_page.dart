@@ -12,6 +12,7 @@ import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/utils/custom_uri_helper.dart';
+import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/widgets/common_gradient_tab_bar.dart';
 import 'package:ox_common/widgets/common_time_dialog.dart';
 import 'package:ox_common/model/chat_session_model_isar.dart';
@@ -63,7 +64,7 @@ class ContactUserInfoPage extends StatefulWidget {
   State<ContactUserInfoPage> createState() => _ContactUserInfoPageState();
 }
 
-enum OtherInfoItemType { Remark, Bio, Pubkey, Badges, Mute, Moments, Link }
+enum EOtherInfoItemType { Remark, Bio, Pubkey, Badges, Mute, Moments, Link }
 
 enum EMoreOptionType {
   secretChat,
@@ -123,22 +124,22 @@ extension MoreOptionTypeEx on EMoreOptionType {
   }
 }
 
-extension OtherInfoItemStr on OtherInfoItemType {
+extension OtherInfoItemStr on EOtherInfoItemType {
   String get text {
     switch (this) {
-      case OtherInfoItemType.Remark:
+      case EOtherInfoItemType.Remark:
         return Localized.text('ox_chat.remark');
-      case OtherInfoItemType.Bio:
+      case EOtherInfoItemType.Bio:
         return Localized.text('ox_chat.bio');
-      case OtherInfoItemType.Pubkey:
+      case EOtherInfoItemType.Pubkey:
         return Localized.text('ox_chat.public_key');
-      case OtherInfoItemType.Badges:
+      case EOtherInfoItemType.Badges:
         return Localized.text('ox_chat.badges');
-      case OtherInfoItemType.Mute:
+      case EOtherInfoItemType.Mute:
         return Localized.text('ox_chat.mute_item');
-      case OtherInfoItemType.Moments:
+      case EOtherInfoItemType.Moments:
         return Localized.text('ox_discovery.moment');
-      case OtherInfoItemType.Link:
+      case EOtherInfoItemType.Link:
         return 'Share Link';
     }
   }
@@ -202,6 +203,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
   ];
 
   String _userQrCodeUrl = '';
+  String _showUserQrCodeUrl = '';
   late TabController tabController;
 
   final GlobalKey _moreIconKey = GlobalKey();
@@ -230,6 +232,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
       relayList,
     );
     String link = CustomURIHelper.createNostrURI(nostrValue);
+    _showUserQrCodeUrl = link;
     _userQrCodeUrl =
         link.substring(0, 15) + '...' + link.substring(link.length - 15);
     setState(() {});
@@ -371,13 +374,13 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
                         _tabContainerView(),
                         // _contentList(),
                         _bioOrPubKeyWidget(
-                            OtherInfoItemType.Link, _userQrCodeUrl),
+                            EOtherInfoItemType.Link, _userQrCodeUrl),
                         userDB.about == null ||
                                 userDB.about!.isEmpty ||
                                 userDB.about == 'null'
                             ? SizedBox()
                             : _bioOrPubKeyWidget(
-                                OtherInfoItemType.Bio, userDB.about ?? ''),
+                                EOtherInfoItemType.Bio, userDB.about ?? ''),
                         _delOrAddFriendBtnView(),
                         _blockStatusBtnView(),
                       ],
@@ -514,67 +517,74 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
     );
   }
 
-  Widget _bioOrPubKeyWidget(OtherInfoItemType type, String content) {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(Adapt.px(16)),
-        color: ThemeColor.color180,
-      ),
-      padding: EdgeInsets.symmetric(
-          horizontal: Adapt.px(16), vertical: Adapt.px(12)),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                alignment: Alignment.topLeft,
-                margin: EdgeInsets.only(bottom: Adapt.px(4)),
-                child: Text(
-                  type.text,
-                  style: TextStyle(
-                    fontSize: Adapt.px(14),
-                    color: ThemeColor.color100,
-                    fontWeight: FontWeight.w600,
+  Widget _bioOrPubKeyWidget(EOtherInfoItemType type, String content) {
+    return GestureDetector(
+      onTap: (){
+        if(type == EOtherInfoItemType.Link){
+          _copyLinkDialog();
+        }
+      },
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(Adapt.px(16)),
+          color: ThemeColor.color180,
+        ),
+        padding: EdgeInsets.symmetric(
+            horizontal: Adapt.px(16), vertical: Adapt.px(12)),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  alignment: Alignment.topLeft,
+                  margin: EdgeInsets.only(bottom: Adapt.px(4)),
+                  child: Text(
+                    type.text,
+                    style: TextStyle(
+                      fontSize: Adapt.px(14),
+                      color: ThemeColor.color100,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
-              ),
-              Container(
-                width: MediaQuery.of(context).size.width - 110.px,
-                child: Text(
-                  content,
-                  style: TextStyle(
-                    fontSize: Adapt.px(14),
-                    color: ThemeColor.color0,
-                    fontWeight: FontWeight.w400,
+                Container(
+                  width: MediaQuery.of(context).size.width - 110.px,
+                  child: Text(
+                    content,
+                    style: TextStyle(
+                      fontSize: Adapt.px(14),
+                      color: ThemeColor.color0,
+                      fontWeight: FontWeight.w400,
+                    ),
+                    maxLines: null,
                   ),
-                  maxLines: null,
                 ),
-              ),
-            ],
-          ),
-          type == OtherInfoItemType.Link
-              ? GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  onTap: () {
-                    OXModuleService.invoke('ox_chat', 'showMyIdCardDialog',
-                        [context], {#otherUser: userDB});
-                  },
-                  child: CommonImage(
-                    iconName: 'icon_qrcode.png',
-                    width: 20.px,
-                    height: 20.px,
-                    fit: BoxFit.fill,
-                    package: 'ox_usercenter',
-                    color: ThemeColor.color100,
-                  ),
-                )
-              : Container(),
-        ],
-      ),
-    ).setPaddingOnly(top: 16.px);
+              ],
+            ),
+            type == EOtherInfoItemType.Link
+                ? GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onTap: () {
+                      OXModuleService.invoke('ox_chat', 'showMyIdCardDialog',
+                          [context], {#otherUser: userDB});
+                    },
+                    child: CommonImage(
+                      iconName: 'icon_qrcode.png',
+                      width: 20.px,
+                      height: 20.px,
+                      fit: BoxFit.fill,
+                      package: 'ox_usercenter',
+                      color: ThemeColor.color100,
+                    ),
+                  )
+                : Container(),
+          ],
+        ),
+      ).setPaddingOnly(top: 16.px),
+    );
   }
 
   Widget _buildHeadPubKey() {
@@ -1014,6 +1024,71 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
     );
   }
 
+  void _copyLinkDialog() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(Adapt.px(12)),
+            color: ThemeColor.color180,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildMomentItem('Copy Link', index: 0,
+                onTap: () async{
+                  await TookKit.copyKey(context,_showUserQrCodeUrl);
+                  CommonToast.instance.show(context, 'Copy successfully !');
+                  OXNavigator.pop(context);
+                },
+              ),
+              Divider(
+                color: ThemeColor.color170,
+                height: Adapt.px(0.5),
+              ),
+              Container(
+                height: Adapt.px(8),
+                color: ThemeColor.color190,
+              ),
+              _buildMomentItem(Localized.text('ox_common.cancel'), index: 3,
+                  onTap: () {
+                    OXNavigator.pop(context);
+                  },
+              ),
+              SizedBox(
+                height: Adapt.px(21),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildMomentItem(String title,
+      {required int index, GestureTapCallback? onTap, bool isSelect = false}) {
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      child: Container(
+        alignment: Alignment.center,
+        width: double.infinity,
+        height: Adapt.px(56),
+        child: Text(
+          title,
+          style: TextStyle(
+            color: isSelect ? ThemeColor.purple1 : ThemeColor.color0,
+            fontSize: Adapt.px(16),
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+      ),
+      onTap: onTap,
+    );
+  }
+
   void _updateSafeChat() async {
     String? chatId = widget.chatId;
     if (chatId == null) return;
@@ -1100,8 +1175,8 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
     }
   }
 
-  void _itemClick(OtherInfoItemType type) async {
-    if (type == OtherInfoItemType.Remark) {
+  void _itemClick(EOtherInfoItemType type) async {
+    if (type == EOtherInfoItemType.Remark) {
       LogUtil.e('Michael: goto ContactFriendsRemarkPage');
       String? result = await OXNavigator.pushPage(
         context,
@@ -1112,7 +1187,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
       if (result != null) {
         setState(() {});
       }
-    } else if (type == OtherInfoItemType.Badges) {
+    } else if (type == EOtherInfoItemType.Badges) {
       OXModuleService.pushPage(
         context,
         'ox_usercenter',
@@ -1121,7 +1196,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
           'userDB': userDB,
         },
       );
-    } else if (type == OtherInfoItemType.Moments) {
+    } else if (type == EOtherInfoItemType.Moments) {
       OXModuleService.pushPage(
         context,
         'ox_discovery',
