@@ -202,7 +202,7 @@
   "disabled_msg_auto_delete_system": "${username} Вимкнув таймер автоматичного видалення",
   "set_normal_dm_system": "${username} Налаштував поточну бесіду як звичайний ДМ",
   "set_gift_wrapped_dm_system": "${username} Налаштував поточну бесіду як подарунково запакований ДМ",
-  "ecash_text": "Ecash",
+  "ecash_text": "Cashu Nuts",
   "ecash_random_amount": "Випадкова Сума",
   "ecash_identical_amount": "Ідентична Сума",
   "ecash_exclusive": "Ексклюзивний",

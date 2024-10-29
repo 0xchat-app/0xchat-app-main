@@ -202,7 +202,7 @@
   "disabled_msg_auto_delete_system": "${username} は自動削除タイマーを無効にしました",
   "set_normal_dm_system": "${username} は現在の会話を通常のDMとして設定しました",
   "set_gift_wrapped_dm_system": "${username} は現在の会話をギフトラップDMとして設定しました",
-  "ecash_text": "Ecash",
+  "ecash_text": "Cashu Nuts",
   "ecash_random_amount": "ランダム金額",
   "ecash_identical_amount": "同一金額",
   "ecash_exclusive": "独占",

@@ -202,7 +202,7 @@
   "disabled_msg_auto_delete_system": "${username} Disabled the auto-delete timer",
   "set_normal_dm_system": "${username} Set the current conversation as normal DM",
   "set_gift_wrapped_dm_system": "${username} Set the current conversation as gift-wrapped DM",
-  "ecash_text": "Ecash",
+  "ecash_text": "Cashu Nuts",
   "ecash_random_amount": "Random Amount",
   "ecash_identical_amount": "Identical Amount",
   "ecash_exclusive": "Exclusive",

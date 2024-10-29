@@ -202,7 +202,7 @@
   "disabled_msg_auto_delete_system": "${username} Keelas automaatse kustutamise taimeri",
   "set_normal_dm_system": "${username} Seadis praeguse vestluse tavapäraseks DM-iks",
   "set_gift_wrapped_dm_system": "${username} Seadis praeguse vestluse kingituseks pakitud DM-iks",
-  "ecash_text": "Ecash",
+  "ecash_text": "Cashu Nuts",
   "ecash_random_amount": "Juhuslik Summa",
   "ecash_identical_amount": "Identsed Summad",
   "ecash_exclusive": "Eksklusiivne",
