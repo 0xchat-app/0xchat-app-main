@@ -8,6 +8,7 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/video_utils.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_image_gallery.dart';
 
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_video_page.dart';
@@ -63,14 +64,27 @@ class ContactMediaWidgetState extends State<ContactMediaWidget> {
       itemCount: messagesList.length,
       itemBuilder: (context, index) {
         if(MessageDBISAR.stringtoMessageType(messagesList[index].type) == MessageType.image || MessageDBISAR.stringtoMessageType(messagesList[index].type) == MessageType.encryptedImage){
-          return  Container(
-            color: ThemeColor.red,
-            child: ImagePreviewWidget(
-              uri: messagesList[index].decryptContent,
-              imageWidth: widgetWidth,
-              imageHeight: widgetWidth,
-              decryptKey: messagesList[index].decryptSecret,
-              decryptNonce: messagesList[index].decryptNonce,
+          return  GestureDetector(
+            onTap: (){
+              CommonImageGallery.show(
+                context: context,
+                imageList: [messagesList[index]].map((e) => ImageEntry(
+                  id: index.toString(),
+                  url: e.decryptContent,
+                  decryptedKey: e.decryptSecret,
+                )).toList(),
+                initialPage: 0,
+              );
+            },
+            child: Container(
+              color: ThemeColor.red,
+              child: ImagePreviewWidget(
+                uri: messagesList[index].decryptContent,
+                imageWidth: widgetWidth,
+                imageHeight: widgetWidth,
+                decryptKey: messagesList[index].decryptSecret,
+                decryptNonce: messagesList[index].decryptNonce,
+              ),
             ),
           );
         }
