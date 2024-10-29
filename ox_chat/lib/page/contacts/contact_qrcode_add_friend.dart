@@ -155,7 +155,7 @@ class _CommunityQrcodeAddFriendState extends BasePageState<CommunityQrcodeAddFri
               child: Column(
                 children: [
                   SizedBox(height: Adapt.px(20),),
-                  _itemView('icon_business_card.png'),
+                  _itemView('icon_business_import.png'),
                   SizedBox(height: Adapt.px(7),),
                   MyText(
                     Localized.text('ox_chat.import_follows'),
