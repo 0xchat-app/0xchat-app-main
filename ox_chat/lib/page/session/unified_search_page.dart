@@ -193,19 +193,33 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
     setState(() {});
   }
 
+  void _loadRecentChannel() {
+    List<GroupedModel<ChannelDBISAR>> recentChannel = [];
+    List<ChannelDBISAR> channels = [];
+    Map<String, ValueNotifier<ChannelDBISAR>> channelsMap = Channels.sharedInstance.myChannels;
+    if (channelsMap.length > 0) {
+      channels = channelsMap.values.map((e) => e.value).toList();
+    }
+    recentChannel.add(GroupedModel<ChannelDBISAR>(title: 'Recent', items: channels));
+    _searchResult[SearchType.channel] = recentChannel;
+    setState(() {});
+  }
+
   void _getMediaList() async {
-    List<MessageDBISAR> messages = (await Messages.loadMessagesFromDB(
-            messageTypes: [
-              MessageType.image,
-              MessageType.encryptedImage,
-              MessageType.video,
-              MessageType.encryptedVideo,
-            ]))['messages'] ??
-        <MessageDBISAR>[];
-    // if (messages.isNotEmpty) {
-    //   messagesList = messages;
-    //   setState(() {});
-    // }
+    Map result = await Messages.loadMessagesFromDB(
+      messageTypes: [
+        MessageType.image,
+        MessageType.encryptedImage,
+        MessageType.video,
+        MessageType.encryptedVideo,
+      ],
+      // since: 0
+      // until: DateTime.now().microsecondsSinceEpoch,
+      // limit: 50,
+    );
+    List<MessageDBISAR> messages = result['messages'] ?? <MessageDBISAR>[];
+    _searchResult[SearchType.media] = messages;
+    setState(() {});
   }
 
   void _prepareData() {
@@ -229,6 +243,8 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
   void _loadRecentData() {
     _loadRecentChatMessage();
     _loadRecentGroup();
+    _loadRecentChannel();
+    _getMediaList();
   }
 
 

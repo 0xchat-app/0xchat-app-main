@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ox_chat/model/group_ui_model.dart';
 import 'package:ox_chat/model/search_chat_model.dart';
+import 'package:ox_chat/widget/search_tab_grid_view.dart';
 import 'package:ox_chat/widget/search_tab_grouped_view.dart';
 import 'package:ox_common/mixin/common_state_view_mixin.dart';
 import 'package:chatcore/chat-core.dart';
@@ -99,6 +100,12 @@ class _SearchTabViewState extends State<SearchTabView> with CommonStateViewMixin
       // case SearchType.ecash:
       //   break;
       case SearchType.media:
+        if (widget.data is List<MessageDBISAR>) {
+          final data = widget.data as List<MessageDBISAR>;
+          return SearchTabGridView(
+            data: data,
+          );
+        }
         break;
       // case SearchType.link:
       //   break;

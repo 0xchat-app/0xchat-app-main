@@ -43,6 +43,7 @@ class SearchResultItem extends StatelessWidget {
                 children: [
                   Text(
                     title ?? '',
+                    overflow: TextOverflow.ellipsis,
                   ).setPadding(EdgeInsets.only(bottom: Adapt.px(2))),
                   subTitle == null || subTitle!.isEmpty ? SizedBox() : _highlightText(subTitle!),
                 ],
