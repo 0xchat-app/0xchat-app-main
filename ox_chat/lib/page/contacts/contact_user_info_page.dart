@@ -7,7 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_chat/page/contacts/contact_friend_remark_page.dart';
 import 'package:ox_chat/page/session/chat_message_page.dart';
-import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/log_util.dart';
@@ -24,7 +23,6 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
-import 'package:ox_common/widgets/common_action_dialog.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
@@ -33,12 +31,10 @@ import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
-import 'package:ox_theme/ox_theme.dart';
 
 import '../session/unified_search_page.dart';
 import 'contact_create_secret_chat.dart';
 import 'contact_groups_widget.dart';
-import 'contact_links_widget.dart';
 import 'contact_media_widget.dart';
 
 class TabModel {
@@ -46,19 +42,19 @@ class TabModel {
   GestureTapDownCallback? onTapDown;
   final String iconName;
   final String content;
-  TabModel(
-      {required this.onTap,
-      required this.iconName,
-      required this.content,
-      this.onTapDown});
+  TabModel({
+    required this.onTap,
+    required this.iconName,
+    required this.content,
+    this.onTapDown,
+  });
 }
 
 class ContactUserInfoPage extends StatefulWidget {
   final String pubkey;
   final String? chatId;
 
-  ContactUserInfoPage({Key? key, required this.pubkey, this.chatId})
-      : super(key: key);
+  ContactUserInfoPage({Key? key, required this.pubkey, this.chatId}) : super(key: key);
 
   @override
   State<ContactUserInfoPage> createState() => _ContactUserInfoPageState();
@@ -80,9 +76,9 @@ enum EInformationType {
   groups,
 }
 
-extension EInformationTypeEx on EInformationType{
+extension EInformationTypeEx on EInformationType {
   String get text {
-    switch(this){
+    switch (this) {
       case EInformationType.media:
         return 'Media';
       case EInformationType.badges:
@@ -94,7 +90,6 @@ extension EInformationTypeEx on EInformationType{
     }
   }
 }
-
 
 extension MoreOptionTypeEx on EMoreOptionType {
   String get text {
@@ -145,8 +140,7 @@ extension OtherInfoItemStr on EOtherInfoItemType {
   }
 }
 
-class _ContactUserInfoPageState extends State<ContactUserInfoPage>
-    with SingleTickerProviderStateMixin {
+class _ContactUserInfoPageState extends State<ContactUserInfoPage> with SingleTickerProviderStateMixin {
   ChatSessionModelISAR? get _chatSessionModel {
     ChatSessionModelISAR? model =
         OXChatBinding.sharedInstance.sessionMap[widget.chatId];
@@ -157,20 +151,11 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
   Image _avatarPlaceholderImage = Image.asset(
     'assets/images/icon_user_default.png',
     fit: BoxFit.contain,
-    width: Adapt.px(60),
-    height: Adapt.px(60),
+    width: 60.px,
+    height: 60.px,
     package: 'ox_common',
   );
 
-  Widget _badgePlaceholderImage = CommonImage(
-    iconName: 'icon_badge_default.png',
-    fit: BoxFit.cover,
-    width: Adapt.px(32),
-    height: Adapt.px(32),
-    useTheme: true,
-  );
-
-  bool _publicKeyCopied = false;
 
   List<BadgeDBISAR> _badgeDBList = [];
   bool _isMute = false;
@@ -213,7 +198,8 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
     _initData();
     _initModelList();
     getShareLink();
-    tabController = TabController(length: EInformationType.values.length, vsync: this);
+    tabController =
+        TabController(length: EInformationType.values.length, vsync: this);
   }
 
   @override
@@ -353,7 +339,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
         title: '',
       ),
       body: DefaultTabController(
-        length: 3, // Tab 的数量
+        length: EInformationType.values.length, // Tab 的数量
         child: NestedScrollView(
           controller: _scrollController,
           headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
@@ -361,27 +347,16 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
               SliverToBoxAdapter(
                 child: Column(
                   children: [
-                    // CommonAppBar(),
                     Column(
                       children: [
                         _buildHeadImage(),
                         _buildHeadName(),
                         _buildHeadDesc(),
                         _buildHeadPubKey(),
-                        SizedBox(
-                          height: Adapt.px(16),
-                        ),
                         _tabContainerView(),
-                        // _contentList(),
-                        _bioOrPubKeyWidget(
-                            EOtherInfoItemType.Link, _userQrCodeUrl),
-                        userDB.about == null ||
-                                userDB.about!.isEmpty ||
-                                userDB.about == 'null'
-                            ? SizedBox()
-                            : _bioOrPubKeyWidget(
-                                EOtherInfoItemType.Bio, userDB.about ?? ''),
-                        _delOrAddFriendBtnView(),
+                        _bioOrLinkWidget(EOtherInfoItemType.Link, _userQrCodeUrl),
+                        _bioOrLinkWidget(EOtherInfoItemType.Bio, userDB.about ?? ''),
+                        _addFriendBtnView(),
                         _blockStatusBtnView(),
                       ],
                     ).setPadding(EdgeInsets.symmetric(horizontal: 24.px)),
@@ -401,7 +376,9 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: CommonGradientTabBar(
-                      data: EInformationType.values.map((type) => type.text).toList(),
+                      data: EInformationType.values
+                          .map((type) => type.text)
+                          .toList(),
                       controller: tabController,
                     ),
                   ).setPadding(
@@ -421,7 +398,11 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
                 'ox_usercenter',
                 'showUserCenterBadgeWallPage',
                 [context],
-                {#userDB: userDB,#isShowTabBar:false,#isShowBadgeAwards:false},
+                {
+                  #userDB: userDB,
+                  #isShowTabBar: false,
+                  #isShowBadgeAwards: false
+                },
               ),
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 24.px),
@@ -435,7 +416,6 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
               ContactGroupsWidget(
                 userDB: userDB,
               ),
-              // ContactLinksWidget(),
             ],
           ).setPaddingOnly(top: 8.px),
         ),
@@ -444,9 +424,8 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
   }
 
   Widget _tabContainerView() {
-    // if (!(!_isInBlockList())) return Container();
-    // bool isShowMore = widget.chatId != null;
     return Container(
+      margin: EdgeInsets.only(top: 16.px),
       child: GridView.builder(
         shrinkWrap: true,
         padding: const EdgeInsets.only(top: 0),
@@ -455,14 +434,14 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
           crossAxisCount: 5,
           crossAxisSpacing: 4.px,
           childAspectRatio: 1.1,
-          // mainAxisExtent: _imageWH + Adapt.px(8 + 34),
         ),
         itemBuilder: (BuildContext context, int index) {
+          TabModel model = modelList[index];
           return _tabWidget(
-              onTapDown: modelList[index].onTapDown,
-              content: modelList[index].content,
-              onTap: modelList[index].onTap,
-              iconName: modelList[index].iconName);
+              onTapDown: model.onTapDown,
+              content: model.content,
+              onTap: model.onTap,
+              iconName: model.iconName);
         },
         itemCount: modelList.length,
       ),
@@ -498,7 +477,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
               width: Adapt.px(24),
               height: Adapt.px(24),
               package: 'ox_chat',
-              color:   ThemeColor.color100,
+              color: ThemeColor.color100,
             ),
             SizedBox(
               height: Adapt.px(2),
@@ -517,10 +496,33 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
     );
   }
 
-  Widget _bioOrPubKeyWidget(EOtherInfoItemType type, String content) {
+  Widget _bioOrLinkWidget(EOtherInfoItemType type, String content) {
+    Widget linkQrCodeWidget = const SizedBox();
+    if(EOtherInfoItemType.Bio == type){
+      bool isShowBio = content.isEmpty || content == 'null';
+      if(isShowBio) return const SizedBox();
+    }
+
+    if(EOtherInfoItemType.Link == type){
+      linkQrCodeWidget = GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () {
+          OXModuleService.invoke('ox_chat', 'showMyIdCardDialog',
+              [context], {#otherUser: userDB});
+        },
+        child: CommonImage(
+          iconName: 'icon_qrcode.png',
+          width: 20.px,
+          height: 20.px,
+          fit: BoxFit.fill,
+          package: 'ox_usercenter',
+          color: ThemeColor.color100,
+        ),
+      );
+    }
     return GestureDetector(
-      onTap: (){
-        if(type == EOtherInfoItemType.Link){
+      onTap: () {
+        if (type == EOtherInfoItemType.Link) {
           _copyLinkDialog();
         }
       },
@@ -564,23 +566,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
                 ),
               ],
             ),
-            type == EOtherInfoItemType.Link
-                ? GestureDetector(
-                    behavior: HitTestBehavior.translucent,
-                    onTap: () {
-                      OXModuleService.invoke('ox_chat', 'showMyIdCardDialog',
-                          [context], {#otherUser: userDB});
-                    },
-                    child: CommonImage(
-                      iconName: 'icon_qrcode.png',
-                      width: 20.px,
-                      height: 20.px,
-                      fit: BoxFit.fill,
-                      package: 'ox_usercenter',
-                      color: ThemeColor.color100,
-                    ),
-                  )
-                : Container(),
+            linkQrCodeWidget,
           ],
         ),
       ).setPaddingOnly(top: 16.px),
@@ -591,11 +577,19 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
     String encodedPubKey = userDB.encodedPubkey;
 
     String newPubKey = '';
+    Widget copyPubKeyIcon = const SizedBox();
     if (encodedPubKey.isNotEmpty) {
       final String start = encodedPubKey.substring(0, 16);
       final String end = encodedPubKey.substring(encodedPubKey.length - 16);
 
       newPubKey = '$start:$end';
+
+      copyPubKeyIcon = CommonImage(
+        iconName: "icon_copy.png",
+        width: Adapt.px(16),
+        height: Adapt.px(16),
+        useTheme: true,
+      );
     }
 
     return GestureDetector(
@@ -624,31 +618,18 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
               ),
             ),
             SizedBox(width: Adapt.px(8)),
-            encodedPubKey.isNotEmpty
-                ? CommonImage(
-                    iconName: "icon_copy.png",
-                    width: Adapt.px(16),
-                    height: Adapt.px(16),
-                    useTheme: true,
-                  )
-                : Container(),
+            copyPubKeyIcon,
           ],
         ),
       ),
     );
   }
 
-  Widget _delOrAddFriendBtnView() {
+  Widget _addFriendBtnView() {
     bool friendsStatus = false;
-    String showTxt = '';
-    if (myPubkey == widget.pubkey) {
-      return const SizedBox();
-    } else {
-      friendsStatus = isFriend(userDB.pubKey ?? '');
+    friendsStatus = isFriend(userDB.pubKey ?? '');
+    if (friendsStatus) return const SizedBox();
 
-      if (friendsStatus) return const SizedBox();
-      showTxt = Localized.text('ox_chat.add_friend');
-    }
     return GestureDetector(
       child: Container(
         width: double.infinity,
@@ -656,20 +637,18 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           color: ThemeColor.color180,
-          gradient: friendsStatus
-              ? null
-              : LinearGradient(
-                  colors: [
-                    ThemeColor.gradientMainEnd,
-                    ThemeColor.gradientMainStart,
-                  ],
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                ),
+          gradient: LinearGradient(
+            colors: [
+              ThemeColor.gradientMainEnd,
+              ThemeColor.gradientMainStart,
+            ],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
         ),
         alignment: Alignment.center,
         child: Text(
-          showTxt,
+          'Add Contact',
           style: TextStyle(
             color: myPubkey != widget.pubkey && friendsStatus
                 ? ThemeColor.red
@@ -679,7 +658,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
           ),
         ),
       ),
-      onTap: myPubkey == widget.pubkey ? _sendMsg : _addFriends,
+      onTap: _addFriends,
     ).setPaddingOnly(top: 16.px);
   }
 
@@ -718,8 +697,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
     if (_isInBlockList()) {
       OKEvent event = await Contacts.sharedInstance.removeBlockList([pubKey]);
       if (!event.status) {
-        CommonToast.instance
-            .show(context, Localized.text('ox_chat.un_block_fail'));
+        CommonToast.instance.show(context, Localized.text('ox_chat.un_block_fail'));
       } else {
         if (!moreOptionList.contains(EMoreOptionType.userOption)) {
           moreOptionList.add(EMoreOptionType.userOption);
@@ -740,8 +718,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
                   OKEvent event =
                       await Contacts.sharedInstance.addToBlockList(pubKey);
                   if (!event.status) {
-                    CommonToast.instance
-                        .show(context, Localized.text('ox_chat.block_fail'));
+                    CommonToast.instance.show(context, Localized.text('ox_chat.block_fail'));
                   } else {
                     if (moreOptionList.contains(EMoreOptionType.userOption)) {
                       moreOptionList.remove(EMoreOptionType.userOption);
@@ -763,10 +740,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
         text: keyContent,
       ),
     );
-    await CommonToast.instance
-        .show(context, 'copied_to_clipboard'.commonLocalized());
-    _publicKeyCopied = true;
-    setState(() {});
+    await CommonToast.instance.show(context, 'copied_to_clipboard'.commonLocalized());
   }
 
   Widget _buildHeadImage() {
@@ -920,8 +894,10 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
               await OXLoading.dismiss();
               if (okEvent.status) {
                 OXChatBinding.sharedInstance.contactUpdatedCallBack();
-                OXChatBinding.sharedInstance.changeChatSessionTypeAll(userDB.pubKey, true);
-                CommonToast.instance.show(context, Localized.text('ox_chat.sent_successfully'));
+                OXChatBinding.sharedInstance
+                    .changeChatSessionTypeAll(userDB.pubKey, true);
+                CommonToast.instance
+                    .show(context, Localized.text('ox_chat.sent_successfully'));
                 _sendMsg();
               } else {
                 CommonToast.instance.show(context, okEvent.message);
@@ -1038,9 +1014,11 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _buildMomentItem('Copy Link', index: 0,
-                onTap: () async{
-                  await TookKit.copyKey(context,_showUserQrCodeUrl);
+              _buildMomentItem(
+                'Copy Link',
+                index: 0,
+                onTap: () async {
+                  await TookKit.copyKey(context, _showUserQrCodeUrl);
                   CommonToast.instance.show(context, 'Copy successfully !');
                   OXNavigator.pop(context);
                 },
@@ -1053,10 +1031,12 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
                 height: Adapt.px(8),
                 color: ThemeColor.color190,
               ),
-              _buildMomentItem(Localized.text('ox_common.cancel'), index: 3,
-                  onTap: () {
-                    OXNavigator.pop(context);
-                  },
+              _buildMomentItem(
+                Localized.text('ox_common.cancel'),
+                index: 3,
+                onTap: () {
+                  OXNavigator.pop(context);
+                },
               ),
               SizedBox(
                 height: Adapt.px(21),
@@ -1290,7 +1270,9 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 14.px,
-                      color: type == EMoreOptionType.userOption ? ThemeColor.red : ThemeColor.color100,
+                      color: type == EMoreOptionType.userOption
+                          ? ThemeColor.red
+                          : ThemeColor.color100,
                       fontWeight: FontWeight.w400,
                     ),
                   ),
@@ -1299,7 +1281,9 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
                   iconName: type.icon,
                   size: 24.px,
                   package: 'ox_chat',
-                  color: type == EMoreOptionType.userOption ? ThemeColor.red : ThemeColor.color100,
+                  color: type == EMoreOptionType.userOption
+                      ? ThemeColor.red
+                      : ThemeColor.color100,
                 ),
               ],
             ),
