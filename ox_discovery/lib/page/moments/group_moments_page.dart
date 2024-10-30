@@ -29,7 +29,7 @@ class GroupMomentsPage extends StatefulWidget {
 class GroupMomentsPageState extends State<GroupMomentsPage>
     with OXMomentObserver, OXUserInfoObserver {
   final int _limit = 50;
-  List<ValueNotifier<NotedUIModel>> notesList = [];
+  List<NotedUIModel> notesList = [];
   int? _allNotesFromDBLastTimestamp;
   final RefreshController _refreshController = RefreshController();
 
@@ -143,12 +143,12 @@ class GroupMomentsPageState extends State<GroupMomentsPage>
       shrinkWrap: false,
       itemCount: notesList.length,
       itemBuilder: (context, index) {
-        ValueNotifier<NotedUIModel> notedUIModel = notesList[index];
+        NotedUIModel notedUIModel = notesList[index];
 
         return MomentWidget(
           isShowReplyWidget: true,
           notedUIModel: notedUIModel,
-          clickMomentCallback: (ValueNotifier<NotedUIModel?> notedUIModel) async {
+          clickMomentCallback: (NotedUIModel? notedUIModel) async {
             await OXNavigator.pushPage(
                 context, (context) => MomentsPage(
                 notedUIModel: notedUIModel,
@@ -345,8 +345,8 @@ class GroupMomentsPageState extends State<GroupMomentsPage>
   }
 
   void _updateUI(List<NoteDBISAR> showList, bool isInit, int fetchedCount) {
-    List<ValueNotifier<NotedUIModel>> list = showList
-        .map((note) => ValueNotifier(NotedUIModel(noteDB: note)))
+    List<NotedUIModel> list = showList
+        .map((note) => NotedUIModel(noteDB: note))
         .toList();
     if (isInit) {
       notesList = list;
@@ -375,7 +375,7 @@ class GroupMomentsPageState extends State<GroupMomentsPage>
   @override
   didGroupsNoteCallBack(NoteDBISAR notes) {
     if(notes.groupId == widget.groupId){
-      notesList = [...[ValueNotifier(NotedUIModel(noteDB: notes))],...notesList];
+      notesList = [...[NotedUIModel(noteDB: notes)],...notesList];
       setState(() {});
     }
   }

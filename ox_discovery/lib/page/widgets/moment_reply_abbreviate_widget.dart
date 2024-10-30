@@ -15,7 +15,7 @@ import '../moments/moments_page.dart';
 
 class MomentReplyAbbreviateWidget extends StatefulWidget {
   final bool isShowReplyWidget;
-  final ValueNotifier<NotedUIModel?> notedUIModel;
+  final NotedUIModel? notedUIModel;
 
   const MomentReplyAbbreviateWidget({super.key, required this.notedUIModel, this.isShowReplyWidget = false});
 
@@ -24,7 +24,7 @@ class MomentReplyAbbreviateWidget extends StatefulWidget {
 }
 
 class _MomentReplyAbbreviateWidgetState extends State<MomentReplyAbbreviateWidget> {
-  ValueNotifier<NotedUIModel?>? notedUIModel;
+  NotedUIModel? notedUIModel;
   bool hasReplyWidget = false;
 
   @override
@@ -36,7 +36,7 @@ class _MomentReplyAbbreviateWidgetState extends State<MomentReplyAbbreviateWidge
   @override
   void didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.notedUIModel.value != oldWidget.notedUIModel.value) {
+    if (widget.notedUIModel != oldWidget.notedUIModel) {
       _getNotedUIModel();
     }
     if(hasReplyWidget && notedUIModel == null){
@@ -45,8 +45,8 @@ class _MomentReplyAbbreviateWidgetState extends State<MomentReplyAbbreviateWidge
   }
 
   void _getNotedUIModel() async {
-    ValueNotifier<NotedUIModel?> notedUIModelDraft = widget.notedUIModel;
-    if (notedUIModelDraft.value == null || !notedUIModelDraft.value!.noteDB.isReply || !widget.isShowReplyWidget) {
+    NotedUIModel? notedUIModelDraft = widget.notedUIModel;
+    if (notedUIModelDraft == null || !notedUIModelDraft!.noteDB.isReply || !widget.isShowReplyWidget) {
       // Preventing a bug where the internal component fails to update in a timely manner when the outer ListView.builder array is updated with a non-reply note.
       notedUIModel = null;
       hasReplyWidget = false;
@@ -56,27 +56,27 @@ class _MomentReplyAbbreviateWidgetState extends State<MomentReplyAbbreviateWidge
 
     hasReplyWidget = true;
 
-    String? replyId = notedUIModelDraft.value!.noteDB.getReplyId;
+    String? replyId = notedUIModelDraft.noteDB.getReplyId;
     if (replyId == null) {
       setState(() {});
       return;
     }
 
-    ValueNotifier<NotedUIModel?> notedUIModelCache = OXMomentCacheManager.getValueNotifierNoteToCache(replyId);
-    if(notedUIModelCache.value != null){
+    NotedUIModel? notedUIModelCache = OXMomentCacheManager.getValueNotifierNoteToCache(replyId);
+    if(notedUIModelCache != null){
       notedUIModel = notedUIModelCache;
       setState(() {});
       return;
     }
 
 
-    ValueNotifier<NotedUIModel?> noteNotifier = await OXMomentCacheManager.getValueNotifierNoted(
+    NotedUIModel? noteNotifier = await OXMomentCacheManager.getValueNotifierNoted(
       replyId,
       isUpdateCache: true,
-      notedUIModel: notedUIModelDraft.value,
+      notedUIModel: notedUIModelDraft,
     );
 
-    if(noteNotifier.value == null){
+    if(noteNotifier == null){
       if(mounted){
         setState(() {});
       }
@@ -91,9 +91,9 @@ class _MomentReplyAbbreviateWidgetState extends State<MomentReplyAbbreviateWidge
 
   @override
   Widget build(BuildContext context) {
-    ValueNotifier<NotedUIModel?>? model = notedUIModel;
+    NotedUIModel? model = notedUIModel;
     if(!widget.isShowReplyWidget || model == null) return const SizedBox();
-    if (hasReplyWidget && model.value == null) return MomentWidgetsUtils.emptyNoteMomentWidget(null,100);
+    if (hasReplyWidget && model == null) return MomentWidgetsUtils.emptyNoteMomentWidget(null,100);
     return Container(
       margin: EdgeInsets.only(
         bottom: 10.px,
@@ -113,7 +113,7 @@ class _MomentReplyAbbreviateWidgetState extends State<MomentReplyAbbreviateWidge
       child: MomentWidget(
         notedUIModel: model,
         isShowMomentOptionWidget: false,
-        clickMomentCallback: (ValueNotifier<NotedUIModel?> notedUIModel) async {
+        clickMomentCallback: (NotedUIModel? notedUIModel) async {
           await OXNavigator.pushPage(
               context, (context) => MomentsPage(notedUIModel: notedUIModel));
         },

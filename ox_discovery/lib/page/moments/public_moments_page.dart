@@ -87,7 +87,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
   final double tipsGroupHeight = 52;
 
   int? _allNotesFromDBLastTimestamp;
-  List<ValueNotifier<NotedUIModel?>> notesList = [];
+  List<NotedUIModel?> notesList = [];
 
   final ScrollController momentScrollController = ScrollController();
   final RefreshController refreshController = RefreshController();
@@ -241,7 +241,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
       // addAutomaticKeepAlives: addAutomaticKeepAlives,
       // addRepaintBoundaries: addRepaintBoundaries,
       itemBuilder: (context, index) {
-        ValueNotifier<NotedUIModel?> notedUIModel = notesList[index];
+        NotedUIModel? notedUIModel = notesList[index];
         if (index == 0) {
           return ValueListenableBuilder<double>(
             valueListenable: tipContainerHeight,
@@ -255,7 +255,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
                       isShowReplyWidget: true,
                       notedUIModel: notedUIModel,
                       clickMomentCallback:
-                          (ValueNotifier<NotedUIModel?> notedUIModel) async {
+                          (NotedUIModel? notedUIModel) async {
                         await OXNavigator.pushPage(
                             context,
                             (context) =>
@@ -273,7 +273,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
           isShowReplyWidget: true,
           notedUIModel: notedUIModel,
           clickMomentCallback:
-              (ValueNotifier<NotedUIModel?> notedUIModel) async {
+              (NotedUIModel? notedUIModel) async {
             await OXNavigator.pushPage(
                 context, (context) => MomentsPage(notedUIModel: notedUIModel));
           },
@@ -572,7 +572,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
   }
 
   void _updateUI(List<NoteDBISAR> showList, bool isInit, int fetchedCount) {
-    List<ValueNotifier<NotedUIModel?>> list = OXMomentCacheManager.sharedInstance.saveValueNotifierNote(showList);
+    List<NotedUIModel?> list = showList.map((item) => NotedUIModel(noteDB: item)).toList();
     if (isInit) {
       notesList = list;
     } else {

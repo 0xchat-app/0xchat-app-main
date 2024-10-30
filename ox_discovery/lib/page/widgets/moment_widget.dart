@@ -43,8 +43,8 @@ class MomentWidget extends StatefulWidget {
   final bool isShowReplyWidget;
   final bool isShowMomentOptionWidget;
   final bool isShowAllContent;
-  final Function(ValueNotifier<NotedUIModel?> notedUIModel)? clickMomentCallback;
-  final ValueNotifier<NotedUIModel?> notedUIModel;
+  final Function(NotedUIModel? notedUIModel)? clickMomentCallback;
+  final NotedUIModel? notedUIModel;
   const MomentWidget({
     super.key,
     required this.notedUIModel,
@@ -62,7 +62,7 @@ class MomentWidget extends StatefulWidget {
 }
 
 class _MomentWidgetState extends State<MomentWidget> {
-  ValueNotifier<NotedUIModel?>? notedUIModel;
+  NotedUIModel? notedUIModel;
 
   List<EMomentMoreOptionType> momentOptionMoreList = [
     EMomentMoreOptionType.shareNoted,
@@ -85,8 +85,8 @@ class _MomentWidgetState extends State<MomentWidget> {
   @override
   void didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
-    NotedUIModel? newNote = widget.notedUIModel.value;
-    NotedUIModel? oldNote = oldWidget.notedUIModel.value;
+    NotedUIModel? newNote = widget.notedUIModel;
+    NotedUIModel? oldNote = oldWidget.notedUIModel;
     if (newNote != oldNote) {
       _dataInit();
     }
@@ -97,8 +97,8 @@ class _MomentWidgetState extends State<MomentWidget> {
   }
 
   Widget _momentItemWidget() {
-    ValueNotifier<NotedUIModel?>? modelNotifier = notedUIModel;
-    if (modelNotifier == null || modelNotifier.value == null) return const SizedBox();
+    NotedUIModel? modelNotifier = notedUIModel;
+    if (modelNotifier == null) return const SizedBox();
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () => widget.clickMomentCallback?.call(modelNotifier),
@@ -111,7 +111,7 @@ class _MomentWidgetState extends State<MomentWidget> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             MomentRepostedTips(
-              noteDB: widget.notedUIModel.value?.noteDB,
+              noteDB: widget.notedUIModel?.noteDB,
             ),
             _momentUserInfoWidget(),
             _showReplyContactWidget(),
@@ -134,8 +134,8 @@ class _MomentWidgetState extends State<MomentWidget> {
   }
 
   Widget _showMomentContent() {
-    ValueNotifier<NotedUIModel?>? model = notedUIModel;
-    NotedUIModel? draftNotedUIModel = model?.value;
+    NotedUIModel? model = notedUIModel;
+    NotedUIModel? draftNotedUIModel = model;
     if(model == null || draftNotedUIModel == null) return const SizedBox();
 
     List<String> quoteUrlList = draftNotedUIModel.getQuoteUrlList;
@@ -147,13 +147,13 @@ class _MomentWidgetState extends State<MomentWidget> {
       return const SizedBox();
     }
 
-    List<String> contentList = DiscoveryUtils.momentContentSplit(model.value!.noteDB.content);
+    List<String> contentList = DiscoveryUtils.momentContentSplit(model.noteDB.content);
     return Column(
       children: contentList.map((String content) {
         String? noteId;
         String? neventId;
         List<String>? relays;
-        String? quoteRepostId = model.value!.noteDB.quoteRepostId;
+        String? quoteRepostId = model.noteDB.quoteRepostId;
         if (quoteUrlList.contains(content)) {
           if(content.contains('nostr:nevent')){
             neventId = content;
@@ -187,10 +187,10 @@ class _MomentWidgetState extends State<MomentWidget> {
   }
 
   Widget _showMomentMediaWidget() {
-    ValueNotifier<NotedUIModel?>? model = notedUIModel;
-    if (model == null || model.value == null) return const SizedBox();
+    NotedUIModel? model = notedUIModel;
+    if (model == null) return const SizedBox();
 
-    List<String> getImageList = model.value!.getImageList;
+    List<String> getImageList = model.getImageList;
     if (getImageList.isNotEmpty) {
       double width = MediaQuery.of(context).size.width * 0.64;
       return NinePalaceGridPictureWidget(
@@ -201,7 +201,7 @@ class _MomentWidgetState extends State<MomentWidget> {
       ).setPadding(EdgeInsets.only(bottom: 12.px));
     }
 
-    List<String> getVideoList = model.value!.getVideoList;
+    List<String> getVideoList = model.getVideoList;
     if (getVideoList.isNotEmpty) {
       String videoUrl = getVideoList[0];
       bool isHasYoutube =
@@ -211,7 +211,7 @@ class _MomentWidgetState extends State<MomentWidget> {
           : VideoMomentWidget(videoUrl: videoUrl);
     }
 
-    List<String> getMomentExternalLink = model.value!.getMomentExternalLink;
+    List<String> getMomentExternalLink = model.getMomentExternalLink;
     if (getMomentExternalLink.isNotEmpty) {
       String url = getMomentExternalLink[0];
       return MomentUrlWidget(url: url);
@@ -225,10 +225,10 @@ class _MomentWidgetState extends State<MomentWidget> {
   }
 
   Widget _momentQuoteWidget() {
-    ValueNotifier<NotedUIModel?>? model = notedUIModel;
-    if (model == null || model.value == null) return const SizedBox();
-    List<String> quoteUrlList = model.value!.getQuoteUrlList;
-    String? quoteRepostId = model.value!.noteDB.quoteRepostId;
+    NotedUIModel? model = notedUIModel;
+    if (model == null) return const SizedBox();
+    List<String> quoteUrlList = model.getQuoteUrlList;
+    String? quoteRepostId = model.noteDB.quoteRepostId;
     bool hasQuoteRepostId = quoteRepostId != null && quoteRepostId.isNotEmpty;
     if (!hasQuoteRepostId) return const SizedBox();
     bool isRepeat = false;
@@ -246,9 +246,9 @@ class _MomentWidgetState extends State<MomentWidget> {
   }
 
   Widget _momentUserInfoWidget() {
-    ValueNotifier<NotedUIModel?>? model = notedUIModel;
-    if (model == null || model.value == null || !widget.isShowUserInfo) return const SizedBox();
-    String pubKey = model.value!.noteDB.author;
+    NotedUIModel? model = notedUIModel;
+    if (model == null || !widget.isShowUserInfo) return const SizedBox();
+    String pubKey = model.noteDB.author;
     return Container(
       padding: EdgeInsets.only(bottom: 12.px),
       child: Row(
@@ -305,7 +305,7 @@ class _MomentWidgetState extends State<MomentWidget> {
                         ),
                         Text(
                           DiscoveryUtils.getUserMomentInfo(
-                              value, model.value!.createAtStr)[0],
+                              value, model.createAtStr)[0],
                           style: TextStyle(
                             color: ThemeColor.color120,
                             fontSize: 12.px,
@@ -342,7 +342,7 @@ class _MomentWidgetState extends State<MomentWidget> {
   void _showMomentOptionMore(BuildContext context, Offset position) async{
     final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
     List<EMomentMoreOptionType> optionList = momentOptionMoreList;
-    String noteAuthor = notedUIModel?.value?.noteDB.author ?? '';
+    String noteAuthor = notedUIModel?.noteDB.author ?? '';
     String btnContent = '';
     bool isInBlocklist = Contacts.sharedInstance.inBlockList(noteAuthor);
     String myPubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
@@ -382,7 +382,7 @@ class _MomentWidgetState extends State<MomentWidget> {
         }).toList()
       ],
     ).then((value)async {
-      NoteDBISAR? noteDB = notedUIModel?.value?.noteDB;
+      NoteDBISAR? noteDB = notedUIModel?.noteDB;
       if (noteDB == null) {
         CommonToast.instance.show(context, 'Option fail');
         return;
@@ -421,10 +421,10 @@ class _MomentWidgetState extends State<MomentWidget> {
   }
 
   Widget _momentInteractionDataWidget() {
-    ValueNotifier<NotedUIModel?> model = widget.notedUIModel;
+    NotedUIModel? model = widget.notedUIModel;
     if (!widget.isShowInteractionData) return const SizedBox();
-    if(model.value == null) return const SizedBox();
-    NoteDBISAR noteDB = model.value!.noteDB;
+    if(model == null) return const SizedBox();
+    NoteDBISAR noteDB = model.noteDB;
 
     List<String> repostEventIds = noteDB.repostEventIds ?? [];
     List<String> quoteRepostEventIds = noteDB.quoteRepostEventIds ?? [];
@@ -478,7 +478,7 @@ class _MomentWidgetState extends State<MomentWidget> {
   }
 
   Widget _checkIsPrivate() {
-    NotedUIModel? model = notedUIModel?.value;
+    NotedUIModel? model = notedUIModel;
     if (model == null || !model.noteDB.private) return const SizedBox();
     double momentMm = DiscoveryUtils.boundingTextSize(
             Localized.text('ox_discovery.private'),
@@ -523,23 +523,23 @@ class _MomentWidgetState extends State<MomentWidget> {
   }
 
   void _dataInit() async {
-    ValueNotifier<NotedUIModel?> model = widget.notedUIModel;
-    if(model.value == null) return;
-    String? repostId = model.value!.noteDB.repostId;
+    NotedUIModel? model = widget.notedUIModel;
+    if(model == null) return;
+    String? repostId = model.noteDB.repostId;
 
-    if (model.value!.noteDB.isRepost && repostId != null) {
-      ValueNotifier<NotedUIModel?> noteNotifier = OXMomentCacheManager.getValueNotifierNoteToCache(repostId);
+    if (model.noteDB.isRepost && repostId != null) {
+      NotedUIModel? noteNotifier = OXMomentCacheManager.getValueNotifierNoteToCache(repostId);
 
-      if (noteNotifier.value != null) {
+      if (noteNotifier != null) {
         notedUIModel = noteNotifier;
-        _getMomentUserInfo(notedUIModel!.value!);
+        _getMomentUserInfo(notedUIModel!);
         setState(() {});
       } else {
         _getRepostId(repostId);
       }
     } else {
       notedUIModel = model;
-      _getMomentUserInfo(model.value!);
+      _getMomentUserInfo(model);
       setState(() {});
     }
   }
@@ -590,8 +590,8 @@ class _MomentWidgetState extends State<MomentWidget> {
   }
 
   void _getRepostId(String repostId) async {
-    ValueNotifier<NotedUIModel?> noteNotifier = await OXMomentCacheManager.getValueNotifierNoted(repostId);
-    if (noteNotifier.value == null) {
+    NotedUIModel? noteNotifier = await OXMomentCacheManager.getValueNotifierNoted(repostId);
+    if (noteNotifier == null) {
       // Preventing a bug where the internal component fails to update in a timely manner when the outer ListView.builder array is updated with a non-reply note.
       notedUIModel = null;
       if(mounted){
@@ -600,7 +600,7 @@ class _MomentWidgetState extends State<MomentWidget> {
       return;
     }
     notedUIModel = noteNotifier;
-    _getMomentUserInfo(noteNotifier.value!);
+    _getMomentUserInfo(noteNotifier);
   }
 
 }
