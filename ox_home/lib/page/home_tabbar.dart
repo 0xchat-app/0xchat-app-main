@@ -48,6 +48,7 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
   double _bottomNavOffset = 0.0;
   final double _bottomNavHeight = 72.0;
   final double _bottomNavMargin = 24.0.px;
+  double _tabbarSH = 0;
 
   List<TabViewInfo> tabViewInfo = [
     TabViewInfo(
@@ -69,7 +70,7 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
     super.initState();
     AppInitializationManager.shared.showInitializationLoading();
     isLogin = OXUserInfoManager.sharedInstance.isLogin;
-
+    _tabbarSH = _bottomNavHeight + _bottomNavMargin;
     OXUserInfoManager.sharedInstance.addObserver(this);
     OXChatBinding.sharedInstance.addObserver(this);
     Localized.addLocaleChangedCallback(onLocaleChange);
@@ -109,7 +110,7 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
 
   List<Widget> _containerView(BuildContext context) {
     return tabViewInfo.map(
-      (TabViewInfo tabModel) {
+          (TabViewInfo tabModel) {
         return Container(
           constraints: const BoxConstraints.expand(
             width: double.infinity,
@@ -137,36 +138,53 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
     }
 
     Widget page = OXModuleService.invoke<Widget>(
-      tabModel.moduleName,
-      tabModel.modulePage,
-      [context],
-      params
+        tabModel.moduleName,
+        tabModel.modulePage,
+        [context],
+        params
     ) ?? const SizedBox();
     return NotificationListener<ScrollNotification>(
       onNotification: (scrollNotification) {
         if (scrollNotification.metrics.axis == Axis.vertical) {
           double currentOffset = scrollNotification.metrics.pixels;
           if (scrollNotification is ScrollUpdateNotification) {
-            if (currentOffset < 0) {
+            double delta = currentOffset - _previousScrollOffset;
+            if (currentOffset >= scrollNotification.metrics.maxScrollExtent
+            || (tabBarGlobalKey.currentState!= null && tabBarGlobalKey.currentState!.getAnimStatus())) {
               return false;
             }
-
-            double delta = currentOffset - _previousScrollOffset;
-            if (delta > 0) {
-              _bottomNavOffset += delta / 2;
-              if (_bottomNavOffset > (_bottomNavHeight + _bottomNavMargin)) {
-                _bottomNavOffset = _bottomNavHeight + _bottomNavMargin;
+            _previousScrollOffset = currentOffset;
+            if (currentOffset <= 0  ) {
+              return false;
+            }
+            if (delta >= 0) {
+              _bottomNavOffset += delta;
+              if (_bottomNavOffset >= _tabbarSH) {
+                _bottomNavOffset = _tabbarSH;
+                return false;
               }
-            } else if (delta < 0) {
-              _bottomNavOffset += delta / 2;
+              if (_bottomNavOffset < _tabbarSH && _bottomNavOffset > _bottomNavHeight / 2) {
+                print('delta > 0 executeAnim ');
+                tabBarGlobalKey.currentState?.executeAnim(isReverse: false, fromValue: _bottomNavOffset* 0.01);
+                _bottomNavOffset = _tabbarSH;
+              } else {
+                print('delta > 0 updateOffset  _bottomNavOffset = ${_bottomNavOffset* 0.01}');
+                tabBarGlobalKey.currentState?.updateOffset(_bottomNavOffset * 0.01);
+              }
+            } else {
+              _bottomNavOffset += delta;
               if (_bottomNavOffset < 0) {
                 _bottomNavOffset = 0;
+                return false;
+              }
+              if (_bottomNavOffset < _bottomNavHeight) {
+                tabBarGlobalKey.currentState?.executeAnim(isReverse: true, fromValue: _bottomNavOffset* 0.01);
+                _bottomNavOffset = 0.0;
+              } else {
+                print('delta < 0  updateOffset  _bottomNavOffset = ${_bottomNavOffset* 0.01}');
+                tabBarGlobalKey.currentState?.updateOffset(_bottomNavOffset * 0.01);
               }
             }
-            if (tabBarGlobalKey.currentState != null) {
-              tabBarGlobalKey.currentState!.updateOffset(_bottomNavOffset);
-            }
-            _previousScrollOffset = currentOffset;
           }
         }
         return false;
@@ -208,10 +226,10 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
 
   void _tabClick(int value, int currentSelect) {
     if(value == 0 && currentSelect == 0) {
-      homeGlobalKey.currentState?.updateHomeTabClickAction(1, false);
+      contactGlobalKey.currentState?.updateContactTabClickAction(1, false);
     }
     if(value == 1 && currentSelect == 1) {
-      contactGlobalKey.currentState?.updateContactTabClickAction(1, false);
+      homeGlobalKey.currentState?.updateHomeTabClickAction(1, false);
     }
 
     _pageController.animateToPage(

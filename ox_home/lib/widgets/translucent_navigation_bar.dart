@@ -99,12 +99,24 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
   final List<GlobalKey> _navItemKeyList = [GlobalKey(), GlobalKey(), GlobalKey()];
   List<MultipleUserModel> _userCacheList = [];
 
+  late AnimationController _animationController;
+  late Animation<double> _animation;
   double navOffset = 0.0;
 
   void updateOffset(double offset) {
-    setState(() {
-      navOffset = offset;
-    });
+    _animationController.value = offset;
+  }
+
+  bool getAnimStatus() {
+    return _animationController.isAnimating;
+  }
+
+  void executeAnim({bool isReverse = false, double fromValue = 0}) {
+    if (isReverse) {
+      _animationController.reverse(from: fromValue);
+    } else {
+      _animationController.forward(from: fromValue);
+    }
   }
 
   isHasVibrator() async {
@@ -117,6 +129,8 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     isLogin = OXUserInfoManager.sharedInstance.isLogin;
     OXUserInfoManager.sharedInstance.addObserver(this);
     OXChatBinding.sharedInstance.addObserver(this);
+    _animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
+    _animation = Tween<double>(begin: 0.0, end: 72 + 24.px).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeInOut));
     prepareMessageTimer();
     dataInit();
     isHasVibrator();
@@ -126,10 +140,11 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
     clearRefreshMessagesTimer();
     OXUserInfoManager.sharedInstance.removeObserver(this);
     OXChatBinding.sharedInstance.removeObserver(this);
+    _animationController.dispose();
+    super.dispose();
   }
 
   void _loadLocalInfo() async {
@@ -162,34 +177,40 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
 
   @override
   Widget build(BuildContext context) {
-    return Transform.translate(
-      offset: Offset(0, navOffset),
-      child: Container(
-      margin: EdgeInsets.symmetric(
-        vertical: widget.verticalPadding ?? 24.px,
-        horizontal: widget.horizontalPadding ?? 20.px,
-      ),
-      height: widget.height,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(widget.height),
-        boxShadow: const [
-          BoxShadow(
-            // color: Color(0x7FE3E3E3), // Daytime pattern
-            color: Color(0x33141414), // Dark mode
-            offset: Offset(
-              3.0,
-              1.0,
+    return AnimatedBuilder(
+      animation: _animationController,
+      builder: (context, child) {
+        return Transform.translate(
+          offset: Offset(0, _animation.value),
+          child: Container(
+            margin: EdgeInsets.symmetric(
+              vertical: widget.verticalPadding ?? 24.px,
+              horizontal: widget.horizontalPadding ?? 20.px,
             ),
-            blurRadius: 20.0,
-            spreadRadius: 1.0,
-            // blurStyle: BlurStyle.solid
-          ),
-        ],
-      ),
-      child: createTabContainer(_tabBarList, middleIndex),
-    ),);
+            height: widget.height,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(widget.height),
+              boxShadow: const [
+                BoxShadow(
+                  // color: Color(0x7FE3E3E3), // Daytime pattern
+                  color: Color(0x33141414), // Dark mode
+                  offset: Offset(
+                    3.0,
+                    1.0,
+                  ),
+                  blurRadius: 20.0,
+                  spreadRadius: 1.0,
+                  // blurStyle: BlurStyle.solid
+                ),
+              ],
+            ),
+            child: createTabContainer(_tabBarList, middleIndex),
+          ),);
+      },
+    );
+
   }
 
   Widget createTabContainer(
