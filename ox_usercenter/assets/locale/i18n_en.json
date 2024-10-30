@@ -182,7 +182,7 @@
   "str_tor_orbot_setup": "Tor/Orbot setup",
   "str_settings": "Settings",
   "str_dev_log": "Developer",
-  "str_push_app": "Push Application",
+  "str_push_app": "Push Distributor",
   "str_send_dev_log_detail": "Log Detail",
   "str_log_filemtime": "Log updated at:",
   "str_send_log_to_dev": "Send to Dev",
