@@ -159,7 +159,7 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
           item.chatId,
           '',
           item.chatName ?? '',
-          '',
+          item.content ?? '',
           item.avatar ?? '',
           item.chatType,0
       ),).toList();

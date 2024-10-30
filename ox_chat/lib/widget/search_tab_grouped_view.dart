@@ -3,6 +3,7 @@ import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:ox_chat/model/group_ui_model.dart';
 import 'package:ox_chat/model/search_chat_model.dart';
 import 'package:ox_chat/utils/search_item_click_handler.dart';
+import 'package:ox_chat/utils/search_result_utils.dart';
 import 'package:ox_chat/widget/search_result_item.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -83,12 +84,13 @@ class ChatMessageGroupedListView extends SearchTabGroupedView<ChatMessage> {
             return Padding(
               padding: EdgeInsets.symmetric(horizontal: 24.px),
               child: SearchResultItem(
-                isUser: false,
                 searchQuery: '',
                 avatarURL: item.picture,
                 title: item.name,
                 subTitle: item.subtitle,
                 onTap: () => SearchItemClickHandler.handleClick(context, item, searchQuery),
+                type: SearchResultItemUtils.convertSearchResultItemType(item.chatType),
+                pubkey: item.chatId,
               ),
             );
           },
@@ -118,12 +120,13 @@ class ChannelGroupedListView extends SearchTabGroupedView<ChannelDBISAR> {
             return Padding(
               padding: EdgeInsets.symmetric(horizontal: 24.px),
               child: SearchResultItem(
-                isUser: false,
-                searchQuery: '',
+                searchQuery: searchQuery,
                 avatarURL: item.picture,
                 title: item.name,
                 subTitle: item.about,
                 onTap: () => SearchItemClickHandler.handleClick(context, item, searchQuery),
+                type: SearchResultItemType.channel,
+                pubkey: item.channelId,
               ),
             );
           },
@@ -150,15 +153,17 @@ class GroupCategorizedListView extends SearchTabGroupedView<GroupUIModel> {
         delegate: SliverChildBuilderDelegate(
               (context, index) {
             final item = items[index];
+            final type = item.relay != null && item.relay!.isNotEmpty ? SearchResultItemType.relayGroup : SearchResultItemType.group;
             return Padding(
               padding: EdgeInsets.symmetric(horizontal: 24.px),
               child: SearchResultItem(
-                isUser: false,
-                searchQuery: '',
+                searchQuery: searchQuery,
                 avatarURL: item.picture,
                 title: item.name,
                 subTitle: item.about,
                 onTap: () => SearchItemClickHandler.handleClick(context, item, searchQuery),
+                type: type,
+                pubkey: item.groupId,
               ),
             );
           },
@@ -188,12 +193,13 @@ class ContactGroupedListView extends SearchTabGroupedView<UserDBISAR> {
             return Padding(
               padding: EdgeInsets.symmetric(horizontal: 24.px),
               child: SearchResultItem(
-                isUser: false,
-                searchQuery: '',
+                searchQuery: searchQuery,
                 avatarURL: item.picture,
                 title: item.name,
                 subTitle: item.about,
                 onTap: () => SearchItemClickHandler.handleClick(context, item, searchQuery),
+                type: SearchResultItemType.contact,
+                pubkey: item.pubKey,
               ),
             );
           },

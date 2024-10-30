@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ox_chat/model/search_chat_model.dart';
 import 'package:ox_chat/page/session/chat_message_page.dart';
+import 'package:ox_chat/utils/search_result_utils.dart';
 import 'package:ox_chat/utils/search_txt_util.dart';
 import 'package:ox_chat/widget/search_result_item.dart';
 import 'package:ox_common/model/chat_type.dart';
@@ -64,12 +65,13 @@ class _SearchChatDetailPageState extends State<SearchChatDetailPage> {
         itemBuilder: (context, index) {
           final item = _chatMessageList[index];
           return SearchResultItem(
-            isUser: false,
             searchQuery: widget.searchQuery,
             avatarURL: item.picture,
             title: item.name,
             subTitle: item.subtitle,
             onTap: () => _gotoChatMessagePage(item),
+            type: SearchResultItemUtils.convertSearchResultItemType(item.chatType),
+            pubkey: item.chatId,
           );
         },
         itemCount: _chatMessageList.length,
