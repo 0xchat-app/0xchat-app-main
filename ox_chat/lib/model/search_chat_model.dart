@@ -34,9 +34,9 @@ enum SearchType {
   contact(label: 'Contacts'),
   group(label: 'Groups'),
   channel(label: 'Channels'),
-  ecash(label: 'Ecash'),
-  media(label: 'Media'),
-  link(label: 'Links');
+  // ecash(label: 'Ecash'),
+  media(label: 'Media');
+  // link(label: 'Links');
 
   final String label;
 

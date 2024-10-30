@@ -4,11 +4,11 @@ import 'package:ox_chat/model/group_ui_model.dart';
 import 'package:ox_chat/utils/search_item_click_handler.dart';
 import 'package:ox_chat/widget/search_result_item.dart';
 
-class ListSearchTabListView<T> extends StatelessWidget {
+class SearchTabListView<T> extends StatelessWidget {
   final List<T> data;
   final Widget Function(BuildContext context, T item) builder;
 
-  const ListSearchTabListView({
+  const SearchTabListView({
     super.key,
     required this.data,
     required this.builder,
@@ -27,7 +27,7 @@ class ListSearchTabListView<T> extends StatelessWidget {
   }
 }
 
-class ContactListView extends ListSearchTabListView<UserDBISAR> {
+class ContactListView extends SearchTabListView<UserDBISAR> {
   ContactListView({
     Key? key,
     required List<UserDBISAR> data,
@@ -50,7 +50,7 @@ class ContactListView extends ListSearchTabListView<UserDBISAR> {
   }
 }
 
-class GroupListView extends ListSearchTabListView<GroupUIModel> {
+class GroupListView extends SearchTabListView<GroupUIModel> {
   GroupListView({
     Key? key,
     required List<GroupUIModel> data,

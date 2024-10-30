@@ -10,6 +10,7 @@ import 'package:ox_chat/page/contacts/contact_request.dart';
 import 'package:ox_chat/page/session/chat_message_page.dart';
 import 'package:ox_chat/page/session/chat_new_message_page.dart';
 import 'package:ox_chat/page/session/search_page.dart';
+import 'package:ox_chat/page/session/unified_search_page.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_chat/utils/chat_session_utils.dart';
 import 'package:ox_chat/utils/widget_tool.dart';

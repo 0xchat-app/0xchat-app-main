@@ -417,7 +417,7 @@ extension ChatSessionListPageUI on ChatSessionListPageState{
   Widget _topSearch() {
     return InkWell(
       onTap: () {
-        SearchPage().show(context);
+        UnifiedSearchPage().show(context);
       },
       highlightColor: Colors.transparent,
       radius: 0.0,

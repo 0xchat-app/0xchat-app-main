@@ -96,12 +96,12 @@ class _SearchTabViewState extends State<SearchTabView> with CommonStateViewMixin
           );
         }
         break;
-      case SearchType.ecash:
-        break;
+      // case SearchType.ecash:
+      //   break;
       case SearchType.media:
         break;
-      case SearchType.link:
-        break;
+      // case SearchType.link:
+      //   break;
       default:
         break;
     }

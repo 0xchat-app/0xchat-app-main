@@ -5,9 +5,11 @@ import 'package:ox_chat/page/session/search_tab_view.dart';
 import 'package:ox_chat/utils/search_txt_util.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_chat/widget/search_tab_grouped_view.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
@@ -50,6 +52,7 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
       vsync: this,
       initialIndex: widget.initialIndex,
     );
+    _loadRecentData();
   }
 
   void _loadContactsData() {
@@ -148,6 +151,63 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
     }
   }
 
+  void _loadRecentChatMessage() async {
+    final List<ChatSessionModelISAR> sessionList = OXChatBinding.sharedInstance.sessionList;
+    List<GroupedModel<ChatMessage>> recentChatMessage = [];
+    if(sessionList.isNotEmpty) {
+      List<ChatMessage> chatMessageList = sessionList.map((item) => ChatMessage(
+          item.chatId,
+          '',
+          item.chatName ?? '',
+          '',
+          item.avatar ?? '',
+          item.chatType,0
+      ),).toList();
+      recentChatMessage.add(GroupedModel<ChatMessage>(title: 'Recent', items: chatMessageList));
+    }
+    _searchResult[SearchType.chat] = recentChatMessage;
+    setState(() {});
+  }
+
+  void _loadRecentGroup() {
+    List<GroupedModel<GroupUIModel>> recentGroup = [];
+    List<GroupUIModel> groups = [];
+    Map<String, ValueNotifier<GroupDBISAR>> privateGroupMap = Groups.sharedInstance.myGroups;
+    if(privateGroupMap.length>0) {
+      List<GroupDBISAR> tempGroups = privateGroupMap.values.map((e) => e.value).toList();
+      tempGroups.forEach((element) {
+        GroupUIModel tempUIModel= GroupUIModel.groupdbToUIModel(element);
+        groups.add(tempUIModel);
+      });
+    }
+    Map<String, ValueNotifier<RelayGroupDBISAR>> relayGroupMap = RelayGroup.sharedInstance.myGroups;
+    if(relayGroupMap.length>0) {
+      List<RelayGroupDBISAR> tempRelayGroups = relayGroupMap.values.map((e) => e.value).toList();
+      tempRelayGroups.forEach((element) {
+        GroupUIModel uIModel= GroupUIModel.relayGroupdbToUIModel(element);
+        groups.add(uIModel);
+      });
+    }
+    recentGroup.add(GroupedModel<GroupUIModel>(title: 'Recent', items: groups));
+    _searchResult[SearchType.group] = recentGroup;
+    setState(() {});
+  }
+
+  void _getMediaList() async {
+    List<MessageDBISAR> messages = (await Messages.loadMessagesFromDB(
+            messageTypes: [
+              MessageType.image,
+              MessageType.encryptedImage,
+              MessageType.video,
+              MessageType.encryptedVideo,
+            ]))['messages'] ??
+        <MessageDBISAR>[];
+    // if (messages.isNotEmpty) {
+    //   messagesList = messages;
+    //   setState(() {});
+    // }
+  }
+
   void _prepareData() {
     _searchResult.clear();
     if (!OXUserInfoManager.sharedInstance.isLogin) return;
@@ -166,10 +226,19 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
     setState(() {});
   }
 
+  void _loadRecentData() {
+    _loadRecentChatMessage();
+    _loadRecentGroup();
+  }
 
-  void _onTextChanged(value) {
+
+  void _onTextChanged(String value) {
     _searchQuery = value;
-    _prepareData();
+    if(value.isEmpty) {
+      _loadRecentData();
+    } else {
+      _prepareData();
+    }
   }
 
   List<GroupedModel<ChatMessage>> _groupedChatMessage(List<ChatMessage> messages) {
