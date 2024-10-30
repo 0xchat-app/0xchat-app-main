@@ -76,7 +76,6 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   double _subTitleMaxW = Adapt.screenW - (48 + 60 + 36 + 30).px;
   bool addAutomaticKeepAlives = true;
   bool addRepaintBoundaries = true;
-  final _throttle = ThrottleUtils(delay: Duration(milliseconds: 3000));
   bool _hasVibrator = false;
 
   @override
@@ -181,10 +180,8 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   void didPromptToneCallBack(MessageDBISAR message, int type) async {
     if (PromptToneManager.sharedInstance.isCurrencyChatPage != null && PromptToneManager.sharedInstance.isCurrencyChatPage!(message)) return;
     bool isMute = ChatSessionUtils.checkIsMute(message, type);
-    if (!isMute && OXUserInfoManager.sharedInstance.canSound && !PromptToneManager.sharedInstance.isAppPaused)
-      _throttle(() {
-        PromptToneManager.sharedInstance.play();
-      });
+    if (!isMute)
+      PromptToneManager.sharedInstance.playMessageReceived();
   }
 
   @override
