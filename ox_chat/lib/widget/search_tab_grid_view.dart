@@ -22,7 +22,6 @@ class SearchTabGridView<T> extends StatelessWidget {
     return GridView.builder(
       padding: EdgeInsets.symmetric(horizontal: 24.px,vertical: 2.px),
       shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
       itemCount: data.length,
       itemBuilder: (context, index) {
         if (MessageDBISAR.stringtoMessageType(data[index].type) == MessageType.image ||
