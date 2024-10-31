@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:chatcore/chat-core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -12,10 +13,8 @@ import 'package:ox_common/utils/chat_prompt_tone.dart';
 import 'package:ox_common/utils/error_utils.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/user_config_tool.dart';
-import 'package:ox_home/ox_home.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:ox_chat/ox_chat.dart';
 import 'package:ox_common/event_bus.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -25,101 +24,33 @@ import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/boot_config.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/ox_common.dart';
-import 'package:ox_discovery/ox_discovery.dart';
 import 'package:ox_localizable/ox_localizable.dart';
-import 'package:ox_login/ox_login.dart';
-import 'package:ox_push/push_lib.dart';
-import 'package:ox_calling/ox_calling.dart';
 import 'package:ox_chat_project/multi_route_utils.dart';
 import 'package:ox_theme/ox_theme.dart';
-import 'package:ox_usercenter/ox_usercenter.dart';
-import 'package:ox_chat_ui/ox_chat_ui.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:ox_wallet/ox_wallet.dart';
 
-import 'main.reflectable.dart';
+import 'app_initializer.dart';
 
 const MethodChannel navigatorChannel = const MethodChannel('NativeNavigator');
 
-class MyHttpOverrides extends HttpOverrides {
-  @override
-  HttpClient createHttpClient(SecurityContext? context) {
-    final client = super.createHttpClient(context)
-      ..findProxy = (Uri uri) {
-        ProxySettings? settings = Config.sharedInstance.proxySettings;
-        if (settings == null) {
-          return 'DIRECT';
-        }
-        if (settings.turnOnProxy) {
-          bool onionURI = uri.host.contains(".onion");
-          switch (settings.onionHostOption) {
-            case EOnionHostOption.no:
-              return onionURI ? '' : 'PROXY ${settings.socksProxyHost}:${settings.socksProxyPort}';
-            case EOnionHostOption.whenAvailable:
-              return !onionURI ? 'DIRECT' : 'PROXY ${settings.socksProxyHost}:${settings.socksProxyPort}';
-            case EOnionHostOption.required:
-              return !onionURI ? '' : 'PROXY ${settings.socksProxyHost}:${settings.socksProxyPort}';
-            default:
-              break;
-          }
-        }
-        return "DIRECT";
-      }
-      ..badCertificateCallback =
-          (X509Certificate cert, String host, int port) {
-        return true;
-      }; // add your localhost detection logic here if you want;
-    return client;
-  }
-}
-
 void main() async {
-  runZonedGuarded(() async{
-    WidgetsFlutterBinding.ensureInitialized();
-    HttpOverrides.global = new MyHttpOverrides(); //ignore all ssl
-    initializeReflectable();
-    await ThemeManager.init();
-    await Localized.init();
-    await setupModules();
-    await OXUserInfoManager.sharedInstance.initLocalData();
-    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
-    SystemChrome.setSystemUIOverlayStyle(ThemeManager.getCurrentThemeStyle().toOverlayStyle());
-    FlutterError.onError = (FlutterErrorDetails details) async {
-      bool openDevLog = UserConfigTool.getSetting(StorageSettingKey.KEY_OPEN_DEV_LOG.name, defaultValue: false);
-      if (openDevLog) {
-        FlutterError.presentError(details);
-        ErrorUtils.logErrorToFile(details.toString() + '\n' + details.stack.toString());
-      }
-      print(details.toString());
-    };
-    getApplicationDocumentsDirectory().then((value) {
-      LogUtil.d('[App start] Application Documents Path: $value');
-    });
+  runZonedGuarded(() async {
+    await AppInitializer.shared.initialize();
     runApp(MainApp(window.defaultRouteName));
   }, (error, stackTrace) async {
-    bool openDevLog = UserConfigTool.getSetting(StorageSettingKey.KEY_OPEN_DEV_LOG.name, defaultValue: false);
-    if (openDevLog) {
-      ErrorUtils.logErrorToFile(error.toString() + '\n' + stackTrace.toString());
+    try {
+      bool openDevLog = UserConfigTool.getSetting(StorageSettingKey.KEY_OPEN_DEV_LOG.name, defaultValue: false);
+      if (openDevLog) {
+        ErrorUtils.logErrorToFile(error.toString() + '\n' + stackTrace.toString());
+      }
+      print(error);
+      print(stackTrace);
+    } catch (e, stack) {
+      if (kDebugMode) {
+        print(e);
+        print(stack);
+      }
     }
-    print(error);
-    print(stackTrace);
   });
-}
-
-Future<void> setupModules() async {
-  final setupAction = [
-    OXCommon().setup(),
-    OXLogin().setup(),
-    OXUserCenter().setup(),
-    OXPush().setup(),
-    OXDiscovery().setup(),
-    OXChat().setup(),
-    OXChatUI().setup(),
-    OxCalling().setup(),
-    OxChatHome().setup(),
-    OXWallet().setup(),
-  ];
-  await Future.wait(setupAction);
 }
 
 class MainApp extends StatefulWidget {
@@ -140,12 +71,13 @@ class MainState extends State<MainApp>
   int lastUserInteractionTime = 0;
   Timer? timer;
 
+  List<OXErrorInfo> initializeErrors = [];
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     LogUtil.e("getCurrentLanguage : ${Localized.getCurrentLanguage()}");
-    ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
     Localized.addLocaleChangedCallback(onLocaleChange);
     OXUserInfoManager.sharedInstance.addObserver(this);
     if (OXUserInfoManager.sharedInstance.isLogin) {
@@ -155,6 +87,32 @@ class MainState extends State<MainApp>
     timer = Timer.periodic(Duration(seconds: 5), (Timer t) {
       printMemoryUsage();
     });
+    showErrorDialogIfNeeded();
+  }
+
+  void showErrorDialogIfNeeded() async {
+    await WidgetsBinding.instance.waitUntilFirstFrameRasterized;
+    await Future.delayed(Duration(seconds: 5));
+    final entries = [...AppInitializer.shared.initializeErrors];
+    for (var entry in entries) {
+      showDialog(
+        context: OXNavigator.navigatorKey.currentContext!,
+        builder: (context) {
+          return AlertDialog(
+            title: Text(entry.error.toString()),
+            content: Text(entry.stack.toString()),
+            actions: <Widget>[
+              TextButton(
+                child: Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 
   void notNetworInitWow() async {
@@ -179,18 +137,6 @@ class MainState extends State<MainApp>
     OXUserInfoManager.sharedInstance.removeObserver(this);
     WidgetsBinding.instance.removeObserver(this);
     wsSwitchStateListener.cancel();
-  }
-
-  onThemeStyleChange() {
-    if (mounted) setState(() {});
-    changeTheme(ThemeManager.getCurrentThemeStyle().index);
-  }
-
-  void changeTheme(int themeStyle) {
-    print("******  changeTheme int $themeStyle");
-    // channel.invokeMethod('changeTheme', {
-    //   'themeStyle': themeStyle,
-    // });
   }
 
   onLocaleChange() {
@@ -341,30 +287,4 @@ class MyObserver extends NavigatorObserver {
       await navigatorChannel.invokeMethod("didPop", {"canPop": canPop});
     }
   }
-}
-
-extension ThemeStyleOverlayEx on ThemeStyle {
-  SystemUiOverlayStyle toOverlayStyle() =>
-    SystemUiOverlayStyle(
-        systemNavigationBarIconBrightness: systemNavigationBarIconBrightness,
-        systemNavigationBarColor: Colors.transparent,
-        statusBarIconBrightness: statusBarIconBrightness,
-        statusBarBrightness: statusBarBrightness,
-        statusBarColor: statusBarColor,
-    );
-
-  Brightness get systemNavigationBarIconBrightness =>
-      this == ThemeStyle.dark ? Brightness.light : Brightness.dark;
-
-  Color get systemNavigationBarColor =>
-      this == ThemeStyle.dark ? ThemeColor.dark02 : ThemeColor.white01;
-
-  Brightness get statusBarIconBrightness =>
-      this == ThemeStyle.dark ? Brightness.light : Brightness.dark;
-
-  Brightness get statusBarBrightness =>
-      this == ThemeStyle.dark ? Brightness.light : Brightness.dark;
-
-  Color get statusBarColor =>
-      this == ThemeStyle.dark ? ThemeColor.color200 : Colors.transparent;
 }
