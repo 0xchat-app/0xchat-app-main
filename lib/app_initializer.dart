@@ -121,7 +121,7 @@ extension ThemeStyleOverlayEx on ThemeStyle {
   Brightness get statusBarBrightness =>
       this == ThemeStyle.dark ? Brightness.light : Brightness.dark;
 
-  Color get statusBarColor => this == ThemeStyle.dark ? ThemeColor.color200 : Colors.transparent;
+  Color get statusBarColor => Colors.transparent;
 }
 
 class OXHttpOverrides extends HttpOverrides {
