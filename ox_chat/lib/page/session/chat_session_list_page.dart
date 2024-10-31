@@ -14,6 +14,7 @@ import 'package:ox_chat/page/session/unified_search_page.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_chat/utils/chat_session_utils.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
+import 'package:ox_chat/widget/relay_info_widget.dart';
 import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/log_util.dart';
@@ -203,15 +204,23 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
           elevation: 0,
           titleSpacing: 0.0,
           title: Container(
-              margin: EdgeInsets.only(left: Adapt.px(24)),
-              child: Container(
-                width: Adapt.px(103),
-                height: Adapt.px(24),
-                child: CommonImage(
-                  iconName: '0xchat_title_icon.png',
-                  useTheme: true,
+            margin: EdgeInsets.only(left: Adapt.px(24)),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  width: 103.px,
+                  height: 24.px,
+                  child: CommonImage(
+                    iconName: '0xchat_title_icon.png',
+                    useTheme: true,
+                  ),
                 ),
-              )),
+                SizedBox(width: 4.px),
+                RelayInfoWidget(iconSize: 16.px, fontSize: 12.sp, fontWeight: FontWeight.w600, fontColor: ThemeColor.color0, padding: 2.px),
+              ],
+            ),
+          ),
           actions: <Widget>[
             GestureDetector(
               behavior: HitTestBehavior.translucent,

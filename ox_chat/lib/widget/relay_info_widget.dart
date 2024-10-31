@@ -12,7 +12,12 @@ import 'package:chatcore/chat-core.dart';
 ///CreateTime: 2024/8/5 19:56
 class RelayInfoWidget extends StatefulWidget {
   bool showRelayIcon;
-  RelayInfoWidget({Key? key, this.showRelayIcon = true}) : super(key: key);
+  double? iconSize;
+  double? fontSize;
+  FontWeight? fontWeight;
+  Color? fontColor;
+  double? padding;
+  RelayInfoWidget({Key? key, this.showRelayIcon = true, this.iconSize, this.fontSize, this.fontWeight, this.fontColor, this.padding}) : super(key: key);
 
   @override
   RelayInfoWidgetState createState() => RelayInfoWidgetState();
@@ -39,25 +44,26 @@ class RelayInfoWidgetState extends State<RelayInfoWidget> {
         },
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Visibility(
               visible: widget.showRelayIcon,
               child: CommonImage(
                 iconName: 'icon_relay_connected_amount.png',
-                width: Adapt.px(24),
-                height: Adapt.px(24),
+                size: widget.iconSize ?? 24.px,
                 fit: BoxFit.fill,
               ),
             ),
             Visibility(
               visible: widget.showRelayIcon,
-              child: SizedBox(width: 4.px),
+              child: SizedBox(width: widget.padding ?? 4.px),
             ),
             Text(
               '${Account.sharedInstance.getConnectedRelaysCount()}/${Account.sharedInstance.getAllRelaysCount()}',
               style: TextStyle(
-                fontSize: Adapt.px(14),
-                color: ThemeColor.color100,
+                fontSize: widget.fontSize ?? 14.sp,
+                color: widget.fontColor ?? ThemeColor.color100,
+                fontWeight: widget.fontWeight,
               ),
             ),
           ],
