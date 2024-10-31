@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_discovery/enum/group_type.dart';
 import 'package:ox_discovery/model/group_model.dart';
@@ -54,7 +55,10 @@ class GroupsPageState extends State<GroupsPage>
     _initData();
   }
 
-  _initData() {
+  _initData() async{
+    await OXLoading.show();
+    await Future.delayed(const Duration(milliseconds: 500));
+    await OXLoading.dismiss();
     bool isLogin = OXUserInfoManager.sharedInstance.isLogin;
     if(isLogin) {
       widget.groupType == GroupType.openGroup ? _getRelayGroupList() : _getChannelList();
