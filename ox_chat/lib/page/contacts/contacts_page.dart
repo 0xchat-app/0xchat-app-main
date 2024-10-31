@@ -23,6 +23,7 @@ import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_common/business_interface/ox_chat/contact_base_page_state.dart';
 import 'package:ox_module_service/ox_module_service.dart';
+import 'package:ox_theme/ox_theme.dart';
 
 import 'contact_add_follows.dart';
 
@@ -53,6 +54,7 @@ class _ContractsPageState extends ContactBasePageState<ContractsPage>
     OXUserInfoManager.sharedInstance.addObserver(this);
     OXChatBinding.sharedInstance.addObserver(this);
     WidgetsBinding.instance.addObserver(this);
+    ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
     Localized.addLocaleChangedCallback(onLocaleChange);
     _loadData();
   }
@@ -64,6 +66,10 @@ class _ContractsPageState extends ContactBasePageState<ContractsPage>
       CommonCategoryTitleItem(title: Localized.text('ox_chat.str_title_groups')),
       // CommonCategoryTitleItem(title: Localized.text('ox_chat.str_title_channels')),
     ];
+  }
+
+  onThemeStyleChange() {
+    if (mounted) setState(() {});
   }
 
   onLocaleChange() {
