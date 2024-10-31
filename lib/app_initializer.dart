@@ -49,6 +49,7 @@ class AppInitializer {
         SystemChrome.setPreferredOrientations(
             [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
         SystemChrome.setSystemUIOverlayStyle(ThemeManager.getCurrentThemeStyle().toOverlayStyle());
+        ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
         FlutterError.onError = (FlutterErrorDetails details) async {
           bool openDevLog = UserConfigTool.getSetting(StorageSettingKey.KEY_OPEN_DEV_LOG.name,
               defaultValue: false);
@@ -64,6 +65,11 @@ class AppInitializer {
         initializeErrors.add(OXErrorInfo(error, stack));
       }
     });
+  }
+
+  onThemeStyleChange() async {
+    print("******  changeTheme int ${ThemeManager.getCurrentThemeStyle().name}");
+    SystemChrome.setSystemUIOverlayStyle(ThemeManager.getCurrentThemeStyle().toOverlayStyle());
   }
 
   Future<void> _setupModules() async {
