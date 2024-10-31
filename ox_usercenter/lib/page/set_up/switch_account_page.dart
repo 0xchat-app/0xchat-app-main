@@ -36,7 +36,12 @@ class _SwitchAccountPageState extends State<SwitchAccountPage> with OXUserInfoOb
   @override
   void initState() {
     super.initState();
+    ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
     _loadLocalInfo();
+  }
+
+  onThemeStyleChange() {
+    setState(() {});
   }
 
   void _loadLocalInfo() async {
@@ -47,7 +52,6 @@ class _SwitchAccountPageState extends State<SwitchAccountPage> with OXUserInfoOb
     }
     _currentUserMap = await UserConfigTool.getAllUser();
     _userCacheList = _currentUserMap.values.toList();
-    LogUtil.e('Michael:---_loadLocalInfo---_userCacheList =${_userCacheList}');
     // _selectedIndex = _userCacheList.indexWhere((user) => user.pubKey == (_currentUser?.pubKey ?? ''));
     _userCacheList.removeWhere((user) => user.pubKey == (_currentUser?.pubKey ?? ''));
     if (mounted) setState(() {});
@@ -69,9 +73,12 @@ class _SwitchAccountPageState extends State<SwitchAccountPage> with OXUserInfoOb
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           _buildAccountList(),
-          Divider(
-            height: 0.5.px,
-            color: ThemeColor.color160,
+          Visibility(
+            visible: _userCacheList.isNotEmpty,
+            child: Divider(
+              height: 0.5.px,
+              color: ThemeColor.color160,
+            ),
           ),
           _buildItem(-1, isAdd: true),
         ],
