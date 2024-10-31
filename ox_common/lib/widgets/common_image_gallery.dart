@@ -99,8 +99,9 @@ class ImageEntry {
 class CommonImageGallery extends StatefulWidget {
   final List<ImageEntry> imageList;
   final int initialPage;
+  final Widget? extraMenus;
   const CommonImageGallery({
-    required this.imageList, required this.initialPage});
+    required this.imageList, required this.initialPage, this.extraMenus});
 
   @override
   _CommonImageGalleryState createState() => _CommonImageGalleryState();
@@ -356,6 +357,7 @@ class _CommonImageGalleryState extends State<CommonImageGallery>
                         height: 2.px,
                         color: ThemeColor.dark01,
                       ),
+                      widget.extraMenus ?? SizedBox(),
                       new GestureDetector(
                         onTap: () {
                           Navigator.pop(context);
