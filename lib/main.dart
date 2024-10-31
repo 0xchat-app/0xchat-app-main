@@ -78,7 +78,6 @@ class MainState extends State<MainApp>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     LogUtil.e("getCurrentLanguage : ${Localized.getCurrentLanguage()}");
-    ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
     Localized.addLocaleChangedCallback(onLocaleChange);
     OXUserInfoManager.sharedInstance.addObserver(this);
     if (OXUserInfoManager.sharedInstance.isLogin) {
@@ -138,18 +137,6 @@ class MainState extends State<MainApp>
     OXUserInfoManager.sharedInstance.removeObserver(this);
     WidgetsBinding.instance.removeObserver(this);
     wsSwitchStateListener.cancel();
-  }
-
-  onThemeStyleChange() {
-    if (mounted) setState(() {});
-    changeTheme(ThemeManager.getCurrentThemeStyle().index);
-  }
-
-  void changeTheme(int themeStyle) {
-    print("******  changeTheme int $themeStyle");
-    // channel.invokeMethod('changeTheme', {
-    //   'themeStyle': themeStyle,
-    // });
   }
 
   onLocaleChange() {
