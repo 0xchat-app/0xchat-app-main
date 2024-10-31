@@ -41,7 +41,7 @@ class _SwitchAccountPageState extends State<SwitchAccountPage> with OXUserInfoOb
   }
 
   onThemeStyleChange() {
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   void _loadLocalInfo() async {
