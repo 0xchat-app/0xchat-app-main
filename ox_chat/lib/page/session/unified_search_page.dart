@@ -155,7 +155,14 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
     final List<ChatSessionModelISAR> sessionList = OXChatBinding.sharedInstance.sessionList;
     List<GroupedModel<ChatMessage>> recentChatMessage = [];
     if(sessionList.isNotEmpty) {
-      List<ChatMessage> chatMessageList = sessionList.map((item) => ChatMessage(
+      sessionList.sort((session1, session2) {
+        var session2CreatedTime = session2.createTime;
+        var session1CreatedTime = session1.createTime;
+        return session2CreatedTime.compareTo(session1CreatedTime);
+      });
+      List<ChatSessionModelISAR> recentSessionList =
+          sessionList.length > 5 ? sessionList.sublist(0, 5) : sessionList;
+      List<ChatMessage> chatMessageList = recentSessionList.map((item) => ChatMessage(
           item.chatId,
           '',
           item.chatName ?? '',
