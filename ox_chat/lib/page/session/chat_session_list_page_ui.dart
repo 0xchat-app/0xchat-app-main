@@ -34,7 +34,7 @@ extension ChatSessionListPageUI on ChatSessionListPageState{
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    assetIcon(isMuteCurrent ? 'icon_unmute.png' : 'icon_mute.png', 32, 32, color: ThemeColor.color0),
+                    assetIcon(isMuteCurrent ? 'icon_unmute.png' : 'icon_mute.png', 32, 32, color: Colors.white),
                     Text(
                       (isMuteCurrent ? 'un_mute_item' : 'mute_item').localized(),
                       style: TextStyle(color: Colors.white, fontSize: Adapt.px(12)),
@@ -73,7 +73,7 @@ extension ChatSessionListPageUI on ChatSessionListPageState{
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    assetIcon('icon_chat_delete.png', 32, 32, color: ThemeColor.color0),
+                    assetIcon('icon_chat_delete.png', 32, 32, color: Colors.white),
                     Text(
                       'delete'.localized(),
                       style: TextStyle(color: Colors.white, fontSize: Adapt.px(12)),
