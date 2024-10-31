@@ -52,7 +52,7 @@ class ChatNostrSchemeHandle {
 
   static Future<ChannelDBISAR> _loadChannelOnline(Channel channel) async {
     ChannelDBISAR? channelDB = await Channels.sharedInstance
-        .updateChannelMetadataFromRelay(channel.owner, channel.channelId);
+        .updateChannelMetadataFromRelay(channel.owner, [channel.channelId]);
     return channelDB ?? ChannelDBISAR(channelId: channel.channelId);
   }
 

@@ -91,7 +91,7 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
   }
 
   void _syncChannelInfo() async {
-    ChannelDBISAR? channelDB = await Channels.sharedInstance.updateChannelMetadataFromRelay(widget.channelDB.creator, widget.channelDB.channelId);
+    ChannelDBISAR? channelDB = await Channels.sharedInstance.updateChannelMetadataFromRelay(widget.channelDB.creator, [widget.channelDB.channelId]);
     if (channelDB != null){
       _initData();
     }
