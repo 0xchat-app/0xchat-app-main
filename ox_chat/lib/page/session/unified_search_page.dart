@@ -108,6 +108,7 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
   }
 
   void _loadChannelsData() async {
+    _channels.clear();
     List<ChannelDBISAR>? channelList = SearchTxtUtil.loadChatChannelsWithSymbol(searchQuery);
     if (channelList != null && channelList.length > 0) {
       _channels.add(GroupedModel<ChannelDBISAR>(title: 'Channels', items: channelList));
@@ -116,8 +117,6 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
   }
 
   void _loadOnlineGroupsAndChannelsData() async {
-    _groups.clear();
-    _channels.clear();
     if (searchQuery.startsWith('nevent') ||
         searchQuery.startsWith('naddr') ||
         searchQuery.startsWith('nostr:') ||
@@ -160,8 +159,7 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
         var session1CreatedTime = session1.createTime;
         return session2CreatedTime.compareTo(session1CreatedTime);
       });
-      List<ChatSessionModelISAR> recentSessionList =
-          sessionList.length > 5 ? sessionList.sublist(0, 5) : sessionList;
+      List<ChatSessionModelISAR> recentSessionList = _getRecentRecord(sessionList);
       List<ChatMessage> chatMessageList = recentSessionList.map((item) => ChatMessage(
           item.chatId,
           '',
@@ -195,7 +193,7 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
         groups.add(uIModel);
       });
     }
-    recentGroup.add(GroupedModel<GroupUIModel>(title: 'Recent', items: groups));
+    recentGroup.add(GroupedModel<GroupUIModel>(title: 'Recent', items: _getRecentRecord(groups)));
     _searchResult[SearchType.group] = recentGroup;
     setState(() {});
   }
@@ -207,7 +205,7 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
     if (channelsMap.length > 0) {
       channels = channelsMap.values.map((e) => e.value).toList();
     }
-    recentChannel.add(GroupedModel<ChannelDBISAR>(title: 'Recent', items: channels));
+    recentChannel.add(GroupedModel<ChannelDBISAR>(title: 'Recent', items: _getRecentRecord(channels)));
     _searchResult[SearchType.channel] = recentChannel;
     setState(() {});
   }
@@ -248,6 +246,7 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
   }
 
   void _loadRecentData() {
+    _searchResult.clear();
     _loadRecentChatMessage();
     _loadRecentGroup();
     _loadRecentChannel();
@@ -383,6 +382,10 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
         ],
       ),
     );
+  }
+
+  List<T> _getRecentRecord<T>(List<T> list, {int limit = 5}) {
+    return list.length > limit ? list.sublist(0, limit) : list;
   }
 
   @override
