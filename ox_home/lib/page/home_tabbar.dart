@@ -73,6 +73,7 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
     _tabbarSH = _bottomNavHeight + _bottomNavMargin;
     OXUserInfoManager.sharedInstance.addObserver(this);
     OXChatBinding.sharedInstance.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
     Localized.addLocaleChangedCallback(onLocaleChange);
     signerCheck();
   }
@@ -84,12 +85,7 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
-
-  @override
-  void didUpdateWidget(covariant HomeTabBarPage oldWidget) {
-    super.didUpdateWidget(oldWidget);
-  }
-
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -164,11 +160,9 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
                 return false;
               }
               if (_bottomNavOffset < _tabbarSH && _bottomNavOffset > _bottomNavHeight / 2) {
-                print('delta > 0 executeAnim ');
                 tabBarGlobalKey.currentState?.executeAnim(isReverse: false, fromValue: _bottomNavOffset* 0.01);
                 _bottomNavOffset = _tabbarSH;
               } else {
-                print('delta > 0 updateOffset  _bottomNavOffset = ${_bottomNavOffset* 0.01}');
                 tabBarGlobalKey.currentState?.updateOffset(_bottomNavOffset * 0.01);
               }
             } else {
@@ -181,7 +175,6 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
                 tabBarGlobalKey.currentState?.executeAnim(isReverse: true, fromValue: _bottomNavOffset* 0.01);
                 _bottomNavOffset = 0.0;
               } else {
-                print('delta < 0  updateOffset  _bottomNavOffset = ${_bottomNavOffset* 0.01}');
                 tabBarGlobalKey.currentState?.updateOffset(_bottomNavOffset * 0.01);
               }
             }
