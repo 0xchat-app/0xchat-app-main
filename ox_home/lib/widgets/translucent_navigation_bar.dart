@@ -129,6 +129,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     isLogin = OXUserInfoManager.sharedInstance.isLogin;
     OXUserInfoManager.sharedInstance.addObserver(this);
     OXChatBinding.sharedInstance.addObserver(this);
+    ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
     _animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
     _animation = Tween<double>(begin: 0.0, end: 72 + 24.px).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeInOut));
     prepareMessageTimer();
@@ -145,6 +146,12 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     OXChatBinding.sharedInstance.removeObserver(this);
     _animationController.dispose();
     super.dispose();
+  }
+
+  onThemeStyleChange() {
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   void _loadLocalInfo() async {

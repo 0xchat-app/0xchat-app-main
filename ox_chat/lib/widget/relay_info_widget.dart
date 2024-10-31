@@ -13,11 +13,12 @@ import 'package:chatcore/chat-core.dart';
 class RelayInfoWidget extends StatefulWidget {
   bool showRelayIcon;
   double? iconSize;
+  Color? iconColor;
   double? fontSize;
   FontWeight? fontWeight;
   Color? fontColor;
   double? padding;
-  RelayInfoWidget({Key? key, this.showRelayIcon = true, this.iconSize, this.fontSize, this.fontWeight, this.fontColor, this.padding}) : super(key: key);
+  RelayInfoWidget({Key? key, this.showRelayIcon = true, this.iconSize, this.iconColor, this.fontSize, this.fontWeight, this.fontColor, this.padding}) : super(key: key);
 
   @override
   RelayInfoWidgetState createState() => RelayInfoWidgetState();
@@ -52,6 +53,7 @@ class RelayInfoWidgetState extends State<RelayInfoWidget> {
                 iconName: 'icon_relay_connected_amount.png',
                 size: widget.iconSize ?? 24.px,
                 fit: BoxFit.fill,
+                color: widget.iconColor,
               ),
             ),
             Visibility(
