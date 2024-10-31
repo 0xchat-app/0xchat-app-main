@@ -39,13 +39,13 @@ class ContactListView extends SearchTabListView<UserDBISAR> {
 
   static Widget _buildContactItem(BuildContext context, UserDBISAR item) {
     return SearchResultItem(
-      isUser: true,
-      // searchQuery: widget.searchQuery,
       searchQuery: '',
       avatarURL: item.picture,
       title: item.name,
       subTitle: item.about ?? '',
       onTap: () => SearchItemClickHandler.handleClick(context, item),
+      type: SearchResultItemType.contact,
+      pubkey: '',
     );
   }
 }
@@ -62,13 +62,13 @@ class GroupListView extends SearchTabListView<GroupUIModel> {
 
   static Widget _buildGroupItem(BuildContext context, GroupUIModel item) {
     return SearchResultItem(
-      isUser: true,
-      // searchQuery: widget.searchQuery,
       searchQuery: '',
       avatarURL: item.picture,
       title: item.name,
       subTitle: item.about ?? '',
       onTap: () => SearchItemClickHandler.handleClick(context, item),
+      type: SearchResultItemType.group,
+      pubkey: '',
     );
   }
 }
