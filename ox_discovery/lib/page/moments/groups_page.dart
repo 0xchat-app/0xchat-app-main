@@ -57,7 +57,7 @@ class GroupsPageState extends State<GroupsPage>
 
   _initData() async{
     await OXLoading.show();
-    await Future.delayed(const Duration(milliseconds: 500));
+    await Future.delayed(const Duration(milliseconds: 100));
     await OXLoading.dismiss();
     bool isLogin = OXUserInfoManager.sharedInstance.isLogin;
     if(isLogin) {
