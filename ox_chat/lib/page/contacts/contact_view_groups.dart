@@ -4,17 +4,14 @@ import 'package:flutter/widgets.dart';
 import 'package:ox_chat/model/group_ui_model.dart';
 import 'package:ox_chat/page/contacts/contacts_page.dart';
 import 'package:ox_chat/widget/contact_group.dart';
-import 'package:ox_common/utils/ox_chat_observer.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
-import 'package:ox_common/model/chat_type.dart';
-import 'package:ox_chat/utils/widget_tool.dart';
-import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/mixin/common_state_view_mixin.dart';
-import 'package:ox_common/utils/adapt.dart';
-import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/ox_chat_binding.dart';
+import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_pull_refresher.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:flutter_vibrate/flutter_vibrate.dart';
 
 class ContactViewGroups extends StatefulWidget {
   final bool shrinkWrap;
@@ -35,6 +32,7 @@ class _ContactViewGroupsState extends State<ContactViewGroups> with SingleTicker
   RefreshController _refreshController = RefreshController();
   GlobalKey<GroupContactState> groupsWidgetKey = new GlobalKey<GroupContactState>();
   num imageV = 0;
+  bool hasVibrator = false;
 
   @override
   void initState() {
@@ -43,6 +41,7 @@ class _ContactViewGroupsState extends State<ContactViewGroups> with SingleTicker
     OXChatBinding.sharedInstance.addObserver(this);
     WidgetsBinding.instance.addObserver(this);
     _onRefresh();
+    isHasVibrator();
     widget.scrollToTopStatus?.isScrolledToTop.addListener(_scrollToTop);
   }
 
@@ -54,6 +53,11 @@ class _ContactViewGroupsState extends State<ContactViewGroups> with SingleTicker
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
     widget.scrollToTopStatus?.isScrolledToTop.removeListener(_scrollToTop);
+  }
+
+  isHasVibrator() async {
+    hasVibrator = await Vibrate.canVibrate;
+    setState(() {});
   }
 
   @override
@@ -70,31 +74,33 @@ class _ContactViewGroupsState extends State<ContactViewGroups> with SingleTicker
         shrinkWrap: widget.shrinkWrap,
         physics: widget.physics,
         topWidget: widget.topWidget,
+        supportLongPress: true,
+        hasVibrator: hasVibrator,
       ),
     );
   }
 
   void _loadData() {
     groups.clear();
-    Map<String, GroupDBISAR> privateGroupMap = Groups.sharedInstance.myGroups;
+    Map<String, ValueNotifier<GroupDBISAR>> privateGroupMap = Groups.sharedInstance.myGroups;
     if(privateGroupMap.length>0) {
-      List<GroupDBISAR> tempGroups = privateGroupMap.values.toList();
+      List<GroupDBISAR> tempGroups = privateGroupMap.values.map((e) => e.value).toList();
       tempGroups.forEach((element) {
         GroupUIModel tempUIModel= GroupUIModel.groupdbToUIModel(element);
         groups.add(tempUIModel);
       });
     }
-    Map<String, RelayGroupDBISAR> relayGroupMap = RelayGroup.sharedInstance.myGroups;
+    Map<String, ValueNotifier<RelayGroupDBISAR>> relayGroupMap = RelayGroup.sharedInstance.myGroups;
     if(relayGroupMap.length>0) {
-      List<RelayGroupDBISAR> tempRelayGroups = relayGroupMap.values.toList();
+      List<RelayGroupDBISAR> tempRelayGroups = relayGroupMap.values.map((e) => e.value).toList();
       tempRelayGroups.forEach((element) {
         GroupUIModel uIModel= GroupUIModel.relayGroupdbToUIModel(element);
         groups.add(uIModel);
       });
     }
-    Map<String, ChannelDBISAR> channelsMap = Channels.sharedInstance.myChannels;
+    Map<String, ValueNotifier<ChannelDBISAR>> channelsMap = Channels.sharedInstance.myChannels;
     if (channelsMap.length > 0) {
-      List<ChannelDBISAR> channels = channelsMap.values.toList();
+      List<ChannelDBISAR> channels = channelsMap.values.map((e) => e.value).toList();
       channels.forEach((element) {
         GroupUIModel uIModel= GroupUIModel.channeldbToUIModel(element);
         groups.add(uIModel);

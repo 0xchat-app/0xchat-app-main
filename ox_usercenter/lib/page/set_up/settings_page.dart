@@ -1,17 +1,16 @@
+import 'package:cashu_dart/cashu_dart.dart';
+import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
-import 'package:ox_cache_manager/ox_cache_manager.dart';
-import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/msg_notification_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/file_utils.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
-import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/user_config_tool.dart';
-import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
@@ -31,9 +30,7 @@ import 'package:ox_usercenter/page/set_up/relays_page.dart';
 import 'package:ox_usercenter/page/set_up/theme_settings_page.dart';
 import 'package:ox_usercenter/page/set_up/zaps_page.dart';
 import 'package:ox_usercenter/utils/import_data_tools.dart';
-import 'package:ox_usercenter/utils/widget_tool.dart';
-import 'package:chatcore/chat-core.dart';
-import 'package:cashu_dart/cashu_dart.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import 'nuts_zaps/nuts_zaps_page.dart';
 
@@ -55,8 +52,8 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
   late List<SettingModel> _settingModelList = [];
   bool _isShowZapBadge = false;
   final pubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
-  double  fillH = 200;
   bool _isOpenDevLog = false;
+  late String _version = '1.0.0';
 
   @override
   void initState() {
@@ -65,58 +62,64 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
     ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
     Localized.addLocaleChangedCallback(onLocaleChange);
     _loadData();
+    _getPackageInfo();
   }
 
   void _loadData() async {
     _settingModelList = SettingModel.getItemData(_settingModelList);
     _isShowZapBadge = _getZapBadge();
-    fillH = Adapt.screenH - 60.px - 52.px * _settingModelList.length;
     _isOpenDevLog = UserConfigTool.getSetting(StorageSettingKey.KEY_OPEN_DEV_LOG.name, defaultValue: false);
     setState(() {});
   }
 
+  void _getPackageInfo() {
+    PackageInfo.fromPlatform().then((value) {
+      _version = value.version;
+
+      setState(() {});
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CommonAppBar(
-        title: 'str_settings'.localized(),
-        backgroundColor: ThemeColor.color200,
-      ),
-      backgroundColor: ThemeColor.color200,
-      body: _body(),
-    );
+    return _body();
   }
 
   Widget _body() {
-    return CustomScrollView(
-      physics: const BouncingScrollPhysics(),
-      slivers: [
-        SliverToBoxAdapter(
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(Adapt.px(16)),
-              color: ThemeColor.color180,
-            ),
-            margin: EdgeInsets.symmetric(horizontal: 24.px, vertical: 12.px),
-            child: ListView.builder(
-              padding: const EdgeInsets.only(bottom: 0),
-              physics: const BouncingScrollPhysics(),
-              shrinkWrap: true,
-              itemBuilder: _itemBuild,
-              itemCount: _settingModelList.length,
-            ),
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(Adapt.px(16)),
+        color: ThemeColor.color180,
+      ),
+      child: Column(
+        children: [
+          ListView.builder(
+            padding: const EdgeInsets.only(bottom: 0),
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemBuilder: _itemBuild,
+            itemCount: _settingModelList.length,
           ),
-        ),
-        SliverToBoxAdapter(
-          child: SizedBox(height: fillH < Adapt.screenH ? fillH.abs() : 50.px),
-        ),
-      ],
+          Divider(
+            height: 0.5.px,
+            color: ThemeColor.color160,
+          ),
+          buildOption(
+            title: 'ox_usercenter.version',
+            iconName: 'icon_settings_version.png',
+            rightContent: _version,
+            showArrow: false,
+            decoration: const BoxDecoration(),
+            onTap: () {},
+          ),
+        ],
+      ),
     );
   }
 
   Future<void> claimEcash() async {
-    final token = await NpubCash.claim();
-    if(token != null){
+    final balance = await NpubCash.balance();
+    if(balance != null && balance > 0){
       OXCommonHintDialog.show(
         context,
         title: Localized.text('ox_usercenter.str_claim_ecash_hint_title'),
@@ -126,15 +129,18 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
             text: Localized.text('ox_usercenter.str_claim_ecash_confirm'),
             onTap: () async {
               OXNavigator.pop(context);
-              OXLoading.show();
-              final response = await Cashu.redeemEcash(
-                ecashString: token,
-              );
-              OXLoading.dismiss();
-              CommonToast.instance.show(
-                context,
-                Localized.text(response.isSuccess ? 'ox_usercenter.str_claim_ecash_success' : 'ox_usercenter.str_claim_ecash_fail'),
-              );
+              final token = await NpubCash.claim();
+              if(token != null){
+                OXLoading.show();
+                final response = await Cashu.redeemEcash(
+                  ecashString: token,
+                );
+                OXLoading.dismiss();
+                CommonToast.instance.show(
+                  context,
+                  Localized.text(response.isSuccess ? 'ox_usercenter.str_claim_ecash_success' : 'ox_usercenter.str_claim_ecash_fail'),
+                );
+              }
             },
           ),
         ],
@@ -218,6 +224,9 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
             break;
           case SettingItemType.fileServer:
             OXNavigator.pushPage(context, (context) => const FileServerPage());
+            break;
+          case SettingItemType.none:
+            // TODO: Handle this case.
             break;
         }
       },
@@ -328,7 +337,7 @@ Widget itemView(String iconName, String title, String rightContent, bool showDiv
               iconName: iconName,
               width: Adapt.px(32),
               height: Adapt.px(32),
-              package: iconName == 'icon_mute.png' ? 'ox_common' : 'ox_usercenter',
+              package: 'ox_usercenter',
             ),
             title: Text(
               Localized.text(title),

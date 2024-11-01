@@ -9,13 +9,14 @@ import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 
-class ImagePreviewWidget extends StatefulWidget {
-  ImagePreviewWidget({
+class ChatImagePreviewWidget extends StatefulWidget {
+  ChatImagePreviewWidget({
     required this.uri,
     this.imageWidth,
     this.imageHeight,
     this.maxWidth,
     this.decryptKey,
+    this.decryptNonce,
     this.progressStream,
   });
 
@@ -24,13 +25,14 @@ class ImagePreviewWidget extends StatefulWidget {
   final int? imageHeight;
   final int? maxWidth;
   final String? decryptKey;
+  final String? decryptNonce;
   final Stream<double>? progressStream;
 
   @override
-  State<StatefulWidget> createState() => ImagePreviewWidgetState();
+  State<StatefulWidget> createState() => ChatImagePreviewWidgetState();
 }
 
-class ImagePreviewWidgetState extends State<ImagePreviewWidget> {
+class ChatImagePreviewWidgetState extends State<ChatImagePreviewWidget> {
 
   ImageProvider? imageProvider;
   ImageStream? imageStream;
@@ -65,6 +67,7 @@ class ImagePreviewWidgetState extends State<ImagePreviewWidget> {
       width: width,
       height: height,
       decryptedKey: widget.decryptKey,
+      decryptedNonce: widget.decryptNonce
     );
 
     if (uri.isImageBase64) {
@@ -73,7 +76,7 @@ class ImagePreviewWidgetState extends State<ImagePreviewWidget> {
   }
 
   @override
-  void didUpdateWidget(covariant ImagePreviewWidget oldWidget) {
+  void didUpdateWidget(covariant ChatImagePreviewWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.uri != widget.uri
         || oldWidget.imageWidth != widget.imageWidth

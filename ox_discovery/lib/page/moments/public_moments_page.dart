@@ -8,6 +8,7 @@ import 'package:ox_common/utils/ox_moment_manager.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
+import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_pull_refresher.dart';
@@ -18,30 +19,52 @@ import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_theme/ox_theme.dart';
 import 'package:ox_common/model/msg_notification_model.dart';
 
+import '../../enum/moment_enum.dart';
 import '../../model/moment_ui_model.dart';
 import '../../utils/discovery_utils.dart';
 import '../../utils/moment_widgets_utils.dart';
 import '../widgets/moment_widget.dart';
+import 'create_moments_page.dart';
 import 'group_moments_page.dart';
 import 'moments_page.dart';
 import 'notifications_moments_page.dart';
 import 'package:flutter/services.dart';
 
-enum EPublicMomentsPageType { all, contacts, follows, reacted, private }
+enum EPublicMomentsPageType { contacts, reacted, private }
 
 extension EPublicMomentsPageTypeEx on EPublicMomentsPageType {
   String get text {
     switch (this) {
-      case EPublicMomentsPageType.all:
-        return Localized.text('ox_discovery.all');
       case EPublicMomentsPageType.contacts:
         return 'Contacts';
-      case EPublicMomentsPageType.follows:
-        return 'Follows';
       case EPublicMomentsPageType.reacted:
         return 'Liked & Zapped';
       case EPublicMomentsPageType.private:
         return 'Private';
+    }
+  }
+
+  int get changeInt {
+    switch (this) {
+      case EPublicMomentsPageType.contacts:
+        return 0;
+      case EPublicMomentsPageType.reacted:
+        return 1;
+      case EPublicMomentsPageType.private:
+        return 2;
+    }
+  }
+
+  static EPublicMomentsPageType getEnumType(int type) {
+    switch (type) {
+      case 0:
+        return EPublicMomentsPageType.contacts;
+      case 1:
+        return EPublicMomentsPageType.reacted;
+      case 2:
+        return EPublicMomentsPageType.private;
+      default:
+        return EPublicMomentsPageType.contacts;
     }
   }
 }
@@ -49,7 +72,7 @@ extension EPublicMomentsPageTypeEx on EPublicMomentsPageType {
 class PublicMomentsPage extends StatefulWidget {
   final EPublicMomentsPageType publicMomentsPageType;
   const PublicMomentsPage(
-      {Key? key, this.publicMomentsPageType = EPublicMomentsPageType.all})
+      {Key? key, this.publicMomentsPageType = EPublicMomentsPageType.contacts})
       : super(key: key);
 
   @override
@@ -64,7 +87,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
   final double tipsGroupHeight = 52;
 
   int? _allNotesFromDBLastTimestamp;
-  List<ValueNotifier<NotedUIModel?>> notesList = [];
+  List<NotedUIModel?> notesList = [];
 
   final ScrollController momentScrollController = ScrollController();
   final RefreshController refreshController = RefreshController();
@@ -102,6 +125,8 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
     isLogin = OXUserInfoManager.sharedInstance.isLogin;
     OXUserInfoManager.sharedInstance.addObserver(this);
     OXMomentManager.sharedInstance.addObserver(this);
+    Moment.sharedInstance.updateSubscriptions();
+
     ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
     updateNotesList(true);
     _notificationUpdateNotes(OXMomentManager.sharedInstance.notes);
@@ -121,6 +146,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
   @override
   void dispose() {
     refreshController.dispose();
+    Moment.sharedInstance.closeSubscriptions();
     OXUserInfoManager.sharedInstance.removeObserver(this);
     OXMomentManager.sharedInstance.removeObserver(this);
     super.dispose();
@@ -156,6 +182,52 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
             ),
           ),
         ),
+        Positioned(
+          bottom: 50.px,
+          right: 20.px,
+          child: GestureDetector(
+            onLongPress: () {
+              OXNavigator.presentPage(
+                  context,
+                  (context) =>
+                      const CreateMomentsPage(type: EMomentType.content));
+            },
+            onTap: () {
+              CreateMomentDraft? createMomentMediaDraft =
+                  OXMomentCacheManager.sharedInstance.createMomentMediaDraft;
+              if (createMomentMediaDraft != null) {
+                final type = createMomentMediaDraft.type;
+                final imageList = type == EMomentType.picture
+                    ? createMomentMediaDraft.imageList
+                    : null;
+                final videoPath = type == EMomentType.video
+                    ? createMomentMediaDraft.videoPath
+                    : null;
+                final videoImagePath = type == EMomentType.video
+                    ? createMomentMediaDraft.videoImagePath
+                    : null;
+
+                OXNavigator.presentPage(
+                  context,
+                  (context) => CreateMomentsPage(
+                    type: type,
+                    imageList: imageList,
+                    videoPath: videoPath,
+                    videoImagePath: videoImagePath,
+                  ),
+                );
+                return;
+              }
+              OXNavigator.presentPage(
+                  context, (context) => const CreateMomentsPage(type: null));
+            },
+            child: CommonImage(
+              iconName: 'theme_add_icon.png',
+              size: 48.px,
+              package: 'ox_discovery',
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -166,10 +238,10 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
       controller: null,
       shrinkWrap: false,
       itemCount: notesList.length,
-      addAutomaticKeepAlives: addAutomaticKeepAlives,
-      addRepaintBoundaries: addRepaintBoundaries,
+      // addAutomaticKeepAlives: addAutomaticKeepAlives,
+      // addRepaintBoundaries: addRepaintBoundaries,
       itemBuilder: (context, index) {
-        ValueNotifier<NotedUIModel?> notedUIModel = notesList[index];
+        NotedUIModel? notedUIModel = notesList[index];
         if (index == 0) {
           return ValueListenableBuilder<double>(
             valueListenable: tipContainerHeight,
@@ -183,7 +255,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
                       isShowReplyWidget: true,
                       notedUIModel: notedUIModel,
                       clickMomentCallback:
-                          (ValueNotifier<NotedUIModel?> notedUIModel) async {
+                          (NotedUIModel? notedUIModel) async {
                         await OXNavigator.pushPage(
                             context,
                             (context) =>
@@ -201,7 +273,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
           isShowReplyWidget: true,
           notedUIModel: notedUIModel,
           clickMomentCallback:
-              (ValueNotifier<NotedUIModel?> notedUIModel) async {
+              (NotedUIModel? notedUIModel) async {
             await OXNavigator.pushPage(
                 context, (context) => MomentsPage(notedUIModel: notedUIModel));
           },
@@ -278,7 +350,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
           mainAxisAlignment: MainAxisAlignment.start,
           children: getNotificationGroupNotesToMap.keys.map((String groupId) {
             RelayGroupDBISAR? groupDB =
-                RelayGroup.sharedInstance.myGroups[groupId];
+                RelayGroup.sharedInstance.myGroups[groupId]?.value;
             if(groupDB == null) return const SizedBox();
             return _groupNotificationItem(groupDB);
           }).toList(),
@@ -458,12 +530,8 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
   Future<List<NoteDBISAR>> _getNoteTypeToDB(bool isInit) async {
     int? until = isInit ? null : _allNotesFromDBLastTimestamp;
     switch (widget.publicMomentsPageType) {
-      case EPublicMomentsPageType.all:
-        return await Moment.sharedInstance.loadAllNotesFromDB(until: until, limit: _limit) ?? [];
       case EPublicMomentsPageType.contacts:
         return await Moment.sharedInstance.loadContactsNotesFromDB(until: until, limit: _limit) ?? [];
-      case EPublicMomentsPageType.follows:
-        return await Moment.sharedInstance.loadFollowsNotesFromDB(until: until, limit: _limit) ?? [];
       case EPublicMomentsPageType.reacted:
         return await Moment.sharedInstance.loadMyReactedNotesFromDB(until: until, limit: _limit) ?? [];
       case EPublicMomentsPageType.private:
@@ -473,12 +541,8 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
 
   Future<List<NoteDBISAR>> _getNoteTypeToRelay() async {
     switch (widget.publicMomentsPageType) {
-      case EPublicMomentsPageType.all:
-        return await Moment.sharedInstance.loadAllNewNotesFromRelay(until: _allNotesFromDBLastTimestamp, limit: _limit) ?? [];
       case EPublicMomentsPageType.contacts:
         return await Moment.sharedInstance.loadContactsNewNotesFromRelay(until: _allNotesFromDBLastTimestamp, limit: _limit) ?? [];
-      case EPublicMomentsPageType.follows:
-        return await Moment.sharedInstance.loadFollowsNewNotesFromRelay(until: _allNotesFromDBLastTimestamp, limit: _limit) ?? [];
       case EPublicMomentsPageType.reacted:
         return [];
       case EPublicMomentsPageType.private:
@@ -508,7 +572,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
   }
 
   void _updateUI(List<NoteDBISAR> showList, bool isInit, int fetchedCount) {
-    List<ValueNotifier<NotedUIModel?>> list = OXMomentCacheManager.sharedInstance.saveValueNotifierNote(showList);
+    List<NotedUIModel?> list = showList.map((item) => NotedUIModel(noteDB: item)).toList();
     if (isInit) {
       notesList = list;
     } else {

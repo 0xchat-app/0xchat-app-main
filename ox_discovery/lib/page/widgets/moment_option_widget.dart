@@ -3,6 +3,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
+import 'package:ox_common/mixin/common_navigator_observer_mixin.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -25,7 +26,7 @@ import 'package:nostr_core_dart/nostr.dart';
 
 
 class MomentOptionWidget extends StatefulWidget {
-  final ValueNotifier<NotedUIModel?> notedUIModel;
+  final NotedUIModel? notedUIModel;
   final bool isShowMomentOptionWidget;
   const MomentOptionWidget({super.key,required this.notedUIModel,this.isShowMomentOptionWidget = true});
 
@@ -33,10 +34,9 @@ class MomentOptionWidget extends StatefulWidget {
   _MomentOptionWidgetState createState() => _MomentOptionWidgetState();
 }
 
-class _MomentOptionWidgetState extends State<MomentOptionWidget>
-    with SingleTickerProviderStateMixin {
+class _MomentOptionWidgetState extends State<MomentOptionWidget> with SingleTickerProviderStateMixin, NavigatorObserverMixin {
 
-  late ValueNotifier<NotedUIModel?> notedUIModel;
+  late NotedUIModel? notedUIModel;
   late final AnimationController _shakeController;
   bool _isDefaultEcashWallet = false;
   bool _isDefaultNWCWallet = false;
@@ -62,9 +62,15 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
   }
 
   @override
+  Future<void> didPopNext() async {
+    _updateNoteDB();
+  }
+
+
+  @override
   void didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.notedUIModel.value != oldWidget.notedUIModel.value) {
+    if (widget.notedUIModel != oldWidget.notedUIModel) {
       _init();
     }
   }
@@ -104,10 +110,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: momentOptionTypeList.map((EMomentOptionType type) {
-            return ValueListenableBuilder<NotedUIModel?>(
-              valueListenable: notedUIModel,
-              builder: (context, model, child) => _showItemWidget(type,model),
-            );
+            return _showItemWidget(type,notedUIModel);
           }).toList(),
         ),
       ),
@@ -135,7 +138,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
   }
 
   GestureTapCallback _onTapCallback(EMomentOptionType type) {
-    NoteDBISAR? noteDB = notedUIModel.value?.noteDB;
+    NoteDBISAR? noteDB = notedUIModel?.noteDB;
     if(noteDB == null) return () => {};
     switch (type) {
       case EMomentOptionType.reply:
@@ -163,6 +166,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
 
           if (isSuccess) {
             _reactionTag = true;
+            setState(() {});
             _updateNoteDB();
             CommonToast.instance.show(context, Localized.text('ox_discovery.like_success_tips'));
           }else{
@@ -213,7 +217,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
   }
 
   Widget _buildBottomDialog() {
-    NotedUIModel? draftNotedUIModel = notedUIModel.value;
+    NotedUIModel? draftNotedUIModel = notedUIModel;
     if(draftNotedUIModel == null) return const SizedBox();
     return Container(
       decoration: BoxDecoration(
@@ -360,22 +364,22 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
 
 
   void _updateNoteDB() async {
-    if(notedUIModel.value == null)  return;
-    ValueNotifier<NotedUIModel?> noteNotifier = await OXMomentCacheManager.getValueNotifierNoted(
-      notedUIModel.value!.noteDB.noteId,
+    if(notedUIModel == null)  return;
+    NotedUIModel? noteNotifier = await OXMomentCacheManager.getValueNotifierNoted(
+      notedUIModel!.noteDB.noteId,
       isUpdateCache: true,
-      notedUIModel: notedUIModel.value!,
+      notedUIModel: notedUIModel,
     );
 
-    if(noteNotifier.value == null) return;
+    if(noteNotifier == null) return;
     if(mounted){
-      notedUIModel.value = noteNotifier.value;
+      notedUIModel = noteNotifier;
     }
 
   }
 
   _handleZap() async {
-    NotedUIModel? draftNotedUIModel = notedUIModel.value;
+    NotedUIModel? draftNotedUIModel = notedUIModel;
     if(draftNotedUIModel == null) return;
 
     UserDBISAR? user = await Account.sharedInstance.getUserInfo(draftNotedUIModel.noteDB.author);
@@ -412,12 +416,12 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
   }
 
   _updateZapsUIWithUnreal(int amount) {
-    if(notedUIModel.value == null) return;
-    NoteDBISAR newNote = notedUIModel.value!.noteDB;
+    if(notedUIModel == null) return;
+    NoteDBISAR newNote = notedUIModel!.noteDB;
     newNote.zapAmount = newNote.zapAmount + amount;
     newNote.zapAmountByMe = amount;
 
-    notedUIModel.value = NotedUIModel(noteDB: newNote);
+    notedUIModel = NotedUIModel(noteDB: newNote);
 
   }
 }

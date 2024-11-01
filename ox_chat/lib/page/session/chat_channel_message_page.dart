@@ -2,6 +2,7 @@
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_chat/widget/common_chat_nav_bar.dart';
 import 'package:ox_chat/widget/common_chat_widget.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
 import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
@@ -9,10 +10,7 @@ import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
-import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
-import 'package:ox_common/utils/theme_color.dart';
-import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_localizable/ox_localizable.dart';
@@ -51,7 +49,7 @@ class _ChatChannelMessagePageState extends State<ChatChannelMessagePage> {
   void setupChannel() {
     final channelId = session.groupId;
     if (channelId == null) return ;
-    channel = Channels.sharedInstance.channels[channelId];
+    channel = Channels.sharedInstance.channels[channelId]?.value;
     if (channel == null) {
       Channels.sharedInstance.searchChannel(channelId, null).then((c) {
         if (!mounted) return ;
@@ -70,37 +68,33 @@ class _ChatChannelMessagePageState extends State<ChatChannelMessagePage> {
 
   @override
   Widget build(BuildContext context) {
-    ChannelDBISAR? channelDB = Channels.sharedInstance.channels[channelId];
+    return CommonChatWidget(
+      handler: handler,
+      navBar: buildNavBar(),
+      bottomHintParam: bottomHintParam,
+    );
+  }
+
+  PreferredSizeWidget buildNavBar() {
+    ChannelDBISAR? channelDB = Channels.sharedInstance.channels[channelId]?.value;
     String showName = channelDB?.name ?? '';
-    return Scaffold(
-      backgroundColor: ThemeColor.color200,
-      resizeToAvoidBottomInset: false,
-      appBar: CommonAppBar(
-        useLargeTitle: false,
-        centerTitle: true,
-        title: showName,
-        backgroundColor: ThemeColor.color200,
-        backCallback: () {
-          OXNavigator.popToRoot(context);
-        },
-        actions: [
-          Container(
-            alignment: Alignment.center,
-            child: OXChannelAvatar(
-              channel: channel,
-              size: 36,
-              isClickable: true,
-              onReturnFromNextPage: () {
-                setState(() { });
-              },
-            ),
-          ).setPadding(EdgeInsets.only(right: Adapt.px(24))),
-        ],
-      ),
-      body: CommonChatWidget(
-        handler: handler,
-        bottomHintParam: bottomHintParam,
-      ),
+    return CommonChatNavBar(
+      handler: handler,
+      title: showName,
+      actions: [
+        Container(
+          alignment: Alignment.center,
+          child: OXChannelAvatar(
+            channel: channel,
+            size: 36,
+            isClickable: true,
+            onReturnFromNextPage: () {
+              if (!mounted) return ;
+              setState(() { });
+            },
+          ),
+        ).setPadding(EdgeInsets.only(right: Adapt.px(24))),
+      ],
     );
   }
 

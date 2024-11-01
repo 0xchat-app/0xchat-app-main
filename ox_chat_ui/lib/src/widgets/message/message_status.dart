@@ -8,15 +8,16 @@ class MessageStatus extends StatelessWidget {
   /// Creates a message status widget.
   const MessageStatus({
     super.key,
+    required this.size,
     required this.status,
   });
 
+  final double size;
   /// Status of the message.
   final types.Status? status;
 
   @override
   Widget build(BuildContext context) {
-    const size = 20.0;
     switch (status) {
       case types.Status.warning:
         return Image.asset(
@@ -51,7 +52,7 @@ class MessageStatus extends StatelessWidget {
                 ),
               );
       default:
-        return const SizedBox(width: size);
+        return SizedBox(width: size);
     }
   }
 }

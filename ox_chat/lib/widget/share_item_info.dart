@@ -26,14 +26,14 @@ mixin ShareItemInfoMixin {
     String showName = '';
     switch (item.chatType) {
       case ChatType.chatChannel:
-        showName = Channels.sharedInstance.channels[item.chatId]?.name ?? '';
+        showName = Channels.sharedInstance.channels[item.chatId]?.value.name ?? '';
         break;
       case ChatType.chatSingle:
       case ChatType.chatSecret:
         showName = Account.sharedInstance.userCache[item.getOtherPubkey]?.value.name ?? '';
         break;
       case ChatType.chatGroup:
-        showName = Groups.sharedInstance.groups[item.chatId]?.name ?? '';
+        showName = Groups.sharedInstance.groups[item.chatId]?.value.name ?? '';
         break;
     }
     return Container(
@@ -88,7 +88,7 @@ mixin ShareItemInfoMixin {
       String localAvatarPath = '';
       switch (item.chatType) {
         case ChatType.chatChannel:
-          showPicUrl = Channels.sharedInstance.channels[item.chatId]?.picture ?? '';
+          showPicUrl = Channels.sharedInstance.channels[item.chatId]?.value.picture ?? '';
           localAvatarPath = 'icon_group_default.png';
           break;
         case ChatType.chatSingle:
@@ -97,7 +97,7 @@ mixin ShareItemInfoMixin {
           localAvatarPath = 'user_image.png';
           break;
         case ChatType.chatGroup:
-          showPicUrl = Groups.sharedInstance.groups[item.chatId]?.picture ?? '';
+          showPicUrl = Groups.sharedInstance.groups[item.chatId]?.value.picture ?? '';
           localAvatarPath = 'icon_group_default.png';
           break;
         case ChatType.chatNotice:

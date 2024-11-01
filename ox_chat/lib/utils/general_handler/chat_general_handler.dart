@@ -23,6 +23,7 @@ import 'package:ox_common/log_util.dart';
 import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/upload/file_type.dart';
 import 'package:ox_common/upload/upload_utils.dart';
+import 'package:ox_common/utils/aes_encrypt_utils.dart';
 import 'package:ox_common/utils/encode_utils.dart';
 import 'package:ox_common/utils/image_picker_utils.dart';
 import 'package:ox_common/utils/list_extension.dart';
@@ -83,6 +84,7 @@ class ChatGeneralHandler {
        fileEncryptionType = _fileEncryptionType(session) {
     setupDataController();
     setupOtherUserIfNeeded();
+    setupReplyHandler();
     setupMentionHandlerIfNeeded();
   }
 
@@ -92,7 +94,7 @@ class ChatGeneralHandler {
   final types.EncryptionType fileEncryptionType;
   final String? anchorMsgId;
 
-  ChatReplyHandler replyHandler = ChatReplyHandler();
+  late ChatReplyHandler replyHandler;
   ChatMentionHandler? mentionHandler;
   late MessageDataController dataController;
 
@@ -102,6 +104,7 @@ class ChatGeneralHandler {
 
   int unreadMessageCount;
   types.Message? unreadFirstMessage;
+  bool isPreviewMode = false;
 
   static types.User _defaultAuthor() {
     UserDBISAR? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
@@ -152,6 +155,10 @@ class ChatGeneralHandler {
         otherUser = userFuture;
       }
     }
+  }
+
+  void setupReplyHandler() {
+    replyHandler = ChatReplyHandler(session.chatId);
   }
 
   void setupMentionHandlerIfNeeded() {

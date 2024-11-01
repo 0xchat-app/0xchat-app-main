@@ -8,6 +8,7 @@ import 'package:ox_chat/model/constant.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_chat/utils/send_message/chat_strategy_factory.dart';
 import 'package:ox_common/model/chat_session_model_isar.dart';
+import 'package:chatcore/chat-core.dart';
 
 typedef MessageContentCreator = FutureOr<String?> Function(
     types.Message message);
@@ -43,7 +44,7 @@ class ChatSendMessageHelper {
         messageType: type,
         contentString: contentString,
         replayId: replayId,
-        decryptSecret: message.decryptKey,
+        encryptedFile: message.decryptKey == null ? null : EncryptedFile(message.content, MessageDBISAR.tpyeStringToMimeType(type), 'aes-gcm', message.decryptKey!, message.decryptNonce!),
         source: await sourceCreator?.call(message),
       );
 
@@ -76,7 +77,7 @@ class ChatSendMessageHelper {
         messageType: type,
         contentString: contentString,
         replayId: replayId,
-        decryptSecret: message.decryptKey,
+        encryptedFile: message.decryptKey == null ? null : EncryptedFile(message.content, 'image', 'aes-gcm', message.decryptKey!, message.decryptNonce!),
         event: event,
         isLocal: sendingType != ChatSendingType.remote,
         replaceMessageId: replaceMessageId,

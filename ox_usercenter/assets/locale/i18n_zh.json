@@ -37,7 +37,7 @@
   "connected_relay": "已连接的中继器",
   "recommend_relay": "推荐的中继器",
   "zaps": "打闪",
-  "wallet": "钱包",
+  "wallet": "Cashu 钱包",
   "show_wallet_selector": "显示钱包选择",
   "select_default_wallet": "选择默认钱包",
   "zaps_record": "打闪记录",
@@ -227,5 +227,7 @@
   "use_socks_proxy":"使用SOCKS代理",
   "use_socks_proxy_port":"端口",
   "use_socks_proxy_onion_host": "使用.onion地址",
-  "use_socks_proxy_host": "主机"
+  "use_socks_proxy_host": "主机",
+  "str_add_other_account": "添加其他账号",
+  "str_set_new_photo": "设置新头像"
 }

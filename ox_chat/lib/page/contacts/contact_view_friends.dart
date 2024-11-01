@@ -7,6 +7,7 @@ import 'package:ox_common/mixin/common_state_view_mixin.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:flutter_vibrate/flutter_vibrate.dart';
 
 /// Contact - Friends List
 const String systemUserType = "10000";
@@ -18,7 +19,8 @@ class ContractViewFriends extends StatefulWidget {
   final ScrollPhysics? physics;
   final Widget? topWidget;
   final ScrollToTopStatus? scrollToTopStatus;
-  ContractViewFriends({Key? key, this.shrinkWrap = false, this.physics, this.topWidget, this.scrollToTopStatus}): super(key: key);
+  final Color? bgColor;
+  ContractViewFriends({Key? key, this.shrinkWrap = false, this.physics, this.topWidget, this.scrollToTopStatus, this.bgColor}): super(key: key);
 
   @override
   _ContractViewFriendsState createState() => _ContractViewFriendsState();
@@ -30,7 +32,7 @@ class _ContractViewFriendsState extends State<ContractViewFriends>
   List<UserDBISAR> userList = [];
 
   GlobalKey<ContactWidgetState> contractWidgetKey = new GlobalKey<ContactWidgetState>();
-
+  bool _hasVibrator = false;
 
   @override
   void initState() {
@@ -39,6 +41,7 @@ class _ContractViewFriendsState extends State<ContractViewFriends>
     OXChatBinding.sharedInstance.addObserver(this);
     _getDefaultData();
     _onRefresh();
+    isHasVibrator();
     widget.scrollToTopStatus?.isScrolledToTop.addListener(_scrollToTop);
   }
 
@@ -48,6 +51,11 @@ class _ContractViewFriendsState extends State<ContractViewFriends>
     OXChatBinding.sharedInstance.removeObserver(this);
     super.dispose();
     widget.scrollToTopStatus?.isScrolledToTop.removeListener(_scrollToTop);
+  }
+
+  isHasVibrator() async {
+    _hasVibrator = await Vibrate.canVibrate;
+    setState(() {});
   }
 
   @override
@@ -61,6 +69,9 @@ class _ContractViewFriendsState extends State<ContractViewFriends>
           shrinkWrap: widget.shrinkWrap,
           physics: widget.physics,
           topWidget: widget.topWidget,
+          bgColor: widget.bgColor,
+          supportLongPress: true,
+          hasVibrator: _hasVibrator,
         ),
     );
   }

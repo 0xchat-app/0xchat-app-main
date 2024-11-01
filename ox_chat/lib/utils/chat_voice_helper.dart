@@ -1,4 +1,3 @@
-
 import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
@@ -8,7 +7,6 @@ import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/widgets/common_file_cache_manager.dart';
 
 class ChatVoiceMessageHelper {
-
   static Future<Duration?> getAudioDuration(String uri) async {
     final player = AudioPlayer();
     await player.setSource(uri.isRemoteURL ? UrlSource(uri) : DeviceFileSource(uri));
@@ -21,16 +19,17 @@ class ChatVoiceMessageHelper {
   }) async {
     File sourceFile;
     String extension = message.uri.split('.').last;
-    final audioManager = OXFileCacheManager.get(encryptKey: message.decryptKey);
+    final audioManager =
+        OXFileCacheManager.get(encryptKey: message.decryptKey, encryptNonce: message.decryptNonce);
     final cacheFile = await audioManager.getFileFromCache(message.uri);
     if (cacheFile != null) {
-       sourceFile = cacheFile.file;
-    }
-    else{
+      sourceFile = cacheFile.file;
+    } else {
       sourceFile = await audioManager.getSingleFile(message.uri);
       if (message.fileEncryptionType == types.EncryptionType.encrypted &&
           message.decryptKey != null) {
-        sourceFile = await DecryptedCacheManager.decryptFile(sourceFile, message.decryptKey!);
+        sourceFile = await DecryptedCacheManager.decryptFile(sourceFile, message.decryptKey!,
+            nonce: message.decryptNonce);
       }
     }
 

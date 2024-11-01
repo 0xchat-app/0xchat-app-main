@@ -202,7 +202,7 @@
   "disabled_msg_auto_delete_system": "${username} kikapcsolta az automatikus törlés időzítőjét",
   "set_normal_dm_system": "${username} beállította az aktuális beszélgetést normál DM-ként",
   "set_gift_wrapped_dm_system": "${username} beállította az aktuális beszélgetést ajándékba csomagolt DM-ként",
-  "ecash_text": "Ecash",
+  "ecash_text": "Cashu Nuts",
   "ecash_random_amount": "Véletlenszerű Összeg",
   "ecash_identical_amount": "Azonos Összeg",
   "ecash_exclusive": "Kizárólagos",

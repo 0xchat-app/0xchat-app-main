@@ -556,6 +556,7 @@ extension ChatMessageBuilderCustomEx on ChatMessageBuilder {
     var width = ImageSendingMessageEx(message).width;
     var height = ImageSendingMessageEx(message).height;
     final encryptedKey = ImageSendingMessageEx(message).encryptedKey;
+    final encryptedNonce = ImageSendingMessageEx(message).encryptedNonce;
     final stream = fileId.isEmpty || url.isNotEmpty
         ? null
         : UploadManager.shared.getUploadProgress(fileId, receiverPubkey);
@@ -571,13 +572,14 @@ extension ChatMessageBuilderCustomEx on ChatMessageBuilder {
 
     Widget widget = Hero(
       tag: message.id,
-      child: ImagePreviewWidget(
+      child: ChatImagePreviewWidget(
         uri: path.isNotEmpty ? path : url,
         imageWidth: width,
         imageHeight: height,
         maxWidth: messageWidth,
         progressStream: stream,
         decryptKey: encryptedKey,
+        decryptNonce: encryptedNonce,
       ),
     );
 

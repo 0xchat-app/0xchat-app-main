@@ -37,7 +37,7 @@
   "connected_relay": "CONNECTED TO RELAY",
   "recommend_relay": "RECOMMENDED RELAY",
   "zaps": "Zaps",
-  "wallet": "Wallet",
+  "wallet": "Cashu Wallet",
   "show_wallet_selector": "Show wallet selector",
   "select_default_wallet": "Select default wallet",
   "zaps_record": "Zap Record",
@@ -182,7 +182,7 @@
   "str_tor_orbot_setup": "Tor/Orbot setup",
   "str_settings": "Settings",
   "str_dev_log": "Developer",
-  "str_push_app": "Push Application",
+  "str_push_app": "Push Distributor",
   "str_send_dev_log_detail": "Log Detail",
   "str_log_filemtime": "Log updated at:",
   "str_send_log_to_dev": "Send to Dev",
@@ -228,5 +228,7 @@
   "use_socks_proxy":"Use SOCKS proxy",
   "use_socks_proxy_port":"Port",
   "use_socks_proxy_onion_host": "Use .onion hosts",
-  "use_socks_proxy_host": "Host"
+  "use_socks_proxy_host": "Host",
+  "str_add_other_account": "Add Other Account",
+  "str_set_new_photo": "Set New Photo"
 }

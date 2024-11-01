@@ -176,10 +176,10 @@ class SearchTxtUtil{
   static String _getName(MessageDBISAR messageDB){
     String name = '';
     if (messageDB.chatType == ChatType.chatChannel) {
-      ChannelDBISAR? channelDB = Channels.sharedInstance.channels[messageDB.groupId];
+      ChannelDBISAR? channelDB = Channels.sharedInstance.channels[messageDB.groupId]?.value;
       name = channelDB?.name ?? messageDB.groupId;
     } else {
-      GroupDBISAR? groupDBDB = Groups.sharedInstance.groups[messageDB.groupId];
+      GroupDBISAR? groupDBDB = Groups.sharedInstance.groups[messageDB.groupId]?.value;
       name = groupDBDB?.name ?? messageDB.groupId;
     }
     return name;
@@ -188,10 +188,10 @@ class SearchTxtUtil{
   static String _getPicUrl(MessageDBISAR messageDB){
     String picUrl = '';
     if (messageDB.chatType == ChatType.chatChannel) {
-      ChannelDBISAR? channelDB = Channels.sharedInstance.channels[messageDB.groupId];
+      ChannelDBISAR? channelDB = Channels.sharedInstance.channels[messageDB.groupId]?.value;
       picUrl = channelDB?.picture ?? '';
     } else {
-      GroupDBISAR? groupDBDB = Groups.sharedInstance.groups[messageDB.groupId];
+      GroupDBISAR? groupDBDB = Groups.sharedInstance.groups[messageDB.groupId]?.value;
       picUrl = groupDBDB?.picture ?? '';
     }
     return picUrl;

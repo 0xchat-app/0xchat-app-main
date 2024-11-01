@@ -4,23 +4,19 @@ import 'dart:io';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
+import 'package:flutter_vibrate/flutter_vibrate.dart';
 import 'package:lpinyin/lpinyin.dart';
 import 'package:ox_chat/model/group_ui_model.dart';
-import 'package:ox_chat/page/session/chat_channel_message_page.dart';
-import 'package:ox_chat/page/session/chat_group_message_page.dart';
 import 'package:ox_chat/page/session/chat_message_page.dart';
-import 'package:ox_chat/page/session/chat_relay_group_msg_page.dart';
 import 'package:ox_chat/utils/chat_session_utils.dart';
-import 'package:ox_common/log_util.dart';
-import 'package:ox_common/model/chat_session_model_isar.dart';
-import 'package:ox_common/widgets/avatar.dart';
-import 'package:ox_common/model/chat_session_model_isar.dart';
-import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_chat/widget/alpha.dart';
-import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
+import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
 double headerHeight = Adapt.px(24);
@@ -33,6 +29,8 @@ class GroupContact extends StatefulWidget {
   final bool shrinkWrap;
   ScrollPhysics? physics;
   final Widget? topWidget;
+  final bool supportLongPress;
+  final bool hasVibrator;
 
   GroupContact({
     Key? key,
@@ -40,6 +38,8 @@ class GroupContact extends StatefulWidget {
     this.shrinkWrap = false,
     this.physics,
     this.topWidget,
+    this.supportLongPress = false,
+    this.hasVibrator = false,
   }) : super(key: key);
 
   @override
@@ -269,10 +269,12 @@ class GroupContactState extends State<GroupContact> {
                     (context, i) =>
                     GroupContactListItem(
                       item: item.childList[i],
+                      supportLongPress: widget.supportLongPress,
+                      hasVibrator: widget.hasVibrator,
                     ),
                 childCount: item.childList.length,
-                addAutomaticKeepAlives: addAutomaticKeepAlives,
-                addRepaintBoundaries: addRepaintBoundaries,
+                // addAutomaticKeepAlives: addAutomaticKeepAlives,
+                // addRepaintBoundaries: addRepaintBoundaries,
               ),
             ),
           ),
@@ -345,10 +347,14 @@ class GroupHeaderWidget extends StatelessWidget {
 class GroupContactListItem extends StatefulWidget {
   late GroupUIModel item;
   final onCheckChanged;
+  final bool supportLongPress;
+  final bool hasVibrator;
 
   GroupContactListItem({
     required this.item,
     this.onCheckChanged,
+    this.supportLongPress = false,
+    this.hasVibrator = false,
   });
 
   @override
@@ -358,6 +364,34 @@ class GroupContactListItem extends StatefulWidget {
 }
 
 class _GroupContactListItemState extends State<GroupContactListItem> {
+  ValueNotifier<double> valueNotifier = ValueNotifier(1.0);
+
+  void _itemLongPress() async {
+    if (widget.supportLongPress && widget.item.groupId.isNotEmpty) {
+      if (widget.hasVibrator && OXUserInfoManager.sharedInstance.canVibrate) {
+        FeedbackType type = FeedbackType.impact;
+        Vibrate.feedback(type);
+      }
+      valueNotifier.value = 0.96;
+      await Future.delayed(Duration(milliseconds: 80));
+      valueNotifier.value = 1.0;
+      await Future.delayed(Duration(milliseconds: 80));
+      ChatMessagePage.open(
+        context: context,
+        communityItem: ChatSessionModelISAR(
+          chatId: widget.item.groupId,
+          groupId: widget.item.groupId,
+          chatType: widget.item.chatType,
+          chatName: widget.item.name,
+          createTime: widget.item.updateTime,
+          avatar: widget.item.picture ?? '',
+        ),
+        isLongPressShow: true,
+        fromWhere: 1,
+      );
+    }
+  }
+
   void _onItemClick() async {
     if (widget.item.chatType == ChatType.chatGroup
         || widget.item.chatType == ChatType.chatRelayGroup
@@ -382,65 +416,71 @@ class _GroupContactListItemState extends State<GroupContactListItem> {
     String showName = '';
     switch (widget.item.chatType) {
       case ChatType.chatGroup:
-        GroupDBISAR? tempGroupDB = Groups.sharedInstance.myGroups[widget.item.groupId];
+        GroupDBISAR? tempGroupDB = Groups.sharedInstance.myGroups[widget.item.groupId]?.value;
         iconAvatar = OXGroupAvatar(group: tempGroupDB);
         showName = tempGroupDB?.name ?? '';
         if (showName.isEmpty) showName = Groups.encodeGroup(widget.item.groupId, null, null);
         break;
       case ChatType.chatRelayGroup:
-        RelayGroupDBISAR? tempRelayGroupDB = RelayGroup.sharedInstance.myGroups[widget.item.groupId];
+        RelayGroupDBISAR? tempRelayGroupDB = RelayGroup.sharedInstance.myGroups[widget.item.groupId]?.value;
         iconAvatar = OXRelayGroupAvatar(relayGroup: tempRelayGroupDB);
         showName = tempRelayGroupDB?.name ?? '';
         if (showName.isEmpty) showName = tempRelayGroupDB?.shortGroupId ?? '';
         break;
       case ChatType.chatChannel:
-        ChannelDBISAR? tempChannelDB = Channels.sharedInstance.channels[widget.item.groupId];
+        ChannelDBISAR? tempChannelDB = Channels.sharedInstance.channels[widget.item.groupId]?.value;
         iconAvatar = OXChannelAvatar(channel: tempChannelDB);
         showName = tempChannelDB?.name ?? '';
         if (showName.isEmpty) showName = tempChannelDB?.shortChannelId ?? '';
         break;
     }
     Widget? groupTypeWidget = ChatSessionUtils.getTypeSessionView(widget.item.chatType, widget.item.groupId);
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onTap: _onItemClick,
-      child: Container(
-        color: ThemeColor.color200,
-        width: double.infinity,
-        height: itemHeight,
-        padding: EdgeInsets.only(left: Adapt.px(24.0), top: Adapt.px(10.0), bottom: Adapt.px(10.0)),
-        child: Row(
-          children: <Widget>[
-            SizedBox(
-              width: 48.px,
-              height: 48.px,
-              child: Stack(
-                children: [
-                  iconAvatar,
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: groupTypeWidget,
+    return ValueListenableBuilder<double>(
+      valueListenable: valueNotifier,
+      builder: (context, scale, child) {
+        return GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: _onItemClick,
+          onLongPress: _itemLongPress,
+          child: Container(
+            color: ThemeColor.color200,
+            width: double.infinity,
+            height: itemHeight,
+            padding: EdgeInsets.only(left: Adapt.px(24.0), top: Adapt.px(10.0), bottom: Adapt.px(10.0)),
+            child: Row(
+              children: <Widget>[
+                SizedBox(
+                  width: 48.px,
+                  height: 48.px,
+                  child: Stack(
+                    children: [
+                      iconAvatar,
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: groupTypeWidget,
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
-            Container(
-              width: Adapt.screenW - Adapt.px(120),
-              margin: EdgeInsets.only(left: Adapt.px(16)),
-              child: Text(
-                showName,
-                style: TextStyle(
-                  fontSize: Adapt.px(16),
-                  color: ThemeColor.color10,
-                  fontWeight: FontWeight.w600,
                 ),
-                overflow: TextOverflow.ellipsis,
-              ),
+                Container(
+                  width: Adapt.screenW - Adapt.px(120),
+                  margin: EdgeInsets.only(left: Adapt.px(16)),
+                  child: Text(
+                    showName,
+                    style: TextStyle(
+                      fontSize: Adapt.px(16),
+                      color: ThemeColor.color10,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

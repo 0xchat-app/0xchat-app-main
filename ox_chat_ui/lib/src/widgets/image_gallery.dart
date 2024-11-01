@@ -89,11 +89,12 @@ class _ImageGalleryState extends State<ImageGallery> {
                   builder: (BuildContext context, int index) {
                     final uri = widget.images[index].uri;
                     final decryptKey = widget.images[index].decryptSecret;
+                    final decryptNonce = widget.images[index].decryptNonce;
                     return PhotoViewGalleryPageOptions(
                       imageProvider: OXCachedImageProviderEx.create(
                         uri,
                         headers: widget.imageHeaders,
-                        cacheManager: OXFileCacheManager.get(encryptKey: decryptKey),
+                        cacheManager: OXFileCacheManager.get(encryptKey: decryptKey, encryptNonce: decryptNonce),
                       ),
                       minScale: widget.options.minScale,
                       maxScale: widget.options.maxScale,
@@ -321,6 +322,7 @@ class _ImageGalleryState extends State<ImageGallery> {
   Future saveImageToLocal(PreviewImage image) async {
     final imageUri = image.uri;
     final decryptKey = image.decryptSecret;
+    final decryptNonce = image.decryptNonce;
     final fileName = imageUri.split('/').lastOrNull?.split('?').firstOrNull ?? '';
     final isGIF = fileName.contains('.gif');
 
@@ -328,7 +330,7 @@ class _ImageGalleryState extends State<ImageGallery> {
 
     var result;
     if (imageUri.isRemoteURL) {
-      final imageManager = OXFileCacheManager.get(encryptKey: decryptKey);
+      final imageManager = OXFileCacheManager.get(encryptKey: decryptKey, encryptNonce: decryptNonce);
       try {
         final imageFile = await imageManager.getSingleFile(imageUri)
             .timeout(const Duration(seconds: 30), onTimeout: () {
@@ -348,7 +350,7 @@ class _ImageGalleryState extends State<ImageGallery> {
       final imageFile = File(imageUri);
       if (decryptKey != null) {
         final completer = Completer();
-        await DecryptedCacheManager.decryptFile(imageFile, decryptKey, bytesCallback: (imageData) async {
+        await DecryptedCacheManager.decryptFile(imageFile, decryptKey, nonce: decryptNonce, bytesCallback: (imageData) async {
           result = await ImageGallerySaver.saveImage(Uint8List.fromList(imageData));
           completer.complete();
         });

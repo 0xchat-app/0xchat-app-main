@@ -195,6 +195,11 @@ extension MessageDataControllerInterface on MessageDataController {
     return uiMessages.whereNotNull().toList();
   }
 
+  Future<types.Message?> getLocalMessageWithId(String messageId) async {
+    final dbModel = await Messages.sharedInstance.loadMessageDBFromDB(messageId);
+    return dbModel?.toChatUIMessage();
+  }
+
   bool isInCurrentSession(MessageDBISAR msg) {
     return chatTypeKey == msg.chatTypeKey;
   }

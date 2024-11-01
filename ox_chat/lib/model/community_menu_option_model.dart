@@ -33,9 +33,9 @@ class CommunityMenuOptionModel {
     List<CommunityMenuOptionModel> list = [];
     list.add(
       CommunityMenuOptionModel(
-        content: Localized.text('ox_common.str_add_friend'),
-        iconName: 'icon_add_friend.png',
-        optionModel: OptionModel.AddFriend,
+        content: Localized.text('ox_common.str_scan'),
+        iconName: 'icon_scan_qr.png',
+        optionModel: OptionModel.ScanQCode,
       ),
     );
     list.add(
@@ -45,6 +45,13 @@ class CommunityMenuOptionModel {
         optionModel: OptionModel.AddGroup,
       ),
     );
+    list.add(
+      CommunityMenuOptionModel(
+        content: Localized.text('ox_common.str_add_friend'),
+        iconName: 'icon_new_friend.png',
+        optionModel: OptionModel.AddFriend,
+      ),
+    );
     // list.add(
     //   CommunityMenuOptionModel(
     //     content: Localized.text('ox_common.str_new_channel'),
@@ -52,13 +59,6 @@ class CommunityMenuOptionModel {
     //     optionModel: OptionModel.NewChannel,
     //   ),
     // );
-    list.add(
-      CommunityMenuOptionModel(
-        content: Localized.text('ox_common.str_scan'),
-        iconName: 'icon_scan_qr.png',
-        optionModel: OptionModel.ScanQCode,
-      ),
-    );
     return list;
   }
 
@@ -73,11 +73,11 @@ class CommunityMenuOptionModel {
     // } else if (optionModel == OptionModel.NewChannel) {
     //   OXNavigator.pushPage(context, (context) => ChatChannelCreate());
     } else if (optionModel == OptionModel.ScanQCode) {
-      _gotoScan(context);
+      gotoScan(context);
     } else if (optionModel == OptionModel.RecommenderTools) {
       CommonToast.instance.show(context, 'str_stay_tuned'.localized());
     } else if (optionModel == OptionModel.AddGroup) {
-      _createGroupBottomDialog(context);
+      createGroupBottomDialog(context);
     }
   }
 
@@ -130,7 +130,7 @@ class CommunityMenuOptionModel {
     }
   }
 
-  static void _createGroupBottomDialog(BuildContext context) async {
+  static void createGroupBottomDialog(BuildContext context) async {
     var result = await showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -143,7 +143,7 @@ class CommunityMenuOptionModel {
     }
   }
 
-  static void _gotoScan(BuildContext context) async {
+  static void gotoScan(BuildContext context) async {
     if (await Permission.camera.request().isGranted) {
       String? result = await OXNavigator.pushPage(context, (context) => CommonScanPage());
       if (result != null) {

@@ -202,7 +202,7 @@
   "disabled_msg_auto_delete_system": "${username}가 자동 삭제 타이머 비활성화",
   "set_normal_dm_system": "${username}가 현재 대화를 일반 DM으로 설정",
   "set_gift_wrapped_dm_system": "${username}가 현재 대화를 선물 포장된 DM으로 설정",
-  "ecash_text": "Ecash",
+  "ecash_text": "Cashu Nuts",
   "ecash_random_amount": "임의의 금액",
   "ecash_identical_amount": "동일한 금액",
   "ecash_exclusive": "독점적인",

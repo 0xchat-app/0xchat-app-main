@@ -22,7 +22,7 @@ class SettingModel {
   static List<SettingModel> getItemData(List<SettingModel> settingModelList){
     settingModelList.clear();
     settingModelList.add(SettingModel(
-      iconName: 'icon_mute.png',
+      iconName: 'icon_settings_notification.png',
       title: 'ox_usercenter.notifications',
       rightContent: '',
       settingItemType: SettingItemType.messageNotification,
@@ -39,18 +39,18 @@ class SettingModel {
     //   rightContent: '',
     //   settingItemType: SettingItemType.database,
     // ));
-    settingModelList.add(SettingModel(
-      iconName: 'icon_settings_relays.png',
-      title: 'ox_usercenter.relays',
-      rightContent: '',
-      settingItemType: SettingItemType.relays,
-    ));
-    settingModelList.add(SettingModel(
-      iconName: 'icon_settings_zaps.png',
-      title: 'ox_usercenter.zaps',
-      rightContent: '',
-      settingItemType: SettingItemType.zaps,
-    ));
+    // settingModelList.add(SettingModel(
+    //   iconName: 'icon_settings_relays.png',
+    //   title: 'ox_usercenter.relays',
+    //   rightContent: '',
+    //   settingItemType: SettingItemType.relays,
+    // ));
+    // settingModelList.add(SettingModel(
+    //   iconName: 'icon_settings_zaps.png',
+    //   title: 'ox_usercenter.zaps',
+    //   rightContent: '',
+    //   settingItemType: SettingItemType.zaps,
+    // ));
     // settingModelList.add(SettingModel(
     //   iconName: 'icon_settings_nuts.png',
     //   title: 'ox_usercenter.nuts_zaps',

@@ -30,7 +30,7 @@ class MomentQuoteWidget extends StatefulWidget {
 }
 
 class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
-  ValueNotifier<NotedUIModel?>? notedUIModel;
+  NotedUIModel? notedUIModel;
 
   @override
   void initState() {
@@ -65,16 +65,16 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
       Map result = Nip19.decodeShareableEntity(Nip21.decode(neventId)!);
       String notedId = result['special'];
 
-      ValueNotifier<NotedUIModel?> neventIdNotifier = OXMomentCacheManager.getValueNotifierNoteToCache(notedId);
+      NotedUIModel? neventIdNotifier = OXMomentCacheManager.getValueNotifierNoteToCache(notedId);
 
-      if (neventIdNotifier.value != null) {
+      if (neventIdNotifier != null) {
         notedUIModel = neventIdNotifier;
       } else {
 
         NoteDBISAR? note = await Moment.sharedInstance.loadNoteWithNevent(neventId);
         if (note == null) return;
 
-        neventIdNotifier.value = NotedUIModel(noteDB: note);
+        neventIdNotifier = NotedUIModel(noteDB: note);
 
         notedUIModel = neventIdNotifier;
       }
@@ -87,12 +87,12 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
     }
 
     if (notedId != null) {
-      ValueNotifier<NotedUIModel?> notedIdNotifier = OXMomentCacheManager.getValueNotifierNoteToCache(notedId);
-      if(notedIdNotifier.value != null){
+      NotedUIModel? notedIdNotifier = OXMomentCacheManager.getValueNotifierNoteToCache(notedId);
+      if(notedIdNotifier != null){
         notedUIModel = notedIdNotifier;
       }else{
-        ValueNotifier<NotedUIModel?> noteNotifier = await OXMomentCacheManager.getValueNotifierNoted(notedId,setRelay: widget.relays);
-        if(noteNotifier.value == null) return;
+        NotedUIModel? noteNotifier = await OXMomentCacheManager.getValueNotifierNoted(notedId,setRelay: widget.relays);
+        if(noteNotifier == null) return;
         notedUIModel = noteNotifier;
       }
 
@@ -103,9 +103,9 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
     }
   }
 
-  void _getMomentUserInfo(ValueNotifier<NotedUIModel?> modelNotifier) async {
-    if(modelNotifier.value == null) return;
-    String pubKey = modelNotifier.value!.noteDB.author;
+  void _getMomentUserInfo(NotedUIModel? modelNotifier) async {
+    if(modelNotifier == null) return;
+    String pubKey = modelNotifier.noteDB.author;
     await Account.sharedInstance.getUserInfo(pubKey);
     if (mounted) {
       setState(() {});
@@ -113,9 +113,9 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
   }
 
   Widget _getImageWidget() {
-    ValueNotifier<NotedUIModel?>? modelNotifier = notedUIModel;
-    if (modelNotifier == null || modelNotifier.value == null) return const SizedBox();
-    List<String> _getImagePathList = modelNotifier.value!.getImageList;
+    NotedUIModel? modelNotifier = notedUIModel;
+    if (modelNotifier == null) return const SizedBox();
+    List<String> _getImagePathList = modelNotifier.getImageList;
     if (_getImagePathList.isEmpty) return const SizedBox();
     return ClipRRect(
       borderRadius: BorderRadius.only(
@@ -141,20 +141,20 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
   }
 
   Widget _showReplyContactWidget() {
-    ValueNotifier<NotedUIModel?>? modelNotifier = notedUIModel;
-    if (modelNotifier == null || modelNotifier.value == null) return const SizedBox();
-    String replyId = modelNotifier.value!.noteDB.getReplyId ?? '';
+    NotedUIModel? modelNotifier = notedUIModel;
+    if (modelNotifier == null || modelNotifier == null) return const SizedBox();
+    String replyId = modelNotifier.noteDB.getReplyId ?? '';
     if(replyId.isEmpty) return const SizedBox();
     return ReplyContactWidget(notedUIModel: notedUIModel);
   }
 
   Widget quoteMoment() {
-    ValueNotifier<NotedUIModel?>? modelNotifier = notedUIModel;
-    if (modelNotifier == null || modelNotifier.value == null) {
+    NotedUIModel? modelNotifier = notedUIModel;
+    if (modelNotifier == null || modelNotifier == null) {
       return MomentWidgetsUtils.emptyNoteMomentWidget(null, 100);
     }
 
-    String pubKey = modelNotifier.value!.noteDB.author;
+    String pubKey = modelNotifier.noteDB.author;
     return GestureDetector(
       onTap: () {
         OXNavigator.pushPage(context, (context) => MomentsPage(notedUIModel: modelNotifier));
@@ -224,7 +224,7 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
                           Expanded(
                             child: Text(
                               DiscoveryUtils.getUserMomentInfo(
-                                  value, modelNotifier.value!.createAtStr)[0],
+                                  value, modelNotifier.createAtStr)[0],
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontSize: 12.px,
@@ -237,7 +237,7 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
                       ).setPaddingOnly(bottom: 4.px),
                       _showReplyContactWidget(),
                       MomentRichTextWidget(
-                        text: modelNotifier.value!.noteDB.content,
+                        text: modelNotifier.noteDB.content,
                         textSize: 14.px,
                         // maxLines: 1,
                         isShowAllContent: false,
@@ -255,7 +255,7 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
     );
   }
 
-  void _jumpMomentPage(ValueNotifier<NotedUIModel?> modelNotifier) async {
+  void _jumpMomentPage(NotedUIModel? modelNotifier) async {
     OXNavigator.pushPage(context, (context) => MomentsPage(notedUIModel: modelNotifier));
   }
 }

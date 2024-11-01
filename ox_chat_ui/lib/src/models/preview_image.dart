@@ -9,6 +9,7 @@ class PreviewImage extends Equatable {
     required this.id,
     required this.uri,
     this.decryptSecret,
+    this.decryptNonce,
   });
 
   /// Unique ID of the image.
@@ -18,6 +19,7 @@ class PreviewImage extends Equatable {
   final String uri;
 
   final String? decryptSecret;
+  final String? decryptNonce;
 
   /// Equatable props.
   @override

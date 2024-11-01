@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:ox_chat/page/contacts/contact_add_friend.dart';
@@ -17,6 +18,7 @@ import 'package:ox_common/widgets/common_scan_page.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_theme/ox_theme.dart';
 import '../../model/friends_recommend_model.dart';
+import 'contact_add_follows.dart';
 
 
 ///Title: community_qrcode_add_friend
@@ -132,12 +134,7 @@ class _CommunityQrcodeAddFriendState extends BasePageState<CommunityQrcodeAddFri
               child: Column(
                 children: [
                   SizedBox(height: Adapt.px(20),),
-                  CommonImage(
-                      iconName: 'icon_scan_qr.png',
-                      width: Adapt.px(60),
-                      height: Adapt.px(60),
-                      useTheme: true,
-                  ),
+                  _itemView('icon_scan_qr.png'),
                   SizedBox(height: Adapt.px(7),),
                   MyText(
                     Localized.text('ox_common.scan_qr_code'),
@@ -158,32 +155,53 @@ class _CommunityQrcodeAddFriendState extends BasePageState<CommunityQrcodeAddFri
               child: Column(
                 children: [
                   SizedBox(height: Adapt.px(20),),
-                  CommonImage(
-                      iconName: 'icon_business_card.png',
-                      width: Adapt.px(60),
-                      height: Adapt.px(60),
-                      useTheme: true,
-                  ),
+                  _itemView('icon_business_import.png'),
                   SizedBox(height: Adapt.px(7),),
                   MyText(
-                    'my_card'.localized(),
+                    Localized.text('ox_chat.import_follows'),
                     12,
                     ThemeColor.white02,
                   ),
                 ],
               ),
             ),
-            onTap: (){
-              showDialog(
-                  context: context,
-                  barrierDismissible: true,
-                  builder: (BuildContext context) {
-                    return MyIdCardDialog();
-                  });
+            onTap: () async {
+              var result = await OXNavigator.pushPage(
+                context,
+                    (context) => ContactAddFollows(),
+              );
+              if (result == true) {
+                OXCommonHintDialog.show(
+                  context,
+                  content: Localized.text('ox_chat.import_follows_success_dialog'),
+                );
+              }
             },
           )),
         ],
       ),
+    );
+  }
+
+  Widget _itemView(String iconName) {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Center(
+          child: CommonImage(
+            iconName: 'icon_btn_bg.png',
+            size: 60.px,
+            color: ThemeColor.gray5,
+          ),
+        ),
+        Center(
+          child: CommonImage(
+            iconName: iconName,
+            size: 24.px,
+            color: ThemeColor.color0,
+          ),
+        ),
+      ],
     );
   }
 
@@ -332,7 +350,7 @@ class _CommunityQrcodeAddFriendState extends BasePageState<CommunityQrcodeAddFri
                             ),
                             alignment: Alignment.center,
                             child: Text(
-                              "Add Contact",
+                              "New Contact",
                               style: TextStyle(fontSize: Adapt.px(14), fontWeight: FontWeight.w400, color: ThemeColor.color0),
                             ),
                           ),

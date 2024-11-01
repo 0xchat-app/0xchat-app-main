@@ -6,7 +6,7 @@ import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/utils/custom_message_utils.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_chat/widget/chat_video_message.dart';
-import 'package:ox_chat/widget/image_preview_widget.dart';
+import 'package:ox_chat/widget/chat_image_preview_widget.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/utils.dart';
@@ -79,12 +79,13 @@ class ChatMessageBuilder {
   static Widget buildImageMessage(types.ImageMessage message, {
     required int messageWidth,
   }) {
-    return ImagePreviewWidget(
+    return ChatImagePreviewWidget(
       uri: message.uri,
       imageWidth: message.width?.toInt(),
       imageHeight: message.height?.toInt(),
       maxWidth: messageWidth,
       decryptKey: message.decryptKey,
+      decryptNonce: message.decryptNonce
     );
   }
 

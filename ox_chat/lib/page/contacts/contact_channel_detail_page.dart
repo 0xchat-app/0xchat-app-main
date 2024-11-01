@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:extended_sliver/extended_sliver.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_chat/page/contacts/contact_channel_create.dart';
 import 'package:ox_chat/page/contacts/my_idcard_dialog.dart';
@@ -23,6 +24,7 @@ import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
+import 'package:ox_theme/ox_theme.dart';
 
 import '../session/chat_channel_message_page.dart';
 
@@ -89,7 +91,7 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
   }
 
   void _syncChannelInfo() async {
-    ChannelDBISAR? channelDB = await Channels.sharedInstance.updateChannelMetadataFromRelay(widget.channelDB.creator, widget.channelDB.channelId);
+    ChannelDBISAR? channelDB = await Channels.sharedInstance.updateChannelMetadataFromRelay(widget.channelDB.creator, [widget.channelDB.channelId]);
     if (channelDB != null){
       _initData();
     }
@@ -439,8 +441,7 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
                                         color: ThemeColor.color160,
                                       ),
                                       _itemView(
-                                        iconName: 'icon_mute.png',
-                                        iconPackage: 'ox_common',
+                                        iconName: _isMute ? 'icon_mute.png' : 'icon_unmute.png',
                                         type: OtherInfoItemType.Mute,
                                       ),
                                     ],
@@ -502,12 +503,35 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
       height: Adapt.px(52),
       alignment: Alignment.center,
       child: ListTile(
-        leading: CommonImage(
-          iconName: iconName ?? '',
-          width: Adapt.px(32),
-          height: Adapt.px(32),
-          package: iconPackage ?? 'ox_chat',
-        ),
+        leading: type == OtherInfoItemType.Mute
+            ? SizedBox(
+                width: 32.px,
+                height: 32.px,
+                child: Stack(
+                  children: [
+                    Container(
+                      width: 32.px,
+                      height: 32.px,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16.px),
+                        color: ThemeManager.colors('ox_common.color_EDB259'),
+                      ),
+                    ),
+                    Center(
+                      child: CommonImage(
+                        iconName: iconName ?? '',
+                        size: 24.px,
+                        package: iconPackage ?? 'ox_chat',
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            : CommonImage(
+                iconName: iconName ?? '',
+                size: 32.px,
+                package: iconPackage ?? 'ox_chat',
+              ),
         title: Text(
           type.text,
           style: TextStyle(

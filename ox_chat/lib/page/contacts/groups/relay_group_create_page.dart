@@ -65,7 +65,7 @@ class _RelayGroupCreatePageState extends State<RelayGroupCreatePage> {
       appBar: CommonAppBar(
         useLargeTitle: false,
         centerTitle: true,
-        title: Localized.text('ox_chat.str_new_group'),
+        title: widget.groupType.text,
         actions: [
           GestureDetector(
             child: Container(

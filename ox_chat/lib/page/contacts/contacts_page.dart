@@ -1,5 +1,6 @@
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_chat/model/search_chat_model.dart';
 import 'package:ox_chat/page/contacts/contact_qrcode_add_friend.dart';
 import 'package:ox_chat/page/contacts/contact_request.dart';
 import 'package:ox_chat/page/contacts/contact_view_channels.dart';
@@ -7,6 +8,7 @@ import 'package:ox_chat/page/contacts/contact_view_friends.dart';
 import 'package:ox_chat/page/contacts/contact_view_groups.dart';
 import 'package:ox_chat/page/contacts/groups/relay_group_request.dart';
 import 'package:ox_chat/page/session/search_page.dart';
+import 'package:ox_chat/page/session/unified_search_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -20,6 +22,8 @@ import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_common/business_interface/ox_chat/contact_base_page_state.dart';
+import 'package:ox_module_service/ox_module_service.dart';
+import 'package:ox_theme/ox_theme.dart';
 
 import 'contact_add_follows.dart';
 
@@ -50,17 +54,22 @@ class _ContractsPageState extends ContactBasePageState<ContractsPage>
     OXUserInfoManager.sharedInstance.addObserver(this);
     OXChatBinding.sharedInstance.addObserver(this);
     WidgetsBinding.instance.addObserver(this);
+    ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
     Localized.addLocaleChangedCallback(onLocaleChange);
     _loadData();
   }
 
   void _loadData() {
-    _isShowTools = OXUserInfoManager.sharedInstance.isLogin;
+    // _isShowTools = OXUserInfoManager.sharedInstance.isLogin;
     tabItems = [
       CommonCategoryTitleItem(title: Localized.text('ox_chat.str_title_contacts')),
       CommonCategoryTitleItem(title: Localized.text('ox_chat.str_title_groups')),
       // CommonCategoryTitleItem(title: Localized.text('ox_chat.str_title_channels')),
     ];
+  }
+
+  onThemeStyleChange() {
+    if (mounted) setState(() {});
   }
 
   onLocaleChange() {
@@ -258,7 +267,11 @@ class _ContractsPageState extends ContactBasePageState<ContractsPage>
       children: [
         InkWell(
           onTap: () {
-            SearchPage(searchPageType: SearchPageType.all).show(context);
+            UnifiedSearchPage(
+              initialIndex: _selectedType == ContactsItemType.contact
+                  ? SearchType.contact.index
+                  : SearchType.group.index,
+            ).show(context);
           },
           child: Container(
             width: double.infinity,
@@ -343,7 +356,7 @@ class _ContractsPageState extends ContactBasePageState<ContractsPage>
 
   void _getRequestAddGroupLength() async {
     if(RelayGroup.sharedInstance.myGroups.length>0) {
-      List<RelayGroupDBISAR> tempGroups = RelayGroup.sharedInstance.myGroups.values.toList();
+      List<RelayGroupDBISAR> tempGroups = RelayGroup.sharedInstance.myGroups.values.map((e) => e.value).toList();
       await Future.forEach(tempGroups, (element) async {
         List<JoinRequestDBISAR> requestJoinList = await RelayGroup.sharedInstance.getRequestList(element.groupId);
         _addGroupRequestCount += requestJoinList.length;
@@ -353,7 +366,16 @@ class _ContractsPageState extends ContactBasePageState<ContractsPage>
   }
 
   void _gotoAddFriend() {
-    OXNavigator.pushPage(context, (context) => CommunityQrcodeAddFriend());
+    if(_selectedType == ContactsItemType.contact){
+      OXNavigator.pushPage(context, (context) => CommunityQrcodeAddFriend());
+    }else{
+      OXModuleService.pushPage(
+          context,
+          'ox_discovery',
+          'discoveryPageWidget',
+          {'typeInt':2}
+      );
+    }
   }
 
   int _getButtonCount(){
@@ -363,14 +385,14 @@ class _ContractsPageState extends ContactBasePageState<ContractsPage>
   @override
   void didLoginSuccess(UserDBISAR? userInfo) {
     setState(() {
-      _isShowTools = true;
+      // _isShowTools = true;
     });
   }
 
   @override
   void didLogout() {
     setState(() {
-      _isShowTools = false;
+      // _isShowTools = false;
     });
   }
 

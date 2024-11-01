@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:chatcore/chat-core.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/log_util.dart';
@@ -9,6 +10,7 @@ import 'package:ox_common/upload/file_type.dart';
 import 'package:ox_common/upload/upload_utils.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
@@ -19,8 +21,10 @@ import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
+import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_usercenter/model/request_verify_dns.dart';
 import 'package:ox_usercenter/page/set_up/avatar_preview_page.dart';
+import 'package:ox_usercenter/utils/widget_tool.dart';
 import 'package:ox_usercenter/widget/npub_cash_address_widget.dart';
 
 import '../../widget/select_asset_dialog.dart';
@@ -240,6 +244,12 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
               delegate: SliverChildListDelegate(
                 <Widget>[
                   _buildHeadImgView(),
+                  SizedBox(height: 16.px),
+                  Align(
+                    alignment: Alignment.topCenter,
+                    child: abbrText('str_set_new_photo'.localized(), 14, ThemeColor.gradientMainStart, fontWeight: FontWeight.w600),
+                  ),
+                  SizedBox(height: 24.px),
                   _itemView(
                       Localized.text('ox_usercenter.username'), Localized.text('ox_usercenter.username_hint_text'),
                       editingController: _userNameTextEditingController),
@@ -275,6 +285,48 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
                         _bltTextEditingController.text = npubCashAddress;
                       }
                     },
+                  ),
+                  SizedBox(height: 24.px),
+                  GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onTap: _addOtherAccount,
+                    child: Container(
+                      width: double.infinity,
+                      height: Adapt.px(48),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        color: ThemeColor.color180,
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        'str_add_other_account'.localized(),
+                        style: TextStyle(
+                          color: ThemeColor.color0,
+                          fontSize: Adapt.px(15),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 24.px),
+                  GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onTap: _logout,
+                    child: Container(
+                      width: double.infinity,
+                      height: Adapt.px(48),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        color: ThemeColor.color180,
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        Localized.text('ox_usercenter.sign_out'),
+                        style: TextStyle(
+                          color: ThemeColor.red,
+                          fontSize: Adapt.px(15),
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -596,6 +648,41 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
               text: Localized.text('ox_common.confirm'),
               onTap: () async {
                 OXNavigator.pop(context, true);
+              }),
+        ],
+        isRowAction: true);
+  }
+
+  void _addOtherAccount() async {
+    OXModuleService.pushPage(context, 'ox_login', 'LoginPage', {});
+  }
+
+  void _logout() async {
+    OXCommonHintDialog.show(context,
+        title: Localized.text('ox_usercenter.warn_title'),
+        content: Localized.text('ox_usercenter.sign_out_dialog_content'),
+        actionList: [
+          OXCommonHintAction.cancel(onTap: () {
+            OXNavigator.pop(context);
+          }),
+          OXCommonHintAction.sure(
+              text: Localized.text('ox_common.confirm'),
+              onTap: () async {
+                OXNavigator.pop(context);
+                OXNavigator.pop(context);
+                await OXLoading.show();
+                Map<String, MultipleUserModel> currentUserMap = await UserConfigTool.getAllUser();
+                if (currentUserMap.length > 1) {
+                  String tempPubKey = mCurrentUserInfo?.pubKey ?? '';
+                  if (tempPubKey.isNotEmpty) {
+                    currentUserMap.removeWhere((key, value) => key == tempPubKey);
+                  }
+                  MultipleUserModel tempModel = currentUserMap.values.first;
+                  await OXUserInfoManager.sharedInstance.switchAccount(tempModel.pubKey);
+                } else {
+                  await OXUserInfoManager.sharedInstance.logout();
+                }
+                await OXLoading.dismiss();
               }),
         ],
         isRowAction: true);

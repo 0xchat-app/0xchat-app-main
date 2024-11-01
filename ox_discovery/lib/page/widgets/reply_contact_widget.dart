@@ -11,7 +11,7 @@ import '../../model/moment_ui_model.dart';
 import '../../utils/discovery_utils.dart';
 
 class ReplyContactWidget extends StatefulWidget {
-  final ValueNotifier<NotedUIModel?>? notedUIModel;
+  final NotedUIModel? notedUIModel;
   const ReplyContactWidget({super.key, required this.notedUIModel});
 
   @override
@@ -36,14 +36,14 @@ class _ReplyContactWidgetState extends State<ReplyContactWidget> {
       _getMomentUser();
     }
 
-    if(widget.notedUIModel?.value != null && widget.notedUIModel != null && isShowReplyContactWidget && widget.notedUIModel!.value!.noteDB.isReply){
+    if(widget.notedUIModel != null && widget.notedUIModel != null && isShowReplyContactWidget && widget.notedUIModel!.noteDB.isReply){
       _getMomentUser();
     }
   }
 
 
   void _getMomentUser() async {
-    NotedUIModel? model = widget.notedUIModel?.value;
+    NotedUIModel? model = widget.notedUIModel;
     if (model == null || !model.noteDB.isReply) {
       isShowReplyContactWidget = false;
       noteAuthor = null;
@@ -60,34 +60,34 @@ class _ReplyContactWidgetState extends State<ReplyContactWidget> {
       return;
     }
 
-    ValueNotifier<NotedUIModel?> notedUIModelCache = OXMomentCacheManager.getValueNotifierNoteToCache(getReplyId);
-    if(notedUIModelCache.value != null){
+    NotedUIModel? notedUIModelCache = OXMomentCacheManager.getValueNotifierNoteToCache(getReplyId);
+    if(notedUIModelCache != null){
 
-      noteAuthor = (notedUIModelCache.value as NotedUIModel).noteDB.author;
+      noteAuthor = (notedUIModelCache as NotedUIModel).noteDB.author;
 
-      _getMomentUserInfo(notedUIModelCache.value as NotedUIModel);
+      _getMomentUserInfo(notedUIModelCache as NotedUIModel);
       if (mounted) {
         setState(() {});
       }
       return;
     }
 
-    ValueNotifier<NotedUIModel?> replyNotifier = await OXMomentCacheManager.getValueNotifierNoted(
+    NotedUIModel? replyNotifier = await OXMomentCacheManager.getValueNotifierNoted(
       getReplyId,
       isUpdateCache: true,
       notedUIModel: model,
     );
 
-    if(replyNotifier.value == null){
+    if(replyNotifier == null){
       if(mounted){
         setState(() {});
       }
       return;
     }
 
-    noteAuthor = (replyNotifier.value as NotedUIModel).noteDB.author;
+    noteAuthor = (replyNotifier as NotedUIModel).noteDB.author;
 
-    _getMomentUserInfo(replyNotifier.value as NotedUIModel);
+    _getMomentUserInfo(replyNotifier as NotedUIModel);
     if (mounted) {
       setState(() {});
     }

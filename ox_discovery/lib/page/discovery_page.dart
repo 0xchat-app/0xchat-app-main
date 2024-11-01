@@ -1,15 +1,13 @@
-import 'dart:math';
 import 'dart:ui';
 
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
-import 'package:ox_common/business_interface/ox_chat/interface.dart';
+import 'package:flutter/rendering.dart';
+import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_discovery/enum/group_type.dart';
 import 'package:ox_discovery/page/moments/groups_page.dart';
 import 'package:ox_discovery/page/widgets/group_selector_dialog.dart';
-import 'package:ox_discovery/utils/discovery_utils.dart';
-import 'package:simple_gradient_text/simple_gradient_text.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/mixin/common_state_view_mixin.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -18,26 +16,38 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
-import 'package:ox_module_service/ox_module_service.dart';
-import '../enum/moment_enum.dart';
-import '../model/moment_extension_model.dart';
-import '../utils/album_utils.dart';
-import 'moments/channel_page.dart';
-import 'moments/create_moments_page.dart';
-import 'moments/group_moments_page.dart';
+import 'moments/notifications_moments_page.dart';
 import 'moments/public_moments_page.dart';
 import 'package:ox_common/business_interface/ox_discovery/ox_discovery_model.dart';
 import 'package:flutter/cupertino.dart';
 
-enum EDiscoveryPageType{
-  moment,
-  channel
+enum EDiscoveryPageType { moment, group }
+
+extension EDiscoveryPageTypeEx on EDiscoveryPageType {
+  static EDiscoveryPageType changeIntToEnum(int typeInt) {
+    switch (typeInt) {
+      case 1:
+        return EDiscoveryPageType.moment;
+      case 2:
+        return EDiscoveryPageType.group;
+      default:
+        return EDiscoveryPageType.moment;
+    }
+  }
+
+  String get text {
+    switch (this) {
+      case EDiscoveryPageType.moment:
+        return 'Moments';
+      case EDiscoveryPageType.group:
+        return 'Add Group';
+    }
+  }
 }
 
-
 class DiscoveryPage extends StatefulWidget {
-
-  const DiscoveryPage({Key? key}): super(key: key);
+  final int typeInt;
+  const DiscoveryPage({Key? key, required this.typeInt}) : super(key: key);
 
   @override
   State<DiscoveryPage> createState() => DiscoveryPageState();
@@ -49,19 +59,20 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
         OXUserInfoObserver,
         WidgetsBindingObserver,
         CommonStateViewMixin {
-
   int _channelCurrentIndex = 0;
 
   GroupType _groupType = GroupType.openGroup;
 
+  String saveMomentFilterKey = 'momentFilterKey';
 
-  EDiscoveryPageType pageType = EDiscoveryPageType.moment;
+  late EDiscoveryPageType pageType;
 
-
-  GlobalKey<PublicMomentsPageState> publicMomentPageKey = GlobalKey<PublicMomentsPageState>();
+  GlobalKey<PublicMomentsPageState> publicMomentPageKey =
+      GlobalKey<PublicMomentsPageState>();
   GlobalKey<GroupsPageState> groupsPageState = GlobalKey<GroupsPageState>();
 
-  EPublicMomentsPageType publicMomentsPageType = EPublicMomentsPageType.all;
+  EPublicMomentsPageType publicMomentsPageType =
+      EPublicMomentsPageType.contacts;
 
   bool _isLogin = false;
 
@@ -70,23 +81,25 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
     super.initState();
     OXUserInfoManager.sharedInstance.addObserver(this);
     _isLogin = OXUserInfoManager.sharedInstance.isLogin;
+    getMomentPublicFilter();
+    pageType = EDiscoveryPageTypeEx.changeIntToEnum(widget.typeInt);
+    setState(() {});
   }
 
-  void _momentPublic(bool isChangeToDiscovery){
-    if(publicMomentPageKey.currentState == null) return;
+  void _momentPublic(bool isChangeToDiscovery) {
+    if (publicMomentPageKey.currentState == null) return;
     bool hasNotesList = publicMomentPageKey.currentState!.notesList.isEmpty;
-    if(isChangeToDiscovery && hasNotesList){
+    if (isChangeToDiscovery && hasNotesList) {
       publicMomentPageKey.currentState!.refreshController.requestRefresh();
     }
 
-    if(!isChangeToDiscovery){
+    if (!isChangeToDiscovery) {
       publicMomentPageKey.currentState?.momentScrollController.animateTo(
         0.0,
         duration: const Duration(milliseconds: 500),
         curve: Curves.easeInOut,
       );
     }
-
   }
 
   @override
@@ -113,20 +126,6 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    double momentMm =  DiscoveryUtils.boundingTextSize(
-            Localized.text('ox_discovery.moment'),
-            TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: Adapt.px(20),
-                color: ThemeColor.titleColor))
-        .width;
-    double discoveryMm = DiscoveryUtils.boundingTextSize(
-        Localized.text('ox_discovery.group'),
-        TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: Adapt.px(20),
-            color: ThemeColor.titleColor))
-        .width;
     return Scaffold(
       backgroundColor: ThemeColor.color200,
       appBar: AppBar(
@@ -134,78 +133,40 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
         elevation: 0,
         titleSpacing: 0.0,
         actions: _actionWidget(),
-        title: Row(
-          children: [
-            SizedBox(
-              width: Adapt.px(24),
+        title: Center(
+          child: Text(
+            pageType.text,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: Adapt.px(20),
+              color: ThemeColor.titleColor,
             ),
-            GestureDetector(
-              onTap: () {
-                setState(() {
-                  pageType = EDiscoveryPageType.moment;
-                });
-              },
-              child: Container(
-                constraints: BoxConstraints(maxWidth: momentMm),
-                child: GradientText(Localized.text('ox_discovery.moment'),
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: Adapt.px(20),
-                        color: ThemeColor.titleColor),
-                    colors: [
-                     pageType == EDiscoveryPageType.moment ? ThemeColor.gradientMainStart : ThemeColor.color120,
-                     pageType == EDiscoveryPageType.moment ? ThemeColor.gradientMainEnd : ThemeColor.color120,
-                    ]),
-              ),
-            ),
-            SizedBox(
-              width: Adapt.px(24),
-            ),
-            GestureDetector(
-              onTap: () {
-                setState(() {
-                  pageType = EDiscoveryPageType.channel;
-                });
-              },
-              child: Container(
-                constraints: BoxConstraints(maxWidth: discoveryMm),
-                child: GradientText(Localized.text('ox_discovery.group'),
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: Adapt.px(20),
-                        color: ThemeColor.titleColor),
-                    colors: [
-                      pageType == EDiscoveryPageType.channel ? ThemeColor.gradientMainStart : ThemeColor.color120,
-                      pageType == EDiscoveryPageType.channel ? ThemeColor.gradientMainEnd : ThemeColor.color120,
-                    ]),
-              ),
-            ),
-            SizedBox(
-              width: Adapt.px(24),
-            ),
-          ],
+          ).setPaddingOnly(left: pageType == EDiscoveryPageType.moment ?  36.px : 0.px),
         ),
       ),
       body: _body(),
     );
   }
 
-  List<Widget> _actionWidget(){
-    if(!_isLogin) return [];
+  List<Widget> _actionWidget() {
+    if (!_isLogin) return [];
 
-    if(pageType == EDiscoveryPageType.moment) {
+    if (pageType == EDiscoveryPageType.moment) {
       return [
         GestureDetector(
           behavior: HitTestBehavior.translucent,
           child: CommonImage(
-            iconName: "moment_option.png",
+            iconName: "menu_icon.png",
             width: Adapt.px(24),
             height: Adapt.px(24),
-            color: ThemeColor.color100,
+            color: ThemeColor.color0,
             package: 'ox_discovery',
           ),
           onTap: () {
-            showModalBottomSheet(context: context, backgroundColor: Colors.transparent, builder: (context) => _buildMomentBottomDialog());
+            showModalBottomSheet(
+                context: context,
+                backgroundColor: Colors.transparent,
+                builder: (context) => _buildMomentBottomDialog());
           },
         ),
         SizedBox(
@@ -214,35 +175,15 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
         GestureDetector(
           behavior: HitTestBehavior.translucent,
           child: CommonImage(
-            iconName: "moment_add_icon.png",
+            iconName: "icon_mute.png",
             width: Adapt.px(24),
             height: Adapt.px(24),
-            color: ThemeColor.color100,
+            color: ThemeColor.color0,
             package: 'ox_discovery',
           ),
-          onLongPress: (){
-            OXNavigator.presentPage(context, (context) => const CreateMomentsPage(type: EMomentType.content));
-          },
           onTap: () {
-            CreateMomentDraft? createMomentMediaDraft = OXMomentCacheManager.sharedInstance.createMomentMediaDraft;
-            if(createMomentMediaDraft!= null){
-              final type = createMomentMediaDraft.type;
-              final imageList = type == EMomentType.picture ? createMomentMediaDraft.imageList : null;
-              final videoPath = type == EMomentType.video ? createMomentMediaDraft.videoPath : null;
-              final videoImagePath = type == EMomentType.video ? createMomentMediaDraft.videoImagePath : null;
-
-              OXNavigator.presentPage(
-                context,
-                  (context) => CreateMomentsPage(
-                    type: type,
-                    imageList: imageList,
-                    videoPath: videoPath,
-                    videoImagePath: videoImagePath,
-                  ),
-              );
-              return;
-            }
-            OXNavigator.presentPage(context, (context) => const CreateMomentsPage(type: null));
+            OXNavigator.pushPage(context,
+                    (context) => const NotificationsMomentsPage());
           },
         ),
         SizedBox(
@@ -255,11 +196,12 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
       GestureDetector(
         behavior: HitTestBehavior.translucent,
         child: CommonImage(
-          iconName: "nav_more_new.png",
+          iconName: "menu_icon.png",
           width: Adapt.px(24),
           height: Adapt.px(24),
-          color: ThemeColor.color100,
-        ),
+          color: ThemeColor.color0,
+          package: 'ox_discovery',
+        ).setPaddingOnly(left: 10.px),
         onTap: () async {
           // showModalBottomSheet(context: context, backgroundColor: Colors.transparent, builder: (context) => _buildChannelBottomDialog());
           await showModalBottomSheet(
@@ -274,15 +216,19 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
           );
         },
       ),
-      OXChatInterface.showRelayInfoWidget().setPaddingOnly(left: 20.px),
+      // OXChatInterface.showRelayInfoWidget().setPaddingOnly(left: 20.px),
       SizedBox(
         width: Adapt.px(24),
       ),
     ];
   }
 
-  Widget _body(){
-    if(pageType == EDiscoveryPageType.moment)  return PublicMomentsPage(key:publicMomentPageKey,publicMomentsPageType: publicMomentsPageType,);
+  Widget _body() {
+    if (pageType == EDiscoveryPageType.moment)
+      return PublicMomentsPage(
+        key: publicMomentPageKey,
+        publicMomentsPageType: publicMomentsPageType,
+      );
     return GroupsPage(
       key: groupsPageState,
       groupType: _groupType,
@@ -318,51 +264,8 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
     );
   }
 
-  Widget _buildChannelBottomDialog() {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(Adapt.px(12)),
-        color:  ThemeColor.color160,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _buildItem(
-            Localized.text('ox_discovery.recommended_item'),
-            index: 0,
-            onTap: () => _updateChannelCurrentIndex(0),
-          ),
-          Divider(
-            color: ThemeColor.color170,
-            height: Adapt.px(0.5),
-          ),
-          _buildItem(
-            Localized.text('ox_discovery.popular_item'),
-            index: 1,
-            onTap: () => _updateChannelCurrentIndex(1),
-          ),
-          Divider(
-            color: ThemeColor.color170,
-            height: Adapt.px(0.5),
-          ),
-          _buildItem(
-            Localized.text('ox_discovery.latest_item'),
-            index: 2,
-            onTap: () => _updateChannelCurrentIndex(2),
-          ),
-          Container(
-            height: Adapt.px(8),
-            color: ThemeColor.color190,
-          ),
-          _buildItem(Localized.text('ox_common.cancel'), index: 3, onTap: () {
-            OXNavigator.pop(context);
-          }),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildItem(String title, {required int index, GestureTapCallback? onTap}) {
+  Widget _buildItem(String title,
+      {required int index, GestureTapCallback? onTap}) {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       child: Container(
@@ -374,7 +277,9 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
           style: TextStyle(
             color: ThemeColor.color0,
             fontSize: Adapt.px(16),
-            fontWeight: index == _channelCurrentIndex ? FontWeight.w600 : FontWeight.w400,
+            fontWeight: index == _channelCurrentIndex
+                ? FontWeight.w600
+                : FontWeight.w400,
           ),
         ),
       ),
@@ -392,45 +297,10 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
         mainAxisSize: MainAxisSize.min,
         children: [
           _buildMomentItem(
-            isSelect: publicMomentsPageType == EPublicMomentsPageType.all,
-            EPublicMomentsPageType.all.text,
-            index: 0,
-            onTap: () {
-              OXNavigator.pop(context);
-              if(mounted){
-                publicMomentsPageType = EPublicMomentsPageType.all;
-              }
-            },
-          ),
-          Divider(
-            color: ThemeColor.color170,
-            height: Adapt.px(0.5),
-          ),
-          _buildMomentItem(
             isSelect: publicMomentsPageType == EPublicMomentsPageType.contacts,
             EPublicMomentsPageType.contacts.text,
             index: 1,
-            onTap: () {
-              OXNavigator.pop(context);
-              if(mounted){
-                publicMomentsPageType = EPublicMomentsPageType.contacts;
-              }
-            },
-          ),
-          Divider(
-            color: ThemeColor.color170,
-            height: Adapt.px(0.5),
-          ),
-          _buildMomentItem(
-            isSelect: publicMomentsPageType == EPublicMomentsPageType.follows,
-            EPublicMomentsPageType.follows.text,
-            index: 1,
-            onTap: () {
-              OXNavigator.pop(context);
-              if(mounted){
-                publicMomentsPageType = EPublicMomentsPageType.follows;
-              }
-            },
+            onTap: () => setMomentPublicFilter(EPublicMomentsPageType.contacts),
           ),
           Divider(
             color: ThemeColor.color170,
@@ -440,12 +310,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
             isSelect: publicMomentsPageType == EPublicMomentsPageType.reacted,
             EPublicMomentsPageType.reacted.text,
             index: 1,
-            onTap: () {
-              OXNavigator.pop(context);
-              if(mounted){
-                publicMomentsPageType = EPublicMomentsPageType.reacted;
-              }
-            },
+            onTap: () => setMomentPublicFilter(EPublicMomentsPageType.reacted),
           ),
           Divider(
             color: ThemeColor.color170,
@@ -455,12 +320,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
             isSelect: publicMomentsPageType == EPublicMomentsPageType.private,
             EPublicMomentsPageType.private.text,
             index: 1,
-            onTap: () {
-              OXNavigator.pop(context);
-              if(mounted){
-                publicMomentsPageType = EPublicMomentsPageType.private;
-              }
-            },
+            onTap: () => setMomentPublicFilter(EPublicMomentsPageType.private),
           ),
           Divider(
             color: ThemeColor.color170,
@@ -470,7 +330,8 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
             height: Adapt.px(8),
             color: ThemeColor.color190,
           ),
-          _buildMomentItem(Localized.text('ox_common.cancel'), index: 3, onTap: () {
+          _buildMomentItem(Localized.text('ox_common.cancel'), index: 3,
+              onTap: () {
             OXNavigator.pop(context);
           }),
           SizedBox(
@@ -481,8 +342,26 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
     );
   }
 
+  void setMomentPublicFilter(EPublicMomentsPageType type) async {
+    OXNavigator.pop(context);
+    await OXCacheManager.defaultOXCacheManager
+        .saveForeverData(saveMomentFilterKey, type.changeInt);
+    if (mounted) {
+      publicMomentsPageType = type;
+    }
+  }
+
+  void getMomentPublicFilter() async {
+    final result = await OXCacheManager.defaultOXCacheManager
+        .getForeverData(saveMomentFilterKey);
+    if (result != null) {
+      publicMomentsPageType = EPublicMomentsPageTypeEx.getEnumType(result);
+      setState(() {});
+    }
+  }
+
   Widget _buildMomentItem(String title,
-      {required int index, GestureTapCallback? onTap,bool isSelect = false}) {
+      {required int index, GestureTapCallback? onTap, bool isSelect = false}) {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       child: Container(
@@ -500,13 +379,6 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
       ),
       onTap: onTap,
     );
-  }
-
-  void _updateChannelCurrentIndex(int index){
-    setState(() {
-      _channelCurrentIndex = index;
-    });
-    OXNavigator.pop(context);
   }
 
   void _updateGroupType(GroupType groupType) {
@@ -555,10 +427,12 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
   }
 
   @override
-  void updateClickNum(int num,bool isChangeToDiscovery) {
-    if (pageType == EDiscoveryPageType.channel) return _groupPageClickAction(num, isChangeToDiscovery);
-    if(num == 1) return _momentPublic(isChangeToDiscovery);
-    publicMomentPageKey.currentState?.updateNotesList(true,isWrapRefresh:true);
+  void updateClickNum(int num, bool isChangeToDiscovery) {
+    if (pageType == EDiscoveryPageType.group)
+      return _groupPageClickAction(num, isChangeToDiscovery);
+    if (num == 1) return _momentPublic(isChangeToDiscovery);
+    publicMomentPageKey.currentState
+        ?.updateNotesList(true, isWrapRefresh: true);
   }
 
   void _groupPageClickAction(int num, bool isChangeToDiscovery) {

@@ -7,20 +7,21 @@ Widget MyText(String content, double fontSize, Color txtColor, {TextAlign? textA
   return Text(
     content,
     textAlign: textAlign,
-    style: TextStyle(fontSize: Adapt.px(fontSize), color: txtColor, fontWeight: fontWeight, height: height, letterSpacing: letterSpacing),
+    style: TextStyle(fontSize: fontSize.sp, color: txtColor, fontWeight: fontWeight, height: height, letterSpacing: letterSpacing),
     overflow: overflow,
     maxLines: maxLines,
   );
 }
 
-Widget assetIcon(String iconName, double widthD, double heightD, {bool useTheme = false, BoxFit? fit}) {
+Widget assetIcon(String iconName, double widthD, double heightD, {bool useTheme = false, BoxFit? fit, Color? color}) {
   return CommonImage(
     useTheme: useTheme,
     iconName: iconName,
     width: Adapt.px(widthD),
     height: Adapt.px(heightD),
     fit: fit,
-    package: 'ox_chat'
+    color: color,
+    package: 'ox_chat',
   );
 }
 

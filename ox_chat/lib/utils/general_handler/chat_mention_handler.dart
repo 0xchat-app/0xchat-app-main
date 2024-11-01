@@ -57,7 +57,7 @@ extension ChatSessionModelMentionEx on ChatSessionModelISAR {
 
   Future<List<UserDBISAR>> _userListGetterByGroupMember() async {
     final completer = Completer<List<UserDBISAR>>();
-    final members = Groups.sharedInstance.groups[groupId]?.members;
+    final members = Groups.sharedInstance.groups[groupId]?.value.members;
     if (members == null) {
       completer.complete([]);
     } else {

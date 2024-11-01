@@ -7,7 +7,7 @@
   "my_card": "我的名片",
   "details": "详细信息",
   "add_friend": "添加联系人",
-  "send_message": "私聊",
+  "send_message": "发消息",
   "delete": "删除",
   "search": "搜索",
   "search_tips_prefix": "尝试搜索",
@@ -329,5 +329,9 @@
   "str_dm_auto_delete_hint": "消息将在${time}后自动删除",
   "delete_message_me_action_mode": "刪除我的訊息",
   "delete_message_everyone_action_mode": "刪除所有人的訊息",
-  "str_group_admin_permission_add_fail_toast": "不能添加改权限"
+  "str_group_admin_permission_add_fail_toast": "不能添加改权限",
+  "str_title_new_message": "New Message",
+  "str_mark_as_unread": "标为未读",
+  "str_mark_as_read": "标为已读",
+  "str_delete_contact": "删除联系人"
 }

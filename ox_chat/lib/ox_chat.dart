@@ -175,16 +175,16 @@ class OXChat extends OXFlutterModule {
     return null;
   }
 
-  Widget _showRelayInfoWidget() {
-    return RelayInfoWidget();
+  Widget _showRelayInfoWidget(bool showRelayIcon) {
+    return RelayInfoWidget(showRelayIcon: showRelayIcon);
   }
 
-  void _showMyIdCardDialog(BuildContext context) {
+  void _showMyIdCardDialog(BuildContext context,{UserDBISAR? otherUser}) {
     showDialog(
         context: context,
         barrierDismissible: true,
         builder: (BuildContext context) {
-          return MyIdCardDialog();
+          return MyIdCardDialog(otherUser:otherUser);
         });
   }
 
@@ -214,7 +214,7 @@ class OXChat extends OXFlutterModule {
   }
 
   Future<void> _contactChanneDetailsPage(BuildContext? context,{required String channelId}) async {
-    ChannelDBISAR? channelDB = Channels.sharedInstance.channels[channelId];
+    ChannelDBISAR? channelDB = Channels.sharedInstance.channels[channelId]?.value;
     if(channelDB == null){
       await OXLoading.show();
       channelDB = await Channels.sharedInstance.searchChannel(channelId, null);

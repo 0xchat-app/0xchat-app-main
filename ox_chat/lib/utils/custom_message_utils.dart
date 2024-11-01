@@ -114,6 +114,7 @@ extension CustomMessageEx on types.CustomMessage {
     int? width,
     int? height,
     String? encryptedKey,
+    required String? encryptedNonce,
   }) {
     return _metaData(CustomMessageType.imageSending, {
       ImageSendingMessageEx.metaFileIdKey: fileId,
@@ -124,6 +125,7 @@ extension CustomMessageEx on types.CustomMessage {
       if (height != null)
         ImageSendingMessageEx.metaHeightKey: height,
       ImageSendingMessageEx.metaEncryptedKey: encryptedKey,
+      ImageSendingMessageEx.metaEncryptedNonce: encryptedNonce,
     });
   }
 
@@ -135,6 +137,7 @@ extension CustomMessageEx on types.CustomMessage {
     int? width,
     int? height,
     String? encryptedKey,
+    String? encryptedNonce,
   }) {
     return _metaData(CustomMessageType.video, {
       VideoMessageEx.metaFileIdKey: fileId,
@@ -146,6 +149,7 @@ extension CustomMessageEx on types.CustomMessage {
       if (height != null)
         VideoMessageEx.metaHeightKey: height,
       VideoMessageEx.metaEncryptedKey: encryptedKey,
+      VideoMessageEx.metaEncryptedNonce: encryptedNonce,
     });
   }
 
@@ -435,6 +439,7 @@ extension ImageSendingMessageEx on types.CustomMessage {
   static const metaWidthKey = 'width';
   static const metaHeightKey = 'height';
   static const metaEncryptedKey = 'encrypted';
+  static const metaEncryptedNonce = 'encryptedNonce';
 
   String get fileId => metadata?[CustomMessageEx.metaContentKey]?[metaFileIdKey] ?? '';
   String get path => metadata?[CustomMessageEx.metaContentKey]?[metaPathKey] ?? '';
@@ -443,6 +448,7 @@ extension ImageSendingMessageEx on types.CustomMessage {
   int? get width => metadata?[CustomMessageEx.metaContentKey]?[metaWidthKey];
   int? get height => metadata?[CustomMessageEx.metaContentKey]?[metaHeightKey];
   String? get encryptedKey => metadata?[CustomMessageEx.metaContentKey]?[metaEncryptedKey];
+  String? get encryptedNonce => metadata?[CustomMessageEx.metaContentKey]?[metaEncryptedNonce];
 }
 
 extension VideoMessageEx on types.CustomMessage {
@@ -453,6 +459,7 @@ extension VideoMessageEx on types.CustomMessage {
   static const metaWidthKey = 'width';
   static const metaHeightKey = 'height';
   static const metaEncryptedKey = 'encrypted';
+  static const metaEncryptedNonce = 'encryptedNonce';
 
   String get fileId => metadata?[CustomMessageEx.metaContentKey]?[metaFileIdKey] ?? '';
   String get snapshotPath => metadata?[CustomMessageEx.metaContentKey]?[metaSnapshotPathKey] ?? '';
@@ -461,6 +468,7 @@ extension VideoMessageEx on types.CustomMessage {
   int? get width => metadata?[CustomMessageEx.metaContentKey]?[metaWidthKey];
   int? get height => metadata?[CustomMessageEx.metaContentKey]?[metaHeightKey];
   String? get encryptedKey => metadata?[CustomMessageEx.metaContentKey]?[metaEncryptedKey];
+  String? get encryptedNonce => metadata?[CustomMessageEx.metaContentKey]?[metaEncryptedNonce];
 
   bool get isLocalFile => encryptedKey != null || videoPath.isNotEmpty;
 

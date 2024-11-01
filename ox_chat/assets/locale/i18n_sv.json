@@ -202,7 +202,7 @@
   "disabled_msg_auto_delete_system": "${username} Inaktiverade timern för automatisk radering",
   "set_normal_dm_system": "${username} Ställde in den aktuella konversationen som vanlig DM",
   "set_gift_wrapped_dm_system": "${username} Ställde in den aktuella konversationen som presentinslagen DM",
-  "ecash_text": "Ecash",
+  "ecash_text": "Cashu Nuts",
   "ecash_random_amount": "Slumpmässigt Belopp",
   "ecash_identical_amount": "Identiskt Belopp",
   "ecash_exclusive": "Exklusiv",

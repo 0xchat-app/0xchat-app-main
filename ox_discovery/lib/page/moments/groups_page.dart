@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_discovery/enum/group_type.dart';
 import 'package:ox_discovery/model/group_model.dart';
@@ -54,7 +55,10 @@ class GroupsPageState extends State<GroupsPage>
     _initData();
   }
 
-  _initData() {
+  _initData() async{
+    await OXLoading.show();
+    await Future.delayed(const Duration(milliseconds: 500));
+    await OXLoading.dismiss();
     bool isLogin = OXUserInfoManager.sharedInstance.isLogin;
     if(isLogin) {
       widget.groupType == GroupType.openGroup ? _getRelayGroupList() : _getChannelList();
@@ -134,8 +138,8 @@ class GroupsPageState extends State<GroupsPage>
       physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
       itemCount: _groupList.values.length,
-      addAutomaticKeepAlives: addAutomaticKeepAlives,
-      addRepaintBoundaries: addRepaintBoundaries,
+      // addAutomaticKeepAlives: addAutomaticKeepAlives,
+      // addRepaintBoundaries: addRepaintBoundaries,
       itemBuilder: (context, index) {
         final group = _groupList.values.elementAt(index);
         return _buildHotGroupCard(group);
@@ -366,7 +370,7 @@ class GroupsPageState extends State<GroupsPage>
               width: 8.px,
             ),
             Text(
-              Localized.text('ox_chat.search_discovery'),
+              'Please enter Group name',
               style: TextStyle(
                 fontWeight: FontWeight.w400,
                 fontSize: 15.sp,

@@ -340,13 +340,13 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
   }
 
   Future<NoteDBISAR?> _getNote(AggregatedNotification notificationDB) async {
-    ValueNotifier<NotedUIModel?> noteNotifier = await OXMomentCacheManager.getValueNotifierNoted(
+    NotedUIModel? noteNotifier = await OXMomentCacheManager.getValueNotifierNoted(
       notificationDB.associatedNoteId,
       isUpdateCache: true,
     );
-    if(noteNotifier.value == null) return null;
+    if(noteNotifier == null) return null;
 
-    return noteNotifier.value!.noteDB;
+    return noteNotifier!.noteDB;
   }
 
   void _clearNotifications(){
@@ -443,12 +443,12 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
       noteId = notification.associatedNoteId;
     }
 
-    ValueNotifier<NotedUIModel?> noteNotifier = await OXMomentCacheManager.getValueNotifierNoted(
+    NotedUIModel? noteNotifier = await OXMomentCacheManager.getValueNotifierNoted(
       noteId,
       isUpdateCache: true,
     );
 
-    if(noteNotifier.value != null){
+    if(noteNotifier != null){
       OXNavigator.pushPage(context, (context) => MomentsPage(isShowReply: true, notedUIModel: noteNotifier));
     }
   }

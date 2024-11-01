@@ -202,7 +202,7 @@
   "disabled_msg_auto_delete_system": "${username} Desactivó el temporizador de autoeliminación",
   "set_normal_dm_system": "${username} Configuró la conversación actual como DM normal",
   "set_gift_wrapped_dm_system": "${username} Configuró la conversación actual como DM envuelto para regalo",
-  "ecash_text": "Ecash",
+  "ecash_text": "Cashu Nuts",
   "ecash_random_amount": "Cantidad Aleatoria",
   "ecash_identical_amount": "Cantidad Idéntica",
   "ecash_exclusive": "Exclusivo",

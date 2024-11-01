@@ -11,7 +11,14 @@ import 'package:chatcore/chat-core.dart';
 ///@author Michael
 ///CreateTime: 2024/8/5 19:56
 class RelayInfoWidget extends StatefulWidget {
-  RelayInfoWidget({Key? key}) : super(key: key);
+  bool showRelayIcon;
+  double? iconSize;
+  Color? iconColor;
+  double? fontSize;
+  FontWeight? fontWeight;
+  Color? fontColor;
+  double? padding;
+  RelayInfoWidget({Key? key, this.showRelayIcon = true, this.iconSize, this.iconColor, this.fontSize, this.fontWeight, this.fontColor, this.padding}) : super(key: key);
 
   @override
   RelayInfoWidgetState createState() => RelayInfoWidgetState();
@@ -38,21 +45,27 @@ class RelayInfoWidgetState extends State<RelayInfoWidget> {
         },
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            CommonImage(
-              iconName: 'icon_relay_connected_amount.png',
-              width: Adapt.px(24),
-              height: Adapt.px(24),
-              fit: BoxFit.fill,
+            Visibility(
+              visible: widget.showRelayIcon,
+              child: CommonImage(
+                iconName: 'icon_relay_connected_amount.png',
+                size: widget.iconSize ?? 24.px,
+                fit: BoxFit.fill,
+                color: widget.iconColor,
+              ),
             ),
-            SizedBox(
-              width: Adapt.px(4),
+            Visibility(
+              visible: widget.showRelayIcon,
+              child: SizedBox(width: widget.padding ?? 4.px),
             ),
             Text(
               '${Account.sharedInstance.getConnectedRelaysCount()}/${Account.sharedInstance.getAllRelaysCount()}',
               style: TextStyle(
-                fontSize: Adapt.px(14),
-                color: ThemeColor.color100,
+                fontSize: widget.fontSize ?? 14.sp,
+                color: widget.fontColor ?? ThemeColor.color100,
+                fontWeight: widget.fontWeight,
               ),
             ),
           ],

@@ -80,7 +80,7 @@ class _RelayGroupEditPageState extends State<RelayGroupEditPage> {
   }
 
   void _groupInfoInit() {
-    RelayGroupDBISAR? groupDB = RelayGroup.sharedInstance.myGroups[widget.groupId];
+    RelayGroupDBISAR? groupDB = RelayGroup.sharedInstance.myGroups[widget.groupId]?.value;
 
     if (groupDB != null) {
       _groupDBInfo = groupDB;

@@ -6,18 +6,21 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:lpinyin/lpinyin.dart';
-import 'package:ox_chat/page/contacts/contact_user_info_page.dart';
+import 'package:ox_chat/page/session/chat_message_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_chat/widget/alpha.dart';
-import 'package:ox_common/business_interface/ox_chat/utils.dart';
-import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/log_util.dart';
-import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
+import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
+import 'package:flutter_vibrate/flutter_vibrate.dart';
+
 
 double headerHeight = Adapt.px(24);
 double itemHeight = Adapt.px(68.0);
@@ -32,6 +35,9 @@ class ContactWidget extends StatefulWidget {
   final bool shrinkWrap;
   ScrollPhysics? physics;
   final Widget? topWidget;
+  final Color? bgColor;
+  final bool supportLongPress;
+  final bool hasVibrator;
 
   ContactWidget({
     Key? key,
@@ -42,6 +48,9 @@ class ContactWidget extends StatefulWidget {
     this.shrinkWrap = false,
     this.physics,
     this.topWidget,
+    this.bgColor,
+    this.supportLongPress = false,
+    this.hasVibrator = false,
   }) : super(key: key);
 
   @override
@@ -147,7 +156,7 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: ThemeColor.color200,
+      color: widget.bgColor ?? ThemeColor.color200,
       child: Stack(
         alignment: AlignmentDirectional.centerEnd,
         children: <Widget>[
@@ -157,7 +166,7 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
             shrinkWrap: widget.shrinkWrap,
             controller: scrollController,
           ),
-          userList == null || userList!.isEmpty
+          userList.isEmpty
               ? SizedBox()
               : Container(
                   child: _buildAlphaBar(),
@@ -278,7 +287,7 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
         ),
       );
     }
-    if (userList == null || userList!.isEmpty) {
+    if (userList.isEmpty) {
       slivers.add(SliverToBoxAdapter(child: _emptyWidget()));
     } else {
       noteList.forEach((item) {
@@ -298,11 +307,13 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
                     editable: widget.editable,
                     onCheckChanged: _onCheckChangedListener,
                     hostName: widget.hostName,
+                    supportLongPress: widget.supportLongPress,
+                    hasVibrator: widget.hasVibrator,
                   );
                 },
                 childCount: item.childList.length,
-                addAutomaticKeepAlives: addAutomaticKeepAlives,
-                addRepaintBoundaries: addRepaintBoundaries,
+                // addAutomaticKeepAlives: addAutomaticKeepAlives,
+                // addRepaintBoundaries: addRepaintBoundaries,
               ),
             ),
           ),
@@ -357,7 +368,6 @@ class HeaderWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: headerHeight,
-      color: ThemeColor.color200,
       alignment: Alignment.centerLeft,
       padding: EdgeInsets.only(
         left: Adapt.px(24.0),
@@ -379,12 +389,16 @@ class ContractListItem extends StatefulWidget {
   final bool editable;
 
   String hostName = ''; //The current domain
+  final bool supportLongPress;
+  final bool hasVibrator;
 
   ContractListItem({
     required this.item,
     this.editable = false,
     this.onCheckChanged,
     this.hostName = 'ox.com',
+    this.supportLongPress = false,
+    this.hasVibrator = false,
   });
 
   @override
@@ -395,6 +409,7 @@ class ContractListItem extends StatefulWidget {
 
 class _ContractListItemState extends State<ContractListItem> {
   bool isChecked = false;
+  ValueNotifier<double> valueNotifier = ValueNotifier(1.0);
 
   void _onCheckChanged() {
     setState(() {
@@ -403,10 +418,47 @@ class _ContractListItemState extends State<ContractListItem> {
     widget.onCheckChanged(isChecked, widget.item);
   }
 
+  void _itemLongPress() async {
+    if (widget.supportLongPress && widget.item.pubKey.isNotEmpty) {
+      if (widget.hasVibrator && OXUserInfoManager.sharedInstance.canVibrate) {
+        FeedbackType type = FeedbackType.impact;
+        Vibrate.feedback(type);
+      }
+      valueNotifier.value = 0.96;
+      await Future.delayed(Duration(milliseconds: 80));
+      valueNotifier.value = 1.0;
+      await Future.delayed(Duration(milliseconds: 80));
+      UserDBISAR? userDB = Contacts.sharedInstance.allContacts[widget.item.pubKey] as UserDBISAR;
+      ChatMessagePage.open(
+        context: context,
+        communityItem: ChatSessionModelISAR(
+          chatId: userDB.pubKey,
+          chatName: userDB.name,
+          sender: OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey,
+          receiver: userDB.pubKey,
+          chatType: ChatType.chatSingle,
+        ),
+        isLongPressShow: true,
+        fromWhere: 1,
+      );
+    }
+  }
+
   void _onItemClick() async {
     if (widget.item.pubKey.isNotEmpty) {
       UserDBISAR? userDB = Contacts.sharedInstance.allContacts[widget.item.pubKey] as UserDBISAR;
-      OXNavigator.pushPage(context, (context) => ContactUserInfoPage(pubkey: userDB.pubKey));
+      // OXNavigator.pushPage(context, (context) => ContactUserInfoPage(pubkey: userDB.pubKey));
+      ChatMessagePage.open(
+        context: context,
+        communityItem: ChatSessionModelISAR(
+          chatId: userDB.pubKey,
+          chatName: userDB.name,
+          sender: OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey,
+          receiver: userDB.pubKey,
+          chatType: ChatType.chatSingle,
+        ),
+        isPushWithReplace: false,
+      );
     }
   }
 
@@ -434,62 +486,82 @@ class _ContractListItemState extends State<ContractListItem> {
             24.0,
             useTheme: true,
           );
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onTap: widget.editable ? _onCheckChanged : _onItemClick,
-      child: Container(
-        color: ThemeColor.color200,
-        width: double.infinity,
-        height: itemHeight,
-        padding: EdgeInsets.only(left: Adapt.px(24.0), top: Adapt.px(10.0), bottom: Adapt.px(10.0)),
-        child: Row(
-          children: <Widget>[
-            widget.editable
-                ? Container(
-                    margin: EdgeInsets.only(right: Adapt.px(7.0)),
-                    child: checkWidget,
-                  )
-                : SizedBox(),
-            Stack(
-              children: [
-                iconAvatar,
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: FutureBuilder<BadgeDBISAR?>(
-                    builder: (context, snapshot) {
-                      return (snapshot.data !=null) ? OXCachedNetworkImage(
-                        imageUrl: snapshot.data?.thumb ?? '',
-                        errorWidget: (context, url, error) => badgePlaceholderImage,
-                        width: Adapt.px(20),
-                        height: Adapt.px(20),
-                        fit: BoxFit.cover,
-                      ) : SizedBox();
-                    },
-                    future: _getUserSelectedBadgeInfo(widget.item),
+    return ValueListenableBuilder<double>(
+      valueListenable: valueNotifier,
+      builder: (context, scale, child) {
+        return GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: widget.editable ? _onCheckChanged : _onItemClick,
+          onLongPress: _itemLongPress,
+          child: AnimatedScale(
+            scale: scale,
+            duration: Duration(milliseconds: 80),
+            curve: Curves.easeOut,
+            child: Container(
+              width: double.infinity,
+              height: itemHeight,
+              padding: EdgeInsets.only(
+                  left: Adapt.px(24.0),
+                  top: Adapt.px(10.0),
+                  bottom: Adapt.px(10.0)),
+              child: Row(
+                children: <Widget>[
+                  widget.editable
+                      ? Container(
+                          margin: EdgeInsets.only(right: Adapt.px(7.0)),
+                          child: checkWidget,
+                        )
+                      : SizedBox(),
+                  Stack(
+                    children: [
+                      iconAvatar,
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: FutureBuilder<BadgeDBISAR?>(
+                          builder: (context, snapshot) {
+                            return (snapshot.data != null)
+                                ? OXCachedNetworkImage(
+                                    imageUrl: snapshot.data?.thumb ?? '',
+                                    errorWidget: (context, url, error) =>
+                                        badgePlaceholderImage,
+                                    width: Adapt.px(20),
+                                    height: Adapt.px(20),
+                                    fit: BoxFit.cover,
+                                  )
+                                : SizedBox();
+                          },
+                          future: _getUserSelectedBadgeInfo(widget.item),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
-            Container(
-              width: Adapt.screenW - Adapt.px(120),
-              margin: EdgeInsets.only(left: Adapt.px(16.0)),
-              child: ValueListenableBuilder<UserDBISAR>(
-                valueListenable: Account.sharedInstance.getUserNotifier(widget.item.pubKey),
-                builder: (context, value, child) {
-                  return MyText(
-                    (widget.item.nickName != null && widget.item.nickName!.isNotEmpty) ? widget.item.nickName! : widget.item.name ?? '',
-                    18,
-                    ThemeColor.white02,
-                    fontWeight: FontWeight.bold,
-                    overflow: TextOverflow.ellipsis,
-                  );
-                },
+                  Container(
+                    width: Adapt.screenW - Adapt.px(120),
+                    margin: EdgeInsets.only(left: Adapt.px(16.0)),
+                    child: ValueListenableBuilder<UserDBISAR>(
+                      valueListenable: Account.sharedInstance
+                          .getUserNotifier(widget.item.pubKey),
+                      builder: (context, value, child) {
+                        return MyText(
+                          (widget.item.nickName != null &&
+                                  widget.item.nickName!.isNotEmpty)
+                              ? widget.item.nickName!
+                              : widget.item.name ?? '',
+                          18,
+                          ThemeColor.white02,
+                          fontWeight: FontWeight.bold,
+                          overflow: TextOverflow.ellipsis,
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 

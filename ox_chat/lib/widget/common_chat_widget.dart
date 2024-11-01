@@ -26,6 +26,7 @@ class CommonChatWidget extends StatefulWidget {
 
   CommonChatWidget({
     required this.handler,
+    this.navBar,
     this.customTopWidget,
     this.customCenterWidget,
     this.customBottomWidget,
@@ -35,6 +36,7 @@ class CommonChatWidget extends StatefulWidget {
   // Basic
 
   final ChatGeneralHandler handler;
+  final PreferredSizeWidget? navBar;
 
   // Custom
 
@@ -66,6 +68,7 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
     super.initState();
 
     tryInitDraft();
+    tryInitReply();
     mentionStateInitialize();
     PromptToneManager.sharedInstance.isCurrencyChatPage = dataController.isInCurrentSession;
     OXChatBinding.sharedInstance.msgIsReaded = dataController.isInCurrentSession;
@@ -73,10 +76,20 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
 
   void tryInitDraft() {
     final draft = session.draft ?? '';
-    if (draft.isNotEmpty) {
-      handler.inputController.text = draft;
-      ChatDraftManager.shared.updateTempDraft(session.chatId, draft);
-    }
+    if (draft.isEmpty) return ;
+
+    handler.inputController.text = draft;
+    ChatDraftManager.shared.updateTempDraft(session.chatId, draft);
+  }
+
+  void tryInitReply() async {
+    final replyMessageId = session.replyMessageId ?? '';
+    if (replyMessageId.isEmpty) return ;
+
+    final message = await dataController.getLocalMessageWithId(replyMessageId);
+    if (message == null) return ;
+
+    handler.replyHandler.updateReplyMessage(message);
   }
 
   void mentionStateInitialize() {
@@ -97,140 +110,159 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
   
   @override
   Widget build(BuildContext context) {
+    if (widget.handler.isPreviewMode) {
+      return Column(
+        children: [
+          widget.navBar ?? const SizedBox(),
+          Expanded(child: buildChatContentWidget()),
+        ],
+      );
+    }
+
+    return Scaffold(
+      backgroundColor: ThemeColor.color200,
+      resizeToAvoidBottomInset: false,
+      appBar: widget.navBar,
+      body: buildChatContentWidget(),
+    );
+  }
+
+  Widget buildChatContentWidget() {
     return ValueListenableBuilder(
-      valueListenable: dataController.messageValueNotifier,
-      builder: (BuildContext context, messages, Widget? child) {
-        return Chat(
-          key: chatWidgetKey,
-          scrollController: scrollController,
-          chatId: handler.session.chatId,
-          theme: pageConfig.pageTheme,
-          anchorMsgId: handler.anchorMsgId,
-          messages: messages,
-          isFirstPage: !dataController.hasMoreNewMessage,
-          isLastPage: !dataController.canLoadMoreMessage,
-          onEndReached: () async {
-            if (dataController.isMessageLoading) return ;
-            dataController.loadMoreMessage(
-              loadMsgCount: ChatPageConfig.messagesPerPage,
-              isLoadOlderData: true,
-            );
-          },
-          onHeaderReached: () async {
-            if (dataController.isMessageLoading) return ;
-            dataController.loadMoreMessage(
-              loadMsgCount: ChatPageConfig.messagesPerPage,
-              isLoadOlderData: false,
-            );
-          },
-          onMessageTap: handler.messagePressHandler,
-          onPreviewDataFetched: _handlePreviewDataFetched,
-          onSendPressed: (msg) => handler.sendTextMessage(context, msg.text),
-          avatarBuilder: (message) => OXUserAvatar(
-            user: message.author.sourceObject,
-            size: 40.px,
-            isCircular: false,
-            isClickable: true,
-            onReturnFromNextPage: () {
-              setState(() { });
-            },
-            onLongPress: () {
-              final user = message.author.sourceObject;
-              if (user != null)
-                handler.mentionHandler?.addMentionText(user);
-            },
-          ),
-          showUserNames: handler.session.showUserNames,
-          //Group chat display nickname
-          user: handler.author,
-          useTopSafeAreaInset: true,
-          inputMoreItems: pageConfig.inputMoreItemsWithHandler(handler),
-          onVoiceSend: (String path, Duration duration) => handler.sendVoiceMessage(context, path, duration),
-          onGifSend: (GiphyImage image) => handler.sendGifImageMessage(context, image),
-          onAttachmentPressed: () {},
-          longPressWidgetBuilder: (context, message, controller) => pageConfig.longPressWidgetBuilder(
-            context: context,
-            message: message,
-            controller: controller,
-            handler: handler,
-          ),
-          onMessageStatusTap: handler.messageStatusPressHandler,
-          textMessageOptions: handler.textMessageOptions(context),
-          imageGalleryOptions: pageConfig.imageGalleryOptions,
-          customTopWidget: widget.customTopWidget,
-          customCenterWidget: widget.customCenterWidget,
-          customBottomWidget: widget.customBottomWidget,
-          customMessageBuilder: ({
-            required types.CustomMessage message,
-            required int messageWidth,
-            required Widget reactionWidget,
-          }) => ChatMessageBuilder.buildCustomMessage(
-            message: message,
-            messageWidth: messageWidth,
-            reactionWidget: reactionWidget,
-            receiverPubkey: handler.otherUser?.pubKey,
-            messageUpdateCallback: (newMessage) {
-              dataController.updateMessage(newMessage);
-            },
-          ),
-          imageMessageBuilder: ChatMessageBuilder.buildImageMessage,
-          inputOptions: handler.inputOptions,
-          inputBottomView: handler.replyHandler.buildReplyMessageWidget(),
-          bottomHintParam: widget.bottomHintParam,
-          onFocusNodeInitialized: handler.replyHandler.focusNodeSetter,
-          repliedMessageBuilder: (types.Message message, {required int messageWidth}) =>
-              ChatMessageBuilder.buildRepliedMessageView(
-                message,
-                messageWidth: messageWidth,
-                onTap: (message) async {
-                  scrollToMessage(message);
-                },
-              ),
-          reactionViewBuilder: (types.Message message, {required int messageWidth}) =>
-              ChatMessageBuilder.buildReactionsView(
-                message,
-                messageWidth: messageWidth,
-                itemOnTap: (reaction) => handler.reactionPressHandler(context, message, reaction.content),
-              ),
-          scrollToUnreadWidget: buildScrollToUnreadWidget(),
-          isShowScrollToBottomButton: dataController.hasMoreNewMessage,
-          scrollToBottomWidget: buildScrollToBottomWidget(),
-          mentionUserListWidget: handler.mentionHandler?.buildMentionUserList(),
-          onAudioDataFetched: (message) async {
-            final (sourceFile, duration) = await ChatVoiceMessageHelper.populateMessageWithAudioDetails(
-              session: handler.session,
-              message: message,
-            );
-            if (duration != null) {
-              dataController.updateMessage(
-                message.copyWith(
-                  audioFile: sourceFile,
-                  duration: duration,
-                ),
+        valueListenable: dataController.messageValueNotifier,
+        builder: (BuildContext context, messages, Widget? child) {
+          return Chat(
+            key: chatWidgetKey,
+            scrollController: scrollController,
+            isContentInteractive: !handler.isPreviewMode,
+            chatId: handler.session.chatId,
+            theme: pageConfig.pageTheme,
+            anchorMsgId: handler.anchorMsgId,
+            messages: messages,
+            isFirstPage: !dataController.hasMoreNewMessage,
+            isLastPage: !dataController.canLoadMoreMessage,
+            onEndReached: () async {
+              if (dataController.isMessageLoading) return ;
+              dataController.loadMoreMessage(
+                loadMsgCount: ChatPageConfig.messagesPerPage,
+                isLoadOlderData: true,
               );
-            }
-          },
-          onInsertedContent: (KeyboardInsertedContent insertedContent) =>
-              handler.sendInsertedContentMessage(context, insertedContent),
-          textFieldHasFocus: () async {
-            scrollToNewestMessage();
-          },
-          messageHasBuilder: (message, index) async {
-            if (!isShowScrollToUnreadWidget || index == null) return ;
+            },
+            onHeaderReached: () async {
+              if (dataController.isMessageLoading) return ;
+              dataController.loadMoreMessage(
+                loadMsgCount: ChatPageConfig.messagesPerPage,
+                isLoadOlderData: false,
+              );
+            },
+            onMessageTap: handler.messagePressHandler,
+            onPreviewDataFetched: _handlePreviewDataFetched,
+            onSendPressed: (msg) => handler.sendTextMessage(context, msg.text),
+            avatarBuilder: (message) => OXUserAvatar(
+              user: message.author.sourceObject,
+              size: 40.px,
+              isCircular: false,
+              isClickable: true,
+              onReturnFromNextPage: () {
+                setState(() { });
+              },
+              onLongPress: () {
+                final user = message.author.sourceObject;
+                if (user != null)
+                  handler.mentionHandler?.addMentionText(user);
+              },
+            ),
+            showUserNames: handler.session.showUserNames,
+            //Group chat display nickname
+            user: handler.author,
+            useTopSafeAreaInset: true,
+            inputMoreItems: pageConfig.inputMoreItemsWithHandler(handler),
+            onVoiceSend: (String path, Duration duration) => handler.sendVoiceMessage(context, path, duration),
+            onGifSend: (GiphyImage image) => handler.sendGifImageMessage(context, image),
+            onAttachmentPressed: () {},
+            longPressWidgetBuilder: (context, message, controller) => pageConfig.longPressWidgetBuilder(
+              context: context,
+              message: message,
+              controller: controller,
+              handler: handler,
+            ),
+            onMessageStatusTap: handler.messageStatusPressHandler,
+            textMessageOptions: handler.textMessageOptions(context),
+            imageGalleryOptions: pageConfig.imageGalleryOptions,
+            customTopWidget: widget.customTopWidget,
+            customCenterWidget: widget.customCenterWidget,
+            customBottomWidget: widget.customBottomWidget,
+            customMessageBuilder: ({
+              required types.CustomMessage message,
+              required int messageWidth,
+              required Widget reactionWidget,
+            }) => ChatMessageBuilder.buildCustomMessage(
+              message: message,
+              messageWidth: messageWidth,
+              reactionWidget: reactionWidget,
+              receiverPubkey: handler.otherUser?.pubKey,
+              messageUpdateCallback: (newMessage) {
+                dataController.updateMessage(newMessage);
+              },
+            ),
+            imageMessageBuilder: ChatMessageBuilder.buildImageMessage,
+            inputOptions: handler.inputOptions,
+            enableBottomWidget: !handler.isPreviewMode,
+            inputBottomView: handler.replyHandler.buildReplyMessageWidget(),
+            bottomHintParam: widget.bottomHintParam,
+            onFocusNodeInitialized: handler.replyHandler.focusNodeSetter,
+            repliedMessageBuilder: (types.Message message, {required int messageWidth}) =>
+                ChatMessageBuilder.buildRepliedMessageView(
+                  message,
+                  messageWidth: messageWidth,
+                  onTap: (message) async {
+                    scrollToMessage(message);
+                  },
+                ),
+            reactionViewBuilder: (types.Message message, {required int messageWidth}) =>
+                ChatMessageBuilder.buildReactionsView(
+                  message,
+                  messageWidth: messageWidth,
+                  itemOnTap: (reaction) => handler.reactionPressHandler(context, message, reaction.content),
+                ),
+            scrollToUnreadWidget: buildScrollToUnreadWidget(),
+            isShowScrollToBottomButton: dataController.hasMoreNewMessage,
+            scrollToBottomWidget: buildScrollToBottomWidget(),
+            mentionUserListWidget: handler.mentionHandler?.buildMentionUserList(),
+            onAudioDataFetched: (message) async {
+              final (sourceFile, duration) = await ChatVoiceMessageHelper.populateMessageWithAudioDetails(
+                session: handler.session,
+                message: message,
+              );
+              if (duration != null) {
+                dataController.updateMessage(
+                  message.copyWith(
+                    audioFile: sourceFile,
+                    duration: duration,
+                  ),
+                );
+              }
+            },
+            onInsertedContent: (KeyboardInsertedContent insertedContent) =>
+                handler.sendInsertedContentMessage(context, insertedContent),
+            textFieldHasFocus: () async {
+              scrollToNewestMessage();
+            },
+            messageHasBuilder: (message, index) async {
+              if (!isShowScrollToUnreadWidget || index == null) return ;
 
-            final unreadMessage = handler.unreadFirstMessage;
-            if (unreadMessage == null) return ;
+              final unreadMessage = handler.unreadFirstMessage;
+              if (unreadMessage == null) return ;
 
-            if (unreadMessage.id == message.id) {
-              await WidgetsBinding.instance.waitUntilFirstFrameRasterized;
-              setState(() {
-                isShowScrollToUnreadWidget = false;
-              });
-            }
-          },
-
-        );
-      }
+              if (unreadMessage.id == message.id) {
+                await WidgetsBinding.instance.waitUntilFirstFrameRasterized;
+                setState(() {
+                  isShowScrollToUnreadWidget = false;
+                });
+              }
+            },
+          );
+        }
     );
   }
 

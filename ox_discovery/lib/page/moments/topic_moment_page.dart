@@ -26,7 +26,7 @@ class TopicMomentPage extends StatefulWidget {
 
 class _TopicMomentPageState extends State<TopicMomentPage> {
 
-  List<ValueNotifier<NotedUIModel>>? notesList;
+  List<NotedUIModel>? notesList;
 
   final RefreshController _refreshController = RefreshController();
 
@@ -81,7 +81,7 @@ class _TopicMomentPageState extends State<TopicMomentPage> {
   }
 
   Widget _getMomentListWidget() {
-    List<ValueNotifier<NotedUIModel>>? modelList = notesList;
+    List<NotedUIModel>? modelList = notesList;
     if(modelList == null) return const SizedBox();
     if(modelList.isEmpty) return _noDataWidget();
     return ListView.builder(
@@ -91,10 +91,10 @@ class _TopicMomentPageState extends State<TopicMomentPage> {
       shrinkWrap: true,
       itemCount: modelList.length,
       itemBuilder: (context, index) {
-        ValueNotifier<NotedUIModel> notedUIModel = modelList[index];
+        NotedUIModel notedUIModel = modelList[index];
         return MomentWidget(
           notedUIModel: notedUIModel,
-          clickMomentCallback: (ValueNotifier<NotedUIModel?> notedUIModel) async {
+          clickMomentCallback: (NotedUIModel? notedUIModel) async {
             await OXNavigator.pushPage(
                 context, (context) => MomentsPage(notedUIModel: notedUIModel ));
           },
@@ -140,7 +140,7 @@ class _TopicMomentPageState extends State<TopicMomentPage> {
 
     list = list.where((NoteDBISAR note) => !note.isReaction).toList();
 
-    (notesList ??= []).addAll(list.map((note) => ValueNotifier(NotedUIModel(noteDB: note))).toList());
+    (notesList ??= []).addAll(list.map((note) => NotedUIModel(noteDB: note)));
     _lastTimestamp = list.isEmpty ? null : list.last.createAt;
     if(mounted){
       setState(() {});

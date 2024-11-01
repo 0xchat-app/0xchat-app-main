@@ -202,7 +202,7 @@
   "disabled_msg_auto_delete_system": "${username} Otomatik silme zamanlayıcısını devre dışı bıraktı",
   "set_normal_dm_system": "${username} Mevcut sohbeti normal DM olarak ayarladı",
   "set_gift_wrapped_dm_system": "${username} Mevcut sohbeti hediye paketli DM olarak ayarladı",
-  "ecash_text": "Ecash",
+  "ecash_text": "Cashu Nuts",
   "ecash_random_amount": "Rastgele Miktar",
   "ecash_identical_amount": "Aynı Miktar",
   "ecash_exclusive": "Özel",

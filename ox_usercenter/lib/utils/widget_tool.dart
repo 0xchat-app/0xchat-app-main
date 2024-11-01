@@ -15,7 +15,7 @@ Widget abbrText(String content, double fontSize, Color txtColor, {TextAlign? tex
     content,
     textAlign: textAlign,
     softWrap: true,
-    style: TextStyle(fontSize: Adapt.px(fontSize), color: txtColor, fontWeight: fontWeight, height: height),
+    style: TextStyle(fontSize: fontSize.sp, color: txtColor, fontWeight: fontWeight, height: height),
   );
 }
 
@@ -41,7 +41,7 @@ Widget labelWidgetWrapWidget({
       style: TextStyle(
         color: ThemeColor.color0,
         fontWeight: FontWeight.w600,
-        fontSize: 14.px,
+        fontSize: 14.sp,
       ),
     ).setPadding(EdgeInsets.symmetric(vertical: 12.px));
   }
@@ -114,7 +114,7 @@ Widget labelWidget({
                   title,
                   style: TextStyle(
                     color: ThemeColor.color0,
-                    fontSize: 16.px,
+                    fontSize: 16.sp,
                     fontWeight: FontWeight.w400,
                   ),
                 ),
@@ -124,7 +124,7 @@ Widget labelWidget({
                       subTitle,
                       style: TextStyle(
                         color: ThemeColor.color100,
-                        fontSize: 14.px,
+                        fontSize: 14.sp,
                       ),
                     ),
                     _arrowWidget(),

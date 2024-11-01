@@ -45,6 +45,7 @@ class Chat extends StatefulWidget {
   /// Creates a chat widget.
   const Chat({
     super.key,
+    this.isContentInteractive = true,
     this.audioMessageBuilder,
     this.avatarBuilder,
     this.chatId,
@@ -123,6 +124,7 @@ class Chat extends StatefulWidget {
     this.mentionUserListWidget,
     this.onFocusNodeInitialized,
     this.onInsertedContent,
+    this.enableBottomWidget = true,
     this.bottomHintParam,
     this.textFieldHasFocus,
     this.scrollToUnreadWidget,
@@ -131,7 +133,9 @@ class Chat extends StatefulWidget {
     this.isShowScrollToBottomButton = false,
   });
 
+  final bool isContentInteractive;
   final ChatHintParam? bottomHintParam;
+  final bool enableBottomWidget;
 
   /// See [Message.audioMessageBuilder].
   final Widget Function(types.AudioMessage, {required int messageWidth})? audioMessageBuilder;
@@ -506,7 +510,7 @@ class ChatState extends State<Chat> {
     var scrollToAnchorMsgAction = null;
     if (anchorMsgId != null && anchorMsgId.isNotEmpty)
       scrollToAnchorMsgAction = () => scrollToMessage(anchorMsgId);
-    final mentionUserListBottom = _getInputViewY() + Adapt.px(16);
+    final mentionUserListBottom = _getInputViewHeight() + Adapt.px(16);
     return InheritedUser(
       user: widget.user,
       child: InheritedChatTheme(
@@ -560,10 +564,13 @@ class ChatState extends State<Chat> {
                                     BuildContext context,
                                     BoxConstraints constraints,
                                   ) =>
-                                          _messageBuilder(
-                                            item,
-                                            constraints,
-                                            index,
+                                          IgnorePointer(
+                                            ignoring: !widget.isContentInteractive,
+                                            child: _messageBuilder(
+                                              item,
+                                              constraints,
+                                              index,
+                                            ),
                                           )),
                                   items: _chatMessages,
                                   keyboardDismissBehavior: widget.keyboardDismissBehavior,
@@ -578,11 +585,14 @@ class ChatState extends State<Chat> {
                               ),
                             ),
                     ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: Adapt.px(12),
+                    Visibility(
+                      visible: widget.enableBottomWidget,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: Adapt.px(12),
+                        ),
+                        child: widget.customBottomWidget ?? _buildBottomInputArea(),
                       ),
-                      child: widget.customBottomWidget ?? _buildBottomInputArea(),
                     ),
                   ],
                 ),
@@ -615,7 +625,9 @@ class ChatState extends State<Chat> {
     );
   }
 
-  double? _getInputViewY() {
+  double? _getInputViewHeight() {
+    if (!widget.enableBottomWidget) return 0.0;
+
     if (_bottomWidgetKey.currentContext != null) {
       final renderBox = _bottomWidgetKey.currentContext!.findRenderObject() as RenderBox;
       // Do not delete this line of code, or you will mention that the user list view does not fit the keyboard
@@ -756,7 +768,6 @@ class ChatState extends State<Chat> {
       final message = map['message']! as types.Message;
 
       final Widget messageWidget;
-      final showUserAvatars = widget.avatarBuilder != null;
 
       widget.messageHasBuilder?.call(message, index);
 
@@ -764,9 +775,7 @@ class ChatState extends State<Chat> {
         messageWidget =
             widget.systemMessageBuilder?.call(message) ?? SystemMessage(message: message.text);
       } else {
-        final messageWidth = showUserAvatars && message.author.id != widget.user.id
-            ? min(constraints.maxWidth, 280.px).floor()
-            : min(constraints.maxWidth, 280.px).floor();
+        final messageWidth = constraints.maxWidth.floor();
 
         final messageId = message.id;
         final messageRemoteId = message.remoteId;

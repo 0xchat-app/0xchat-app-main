@@ -20,7 +20,6 @@ import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/chat_type.dart';
-import 'package:ox_common/navigator/fade_page_route.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -60,7 +59,7 @@ class SearchPage extends StatefulWidget {
   State<SearchPage> createState() => SearchPageState();
 
   show(BuildContext context) async {
-    OXNavigator.push(context, FadePageRoute(page: this));
+    OXNavigator.pushPage(context, (context) => this, type: OXPushPageType.opacity);
   }
 }
 
