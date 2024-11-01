@@ -16,6 +16,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'dart:io';
 
+import 'aes_encrypt_utils.dart';
+
 ///Title: error_utils
 ///Description: TODO(Fill in by oneself)
 ///Copyright: Copyright (c) 2021
@@ -55,7 +57,7 @@ class ErrorUtils{
 
   static Future<void> sendLogs(BuildContext context, File logFile) async {
     if (await logFile.exists()) {
-      String createEncryptKey = bytesToHex(MessageDBISAR.getRandomSecret());
+      String createEncryptKey = bytesToHex(AesEncryptUtils.secureRandom());
       String fileName = logFile.path.substring(logFile.path.lastIndexOf('/') + 1);
       try {
         UploadResult result = await UploadUtils.uploadFile(

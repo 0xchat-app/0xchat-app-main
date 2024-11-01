@@ -311,9 +311,13 @@ const String chinaLanguageType = 'cn';
 
 const String _keyLanguages = "userLanguage";
 
+get localized => Localized.localized;
+
 class Localized {
 
-    late LocaleType localeType;
+    static Localized localized = new Localized();
+
+    LocaleType localeType = LocaleType.en;
     Map<dynamic, dynamic> localizedValues = {};
     Map<dynamic, dynamic> defaultLocalizedValues = {};
     Map<String, String> cache = {};
@@ -537,5 +541,3 @@ class Localized {
 
     Localized._internal();
 }
-
-Localized localized = new Localized();

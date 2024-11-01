@@ -100,7 +100,7 @@ class OXChatInterface {
     );
   }
 
-  static Widget showRelayInfoWidget() {
-    return OXModuleService.invoke(moduleName, 'showRelayInfoWidget', []);
+  static Widget showRelayInfoWidget({bool showRelayIcon = true}) {
+    return OXModuleService.invoke(moduleName, 'showRelayInfoWidget', [showRelayIcon]);
   }
 }

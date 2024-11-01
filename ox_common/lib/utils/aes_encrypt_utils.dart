@@ -6,33 +6,44 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 
-class AesEncryptUtils{
-  static String _getUploadFileKey(){
+class AesEncryptUtils {
+  static String _getUploadFileKey() {
     return "nostr@chat*yuele";
   }
 
-  static void encryptFile(File sourceFile, File encryptedFile, String key) {
+  static Uint8List secureRandom(){
+    return Key.fromSecureRandom(32).bytes;
+  }
+
+  static Uint8List secureRandomNonce(){
+    return IV.fromLength(16).bytes;
+  }
+
+  static void encryptFile(File sourceFile, File encryptedFile, String key,
+      {String? nonce, AESMode mode = AESMode.gcm}) {
     final sourceBytes = sourceFile.readAsBytesSync();
     final uint8list = hexToBytes(key);
-    final encrypter = Encrypter(AES(Key(uint8list)));
-    final iv = IV.fromLength(16);
+    final encrypter = Encrypter(AES(Key(uint8list), mode: mode));
+    final iv = (nonce != null && nonce.isNotEmpty) ? IV.fromUtf8(nonce) : IV.allZerosOfLength(16);
     final encryptedBytes = encrypter.encryptBytes(sourceBytes, iv: iv);
     encryptedFile.writeAsBytesSync(encryptedBytes.bytes);
   }
 
-  static void decryptFile(File encryptedFile, File decryptedFile, String key, {Function(List<int>)? bytesCallback}) {
+  static void decryptFile(File encryptedFile, File decryptedFile, String key,
+      {String? nonce, AESMode mode = AESMode.gcm, Function(List<int>)? bytesCallback}) {
+    if(nonce == null || nonce.isEmpty) mode = AESMode.sic;
     final encryptedBytes = encryptedFile.readAsBytesSync();
     final uint8list = hexToBytes(key);
-    final decrypter = Encrypter(AES(Key(uint8list)));
+    final decrypter = Encrypter(AES(Key(uint8list), mode: mode));
     final encrypted = Encrypted(encryptedBytes);
-    final iv = IV.fromLength(16);
+    final iv = (nonce != null && nonce.isNotEmpty) ? IV.fromUtf8(nonce) : IV.allZerosOfLength(16);
     final decryptedBytes = decrypter.decryptBytes(encrypted, iv: iv);
     bytesCallback?.call(decryptedBytes);
     decryptedFile.writeAsBytesSync(decryptedBytes);
   }
 
-  static String aes128Decrypt(String encryptText, { String? keyStr}) {
-    if(keyStr == null){
+  static String aes128Decrypt(String encryptText, {String? keyStr}) {
+    if (keyStr == null) {
       keyStr = _getUploadFileKey();
     }
     final key = Key.fromUtf8(keyStr);
@@ -59,7 +70,8 @@ class AesEncryptUtils{
     encryptedFile.writeAsBytesSync(encryptedBytes.bytes);
   }
 
-  static void decryptFileGeneral(File encryptedFile, File decryptedFile, String key, {Function(List<int>)? bytesCallback}) {
+  static void decryptFileGeneral(File encryptedFile, File decryptedFile, String key,
+      {Function(List<int>)? bytesCallback}) {
     final encryptedBytes = encryptedFile.readAsBytesSync();
     final decrypter = Encrypter(AES(Key(_generateKey(key))));
     final encrypted = Encrypted(encryptedBytes);
@@ -69,9 +81,3 @@ class AesEncryptUtils{
     decryptedFile.writeAsBytesSync(decryptedBytes);
   }
 }
-
-
-
-
-
-

@@ -71,13 +71,18 @@ class OXNavigator extends Navigator {
     int prepage = 0;
     Navigator.popUntil(context, (Route<dynamic> route) {
       bool checkPageType = true;
+      OXRouteSettings? settings;
+      try {
+        settings = route.settings as OXRouteSettings;
+      } catch (_) {}
+
       if (pageType != null && !isFindPage) {
-        checkPageType = route.settings.name == pageType;
+        checkPageType = settings?.name == pageType;
         isFindPage = checkPageType;
       }
       bool checkPageId = true;
       if (pageId != null && !isFindPage) {
-        checkPageId = route.settings.arguments == pageId;
+        checkPageId = settings?.pageId == pageId;
         isFindPage = checkPageId;
       }
       final bool isTargetPage = isPrepage ? (prepage == 1) && (checkPageType && checkPageId) : checkPageType && checkPageId;
@@ -95,32 +100,39 @@ class OXNavigator extends Navigator {
   }
 
   @optionalTypeArgs
-  static Future<T?> push<T extends Object?>(
+  static Future<T?> _push<T extends Object?>(
       BuildContext context, Route<T> route) {
     // // Remove the current focus
     // FocusScope.of(context).requestFocus(FocusNode());
+    _pushPreHandle(context);
     return Navigator.push<T>(context, route);
   }
 
-  static Future<T?> pushReplacement<T extends Object?, TO extends Object?>(
-      BuildContext context, Widget page,
-      {TO? result}) {
-    return Navigator.pushReplacement<T, TO>(
-      context,
-      generalPageRouter(builder: (_) => page),
-      result: result,
-    );
+  static void _pushPreHandle(BuildContext context) {
+    final currentSettings = ModalRoute.of(context)?.settings;
+    if (currentSettings is! OXRouteSettings) return;
+
+    if (currentSettings.isShortLived) {
+      Navigator.pop(context);
+    }
   }
 
-  static replace<T extends Object?, TO extends Object?>(
-      BuildContext context, Widget page,
-      {TO? result}) {
-    return Navigator.pushReplacement<T, TO>(context,
+  static Future<T?> pushReplacement<T extends Object?, TO extends Object?>(
+      BuildContext context, Widget page, {
+        String? pageName,
+        Object? pageId,
+        bool? isShortLived,
+        TO? result,
+      }) {
+    return Navigator.pushReplacement<T, TO>(
+      context,
       generalPageRouter(
+        pageName: pageName,
+        pageId: pageId,
+        isShortLived: isShortLived,
         builder: (_) => page,
-        pageName: page.runtimeType.toString(),
       ),
-      result: result
+      result: result,
     );
   }
 
@@ -130,6 +142,7 @@ class OXNavigator extends Navigator {
       Widget Function(BuildContext? context) builder, {
         String? pageName,
         Object? pageId,
+        bool? isShortLived,
         bool fullscreenDialog = false,
         OXPushPageType type = OXPushPageType.slideToLeft,
       }) {
@@ -137,9 +150,10 @@ class OXNavigator extends Navigator {
     context ??= navigatorKey.currentContext;
     if (context == null) return Future.value(null);
 
-    final routeSettings = RouteSettings(
+    final routeSettings = OXRouteSettings(
       name: pageName,
-      arguments: pageId,
+      pageId: pageId,
+      isShortLived: isShortLived,
     );
     PageRoute<T> route;
 
@@ -167,7 +181,7 @@ class OXNavigator extends Navigator {
         );
     }
 
-    return OXNavigator.push(
+    return OXNavigator._push(
       context,
       route,
     );
@@ -178,6 +192,7 @@ class OXNavigator extends Navigator {
       Widget Function(BuildContext? context) builder, {
         String? pageName,
         Object? pageId,
+        bool? isShortLived,
         bool fullscreenDialog = false,
         bool allowPageScroll = false,
       }) {
@@ -186,12 +201,13 @@ class OXNavigator extends Navigator {
 
     pageName ??= builder(null).runtimeType.toString();
     if (fullscreenDialog) {
-      return OXNavigator.push(
+      return OXNavigator._push(
         context,
         generalPageRouter<T>(
           builder: builder,
           pageName: pageName,
           pageId: pageId,
+          isShortLived: isShortLived,
           fullscreenDialog: true,
         ),
       );
@@ -214,15 +230,28 @@ class OXNavigator extends Navigator {
     required Widget Function(BuildContext? context) builder,
     String? pageName,
     Object? pageId,
+    bool? isShortLived,
     fullscreenDialog = false,
   }) {
     return SlideLeftToRightRoute<T>(
       fullscreenDialog: fullscreenDialog,
-      settings: RouteSettings(
+      settings: OXRouteSettings(
         name: pageName,
-        arguments: pageId,
+        pageId: pageId,
+        isShortLived: isShortLived,
       ),
       builder: builder,
     );
   }
+}
+
+class OXRouteSettings extends RouteSettings {
+  const OXRouteSettings({
+    super.name,
+    this.pageId,
+    bool? isShortLived,
+  }) : isShortLived = isShortLived ?? false;
+
+  final Object? pageId;
+  final bool isShortLived;
 }

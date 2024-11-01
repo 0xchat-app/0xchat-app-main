@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:encrypt/encrypt.dart';
 import 'package:flutter/material.dart';
 import 'package:minio/minio.dart';
 import 'package:ox_common/log_util.dart';
@@ -21,11 +22,11 @@ import 'package:dio/dio.dart';
 import 'package:uuid/uuid.dart';
 
 class UploadUtils {
-
   static Future<UploadResult> uploadFile({
     BuildContext? context,
     params,
     String? encryptedKey,
+    String? encryptedNonce,
     required File file,
     required String filename,
     required FileType fileType,
@@ -35,7 +36,7 @@ class UploadUtils {
   }) async {
     File uploadFile = file;
     File? encryptedFile;
-    if(encryptedKey != null && encryptedKey.isNotEmpty) {
+    if (encryptedKey != null && encryptedKey.isNotEmpty) {
       String directoryPath = '';
       if (Platform.isAndroid) {
         Directory? externalStorageDirectory = await getExternalStorageDirectory();
@@ -48,26 +49,28 @@ class UploadUtils {
         directoryPath = temporaryDirectory.path;
       }
       encryptedFile = FileUtils.createFolderAndFile(directoryPath + "/encrytedfile", filename);
-      AesEncryptUtils.encryptFile(file, encryptedFile, encryptedKey);
+      AesEncryptUtils.encryptFile(file, encryptedFile, encryptedKey,
+          nonce: encryptedNonce, mode: AESMode.gcm);
       uploadFile = encryptedFile;
     }
     FileStorageServer fileStorageServer = OXServerManager.sharedInstance.selectedFileStorageServer;
     String url = '';
-    if(showLoading) OXLoading.show();
+    if (showLoading) OXLoading.show();
     try {
       final protocol = fileStorageServer.protocol;
       switch (protocol) {
-        case  FileStorageProtocol.nip96:
-        case  FileStorageProtocol.blossom:
-        var imageServices = fileStorageServer.name;
-        if(FileStorageProtocol.blossom == protocol) imageServices = ImageServices.BLOSSOM;
+        case FileStorageProtocol.nip96:
+        case FileStorageProtocol.blossom:
+          var imageServices = fileStorageServer.name;
+          if (FileStorageProtocol.blossom == protocol) imageServices = ImageServices.BLOSSOM;
           url = await Uploader.upload(
-            uploadFile.path,
-              imageServices,
-              fileName: filename,
-              imageServiceAddr: fileStorageServer.url,
-              onProgress: onProgress,
-          ) ?? '';
+                uploadFile.path,
+                imageServices,
+                fileName: filename,
+                imageServiceAddr: fileStorageServer.url,
+                onProgress: onProgress,
+              ) ??
+              '';
           break;
         case FileStorageProtocol.minio:
           MinioServer minioServer = fileStorageServer as MinioServer;
@@ -97,10 +100,10 @@ class UploadUtils {
           );
           break;
       }
-      if(showLoading) OXLoading.dismiss();
-    } catch (e,s) {
       if (showLoading) OXLoading.dismiss();
-      return UploadExceptionHandler.handleException(e,s);
+    } catch (e, s) {
+      if (showLoading) OXLoading.dismiss();
+      return UploadExceptionHandler.handleException(e, s);
     }
 
     if (fileType == FileType.image && autoStoreImage) {
@@ -111,7 +114,7 @@ class UploadUtils {
       );
     }
 
-    return UploadResult.success(url, encryptedKey);
+    return UploadResult.success(url, encryptedKey, encryptedNonce);
   }
 
   static UplodAliyunType convertFileTypeToUploadAliyunType(FileType fileType) {
@@ -133,11 +136,12 @@ class UploadResult {
   final String url;
   final String? errorMsg;
   final String? encryptedKey;
+  final String? encryptedNonce;
 
-  UploadResult({required this.isSuccess, required this.url, this.errorMsg, this.encryptedKey});
+  UploadResult({required this.isSuccess, required this.url, this.errorMsg, this.encryptedKey, this.encryptedNonce});
 
-  factory UploadResult.success(String url, String? encryptedKey) {
-    return UploadResult(isSuccess: true, url: url, encryptedKey: encryptedKey);
+  factory UploadResult.success(String url, String? encryptedKey, String? encryptedNonce) {
+    return UploadResult(isSuccess: true, url: url, encryptedKey: encryptedKey, encryptedNonce: encryptedNonce);
   }
 
   factory UploadResult.error(String errorMsg) {
@@ -153,21 +157,21 @@ class UploadResult {
 class UploadExceptionHandler {
   static const errorMessage = 'Unable to connect to the file storage server.';
 
-  static UploadResult handleException(dynamic e,[dynamic s]) {
+  static UploadResult handleException(dynamic e, [dynamic s]) {
     LogUtil.e('Upload File Exception Handler: $e\r\n$s');
     if (e is ClientException) {
       return UploadResult.error(e.message);
     } else if (e is MinioError) {
       return UploadResult.error(e.message ?? errorMessage);
     } else if (e is DioException) {
-      if(e.type == DioExceptionType.badResponse) {
+      if (e.type == DioExceptionType.badResponse) {
         String errorMsg = '';
         dynamic data = e.response?.data;
-        if(data != null){
-          if(data is Map) {
+        if (data != null) {
+          if (data is Map) {
             errorMsg = data['message'];
           }
-          if(data is String) {
+          if (data is String) {
             errorMsg = data;
           }
         }
@@ -197,7 +201,7 @@ class UploadExceptionHandler {
 
 class UploadManager {
   static final UploadManager shared = UploadManager._internal();
-  UploadManager._internal() { }
+  UploadManager._internal() {}
 
   // Key: _cacheKey(uploadId, pubkey)
   Map<String, StreamController<double>> uploadStreamMap = {};
@@ -218,15 +222,15 @@ class UploadManager {
     required uploadId,
     required String? receivePubkey,
     String? encryptedKey,
+    String? encryptedNonce,
     bool autoStoreImage = true,
     Function(UploadResult, bool isFromCache)? completeCallback,
   }) async {
-
     final cacheKey = _cacheKey(uploadId, receivePubkey);
     final result = uploadResultMap[cacheKey];
     if (result != null && result.isSuccess) {
       completeCallback?.call(result, true);
-      return ;
+      return;
     }
 
     final streamController = prepareUploadStream(uploadId, receivePubkey);
@@ -239,6 +243,7 @@ class UploadManager {
       filename: '${Uuid().v1()}.${filePath.getFileExtension()}',
       fileType: fileType,
       encryptedKey: encryptedKey,
+      encryptedNonce: encryptedNonce,
       autoStoreImage: autoStoreImage,
       onProgress: (progress) {
         streamController.add(progress);

@@ -70,7 +70,7 @@ class OXUserInfoManager {
 
   Future initDB(String pubkey) async {
     if(pubkey.isEmpty) return;
-    await logout();
+    await logout(needObserver: false);
     await ThreadPoolManager.sharedInstance.initialize();
     AppInitializationManager.shared.shouldShowInitializationLoading = true;
     String dbpath = pubkey + ".db2";
@@ -281,7 +281,7 @@ class OXUserInfoManager {
   }
 
   Future<void> switchAccount(String selectedPubKey) async {
-    await logout();
+    await logout(needObserver: false);
     await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUBKEY, selectedPubKey);
     await OXUserInfoManager.sharedInstance.initLocalData();
     for (OXUserInfoObserver observer in _observers) {
@@ -298,15 +298,15 @@ class OXUserInfoManager {
     return userDB;
   }
 
-  Future logout() async {
+  Future logout({bool needObserver = true}) async {
     if (OXUserInfoManager.sharedInstance.currentUserInfo == null) {
       return;
     }
     await Account.sharedInstance.logout();
-    resetData();
+    resetData(needObserver: needObserver);
   }
 
-  Future<void> resetData() async {
+  Future<void> resetData({bool needObserver = true}) async {
     signatureVerifyFailed = false;
     OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUBKEY, null);
     currentUserInfo = null;
@@ -318,8 +318,10 @@ class OXUserInfoManager {
     };
     OXChatBinding.sharedInstance.clearSession();
     AppInitializationManager.shared.reset();
-    for (OXUserInfoObserver observer in _observers) {
-      observer.didLogout();
+    if (needObserver) {
+      for (OXUserInfoObserver observer in _observers) {
+        observer.didLogout();
+      }
     }
   }
 

@@ -129,12 +129,12 @@ CommonAppBar extends StatefulWidget implements PreferredSizeWidget {
     this.useMediumTitle = false,
     this.centerTitle = true,
     this.titleSpacing = NavigationToolbar.kMiddleSpacing,
-    this.leadingWidth
-     }) : preferredSize = Size.fromHeight(CommonBarHeight +
-            ((useLargeTitle == true &&
-                    (useMediumTitle == false || useMediumTitle != false))
+    this.leadingWidth,
+    Size? preferredSize,
+     }) : preferredSize = preferredSize ?? Size.fromHeight(CommonBarHeight +
+            (useLargeTitle == true
                 ? LargeTitleHeight
-                : (useLargeTitle == false && useMediumTitle == true)
+                : useMediumTitle == true
                     ? MediumTitleHeight
                     : 0));
 
@@ -161,8 +161,8 @@ class BaseAppBarState extends State<CommonAppBar> {
         widget.title,
         style: TextStyle(
           color: widget.titleTextColor ?? ThemeColor.color0,
-          fontSize: Adapt.px(17),
-          fontWeight: FontWeight.bold,
+          fontSize: 16.sp,
+          fontWeight: FontWeight.w600,
         ),
       )),
       titleSpacing: widget.titleSpacing,
@@ -246,6 +246,149 @@ class BaseAppBarState extends State<CommonAppBar> {
             ).setPaddingOnly(left: 24.px),
             onTap: widget.backCallback ??
                 () {
+                  OXNavigator.pop(context);
+                },
+          );
+        },
+      );
+    }
+    return SizedBox();
+  }
+}
+
+
+class CommonAppBarNoPreferredSize extends StatefulWidget{
+  final bool canBack;
+  final bool isClose;
+  final VoidCallback? backCallback;
+  final Brightness? brightness;
+  final String title;
+  final List<Widget>? actions;
+  final Color? backgroundColor;
+  final Color? titleTextColor;
+  final Widget? titleWidget;
+  final Widget? leading;
+  final double elevation;
+  final bool centerTitle;
+  final bool useLargeTitle;
+  final double titleSpacing;
+  final double? leadingWidth;
+  final bool useMediumTitle;
+  final bool isMute;
+
+  CommonAppBarNoPreferredSize({
+    this.isClose = false,
+    this.canBack = true,
+    this.backCallback,
+    this.brightness,
+    this.title = "",
+    this.elevation = 0,
+    this.titleWidget,
+    this.leading,
+    this.actions,
+    this.backgroundColor,
+    this.titleTextColor,
+    this.useLargeTitle = false,
+    this.useMediumTitle = false,
+    this.centerTitle = true,
+    this.titleSpacing = NavigationToolbar.kMiddleSpacing,
+    this.leadingWidth,
+    this.isMute = false,
+  });
+
+  @override
+  State<StatefulWidget> createState() {
+    return _CommonAppBarNoPreferredSizeState();
+  }
+}
+
+class _CommonAppBarNoPreferredSizeState extends State<CommonAppBarNoPreferredSize> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 56.px,
+      color: _defaultBackgroundColor(),
+      child: Stack(
+        children: [
+          Align(
+            alignment: Alignment.centerLeft,
+            child: _buildLeading() ?? SizedBox(width: 24.px),
+          ),
+          Container(
+            alignment: Alignment.center,
+            child: Text(
+              widget.title,
+              style: TextStyle(
+                color: widget.titleTextColor ?? ThemeColor.color0,
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.centerRight,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (widget.actions != null)
+                  for (Widget actionView in widget.actions!) actionView,
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Color _defaultBackgroundColor() {
+    return widget.backgroundColor ?? ThemeColor.color190;
+  }
+
+  Widget? _buildLeading() {
+    if (widget.leading != null) {
+      return widget.leading;
+    }
+    if (widget.isClose) {
+      return Builder(
+        builder: (BuildContext content) {
+          return GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: CommonImage(
+                iconName: "title_close.png",
+                size:  24.px,
+                useTheme: true,
+              ),
+            ).setPaddingOnly(left: 24.px),
+            onTap: widget.backCallback ??
+                    () {
+                  OXNavigator.pop(context);
+                },
+          );
+        },
+      );
+    }
+    if (widget.canBack) {
+      return Builder(
+        builder: (BuildContext content) {
+          return GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: CommonImage(
+                iconName: "icon_back_left_arrow.png",
+                size: 24.px,
+                useTheme: true,
+              ),
+            ).setPaddingOnly(left: 24.px),
+            onTap: widget.backCallback ??
+                    () {
                   OXNavigator.pop(context);
                 },
           );

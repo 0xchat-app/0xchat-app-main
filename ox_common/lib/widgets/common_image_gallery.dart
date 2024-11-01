@@ -88,17 +88,20 @@ class ImageEntry {
     required this.id,
     required this.url,
     this.decryptedKey,
+    this.decryptedNonce,
   });
   final String id;
   final String url;
   final String? decryptedKey;
+  final String? decryptedNonce;
 }
 
 class CommonImageGallery extends StatefulWidget {
   final List<ImageEntry> imageList;
   final int initialPage;
+  final Widget? extraMenus;
   const CommonImageGallery({
-    required this.imageList, required this.initialPage});
+    required this.imageList, required this.initialPage, this.extraMenus});
 
   @override
   _CommonImageGalleryState createState() => _CommonImageGalleryState();
@@ -354,6 +357,7 @@ class _CommonImageGalleryState extends State<CommonImageGallery>
                         height: 2.px,
                         color: ThemeColor.dark01,
                       ),
+                      widget.extraMenus ?? SizedBox(),
                       new GestureDetector(
                         onTap: () {
                           Navigator.pop(context);
@@ -482,6 +486,7 @@ class _CommonImageGalleryState extends State<CommonImageGallery>
     final pageIndex = _pageController.page?.round() ?? 0;
     final imageUri = widget.imageList[pageIndex].url;
     final decryptKey = widget.imageList[pageIndex].decryptedKey;
+    final decryptNonce = widget.imageList[pageIndex].decryptedNonce;
     final fileName = imageUri.split('/').lastOrNull?.split('?').firstOrNull ?? '';
     final isGIF = fileName.contains('.gif');
 
@@ -490,7 +495,7 @@ class _CommonImageGalleryState extends State<CommonImageGallery>
     var result;
     if (imageUri.isRemoteURL) {
       // Remote image
-      final imageManager = OXFileCacheManager.get(encryptKey: decryptKey);
+      final imageManager = OXFileCacheManager.get(encryptKey: decryptKey, encryptNonce: decryptNonce);
       try {
         final imageFile = await imageManager.getSingleFile(imageUri)
             .timeout(const Duration(seconds: 30), onTimeout: () {
@@ -511,7 +516,7 @@ class _CommonImageGalleryState extends State<CommonImageGallery>
       final imageFile = File(imageUri);
       if (decryptKey != null) {
         final completer = Completer();
-        await DecryptedCacheManager.decryptFile(imageFile, decryptKey, bytesCallback: (imageData) async {
+        await DecryptedCacheManager.decryptFile(imageFile, decryptKey, nonce: decryptNonce, bytesCallback: (imageData) async {
           result = await ImageGallerySaver.saveImage(Uint8List.fromList(imageData));
           completer.complete();
         });
