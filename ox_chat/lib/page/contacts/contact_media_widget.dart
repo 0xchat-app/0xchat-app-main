@@ -303,22 +303,28 @@ class RenderVideoMessageState extends State<RenderVideoMessage> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        FutureBuilder(
-          future: snapshotPath,
-          builder: (context, snapshot) {
-            final snapshotPath = snapshot.data ?? '';
-            return snapshotBuilder(snapshotPath);
-          },
-        ),
-        if (videoURL.isNotEmpty)
-          Positioned.fill(
-            child: Center(
-                child: canOpen ? buildPlayIcon() : buildLoadingWidget()
-            ),
-          )
-      ],
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: (){
+        CommonVideoPage.show(videoPath);
+      },
+      child: Stack(
+        children: [
+          FutureBuilder(
+            future: snapshotPath,
+            builder: (context, snapshot) {
+              final snapshotPath = snapshot.data ?? '';
+              return snapshotBuilder(snapshotPath);
+            },
+          ),
+          if (videoURL.isNotEmpty)
+            Positioned.fill(
+              child: Center(
+                  child: canOpen ? buildPlayIcon() : buildLoadingWidget()
+              ),
+            )
+        ],
+      ),
     );
   }
 
@@ -335,11 +341,11 @@ class RenderVideoMessageState extends State<RenderVideoMessage> {
   Widget snapshotBuilder(String imagePath) {
     if(imagePath.isEmpty) return const SizedBox();
     return Container(
-      width: MediaQuery.of(context).size.width / 3,
-      child: GalleryImageWidget(
-        uri: imagePath,
-        fit: BoxFit.cover,
-      ),
-    );
+        width: MediaQuery.of(context).size.width / 3,
+        child: GalleryImageWidget(
+          uri: imagePath,
+          fit: BoxFit.cover,
+        ),
+      );
   }
 }
