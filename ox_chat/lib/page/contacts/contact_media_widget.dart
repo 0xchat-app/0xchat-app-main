@@ -104,8 +104,10 @@ class ContactMediaWidgetState extends State<ContactMediaWidget> {
             message: messagesList[index],
             reactionWidget: Container(),
             receiverPubkey: null,
-            messageUpdateCallback: (types.Message newMessage) {
-
+            messageUpdateCallback: (newMessage) {
+              setState(() {
+                messagesList[index] = newMessage;
+              });
             },
           );
         }
@@ -201,7 +203,7 @@ class RenderVideoMessage extends StatefulWidget {
   final types.CustomMessage message;
   final Widget reactionWidget;
   final String? receiverPubkey;
-  final Function(types.Message newMessage)? messageUpdateCallback;
+  final Function(types.CustomMessage newMessage)? messageUpdateCallback;
 
   @override
   State<StatefulWidget> createState() => RenderVideoMessageState();
