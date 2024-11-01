@@ -48,11 +48,15 @@ class ContactMediaWidgetState extends State<ContactMediaWidget> {
               MessageType.encryptedImage,
               MessageType.video,
               MessageType.encryptedVideo,
+              MessageType.template,
             ]))['messages'] ??
         <MessageDBISAR>[];
     for(var custom in messages){
       final customMsg = await custom.toChatUIMessage();
-      if(customMsg != null && customMsg is types.CustomMessage){
+      if (customMsg == null) continue;
+      if (customMsg is! types.CustomMessage) continue;
+      if (customMsg.customType == CustomMessageType.imageSending
+          || customMsg.customType == CustomMessageType.video) {
         messagesList.add(customMsg);
       }
     }
@@ -95,14 +99,18 @@ class ContactMediaWidgetState extends State<ContactMediaWidget> {
           );
         }
 
-        return RenderVideoMessage(
-          message: messagesList[index],
-          reactionWidget: Container(),
-          receiverPubkey: null,
-          messageUpdateCallback: (types.Message newMessage) {
+        if (customMsg.customType == CustomMessageType.video) {
+          return RenderVideoMessage(
+            message: messagesList[index],
+            reactionWidget: Container(),
+            receiverPubkey: null,
+            messageUpdateCallback: (types.Message newMessage) {
 
-          },
-        );
+            },
+          );
+        }
+
+        return const SizedBox();
       },
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,
