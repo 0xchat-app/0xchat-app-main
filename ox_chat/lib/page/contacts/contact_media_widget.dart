@@ -135,16 +135,56 @@ class ContactMediaWidgetState extends State<ContactMediaWidget> {
   }
 }
 
+class MediaVideoWidget extends StatefulWidget {
+  final MessageDBISAR messageDBISAR;
+
+  const MediaVideoWidget({super.key, required this.messageDBISAR});
+
+  @override
+  MediaVideoWidgetState createState() => MediaVideoWidgetState();
+}
+
+class MediaVideoWidgetState extends State<MediaVideoWidget> {
+  types.CustomMessage? message;
+  @override
+  void initState() {
+    super.initState();
+    init();
+  }
+
+  void init() async {
+    message =
+        await widget.messageDBISAR.toChatUIMessage() as types.CustomMessage;
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (message == null) return const SizedBox();
+    return RenderVideoMessage(
+      message: message!,
+      reactionWidget: Container(),
+      receiverPubkey: null,
+      messageUpdateCallback: (types.Message newMessage) {
+        message = newMessage as types.CustomMessage;
+        setState(() {});
+      },
+    );
+  }
+}
+
 class RenderVideoMessage extends StatefulWidget {
   RenderVideoMessage({
     required this.message,
     required this.reactionWidget,
     required this.receiverPubkey,
+    this.messageUpdateCallback,
   });
 
   final types.CustomMessage message;
   final Widget reactionWidget;
   final String? receiverPubkey;
+  final Function(types.Message newMessage)? messageUpdateCallback;
 
   @override
   State<StatefulWidget> createState() => RenderVideoMessageState();
@@ -198,6 +238,7 @@ class RenderVideoMessageState extends State<RenderVideoMessage> {
         height ??= int.tryParse(query['height'] ?? query['h'] ?? '');
       } catch (_) {}
     }
+    setState(() {});
 
     final snapshotPath = VideoMessageEx(message).snapshotPath;
     if (snapshotPath.isNotEmpty) {
@@ -218,7 +259,8 @@ class RenderVideoMessageState extends State<RenderVideoMessage> {
     if (videoURL.isEmpty) return;
 
     File sourceFile;
-    final fileManager = OXFileCacheManager.get(encryptKey: encryptedKey, encryptNonce: encryptedNonce);
+    final fileManager = OXFileCacheManager.get(
+        encryptKey: encryptedKey, encryptNonce: encryptedNonce);
     final cacheFile = await fileManager.getFileFromCache(videoURL);
     if (cacheFile != null) {
       sourceFile = cacheFile.file;
@@ -242,7 +284,6 @@ class RenderVideoMessageState extends State<RenderVideoMessage> {
     types.CustomMessage newMessage = widget.message.copyWith();
     VideoMessageEx(newMessage).videoPath = path;
     VideoMessageEx(newMessage).snapshotPath = snapshotPath;
-
   }
 
   @override
@@ -264,7 +305,7 @@ class RenderVideoMessageState extends State<RenderVideoMessage> {
             Positioned.fill(
               child: Center(
                   child: canOpen ? buildPlayIcon() : buildLoadingWidget()),
-            )
+            ),
         ],
       ),
     );
@@ -288,40 +329,6 @@ class RenderVideoMessageState extends State<RenderVideoMessage> {
       File(imagePath),
       width: MediaQuery.of(context).size.width / 3,
       fit: BoxFit.cover,
-    );
-  }
-}
-
-class MediaVideoWidget extends StatefulWidget {
-  final MessageDBISAR messageDBISAR;
-
-  const MediaVideoWidget({super.key, required this.messageDBISAR});
-
-  @override
-  MediaVideoWidgetState createState() => MediaVideoWidgetState();
-}
-
-class MediaVideoWidgetState extends State<MediaVideoWidget> {
-  types.CustomMessage? message;
-  @override
-  void initState() {
-    super.initState();
-    init();
-  }
-
-  void init() async {
-    message =
-        await widget.messageDBISAR.toChatUIMessage() as types.CustomMessage;
-    setState(() {});
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (message == null) return const SizedBox();
-    return RenderVideoMessage(
-      message: message!,
-      reactionWidget: Container(),
-      receiverPubkey: null,
     );
   }
 }
