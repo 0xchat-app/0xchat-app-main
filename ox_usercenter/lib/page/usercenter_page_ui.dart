@@ -45,6 +45,9 @@ extension UserCenterPageUI on UserCenterPageState{
                 behavior: HitTestBehavior.translucent,
                 onTap: (){
                   _isShowMomentUnread = false;
+                  if (!_isShowZapBadge) {
+                    MsgNotification(noticeNum: 0).dispatch(context);
+                  }
                   OXModuleService.pushPage(
                     context,
                     'ox_discovery',
@@ -91,7 +94,9 @@ extension UserCenterPageUI on UserCenterPageState{
                 isShowDivider: false,
                 onTap: () {
                   if (_isShowZapBadge) {
-                    MsgNotification(noticeNum: 0).dispatch(context);
+                    if (!_isShowMomentUnread) {
+                      MsgNotification(noticeNum: 0).dispatch(context);
+                    }
                     UserConfigTool.saveSetting(StorageSettingKey.KEY_ZAP_BADGE.name, false).then((value) {
                       _updateState();
                     });
