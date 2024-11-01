@@ -4,6 +4,7 @@ import 'package:ox_chat/model/search_chat_model.dart';
 import 'package:ox_chat/page/session/search_tab_view.dart';
 import 'package:ox_chat/utils/search_txt_util.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
+import 'package:ox_chat/widget/search_bar.dart';
 import 'package:ox_chat/widget/search_tab_grouped_view.dart';
 import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/chat_type.dart';
@@ -14,8 +15,6 @@ import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_gradient_tab_bar.dart';
-import 'package:ox_common/widgets/common_image.dart';
-import 'package:ox_localizable/ox_localizable.dart';
 import 'package:chatcore/chat-core.dart';
 
 class UnifiedSearchPage extends StatefulWidget {
@@ -210,7 +209,7 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
     setState(() {});
   }
 
-  void _getMediaList() async {
+  void _getMediaList({String? content}) async {
     Map result = await Messages.loadMessagesFromDB(
       messageTypes: [
         MessageType.image,
@@ -218,6 +217,7 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
         MessageType.video,
         MessageType.encryptedVideo,
       ],
+      decryptContentLike: content,
       // since: 0
       // until: DateTime.now().microsecondsSinceEpoch,
       // limit: 50,
@@ -241,6 +241,7 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
       _loadChannelsData();
       _loadOnlineGroupsAndChannelsData();
       _loadUsersData();
+      _getMediaList(content: searchQuery);
     }
     setState(() {});
   }
@@ -297,7 +298,13 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSearchBar(),
+          UnifiedSearchBar(
+            margin: EdgeInsets.only(
+              top: MediaQuery.of(context).padding.top,
+            ),
+            controller: _searchBarController,
+            onChanged: _onTextChanged,
+          ),
           CommonGradientTabBar(
             controller: _controller,
             data: SearchType.values.map((element) => element.label).toList(),
@@ -313,71 +320,6 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
                     ),
                   ).toList(),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSearchBar() {
-    return Container(
-      margin: EdgeInsets.only(
-        top: MediaQuery.of(context).padding.top,
-      ),
-      height: 80.px,
-      alignment: Alignment.center,
-      child: Row(
-        children: [
-          Expanded(
-            child: Container(
-              margin: EdgeInsets.only(left: Adapt.px(24)),
-              decoration: BoxDecoration(
-                color: ThemeColor.color190,
-                borderRadius: BorderRadius.circular(Adapt.px(16)),
-              ),
-              child: TextField(
-                controller: _searchBarController,
-                onChanged: _onTextChanged,
-                decoration: InputDecoration(
-                  icon: Container(
-                    margin: EdgeInsets.only(left: Adapt.px(16)),
-                    child: CommonImage(
-                      iconName: 'icon_search.png',
-                      width: Adapt.px(24),
-                      height: Adapt.px(24),
-                      fit: BoxFit.fill,
-                    ),
-                  ),
-                  hintText: Localized.text('ox_chat.search'),
-                  border: InputBorder.none,
-                ),
-              ),
-            ),
-          ),
-          GestureDetector(
-            behavior: HitTestBehavior.translucent,
-            child: Container(
-              width: Adapt.px(90),
-              alignment: Alignment.center,
-              child: ShaderMask(
-                shaderCallback: (Rect bounds) {
-                  return LinearGradient(
-                    colors: [
-                      ThemeColor.gradientMainEnd,
-                      ThemeColor.gradientMainStart,
-                    ],
-                  ).createShader(Offset.zero & bounds.size);
-                },
-                child: Text(
-                  Localized.text('ox_common.cancel'),
-                  style: TextStyle(
-                    fontSize: 15.px,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-            onTap: () => OXNavigator.pop(context),
           ),
         ],
       ),

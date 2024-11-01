@@ -24,35 +24,15 @@ class SearchTabGridView extends StatefulWidget {
 
 class _SearchTabGridViewState extends State<SearchTabGridView> {
 
-  List<MessageDBISAR> _mediaMessages = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _getMediaList();
-  }
-
-  void _getMediaList() async {
-    Map result = await Messages.loadMessagesFromDB(
-      messageTypes: [
-        MessageType.image,
-        MessageType.encryptedImage,
-        MessageType.video,
-        MessageType.encryptedVideo,
-      ],
-    );
-    _mediaMessages = result['messages'] ?? <MessageDBISAR>[];
-    setState(() {});
-  }
-
   @override
   Widget build(BuildContext context) {
+    final mediaMessages = widget.data;
     return GridView.builder(
       padding: EdgeInsets.symmetric(horizontal: 24.px,vertical: 2.px),
       shrinkWrap: true,
-      itemCount: _mediaMessages.length,
+      itemCount: mediaMessages.length,
       itemBuilder: (context, index) {
-        final mediaMessage = _mediaMessages[index];
+        final mediaMessage = mediaMessages[index];
         if (MessageDBISAR.stringtoMessageType(mediaMessage.type) == MessageType.image ||
             MessageDBISAR.stringtoMessageType(mediaMessage.type) == MessageType.encryptedImage) {
           return GestureDetector(
@@ -60,7 +40,7 @@ class _SearchTabGridViewState extends State<SearchTabGridView> {
               OXNavigator.pushPage(
                 context,
                 (context) => MediaMessageViewer(
-                  messages: _mediaMessages,
+                  messages: mediaMessages,
                   initialIndex: index,
                 ),
               );
