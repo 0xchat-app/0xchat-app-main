@@ -133,6 +133,7 @@ extension ChatSessionListPageUI on ChatSessionListPageState{
                             alignment: Alignment.centerLeft,
                             padding: EdgeInsets.only(left: Adapt.px(16), right: Adapt.px(16)),
                             child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
                                 Row(
@@ -148,7 +149,7 @@ extension ChatSessionListPageUI on ChatSessionListPageState{
                                   ],
                                 ),
                                 Padding(
-                                  padding: EdgeInsets.only(top: Adapt.px(5)),
+                                  padding: EdgeInsets.only(top: 6.px),
                                   child: Container(
                                     constraints: BoxConstraints(maxWidth: _subTitleMaxW),
                                     child: _buildItemSubtitle(item),
@@ -162,13 +163,11 @@ extension ChatSessionListPageUI on ChatSessionListPageState{
                     ),
                   ),
                   Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: <Widget>[
                       _buildReadWidget(item),
-                      SizedBox(
-                        height: Adapt.px(18),
-                      ),
+                      SizedBox(height: 8.px),
                       Padding(
                         padding: EdgeInsets.only(bottom: 0),
                         child: Text(OXDateUtils.convertTimeFormatString2(item.createTime* 1000, pattern: 'MM-dd'),
