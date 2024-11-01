@@ -41,18 +41,28 @@ extension UserCenterPageUI on UserCenterPageState{
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              _topItemBuild(
-                iconName: 'icon_moment.png',
-                title: Localized.text('ox_discovery.moment'),
-                isShowDivider: true,
-                onTap: () {
+              GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: (){
+                  _isShowMomentUnread = false;
                   OXModuleService.pushPage(
                     context,
                     'ox_discovery',
                     'discoveryPageWidget',
-                    {'typeInt':1}
+                    {'typeInt':1},
                   );
                 },
+                child: itemView(
+                'icon_moment.png',
+                'ox_discovery.moment',
+                '',
+                true,
+                isShowZapBadge: true,
+                  badge: Visibility(
+                    visible: _isShowMomentUnread,
+                    child:_buildUnreadWidget(),
+                  ),
+                ),
               ),
               GestureDetector(
                 behavior: HitTestBehavior.translucent,
