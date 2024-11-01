@@ -330,40 +330,49 @@ Widget itemView(String iconName, String title, String rightContent, bool showDiv
       Container(
         width: double.infinity,
         height: Adapt.px(52),
-        alignment: Alignment.center,
-        child: ListTile(
-            contentPadding: EdgeInsets.symmetric(horizontal: Adapt.px(16)),
-            leading: CommonImage(
+        padding: EdgeInsets.symmetric(horizontal: 16.px),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            CommonImage(
               iconName: iconName,
               width: Adapt.px(32),
               height: Adapt.px(32),
               package: 'ox_usercenter',
             ),
-            title: Text(
+            SizedBox(width: 12.px),
+            Text(
               Localized.text(title),
               style: TextStyle(
                 color: ThemeColor.color0,
                 fontSize: Adapt.px(16),
               ),
             ),
-            trailing: devLogWidget ?? Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                isShowZapBadge ? badge ?? Container() : Container(),
-                Text(
-                  rightContent,
-                  style: TextStyle(
-                    color: ThemeColor.color100,
-                    fontSize: Adapt.px(16),
-                  ),
+            Expanded(
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: devLogWidget ?? Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    isShowZapBadge ? badge ?? Container() : Container(),
+                    Text(
+                      rightContent,
+                      style: TextStyle(
+                        color: ThemeColor.color100,
+                        fontSize: Adapt.px(16),
+                      ),
+                    ),
+                    showArrow ? CommonImage(
+                      iconName: 'icon_arrow_more.png',
+                      width: Adapt.px(24),
+                      height: Adapt.px(24),
+                    ) : Container(),
+                  ],
                 ),
-                showArrow ? CommonImage(
-                  iconName: 'icon_arrow_more.png',
-                  width: Adapt.px(24),
-                  height: Adapt.px(24),
-                ) : Container(),
-              ],
-            )),
+              ),
+            ),
+          ],
+        ),
       ),
       showDivider
           ? Divider(

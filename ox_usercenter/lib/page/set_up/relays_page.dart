@@ -152,7 +152,7 @@ class _RelaysPageState extends State<RelaysPage> {
           )
         ],
       ),
-      backgroundColor: ThemeColor.color200,
+      backgroundColor: ThemeColor.color190,
       body: _body(),
     );
   }

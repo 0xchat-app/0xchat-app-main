@@ -41,18 +41,31 @@ extension UserCenterPageUI on UserCenterPageState{
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              _topItemBuild(
-                iconName: 'icon_moment.png',
-                title: Localized.text('ox_discovery.moment'),
-                isShowDivider: true,
-                onTap: () {
+              GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: (){
+                  _isShowMomentUnread = false;
+                  if (!_isShowZapBadge) {
+                    MsgNotification(noticeNum: 0).dispatch(context);
+                  }
                   OXModuleService.pushPage(
                     context,
                     'ox_discovery',
                     'discoveryPageWidget',
-                    {'typeInt':1}
+                    {'typeInt':1},
                   );
                 },
+                child: itemView(
+                  'icon_moment.png',
+                  'ox_discovery.moment',
+                  '',
+                  true,
+                  isShowZapBadge: true,
+                  badge: Visibility(
+                    visible: _isShowMomentUnread,
+                    child: _buildUnreadWidget(),
+                  ),
+                ),
               ),
               GestureDetector(
                 behavior: HitTestBehavior.translucent,
@@ -81,7 +94,9 @@ extension UserCenterPageUI on UserCenterPageState{
                 isShowDivider: false,
                 onTap: () {
                   if (_isShowZapBadge) {
-                    MsgNotification(noticeNum: 0).dispatch(context);
+                    if (!_isShowMomentUnread) {
+                      MsgNotification(noticeNum: 0).dispatch(context);
+                    }
                     UserConfigTool.saveSetting(StorageSettingKey.KEY_ZAP_BADGE.name, false).then((value) {
                       _updateState();
                     });
@@ -326,47 +341,55 @@ extension UserCenterPageUI on UserCenterPageState{
           Container(
             width: double.infinity,
             height: Adapt.px(52),
-            alignment: Alignment.center,
-            child: ListTile(
-              contentPadding: EdgeInsets.symmetric(horizontal: Adapt.px(16)),
-              leading: CommonImage(
-                iconName: iconName ?? '',
-                width: Adapt.px(32),
-                height: Adapt.px(32),
-                package: 'ox_usercenter',
-              ),
-              title: Text(
-                title ?? '',
-                style: TextStyle(
-                  color: ThemeColor.color0,
-                  fontSize: Adapt.px(16),
+            padding: EdgeInsets.symmetric(horizontal: 16.px),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                CommonImage(
+                  iconName: iconName ?? '',
+                  width: Adapt.px(32),
+                  height: Adapt.px(32),
+                  package: 'ox_usercenter',
                 ),
-              ),
-              trailing: SizedBox(
-                width: Adapt.px(56),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    badgeImgUrl == null
-                        ? (_isShowZapBadge && iconName == 'icon_settings.png' ? _buildUnreadWidget() :const SizedBox())
-                        : OXCachedNetworkImage(
-                      imageUrl: badgeImgUrl,
-                      placeholder: (context, url) => placeholderImage,
-                      errorWidget: (context, url, error) =>
-                      placeholderImage,
-                      width: Adapt.px(32),
-                      height: Adapt.px(32),
-                      fit: BoxFit.cover,
+                SizedBox(width: 12.px),
+                Text(
+                  title ?? '',
+                  style: TextStyle(
+                    color: ThemeColor.color0,
+                    fontSize: Adapt.px(16),
+                  ),
+                ),
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: SizedBox(
+                      width: Adapt.px(56),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          badgeImgUrl == null
+                              ? (_isShowZapBadge ? _buildUnreadWidget() :const SizedBox())
+                              : OXCachedNetworkImage(
+                            imageUrl: badgeImgUrl,
+                            placeholder: (context, url) => placeholderImage,
+                            errorWidget: (context, url, error) =>
+                            placeholderImage,
+                            width: Adapt.px(32),
+                            height: Adapt.px(32),
+                            fit: BoxFit.cover,
+                          ),
+                          CommonImage(
+                            iconName: 'icon_arrow_more.png',
+                            width: Adapt.px(24),
+                            height: Adapt.px(24),
+                          )
+                        ],
+                      ),
                     ),
-                    CommonImage(
-                      iconName: 'icon_arrow_more.png',
-                      width: Adapt.px(24),
-                      height: Adapt.px(24),
-                    )
-                  ],
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
           Visibility(

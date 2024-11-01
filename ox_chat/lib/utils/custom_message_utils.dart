@@ -340,8 +340,8 @@ extension EcashV2MessageEx on types.CustomMessage {
       final info = Cashu.infoOfToken(token);
       if (info == null) return pre;
       if (!isSecretSetupFlag) {
-        final validityDate = info.p2pkInfo?.lockTime ?? '';
-        if (validityDate.isNotEmpty) {
+        final validityDate = info.p2pkInfo?.lockTimeTimestamp;
+        if (validityDate != null) {
           metadata?[CustomMessageEx.metaContentKey]?[EcashV2MessageEx.metaValidityDateKey] = validityDate;
           isSecretSetupFlag = true;
         }

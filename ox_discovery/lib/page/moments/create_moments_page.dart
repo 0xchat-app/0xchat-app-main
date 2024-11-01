@@ -167,31 +167,33 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
         ),
         child: Stack(
           children: [
-            SingleChildScrollView(
-              child: Column(
+            Column(
                 children: [
                   _buildAppBar(),
-                  Container(
-                    padding: EdgeInsets.only(
-                      left: 24.px,
-                      right: 24.px,
-                      bottom: currentPageType == EMomentType.content ? 100.px : 500.px,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _showEditImageWidget(),
-                        _videoWidget(),
-                        _pictureWidget(),
-                        _quoteWidget(),
-                        _captionWidget(),
-                        _visibleContactsWidget(),
-                        // _selectRelayWidget(),
-                      ],
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Container(
+                        padding: EdgeInsets.only(
+                          left: 24.px,
+                          right: 24.px,
+                          bottom: currentPageType == EMomentType.content ? 100.px : 500.px,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _showEditImageWidget(),
+                            _videoWidget(),
+                            _pictureWidget(),
+                            _quoteWidget(),
+                            _captionWidget(),
+                            _visibleContactsWidget(),
+                            // _selectRelayWidget(),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ],
-              ),
             ),
             Align(
               child: SendProgressWidget(

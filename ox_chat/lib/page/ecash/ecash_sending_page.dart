@@ -705,7 +705,7 @@ class _EcashSendingPageState extends State<EcashSendingPage> with
   Future createEcashForSingleType(
     IMint mint,
     int amount,
-    int? lockTime,
+    DateTime? lockTime,
   ) async {
     final refundPubkey = condition.refundPubkey ?? '';
     if (refundPubkey.isEmpty) return CashuResponse.fromErrorMsg('ecash_refund_pubkey_empty_hint'.localized());
@@ -749,7 +749,7 @@ class _EcashSendingPageState extends State<EcashSendingPage> with
     IMint mint,
     List<int> amountList,
     List<UserDBISAR> signee,
-    int? lockTime,
+    DateTime? lockTime,
   ) async {
 
     final signeePubkey = signee.map((user) => EcashCondition.pubkeyWithUser(user)).toList();
@@ -788,7 +788,7 @@ class _EcashSendingPageState extends State<EcashSendingPage> with
     int amount,
     List<UserDBISAR> receiver,
     List<UserDBISAR> signee,
-    int? lockTime,
+    DateTime? lockTime,
   ) async {
     final refundPubkey = condition.refundPubkey ?? '';
     if (refundPubkey.isEmpty) return CashuResponse.fromErrorMsg('ecash_refund_pubkey_empty_hint'.localized());
@@ -842,7 +842,10 @@ class _EcashSendingPageState extends State<EcashSendingPage> with
       if (remainAmount != remainCount * minM) {
         maxM = remainAmount / remainCount * 2.0;
       }
-      final amount = (random.nextDouble() * maxM).round().clamp(minM, maxM).toInt();
+
+      var amount = (random.nextDouble() * maxM).round().clamp(minM, maxM).toInt();
+      amount = amount.clamp(minM, remainAmount - (remainCount - 1) * minM);
+
       result.add(amount);
       remainAmount -= amount;
       remainCount--;

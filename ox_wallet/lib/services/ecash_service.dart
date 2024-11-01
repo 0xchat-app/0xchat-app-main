@@ -51,7 +51,7 @@ class EcashService {
         memo: memo ?? '',
         publicKeys: singer.map((e) => '02${e.pubKey}').toList(),
         refundPubKeys: refund?.map((e) => '02${e.pubKey}').toList(),
-        locktime: locktime != null ? locktime.millisecondsSinceEpoch ~/ 1000 : null,
+        locktime: locktime,
         signNumRequired: signNumRequired,
         sigFlag: sigFlag,
         proofs: proofs,

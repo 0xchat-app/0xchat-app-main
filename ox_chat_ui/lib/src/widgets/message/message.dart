@@ -1,10 +1,14 @@
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:flutter_vibrate/flutter_vibrate.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/web_url_helper.dart';
 import 'package:ox_common/utils/widget_tool.dart';
+import 'package:ox_common/widgets/common_image.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../../ox_chat_ui.dart';
@@ -58,6 +62,7 @@ class Message extends StatefulWidget {
     this.repliedMessageBuilder,
     this.longPressWidgetBuilder,
     this.reactionViewBuilder,
+    this.replySwipeTriggerCallback,
   });
 
   /// Build an audio message inside predefined bubble.
@@ -192,6 +197,8 @@ class Message extends StatefulWidget {
   /// Create a widget that pops up when long pressing on a message
   final Widget Function(BuildContext context, types.Message, CustomPopupMenuController controller)? longPressWidgetBuilder;
 
+  final Function(types.Message)? replySwipeTriggerCallback;
+
   @override
   State<Message> createState() => MessageState();
 }
@@ -258,7 +265,7 @@ class MessageState extends State<Message> {
       );
     }
 
-    return AnimatedContainer(
+    Widget content = AnimatedContainer(
       duration: flashDuration,
       curve: Curves.easeIn,
       color: flashBackgroundColor,
@@ -268,7 +275,40 @@ class MessageState extends State<Message> {
         child: _buildMessageContentView(),
       ),
     );
+
+    if (!currentUserIsAuthor && widget.replySwipeTriggerCallback != null) {
+      content = _SwipeToReply(
+        revealIconBuilder: (progress) => Opacity(
+          opacity: progress,
+          child: Transform.scale(
+            scale: progress,
+            child: _buildSwipeQuoteIcon(),
+          ),
+        ),
+        onSwipeComplete: () {
+          widget.replySwipeTriggerCallback?.call(widget.message);
+        },
+        child: content,
+      );
+    }
+
+    return content;
   }
+
+  Widget _buildSwipeQuoteIcon() => Container(
+    width: 32.px,
+    height: 32.px,
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(16.px),
+      color: ThemeColor.color180,
+    ),
+    alignment: Alignment.center,
+    child: CommonImage(
+      iconName: 'icon_message_swipe_quote.png',
+      size: 16.px,
+      package: 'ox_chat_ui',
+    ),
+  );
 
   // avatar & name & message
   Widget _buildMessageContentView() {
@@ -588,3 +628,115 @@ class MessageState extends State<Message> {
   }
 }
 
+class _SwipeToReply extends StatefulWidget {
+  final Widget child;
+  final Widget Function(double progress) revealIconBuilder;
+  final VoidCallback onSwipeComplete;
+
+  const _SwipeToReply({
+    super.key,
+    required this.child,
+    required this.revealIconBuilder,
+    required this.onSwipeComplete,
+  });
+
+  @override
+  _SwipeToReplyState createState() => _SwipeToReplyState();
+}
+
+class _SwipeToReplyState extends State<_SwipeToReply>
+    with SingleTickerProviderStateMixin {
+  double _dragDistance = 0.0;
+  double get swipeDistance => _dragDistance.abs();
+  late AnimationController _controller;
+
+  bool hasFeedback = false;
+
+  double get triggerOffset => 60.px;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      value: 1.0,
+      duration: const Duration(milliseconds: 100),
+    )..addListener(() {
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _onHorizontalDragUpdate(DragUpdateDetails details) {
+    setState(() {
+      _dragDistance += details.primaryDelta ?? 0;
+      // Only can left drag
+      if (_dragDistance > 0) {
+        _dragDistance = 0;
+      }
+
+      // Feedback
+      if (!hasFeedback && swipeDistance >= triggerOffset) {
+        hasFeedback = true;
+        Vibrate.feedback(FeedbackType.impact);
+      }
+    });
+  }
+
+  void _onHorizontalDragEnd(DragEndDetails details) {
+    if (swipeDistance >= triggerOffset) {
+      widget.onSwipeComplete();
+    }
+
+    // Rebound
+    _controller.reverse(from: 1.0).then((_) {
+      setState(() {
+        _dragDistance = 0.0;
+      });
+      _controller.value = 1.0;
+      hasFeedback = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final progress = (swipeDistance / triggerOffset).clamp(0.0, 1.0);
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        var distance = 0.0;
+        if (swipeDistance > triggerOffset) {
+          distance = (swipeDistance - triggerOffset) * 0.3 + triggerOffset;
+        } else {
+          distance = swipeDistance;
+        }
+
+        final offset = _controller.value * -distance;
+        return Stack(
+          children: [
+            Positioned(
+              right: 10 - offset,
+              top: 0,
+              bottom: 0,
+              child: Center(child: widget.revealIconBuilder(progress)),
+            ),
+            Transform.translate(
+              offset: Offset(offset, 0),
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onHorizontalDragUpdate: _onHorizontalDragUpdate,
+                onHorizontalDragEnd: _onHorizontalDragEnd,
+                child: widget.child,
+              ),
+            )
+          ],
+        );
+      },
+    );
+  }
+}

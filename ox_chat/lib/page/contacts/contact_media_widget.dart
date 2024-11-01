@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
+import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -27,7 +28,7 @@ class ContactMediaWidget extends StatefulWidget {
 }
 
 class ContactMediaWidgetState extends State<ContactMediaWidget> {
-  List<MessageDBISAR> messagesList = [];
+  List<types.CustomMessage> messagesList = [];
   @override
   void initState() {
     super.initState();
@@ -49,8 +50,13 @@ class ContactMediaWidgetState extends State<ContactMediaWidget> {
               MessageType.encryptedVideo,
             ]))['messages'] ??
         <MessageDBISAR>[];
-    if (messages.isNotEmpty) {
-      messagesList = messages;
+    for(var custom in messages){
+      final customMsg = await custom.toChatUIMessage();
+      if(customMsg != null && customMsg is types.CustomMessage){
+        messagesList.add(customMsg);
+      }
+    }
+    if (messagesList.isNotEmpty && mounted) {
       setState(() {});
     }
   }
@@ -58,18 +64,14 @@ class ContactMediaWidgetState extends State<ContactMediaWidget> {
   @override
   Widget build(BuildContext context) {
     if (messagesList.isEmpty) return _noDataWidget();
-    final widgetWidth =
-        int.parse((MediaQuery.of(context).size.width / 3).floor().toString());
     return GridView.builder(
       padding: EdgeInsets.zero,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: messagesList.length,
       itemBuilder: (context, index) {
-        if (MessageDBISAR.stringtoMessageType(messagesList[index].type) ==
-                MessageType.image ||
-            MessageDBISAR.stringtoMessageType(messagesList[index].type) ==
-                MessageType.encryptedImage) {
+        types.CustomMessage customMsg = messagesList[index];
+        if (customMsg.customType == CustomMessageType.imageSending) {
           return GestureDetector(
             onTap: () {
               CommonImageGallery.show(
@@ -77,23 +79,30 @@ class ContactMediaWidgetState extends State<ContactMediaWidget> {
                 imageList: messagesList
                     .map((e) => ImageEntry(
                           id: index.toString(),
-                          url: e.decryptContent,
-                          decryptedKey: e.decryptSecret,
+                          url: ImageSendingMessageEx(e).url,
+                          decryptedKey: ImageSendingMessageEx(e).encryptedKey,
                         ))
                     .toList(),
                 initialPage: 0,
               );
             },
             child: GalleryImageWidget(
-              uri: messagesList[index].decryptContent,
+              uri: ImageSendingMessageEx(customMsg).url,
               fit: BoxFit.cover,
-              decryptKey: messagesList[index].decryptSecret,
-              decryptNonce: messagesList[index].decryptNonce,
+              decryptKey: ImageSendingMessageEx(customMsg).encryptedKey,
+              decryptNonce: ImageSendingMessageEx(customMsg).encryptedNonce,
             ),
           );
         }
 
-        return MediaVideoWidget(messageDBISAR: messagesList[index]);
+        return RenderVideoMessage(
+          message: messagesList[index],
+          reactionWidget: Container(),
+          receiverPubkey: null,
+          messageUpdateCallback: (types.Message newMessage) {
+
+          },
+        );
       },
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,
@@ -135,16 +144,56 @@ class ContactMediaWidgetState extends State<ContactMediaWidget> {
   }
 }
 
+class MediaVideoWidget extends StatefulWidget {
+  final MessageDBISAR messageDBISAR;
+
+  const MediaVideoWidget({super.key, required this.messageDBISAR});
+
+  @override
+  MediaVideoWidgetState createState() => MediaVideoWidgetState();
+}
+
+class MediaVideoWidgetState extends State<MediaVideoWidget> {
+  types.CustomMessage? message;
+  @override
+  void initState() {
+    super.initState();
+    init();
+  }
+
+  void init() async {
+    message =
+        await widget.messageDBISAR.toChatUIMessage() as types.CustomMessage;
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (message == null) return const SizedBox();
+    return RenderVideoMessage(
+      message: message!,
+      reactionWidget: Container(),
+      receiverPubkey: null,
+      messageUpdateCallback: (types.Message newMessage) {
+        message = newMessage as types.CustomMessage;
+        setState(() {});
+      },
+    );
+  }
+}
+
 class RenderVideoMessage extends StatefulWidget {
   RenderVideoMessage({
     required this.message,
     required this.reactionWidget,
     required this.receiverPubkey,
+    this.messageUpdateCallback,
   });
 
   final types.CustomMessage message;
   final Widget reactionWidget;
   final String? receiverPubkey;
+  final Function(types.Message newMessage)? messageUpdateCallback;
 
   @override
   State<StatefulWidget> createState() => RenderVideoMessageState();
@@ -204,12 +253,12 @@ class RenderVideoMessageState extends State<RenderVideoMessage> {
       this.snapshotPath = Future.value(snapshotPath);
     } else if (videoURL.isNotEmpty) {
       this.snapshotPath =
-          OXVideoUtils.getVideoThumbnailImage(videoURL: videoURL)
-              .then((file) => file?.path ?? '');
+          OXVideoUtils.getVideoThumbnailImage(videoURL: videoURL).then((
+              file) => file?.path ?? '');
     } else if (fileId.isNotEmpty) {
-      this.snapshotPath = Future.value(
-          OXVideoUtils.getVideoThumbnailImageFromMem(cacheKey: fileId)?.path ??
-              '');
+      this.snapshotPath = Future.value(OXVideoUtils
+          .getVideoThumbnailImageFromMem(cacheKey: fileId)
+          ?.path ?? '');
     }
   }
 
@@ -218,7 +267,8 @@ class RenderVideoMessageState extends State<RenderVideoMessage> {
     if (videoURL.isEmpty) return;
 
     File sourceFile;
-    final fileManager = OXFileCacheManager.get(encryptKey: encryptedKey, encryptNonce: encryptedNonce);
+    final fileManager = OXFileCacheManager.get(
+        encryptKey: encryptedKey, encryptNonce: encryptedNonce);
     final cacheFile = await fileManager.getFileFromCache(videoURL);
     if (cacheFile != null) {
       sourceFile = cacheFile.file;
@@ -226,8 +276,7 @@ class RenderVideoMessageState extends State<RenderVideoMessage> {
       sourceFile = await fileManager.getSingleFile(videoURL);
       if (encryptedKey != null) {
         sourceFile = await DecryptedCacheManager.decryptFile(
-            sourceFile, encryptedKey!,
-            nonce: encryptedNonce);
+            sourceFile, encryptedKey!, nonce: encryptedNonce);
       }
     }
 
@@ -235,47 +284,40 @@ class RenderVideoMessageState extends State<RenderVideoMessage> {
     if (path.isEmpty) return;
 
     final snapshotPath = (await OXVideoUtils.getVideoThumbnailImageWithFilePath(
-                videoFilePath: path))
-            ?.path ??
-        '';
+        videoFilePath: path))?.path ?? '';
 
     types.CustomMessage newMessage = widget.message.copyWith();
     VideoMessageEx(newMessage).videoPath = path;
     VideoMessageEx(newMessage).snapshotPath = snapshotPath;
 
+    widget.messageUpdateCallback?.call(newMessage);
   }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        CommonVideoPage.show(videoPath);
-      },
-      child: Stack(
-        children: [
-          FutureBuilder(
-            future: snapshotPath,
-            builder: (context, snapshot) {
-              final snapshotPath = snapshot.data ?? '';
-              return snapshotBuilder(snapshotPath);
-            },
-          ),
-          if (videoURL.isNotEmpty)
-            Positioned.fill(
-              child: Center(
-                  child: canOpen ? buildPlayIcon() : buildLoadingWidget()),
-            )
-        ],
-      ),
+    return Stack(
+      children: [
+        FutureBuilder(
+          future: snapshotPath,
+          builder: (context, snapshot) {
+            final snapshotPath = snapshot.data ?? '';
+            return snapshotBuilder(snapshotPath);
+          },
+        ),
+        if (videoURL.isNotEmpty)
+          Positioned.fill(
+            child: Center(
+                child: canOpen ? buildPlayIcon() : buildLoadingWidget()
+            ),
+          )
+      ],
     );
   }
 
-  Widget buildPlayIcon() => Icon(
-        Icons.play_circle,
-        size: 60.px,
-      );
+  Widget buildPlayIcon() => Icon(Icons.play_circle, size: 60.px,);
 
-  Widget buildLoadingWidget() => CircularProgressIndicator(
+  Widget buildLoadingWidget() =>
+      CircularProgressIndicator(
         strokeWidth: 5,
         backgroundColor: Colors.white.withOpacity(0.5),
         valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
@@ -283,45 +325,13 @@ class RenderVideoMessageState extends State<RenderVideoMessage> {
       );
 
   Widget snapshotBuilder(String imagePath) {
-    if (imagePath.isEmpty) return const SizedBox();
-    return Image.file(
-      File(imagePath),
+    if(imagePath.isEmpty) return const SizedBox();
+    return Container(
       width: MediaQuery.of(context).size.width / 3,
-      fit: BoxFit.cover,
-    );
-  }
-}
-
-class MediaVideoWidget extends StatefulWidget {
-  final MessageDBISAR messageDBISAR;
-
-  const MediaVideoWidget({super.key, required this.messageDBISAR});
-
-  @override
-  MediaVideoWidgetState createState() => MediaVideoWidgetState();
-}
-
-class MediaVideoWidgetState extends State<MediaVideoWidget> {
-  types.CustomMessage? message;
-  @override
-  void initState() {
-    super.initState();
-    init();
-  }
-
-  void init() async {
-    message =
-        await widget.messageDBISAR.toChatUIMessage() as types.CustomMessage;
-    setState(() {});
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (message == null) return const SizedBox();
-    return RenderVideoMessage(
-      message: message!,
-      reactionWidget: Container(),
-      receiverPubkey: null,
+      child: GalleryImageWidget(
+        uri: imagePath,
+        fit: BoxFit.cover,
+      ),
     );
   }
 }

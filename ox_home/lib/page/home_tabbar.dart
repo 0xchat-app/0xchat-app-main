@@ -49,6 +49,7 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
   final double _bottomNavHeight = 72.0;
   final double _bottomNavMargin = 24.0.px;
   double _tabbarSH = 0;
+  bool _isCompleted = false;
 
   List<TabViewInfo> tabViewInfo = [
     TabViewInfo(
@@ -76,6 +77,9 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
     WidgetsBinding.instance.addObserver(this);
     Localized.addLocaleChangedCallback(onLocaleChange);
     signerCheck();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _isCompleted = true;
+    });
   }
 
   @override
@@ -185,7 +189,7 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
       child: NotificationListener<MsgNotification>(
         onNotification: (msgNotification) {
           if (tabBarGlobalKey.currentState == null) return false;
-          return tabBarGlobalKey.currentState!.updateNotificationListener(msgNotification);
+          return tabBarGlobalKey.currentState!.updateNotificationListener(msgNotification, _isCompleted);
         },
         child: page,
       ),

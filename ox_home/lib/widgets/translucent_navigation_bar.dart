@@ -95,6 +95,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
   final riveInputs = ['Press', 'Press', 'Press'];
   late List<river.StateMachineController?> riveControllers = List<river.StateMachineController?>.filled(3, null);
   late List<river.Artboard?> riveArtboards = List<river.Artboard?>.filled(3, null);
+  late List<int> _unreadList = [0, 0 ,0];
 
   final List<GlobalKey> _navItemKeyList = [GlobalKey(), GlobalKey(), GlobalKey()];
   List<MultipleUserModel> _userCacheList = [];
@@ -136,6 +137,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     dataInit();
     isHasVibrator();
     _loadLocalInfo();
+
   }
 
   @override
@@ -371,13 +373,13 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
         child: river.Rive(artboard: item.artboard!),
       );
     }
-    return Container();
+    return const SizedBox();
 
   }
 
   Widget _getTabBarTitle(TranslucentNavigationBarItem item) {
     final title = item.title?.call();
-    if (title == null || title.isEmpty) return Container();
+    if (title == null || title.isEmpty) return const SizedBox();
     return Text(
       title,
       style: TextStyle(
@@ -467,12 +469,12 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
             title: () => Localized.text('ox_home.${riveFileNames[0]}'),
             artboard: riveArtboards[0],
             animationController: riveControllers[0],
-            unreadMsgCount: 0),
+            unreadMsgCount: _unreadList.elementAt(0)),
         TranslucentNavigationBarItem(
             title: () => Localized.text('ox_home.${riveFileNames[1]}'),
             artboard: riveArtboards[1],
             animationController: riveControllers[1],
-            unreadMsgCount: 0),
+            unreadMsgCount: _unreadList.elementAt(1)),
         TranslucentNavigationBarItem(
             title: () => Localized.text('ox_home.${riveFileNames[2]}'),
             artboard: riveArtboards[2],
@@ -486,12 +488,12 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
   }
 
   fetchUnreadCount() {
-    if (_tabBarList.isEmpty) return;
-    if (OXChatBinding.sharedInstance.unReadStrangerSessionCount > 0) {
-      // _tabBarList[0].unreadMsgCount = 1;
-    } else {
-      _tabBarList[0].unreadMsgCount = 0;
-    }
+    // if (_tabBarList.isEmpty) return;
+    // if (OXChatBinding.sharedInstance.unReadStrangerSessionCount > 0) {
+    //   // _tabBarList[0].unreadMsgCount = 1;
+    // } else {
+    //   _tabBarList[0].unreadMsgCount = 0;
+    // }
   }
 
   void prepareMessageTimer() async {
@@ -507,20 +509,23 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     _refreshMessagesTimer = null;
   }
 
-  bool updateNotificationListener(MsgNotification notification){
-    if (notification.msgNum != null && notification.msgNum! > 0 && _tabBarList.isNotEmpty) {
-      _tabBarList[1].unreadMsgCount = 1;
-      setState(() {});
-    } else if (notification.msgNum != null && notification.msgNum! < 1 && _tabBarList.isNotEmpty) {
-      _tabBarList[1].unreadMsgCount = 0;
-      setState(() {});
-    }
-    if (notification.noticeNum != null && notification.noticeNum! > 0 && _tabBarList.isNotEmpty) {
-      _tabBarList[2].unreadMsgCount = 1;
-      setState(() {});
-    } else if (notification.noticeNum != null && notification.noticeNum! < 1 && _tabBarList.isNotEmpty) {
-      _tabBarList[2].unreadMsgCount = 0;
-      setState(() {});
+  bool updateNotificationListener(MsgNotification notification, bool buildFrameCompleted){
+    if (notification.msgNum != null) {
+      if (_tabBarList.isNotEmpty) {
+        _tabBarList[1].unreadMsgCount = notification.msgNum! > 0 ? 1 : 0;
+        if (buildFrameCompleted) {
+          setState(() {});
+        }
+      } else {
+        _unreadList[1] = notification.msgNum! > 0 ? 1 : 0;
+      }
+    } else if (notification.noticeNum != null) {
+      if (_tabBarList.isNotEmpty) {
+        _tabBarList[2].unreadMsgCount = notification.noticeNum! > 0 ? 1 : 0;
+        if (buildFrameCompleted) {setState(() {});}
+      } else {
+        _unreadList[2] = notification.msgNum! > 0 ? 1 : 0;
+      }
     }
     print('Received notification: ${notification.msgNum}');
     return true; //
