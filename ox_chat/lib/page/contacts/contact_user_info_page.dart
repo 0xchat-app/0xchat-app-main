@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_chat/page/contacts/contact_friend_remark_page.dart';
 import 'package:ox_chat/page/session/chat_message_page.dart';
+import 'package:ox_chat/page/session/single_search_page.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/log_util.dart';
@@ -274,7 +275,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> with SingleTi
         TabModel(
           iconName: 'icon_chat_search.png',
           onTap: () {
-            OXNavigator.pushPage(context, (context) => UnifiedSearchPage());
+            SingleSearchPage(chatId: widget.pubkey,).show(context);
           },
           content: 'Search',
         ),

@@ -48,11 +48,15 @@ class ContactMediaWidgetState extends State<ContactMediaWidget> {
               MessageType.encryptedImage,
               MessageType.video,
               MessageType.encryptedVideo,
+              MessageType.template,
             ]))['messages'] ??
         <MessageDBISAR>[];
     for(var custom in messages){
       final customMsg = await custom.toChatUIMessage();
-      if(customMsg != null && customMsg is types.CustomMessage){
+      if (customMsg == null) continue;
+      if (customMsg is! types.CustomMessage) continue;
+      if (customMsg.customType == CustomMessageType.imageSending
+          || customMsg.customType == CustomMessageType.video) {
         messagesList.add(customMsg);
       }
     }
@@ -95,14 +99,20 @@ class ContactMediaWidgetState extends State<ContactMediaWidget> {
           );
         }
 
-        return RenderVideoMessage(
-          message: messagesList[index],
-          reactionWidget: Container(),
-          receiverPubkey: null,
-          messageUpdateCallback: (types.Message newMessage) {
+        if (customMsg.customType == CustomMessageType.video) {
+          return RenderVideoMessage(
+            message: messagesList[index],
+            reactionWidget: Container(),
+            receiverPubkey: null,
+            messageUpdateCallback: (newMessage) {
+              setState(() {
+                messagesList[index] = newMessage;
+              });
+            },
+          );
+        }
 
-          },
-        );
+        return const SizedBox();
       },
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,
@@ -193,7 +203,7 @@ class RenderVideoMessage extends StatefulWidget {
   final types.CustomMessage message;
   final Widget reactionWidget;
   final String? receiverPubkey;
-  final Function(types.Message newMessage)? messageUpdateCallback;
+  final Function(types.CustomMessage newMessage)? messageUpdateCallback;
 
   @override
   State<StatefulWidget> createState() => RenderVideoMessageState();
@@ -295,22 +305,28 @@ class RenderVideoMessageState extends State<RenderVideoMessage> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        FutureBuilder(
-          future: snapshotPath,
-          builder: (context, snapshot) {
-            final snapshotPath = snapshot.data ?? '';
-            return snapshotBuilder(snapshotPath);
-          },
-        ),
-        if (videoURL.isNotEmpty)
-          Positioned.fill(
-            child: Center(
-                child: canOpen ? buildPlayIcon() : buildLoadingWidget()
-            ),
-          )
-      ],
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: (){
+        CommonVideoPage.show(videoPath);
+      },
+      child: Stack(
+        children: [
+          FutureBuilder(
+            future: snapshotPath,
+            builder: (context, snapshot) {
+              final snapshotPath = snapshot.data ?? '';
+              return snapshotBuilder(snapshotPath);
+            },
+          ),
+          if (videoURL.isNotEmpty)
+            Positioned.fill(
+              child: Center(
+                  child: canOpen ? buildPlayIcon() : buildLoadingWidget()
+              ),
+            )
+        ],
+      ),
     );
   }
 
@@ -327,11 +343,11 @@ class RenderVideoMessageState extends State<RenderVideoMessage> {
   Widget snapshotBuilder(String imagePath) {
     if(imagePath.isEmpty) return const SizedBox();
     return Container(
-      width: MediaQuery.of(context).size.width / 3,
-      child: GalleryImageWidget(
-        uri: imagePath,
-        fit: BoxFit.cover,
-      ),
-    );
+        width: MediaQuery.of(context).size.width / 3,
+        child: GalleryImageWidget(
+          uri: imagePath,
+          fit: BoxFit.cover,
+        ),
+      );
   }
 }
