@@ -217,7 +217,7 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                   ),
                 ),
                 SizedBox(width: 4.px),
-                RelayInfoWidget(iconSize: 16.px, iconColor: ThemeColor.color0, fontSize: 12.sp, fontWeight: FontWeight.w600, fontColor: ThemeColor.color0, padding: 2.px),
+                if (_isLogin) RelayInfoWidget(iconSize: 16.px, iconColor: ThemeColor.color0, fontSize: 12.sp, fontWeight: FontWeight.w600, fontColor: ThemeColor.color0, padding: 2.px),
               ],
             ),
           ),
