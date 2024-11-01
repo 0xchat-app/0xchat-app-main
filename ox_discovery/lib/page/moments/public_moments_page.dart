@@ -324,7 +324,6 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
                     avatars: _avatarList,
                     onTap: () async {
                       OXMomentManager.sharedInstance.clearNewNotifications();
-                      MsgNotification(noticeNum: 0).dispatch(context);
                       setState(() {
                         _notifications.clear();
                         tipContainerHeight.value = _getNotificationHeight;
