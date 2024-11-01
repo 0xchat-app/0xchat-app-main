@@ -40,10 +40,10 @@ class EcashCondition {
     return pubkeyWithUser(user);
   }
 
-  int? get lockTimeFromNow {
+  DateTime? get lockTimeFromNow {
     final duration = validDuration.duration;
     if (duration == null) return null;
-    return DateTime.now().add(duration).millisecondsSinceEpoch ~/ 1000;
+    return DateTime.now().add(duration);
   }
 
   static String pubkeyWithUser(UserDBISAR user) => '02${user.pubKey}';
