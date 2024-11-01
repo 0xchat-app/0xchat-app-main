@@ -355,10 +355,10 @@ class UserCenterPageState extends State<UserCenterPage>
   }
 
   @override
-  didNewNotesCallBackCallBack(List<NoteDBISAR> notes) {
-    _isShowMomentUnread = notes.isNotEmpty;
-    if (notes.isNotEmpty) {
-      MsgNotification(noticeNum: notes.length).dispatch(context);
+  didNewNotificationCallBack(List<NotificationDBISAR> notifications) {
+    _isShowMomentUnread = notifications.isNotEmpty;
+    if (notifications.isNotEmpty) {
+      MsgNotification(noticeNum: notifications.length).dispatch(context);
     }
   }
 
