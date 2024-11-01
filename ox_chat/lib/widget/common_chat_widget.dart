@@ -261,6 +261,9 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
                 });
               }
             },
+            replySwipeTriggerCallback: (message) {
+              handler.replyHandler.quoteMenuItemPressHandler(message);
+            },
           );
         }
     );

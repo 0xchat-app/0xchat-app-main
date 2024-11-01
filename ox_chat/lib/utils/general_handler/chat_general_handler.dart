@@ -519,7 +519,7 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
         _reportMenuItemPressHandler(context, message);
         break;
       case MessageLongPressEventType.quote:
-        replyHandler.quoteMenuItemPressHandler(context, message);
+        replyHandler.quoteMenuItemPressHandler(message);
         break;
       case MessageLongPressEventType.zaps:
         _zapMenuItemPressHandler(context, message);

@@ -29,7 +29,7 @@ class ChatReplyHandler {
     );
   }
 
-  void quoteMenuItemPressHandler(BuildContext context, types.Message message) {
+  void quoteMenuItemPressHandler(types.Message message) {
     focusNode?.requestFocus();
     updateReplyMessage(message);
   }

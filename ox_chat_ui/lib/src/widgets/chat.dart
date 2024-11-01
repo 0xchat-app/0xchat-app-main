@@ -131,6 +131,7 @@ class Chat extends StatefulWidget {
     this.scrollToBottomWidget,
     this.messageHasBuilder,
     this.isShowScrollToBottomButton = false,
+    this.replySwipeTriggerCallback,
   });
 
   final bool isContentInteractive;
@@ -407,6 +408,8 @@ class Chat extends StatefulWidget {
   final Function(types.Message message, int? index)? messageHasBuilder;
 
   final bool isShowScrollToBottomButton;
+
+  final Function(types.Message message)? replySwipeTriggerCallback;
 
   @override
   State<Chat> createState() => ChatState();
@@ -823,6 +826,7 @@ class ChatState extends State<Chat> {
           repliedMessageBuilder: widget.repliedMessageBuilder,
           longPressWidgetBuilder: widget.longPressWidgetBuilder,
           reactionViewBuilder: widget.reactionViewBuilder,
+          replySwipeTriggerCallback: widget.replySwipeTriggerCallback,
         );
       }
       return AutoScrollTag(
