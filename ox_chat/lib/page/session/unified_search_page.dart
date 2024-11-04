@@ -16,6 +16,7 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_gradient_tab_bar.dart';
 import 'package:chatcore/chat-core.dart';
+import 'package:ox_theme/ox_theme.dart';
 
 class UnifiedSearchPage extends StatefulWidget {
   final int initialIndex;
@@ -51,7 +52,12 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
       vsync: this,
       initialIndex: widget.initialIndex,
     );
+    ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
     _loadRecentData();
+  }
+
+  onThemeStyleChange() {
+    if (mounted) setState(() {});
   }
 
   void _loadContactsData() {
@@ -334,6 +340,7 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
   void dispose() {
     _controller.dispose();
     _searchBarController.dispose();
+    ThemeManager.removeOnThemeChangedCallback(onThemeStyleChange);
     super.dispose();
   }
 }
