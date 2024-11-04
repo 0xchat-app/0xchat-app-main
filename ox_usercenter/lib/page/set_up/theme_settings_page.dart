@@ -107,7 +107,7 @@ class _ThemeSettingsPage extends State<ThemeSettingsPage> {
           Text(
             Localized.text('ox_usercenter.theme_color_title'),
             style:
-                TextStyle(fontWeight: FontWeight.w600, fontSize: Adapt.px(14)),
+                TextStyle(fontWeight: FontWeight.w600, fontSize: Adapt.px(14),color: ThemeColor.color0),
           ),
           SizedBox(
             height: Adapt.px(12),

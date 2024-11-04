@@ -76,7 +76,11 @@ class ContactMediaWidgetState extends State<ContactMediaWidget> {
       itemBuilder: (context, index) {
         types.CustomMessage customMsg = messagesList[index];
         if (customMsg.customType == CustomMessageType.imageSending) {
-          if(ImageSendingMessageEx(customMsg).url.isEmpty) return const SizedBox();
+          if(ImageSendingMessageEx(customMsg).url.isEmpty) {
+            return  Container(
+              color: ThemeColor.color190,
+            );
+          }
           return GestureDetector(
             onTap: () {
               CommonImageGallery.show(
