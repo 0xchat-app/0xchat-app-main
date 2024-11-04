@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/manager/ecash_helper.dart';
+import 'package:ox_chat/model/community_menu_option_model.dart';
 import 'package:ox_chat/model/option_model.dart';
 import 'package:ox_chat/model/recent_search_user.dart';
 import 'package:ox_chat/model/recent_search_user_isar.dart';
@@ -88,6 +89,8 @@ class OXChat extends OXFlutterModule {
     'getTryDecodeNostrScheme': getTryDecodeNostrScheme,
     'showRelayInfoWidget': _showRelayInfoWidget,
     'showCashuOpenDialog': showCashuOpenDialog,
+    'addContact': addContact,
+    'addGroup': addGroup,
   };
 
   @override
@@ -360,5 +363,13 @@ class OXChat extends OXFlutterModule {
   Future<bool?> showCashuOpenDialog(String cashuToken) async {
     final package = await EcashHelper.createPackageFromCashuToken(cashuToken);
     return EcashOpenDialog.show(package: package, approveOnTap: () { });
+  }
+
+  void addContact(BuildContext context) async {
+    CommunityMenuOptionModel.optionsOnTap(context, OptionModel.AddFriend);
+  }
+
+  void addGroup(BuildContext context) async {
+    CommunityMenuOptionModel.optionsOnTap(context, OptionModel.AddGroup);
   }
 }
