@@ -328,5 +328,14 @@
   "str_group_admin_permission_success_toast": "Permissie succesvol gewijzigd.",
   "str_dm_auto_delete_hint": "Berichten worden automatisch verwijderd na ${time}",
   "delete_message_me_action_mode": "Verwijderen voor mij",
-  "delete_message_everyone_action_mode": "Verwijderen voor iedereen"
+  "delete_message_everyone_action_mode": "Verwijderen voor iedereen",
+  "str_group_admin_permission_add_fail_toast": "Machtiging kan niet worden toegevoegd.",
+  "str_title_new_message": "Nieuw Bericht",
+  "str_mark_as_unread": "Markeer als ongelezen",
+  "str_mark_as_read": "Markeer als gelezen",
+  "str_delete_contact": "Contact verwijderen",
+  "str_title_chats": "Chats",
+  "str_title_media": "Media",
+  "str_online_channels": "Online Kanalen",
+  "str_online_groups": "Online Groepen"
 }

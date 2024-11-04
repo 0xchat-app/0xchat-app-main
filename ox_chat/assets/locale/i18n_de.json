@@ -328,5 +328,14 @@
   "str_group_admin_permission_success_toast": "Berechtigung erfolgreich geändert.",
   "str_dm_auto_delete_hint": "Nachrichten werden nach ${time} automatisch gelöscht",
   "delete_message_me_action_mode": "Für mich löschen",
-  "delete_message_everyone_action_mode": "Für alle löschen"
+  "delete_message_everyone_action_mode": "Für alle löschen",
+  "str_group_admin_permission_add_fail_toast": "Berechtigung kann nicht hinzugefügt werden.",
+  "str_title_new_message": "Neue Nachricht",
+  "str_mark_as_unread": "Als ungelesen markieren",
+  "str_mark_as_read": "Als gelesen markieren",
+  "str_delete_contact": "Kontakt löschen",
+  "str_title_chats": "Chats",
+  "str_title_media": "Medien",
+  "str_online_channels": "Online-Kanäle",
+  "str_online_groups": "Online-Gruppen"
 }

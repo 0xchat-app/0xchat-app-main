@@ -328,5 +328,14 @@
   "str_group_admin_permission_success_toast": "Дозвіл успішно змінено.",
   "str_dm_auto_delete_hint": "Повідомлення автоматично видаляються після ${time}",
   "delete_message_me_action_mode": "Видалити для мене",
-  "delete_message_everyone_action_mode": "Видалити для всіх"
+  "delete_message_everyone_action_mode": "Видалити для всіх",
+  "str_group_admin_permission_add_fail_toast": "Не вдалося додати дозвіл.",
+  "str_title_new_message": "Нове повідомлення",
+  "str_mark_as_unread": "Позначити як непрочитане",
+  "str_mark_as_read": "Позначити як прочитане",
+  "str_delete_contact": "Видалити контакт",
+  "str_title_chats": "Чати",
+  "str_title_media": "Медіа",
+  "str_online_channels": "Онлайн-канали",
+  "str_online_groups": "Онлайн-групи"
 }

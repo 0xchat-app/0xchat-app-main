@@ -334,5 +334,9 @@
   "str_mark_as_unread": "Mark as Unread",
   "str_mark_as_read": "Mark as Read",
   "str_delete_contact": "Delete Contact",
-  "str_all_chats_mark_as_read": "All Mark as Read"
+  "str_all_chats_mark_as_read": "All Mark as Read",
+  "str_title_chats": "Chats",
+  "str_title_media": "Media",
+  "str_online_channels": "Online Channels",
+  "str_online_groups": "Online Groups"
 }

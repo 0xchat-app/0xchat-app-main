@@ -328,5 +328,14 @@
   "str_group_admin_permission_success_toast": "Tillståndet ändrades framgångsrikt.",
   "str_dm_auto_delete_hint": "Meddelanden raderas automatiskt efter ${time}",
   "delete_message_me_action_mode": "Radera för mig",
-  "delete_message_everyone_action_mode": "Radera för alla"
+  "delete_message_everyone_action_mode": "Radera för alla",
+  "str_group_admin_permission_add_fail_toast": "Behörighet kan inte läggas till.",
+  "str_title_new_message": "Nytt meddelande",
+  "str_mark_as_unread": "Markera som oläst",
+  "str_mark_as_read": "Markera som läst",
+  "str_delete_contact": "Ta bort kontakt",
+  "str_title_chats": "Chattar",
+  "str_title_media": "Media",
+  "str_online_channels": "Onlinekanaler",
+  "str_online_groups": "Onlinegrupper"
 }

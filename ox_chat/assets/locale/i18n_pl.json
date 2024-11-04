@@ -328,5 +328,14 @@
   "str_group_admin_permission_success_toast": "Uprawnienie zmienione pomyślnie.",
   "str_dm_auto_delete_hint": "Wiadomości zostaną automatycznie usunięte po ${time}",
   "delete_message_me_action_mode": "Usuń dla mnie",
-  "delete_message_everyone_action_mode": "Usuń dla wszystkich"
+  "delete_message_everyone_action_mode": "Usuń dla wszystkich",
+  "str_group_admin_permission_add_fail_toast": "Nie można dodać uprawnienia.",
+  "str_title_new_message": "Nowa Wiadomość",
+  "str_mark_as_unread": "Oznacz jako nieprzeczytane",
+  "str_mark_as_read": "Oznacz jako przeczytane",
+  "str_delete_contact": "Usuń Kontakt",
+  "str_title_chats": "Czaty",
+  "str_title_media": "Media",
+  "str_online_channels": "Kanały Online",
+  "str_online_groups": "Grupy Online"
 }

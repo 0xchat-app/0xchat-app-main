@@ -76,6 +76,7 @@ class ContactMediaWidgetState extends State<ContactMediaWidget> {
       itemBuilder: (context, index) {
         types.CustomMessage customMsg = messagesList[index];
         if (customMsg.customType == CustomMessageType.imageSending) {
+          if(ImageSendingMessageEx(customMsg).url.isEmpty) return const SizedBox();
           return GestureDetector(
             onTap: () {
               CommonImageGallery.show(
@@ -83,15 +84,15 @@ class ContactMediaWidgetState extends State<ContactMediaWidget> {
                 imageList: messagesList
                     .map((e) => ImageEntry(
                           id: index.toString(),
-                          url: ImageSendingMessageEx(e).url,
+                          url: ImageSendingMessageEx(e).uri,
                           decryptedKey: ImageSendingMessageEx(e).encryptedKey,
                         ))
                     .toList(),
-                initialPage: 0,
+                initialPage: index,
               );
             },
             child: GalleryImageWidget(
-              uri: ImageSendingMessageEx(customMsg).url,
+              uri: ImageSendingMessageEx(customMsg).uri,
               fit: BoxFit.cover,
               decryptKey: ImageSendingMessageEx(customMsg).encryptedKey,
               decryptNonce: ImageSendingMessageEx(customMsg).encryptedNonce,

@@ -328,5 +328,14 @@
   "str_group_admin_permission_success_toast": "การอนุญาตเปลี่ยนแปลงสำเร็จ.",
   "str_dm_auto_delete_hint": "ข้อความจะถูกลบอัตโนมัติหลังจาก ${time}",
   "delete_message_me_action_mode": "ลบสำหรับฉัน",
-  "delete_message_everyone_action_mode": "ลบสำหรับทุกคน"
+  "delete_message_everyone_action_mode": "ลบสำหรับทุกคน",
+  "str_group_admin_permission_add_fail_toast": "ไม่สามารถเพิ่มสิทธิ์ได้",
+  "str_title_new_message": "ข้อความใหม่",
+  "str_mark_as_unread": "ทำเครื่องหมายว่ายังไม่ได้อ่าน",
+  "str_mark_as_read": "ทำเครื่องหมายว่าอ่านแล้ว",
+  "str_delete_contact": "ลบรายชื่อ",
+  "str_title_chats": "แชท",
+  "str_title_media": "สื่อ",
+  "str_online_channels": "ช่องออนไลน์",
+  "str_online_groups": "กลุ่มออนไลน์"
 }

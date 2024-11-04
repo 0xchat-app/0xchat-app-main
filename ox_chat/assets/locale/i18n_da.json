@@ -328,5 +328,14 @@
   "str_group_admin_permission_success_toast": "Tilladelsen blev ændret med succes.",
   "str_dm_auto_delete_hint": "Beskeder slettes automatisk efter ${time}",
   "delete_message_me_action_mode": "Slet for mig",
-  "delete_message_everyone_action_mode": "Slet for alle"
+  "delete_message_everyone_action_mode": "Slet for alle",
+  "str_group_admin_permission_add_fail_toast": "Tilladelse kan ikke tilføjes.",
+  "str_title_new_message": "Ny besked",
+  "str_mark_as_unread": "Markér som ulæst",
+  "str_mark_as_read": "Markér som læst",
+  "str_delete_contact": "Slet kontakt",
+  "str_title_chats": "Chats",
+  "str_title_media": "Medier",
+  "str_online_channels": "Online kanaler",
+  "str_online_groups": "Online grupper"
 }
