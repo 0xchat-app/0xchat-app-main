@@ -204,7 +204,7 @@ class _CustomMessage extends CustomMessage {
         id: id ?? this.id,
         sourceKey: sourceKey ?? this.sourceKey,
         metadata: metadata == _Unset
-            ? this.metadata
+            ? jsonDecode(jsonEncode(this.metadata))
             : metadata as Map<String, dynamic>?,
         remoteId: remoteId == _Unset ? this.remoteId : remoteId as String?,
         repliedMessage: repliedMessage == _Unset

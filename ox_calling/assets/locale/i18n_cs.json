@@ -9,5 +9,6 @@
   "str_invite_you_to_a_voice_call": "Pozve vás k hovoru...",
   "str_invite_you_to_a_video_call": "Pozve vás k videohovoru...",
   "str_call_connecting": "Připojování...",
-  "str_call_busy": "Linka je obsazená"
+  "str_call_busy": "Linka je obsazená",
+  "str_voice_call_in_use": "Hlasový hovor je používán"
 }

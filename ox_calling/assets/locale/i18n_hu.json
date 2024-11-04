@@ -9,5 +9,6 @@
   "str_invite_you_to_a_voice_call": "Meghív téged egy hívásra...",
   "str_invite_you_to_a_video_call": "Meghív téged egy videohívásra...",
   "str_call_connecting": "Csatlakozás...",
-  "str_call_busy": "Foglalt"
+  "str_call_busy": "Foglalt",
+  "str_voice_call_in_use": "Hanghívás használatban van"
 }

@@ -9,5 +9,6 @@
   "str_invite_you_to_a_voice_call": "Sizi zəngə dəvət edir...",
   "str_invite_you_to_a_video_call": "Sizi video zəngə dəvət edir...",
   "str_call_connecting": "Qoşulur...",
-  "str_call_busy": "Xətt məşğuldu"
+  "str_call_busy": "Xətt məşğuldu",
+  "str_voice_call_in_use": "Səsli zəng istifadə olunur"
 }

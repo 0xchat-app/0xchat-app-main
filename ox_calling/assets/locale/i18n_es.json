@@ -9,5 +9,6 @@
   "str_invite_you_to_a_voice_call": "Te invita a una llamada...",
   "str_invite_you_to_a_video_call": "Te invita a una llamada de video...",
   "str_call_connecting": "Conectando...",
-  "str_call_busy": "Línea ocupada"
+  "str_call_busy": "Línea ocupada",
+  "str_voice_call_in_use": "Llamada de voz en uso"
 }

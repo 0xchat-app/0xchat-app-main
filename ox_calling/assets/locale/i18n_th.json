@@ -9,5 +9,6 @@
   "str_invite_you_to_a_voice_call": "เชิญคุณเข้าร่วมสาย...",
   "str_invite_you_to_a_video_call": "เชิญคุณเข้าร่วมการโทรทางวิดีโอ...",
   "str_call_connecting": "กำลังเชื่อมต่อ...",
-  "str_call_busy": "สายติด"
+  "str_call_busy": "สายติด",
+  "str_voice_call_in_use": "การโทรเสียงกำลังใช้งาน"
 }

@@ -31,6 +31,7 @@ import 'package:ox_chat/page/session/chat_message_page.dart';
 import 'package:ox_chat/page/session/chat_session_list_page.dart';
 import 'package:ox_chat/page/session/chat_video_play_page.dart';
 import 'package:ox_chat/page/session/search_page.dart';
+import 'package:ox_chat/page/session/unified_search_page.dart';
 import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
 import 'package:ox_chat/utils/general_handler/chat_nostr_scheme_handler.dart';
 import 'package:ox_chat/widget/relay_info_widget.dart';
@@ -174,6 +175,8 @@ class OXChat extends OXFlutterModule {
           allowFetchUserFromRelay: params?['allowFetchUserFromRelay'] ?? false,
           shouldPop: params?['shouldPop'],
         ),);
+      case 'UnifiedSearchPage':
+        return UnifiedSearchPage(initialIndex: params?['initialIndex']).show(context);
     }
     return null;
   }

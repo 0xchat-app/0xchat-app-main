@@ -9,5 +9,6 @@
   "str_invite_you_to_a_voice_call": "Mời bạn tham gia cuộc gọi...",
   "str_invite_you_to_a_video_call": "Mời bạn tham gia cuộc gọi video...",
   "str_call_connecting": "Đang kết nối...",
-  "str_call_busy": "Đường bận"
+  "str_call_busy": "Đường bận",
+  "str_voice_call_in_use": "Cuộc gọi giọng nói đang sử dụng"
 }

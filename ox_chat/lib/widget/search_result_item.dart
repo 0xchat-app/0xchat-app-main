@@ -41,11 +41,10 @@ class SearchResultItem extends StatelessWidget {
       behavior: HitTestBehavior.translucent,
       onTap: onTap,
       child: Container(
-        height: Adapt.px(72),
+        height: 72.px,
         child: Row(
           children: [
-            avatarWidget.setPadding(
-                EdgeInsets.only(left: Adapt.px(0), right: Adapt.px(16))),
+            avatarWidget.setPadding(EdgeInsets.only(right: 16.px)),
             Expanded(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -69,6 +68,11 @@ class SearchResultItem extends StatelessWidget {
       return Text(
         text,
         overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          color: ThemeColor.color0,
+          fontSize: 14.px,
+          fontWeight: FontWeight.w600
+        ),
       ).setPadding(EdgeInsets.only(bottom: 2.px));
     }
 
@@ -82,7 +86,7 @@ class SearchResultItem extends StatelessWidget {
   Widget _highlightText(String mainText, {int? maxLines = 1}) {
     final searchText = searchQuery;
     final normalTextStyle = TextStyle(
-      fontSize: Adapt.px(14),
+      fontSize: 14.px,
       fontWeight: FontWeight.w400,
       color: ThemeColor.color120,
     );

@@ -9,5 +9,6 @@
   "str_invite_you_to_a_voice_call": "Ви кани на разговор...",
   "str_invite_you_to_a_video_call": "Ви кани на видеоразговор...",
   "str_call_connecting": "Свързване...",
-  "str_call_busy": "Линията е заета"
+  "str_call_busy": "Линията е заета",
+  "str_voice_call_in_use": "Гласовият разговор е в употреба"
 }

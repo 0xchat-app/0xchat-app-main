@@ -9,5 +9,6 @@
   "str_invite_you_to_a_voice_call": "आपको कॉल पर आमंत्रित करता है...",
   "str_invite_you_to_a_video_call": "आपको वीडियो कॉल पर आमंत्रित करता है...",
   "str_call_connecting": "जुड़ रहा है...",
-  "str_call_busy": "लाइन व्यस्त है"
+  "str_call_busy": "लाइन व्यस्त है",
+  "str_voice_call_in_use": "ध्वनि कॉल का उपयोग किया जा रहा है"
 }

@@ -449,6 +449,8 @@ extension ImageSendingMessageEx on types.CustomMessage {
   int? get height => metadata?[CustomMessageEx.metaContentKey]?[metaHeightKey];
   String? get encryptedKey => metadata?[CustomMessageEx.metaContentKey]?[metaEncryptedKey];
   String? get encryptedNonce => metadata?[CustomMessageEx.metaContentKey]?[metaEncryptedNonce];
+
+  String get uri => path.isNotEmpty ? path : url;
 }
 
 extension VideoMessageEx on types.CustomMessage {
