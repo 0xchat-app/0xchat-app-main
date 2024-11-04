@@ -36,6 +36,14 @@ class GalleryImageWidgetState extends State<GalleryImageWidget> {
   }
 
   @override
+  void didUpdateWidget(covariant GalleryImageWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.uri != oldWidget.uri) {
+      setupImageProvider();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Image(
       fit: widget.fit,
