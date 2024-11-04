@@ -334,6 +334,7 @@
   "str_mark_as_unread": "标记为未读",
   "str_mark_as_read": "标记为已读",
   "str_delete_contact": "删除联系人",
+  "str_all_chats_mark_as_read": "全部标为已读",
   "str_title_chats": "聊天记录",
   "str_title_media": "媒体",
   "str_online_channels": "在线频道",
