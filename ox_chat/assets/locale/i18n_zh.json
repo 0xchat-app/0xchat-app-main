@@ -333,5 +333,6 @@
   "str_title_new_message": "New Message",
   "str_mark_as_unread": "标为未读",
   "str_mark_as_read": "标为已读",
-  "str_delete_contact": "删除联系人"
+  "str_delete_contact": "删除联系人",
+  "str_all_chats_mark_as_read": "全部标为已读"
 }
