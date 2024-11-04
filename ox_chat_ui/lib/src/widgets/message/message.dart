@@ -437,7 +437,10 @@ class MessageState extends State<Message> {
 
     Widget bubble;
 
-    final useBubbleBg = !widget.message.viewWithoutBubble;
+    var useBubbleBg = !widget.message.viewWithoutBubble;
+    if (enlargeEmojis) {
+      useBubbleBg = widget.message.hasReactions;
+    }
 
     if (widget.bubbleBuilder != null) {
       bubble = widget.bubbleBuilder!(
@@ -445,8 +448,6 @@ class MessageState extends State<Message> {
         message: widget.message,
         nextMessageInGroup: widget.roundBorder,
       );
-    } else if (enlargeEmojis && widget.hideBackgroundOnEmojiMessages) {
-      bubble = _messageBuilder(context);
     } else {
       bubble = Container(
         decoration: useBubbleBg ? BoxDecoration(
