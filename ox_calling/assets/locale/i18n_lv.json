@@ -9,5 +9,6 @@
   "str_invite_you_to_a_voice_call": "Aicina jūs uz zvanu...",
   "str_invite_you_to_a_video_call": "Aicina jūs uz videozvanu...",
   "str_call_connecting": "Savienošanās...",
-  "str_call_busy": "Līnija aizņemta"
+  "str_call_busy": "Līnija aizņemta",
+  "str_voice_call_in_use": "Balss zvans tiek izmantots"
 }

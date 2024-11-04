@@ -9,5 +9,6 @@
   "str_invite_you_to_a_voice_call": "Sizi bir çağrıya davet ediyor...",
   "str_invite_you_to_a_video_call": "Sizi bir video çağrısına davet ediyor...",
   "str_call_connecting": "Bağlanıyor...",
-  "str_call_busy": "Hat meşgul"
+  "str_call_busy": "Hat meşgul",
+  "str_voice_call_in_use": "Sesli arama kullanılıyor"
 }

@@ -9,5 +9,6 @@
   "str_invite_you_to_a_voice_call": "通話に招待します...",
   "str_invite_you_to_a_video_call": "ビデオ通話に招待します...",
   "str_call_connecting": "接続中...",
-  "str_call_busy": "話し中"
+  "str_call_busy": "話し中",
+  "str_voice_call_in_use": "音声通話中"
 }

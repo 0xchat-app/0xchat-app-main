@@ -9,5 +9,6 @@
   "str_invite_you_to_a_voice_call": "Mengundang Anda untuk panggilan...",
   "str_invite_you_to_a_video_call": "Mengundang Anda untuk panggilan video...",
   "str_call_connecting": "Menghubungkan...",
-  "str_call_busy": "Sibuk"
+  "str_call_busy": "Sibuk",
+  "str_voice_call_in_use": "Panggilan suara sedang digunakan"
 }

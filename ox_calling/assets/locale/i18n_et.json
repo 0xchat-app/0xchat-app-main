@@ -9,5 +9,6 @@
   "str_invite_you_to_a_voice_call": "Kutsub sind kõnele...",
   "str_invite_you_to_a_video_call": "Kutsub sind videokõnele...",
   "str_call_connecting": "Ühendamine...",
-  "str_call_busy": "Liin on hõivatud"
+  "str_call_busy": "Liin on hõivatud",
+  "str_voice_call_in_use": "Häälekõne on kasutuses"
 }

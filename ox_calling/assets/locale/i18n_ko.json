@@ -9,5 +9,6 @@
   "str_invite_you_to_a_voice_call": "전화에 초대합니다...",
   "str_invite_you_to_a_video_call": "영상 통화에 초대합니다...",
   "str_call_connecting": "연결 중...",
-  "str_call_busy": "통화중"
+  "str_call_busy": "통화중",
+  "str_voice_call_in_use": "음성 통화 중"
 }

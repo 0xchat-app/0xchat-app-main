@@ -9,5 +9,6 @@
   "str_invite_you_to_a_voice_call": "Приглашает вас на звонок...",
   "str_invite_you_to_a_video_call": "Приглашает вас на видеозвонок...",
   "str_call_connecting": "Подключение...",
-  "str_call_busy": "Занято"
+  "str_call_busy": "Занято",
+  "str_voice_call_in_use": "Голосовой вызов в использовании"
 }
