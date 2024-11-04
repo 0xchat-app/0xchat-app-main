@@ -135,7 +135,7 @@ class _GroupSelectorDialogState extends State<GroupSelectorDialog> {
         height: 56.px,
         child: Text(
           label,
-          style: TextStyle(fontSize: 16.px, fontWeight: FontWeight.w400),
+          style: TextStyle(fontSize: 16.px, fontWeight: FontWeight.w400,color: ThemeColor.color0),
         ),
       ),
       onTap: onTap,
