@@ -328,5 +328,14 @@
   "str_group_admin_permission_success_toast": "Permís canviat amb èxit.",
   "str_dm_auto_delete_hint": "Els missatges s'eliminen automàticament després de ${time}",
   "delete_message_me_action_mode": "Suprimeix per a mi",
-  "delete_message_everyone_action_mode": "Suprimeix per a tothom"
+  "delete_message_everyone_action_mode": "Suprimeix per a tothom",
+  "str_group_admin_permission_add_fail_toast": "No es pot afegir el permís.",
+  "str_title_new_message": "Nou missatge",
+  "str_mark_as_unread": "Marcar com a no llegit",
+  "str_mark_as_read": "Marcar com a llegit",
+  "str_delete_contact": "Esborrar contacte",
+  "str_title_chats": "Xats",
+  "str_title_media": "Mitjans",
+  "str_online_channels": "Canals en línia",
+  "str_online_groups": "Grups en línia"
 }

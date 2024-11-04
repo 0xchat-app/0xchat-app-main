@@ -329,9 +329,13 @@
   "str_dm_auto_delete_hint": "消息将在${time}后自动删除",
   "delete_message_me_action_mode": "刪除我的訊息",
   "delete_message_everyone_action_mode": "刪除所有人的訊息",
-  "str_group_admin_permission_add_fail_toast": "不能添加改权限",
-  "str_title_new_message": "New Message",
-  "str_mark_as_unread": "标为未读",
-  "str_mark_as_read": "标为已读",
-  "str_delete_contact": "删除联系人"
+  "str_group_admin_permission_add_fail_toast": "无法添加权限。",
+  "str_title_new_message": "新消息",
+  "str_mark_as_unread": "标记为未读",
+  "str_mark_as_read": "标记为已读",
+  "str_delete_contact": "删除联系人",
+  "str_title_chats": "聊天记录",
+  "str_title_media": "媒体",
+  "str_online_channels": "在线频道",
+  "str_online_groups": "在线群聊"
 }

@@ -1,3 +1,5 @@
+import 'package:ox_localizable/ox_localizable.dart';
+
 ///Title: search_chat_model
 ///Description: TODO(Fill in by oneself)
 ///Copyright: Copyright (c) 2021
@@ -41,6 +43,23 @@ enum SearchType {
   final String label;
 
   const SearchType({required this.label});
+}
+
+extension SearchTypeEx on SearchType {
+  String getLocalizedLabel() {
+    switch (this) {
+      case SearchType.chat:
+        return Localized.text('ox_chat.str_title_chats');
+      case SearchType.contact:
+        return Localized.text('ox_chat.str_title_contacts');
+      case SearchType.group:
+        return Localized.text('ox_chat.str_title_groups');
+      case SearchType.channel:
+        return Localized.text('ox_chat.str_title_channels');
+      case SearchType.media:
+        return Localized.text('ox_chat.str_title_media');
+    }
+  }
 }
 
 class Group {

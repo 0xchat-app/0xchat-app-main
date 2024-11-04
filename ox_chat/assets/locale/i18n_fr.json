@@ -328,5 +328,14 @@
   "str_group_admin_permission_success_toast": "Autorisation modifiée avec succès.",
   "str_dm_auto_delete_hint": "Les messages sont supprimés automatiquement après ${time}",
   "delete_message_me_action_mode": "Supprimer pour moi",
-  "delete_message_everyone_action_mode": "Supprimer pour tout le monde"
+  "delete_message_everyone_action_mode": "Supprimer pour tout le monde",
+  "str_group_admin_permission_add_fail_toast": "Impossible d'ajouter l'autorisation.",
+  "str_title_new_message": "Nouveau Message",
+  "str_mark_as_unread": "Marquer comme non lu",
+  "str_mark_as_read": "Marquer comme lu",
+  "str_delete_contact": "Supprimer le contact",
+  "str_title_chats": "Discussions",
+  "str_title_media": "Médias",
+  "str_online_channels": "Canaux en ligne",
+  "str_online_groups": "Groupes en ligne"
 }

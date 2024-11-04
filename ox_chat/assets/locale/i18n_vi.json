@@ -328,5 +328,14 @@
   "str_group_admin_permission_success_toast": "Quyền thay đổi thành công.",
   "str_dm_auto_delete_hint": "Tin nhắn sẽ tự động bị xóa sau ${time}",
   "delete_message_me_action_mode": "Xóa cho tôi",
-  "delete_message_everyone_action_mode": "Xóa cho tất cả mọi người"
+  "delete_message_everyone_action_mode": "Xóa cho tất cả mọi người",
+  "str_group_admin_permission_add_fail_toast": "Không thể thêm quyền.",
+  "str_title_new_message": "Tin nhắn mới",
+  "str_mark_as_unread": "Đánh dấu chưa đọc",
+  "str_mark_as_read": "Đánh dấu đã đọc",
+  "str_delete_contact": "Xóa liên hệ",
+  "str_title_chats": "Trò chuyện",
+  "str_title_media": "Phương tiện",
+  "str_online_channels": "Kênh trực tuyến",
+  "str_online_groups": "Nhóm trực tuyến"
 }

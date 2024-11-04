@@ -328,5 +328,14 @@
   "str_group_admin_permission_success_toast": "Разрешението е успешно променено.",
   "str_dm_auto_delete_hint": "Съобщенията се изтриват автоматично след ${time}",
   "delete_message_me_action_mode": "Изтрий за мен",
-  "delete_message_everyone_action_mode": "Изтрий за всички"
+  "delete_message_everyone_action_mode": "Изтрий за всички",
+  "str_group_admin_permission_add_fail_toast": "Разрешението не може да бъде добавено.",
+  "str_title_new_message": "Ново съобщение",
+  "str_mark_as_unread": "Отбележи като непрочетено",
+  "str_mark_as_read": "Отбележи като прочетено",
+  "str_delete_contact": "Изтрий контакт",
+  "str_title_chats": "Чатове",
+  "str_title_media": "Медия",
+  "str_online_channels": "Онлайн канали",
+  "str_online_groups": "Онлайн групи"
 }

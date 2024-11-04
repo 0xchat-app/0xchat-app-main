@@ -328,5 +328,14 @@
   "str_group_admin_permission_success_toast": "権限が正常に変更されました。",
   "str_dm_auto_delete_hint": "メッセージは ${time} 後に自動的に削除されます",
   "delete_message_me_action_mode": "自分用に削除",
-  "delete_message_everyone_action_mode": "全員に削除"
+  "delete_message_everyone_action_mode": "全員に削除",
+  "str_group_admin_permission_add_fail_toast": "権限を追加できません。",
+  "str_title_new_message": "新しいメッセージ",
+  "str_mark_as_unread": "未読としてマーク",
+  "str_mark_as_read": "既読としてマーク",
+  "str_delete_contact": "連絡先を削除",
+  "str_title_chats": "チャット",
+  "str_title_media": "メディア",
+  "str_online_channels": "オンラインチャンネル",
+  "str_online_groups": "オンライングループ"
 }

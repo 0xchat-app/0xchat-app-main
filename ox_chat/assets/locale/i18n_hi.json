@@ -328,5 +328,14 @@
   "str_group_admin_permission_success_toast": "अनुमति सफलतापूर्वक बदली गई।",
   "str_dm_auto_delete_hint": "संदेश ${time} के बाद स्वचालित रूप से हटा दिए जाते हैं",
   "delete_message_me_action_mode": "मेरे लिए हटाएँ",
-  "delete_message_everyone_action_mode": "सभी के लिए हटाएँ"
+  "delete_message_everyone_action_mode": "सभी के लिए हटाएँ",
+  "str_group_admin_permission_add_fail_toast": "अनुमति जोड़ी नहीं जा सकती।",
+  "str_title_new_message": "नया संदेश",
+  "str_mark_as_unread": "अपठित के रूप में चिह्नित करें",
+  "str_mark_as_read": "पठित के रूप में चिह्नित करें",
+  "str_delete_contact": "संपर्क हटाएं",
+  "str_title_chats": "चैट्स",
+  "str_title_media": "मीडिया",
+  "str_online_channels": "ऑनलाइन चैनल्स",
+  "str_online_groups": "ऑनलाइन समूह"
 }

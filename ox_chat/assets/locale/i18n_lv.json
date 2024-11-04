@@ -328,5 +328,14 @@
   "str_group_admin_permission_success_toast": "Atļauja veiksmīgi mainīta.",
   "str_dm_auto_delete_hint": "Ziņas tiek automātiski dzēstas pēc ${time}",
   "delete_message_me_action_mode": "Dzēst man",
-  "delete_message_everyone_action_mode": "Dzēst visiem"
+  "delete_message_everyone_action_mode": "Dzēst visiem",
+  "str_group_admin_permission_add_fail_toast": "Atļauju nevar pievienot.",
+  "str_title_new_message": "Jauna Ziņa",
+  "str_mark_as_unread": "Atzīmēt kā nelasītu",
+  "str_mark_as_read": "Atzīmēt kā lasītu",
+  "str_delete_contact": "Dzēst kontaktu",
+  "str_title_chats": "Čati",
+  "str_title_media": "Mediji",
+  "str_online_channels": "Tiešsaistes Kanāli",
+  "str_online_groups": "Tiešsaistes Grupas"
 }

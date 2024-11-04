@@ -328,5 +328,14 @@
   "str_group_admin_permission_success_toast": "Luba edukalt muudetud.",
   "str_dm_auto_delete_hint": "Sõnumid kustutatakse automaatselt pärast ${time}",
   "delete_message_me_action_mode": "Kustuta minu jaoks",
-  "delete_message_everyone_action_mode": "Kustuta kõigi jaoks"
+  "delete_message_everyone_action_mode": "Kustuta kõigi jaoks",
+  "str_group_admin_permission_add_fail_toast": "Luba ei saa lisada.",
+  "str_title_new_message": "Uus sõnum",
+  "str_mark_as_unread": "Märgi loetamatuks",
+  "str_mark_as_read": "Märgi loetuks",
+  "str_delete_contact": "Kustuta kontakt",
+  "str_title_chats": "Vestlused",
+  "str_title_media": "Meedia",
+  "str_online_channels": "Veebikanalid",
+  "str_online_groups": "Veebigrupid"
 }
