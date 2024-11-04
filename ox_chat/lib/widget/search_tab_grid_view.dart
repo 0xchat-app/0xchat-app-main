@@ -28,7 +28,7 @@ class _SearchTabGridViewState extends State<SearchTabGridView> {
   Widget build(BuildContext context) {
     final mediaMessages = widget.data;
     return GridView.builder(
-      padding: EdgeInsets.symmetric(horizontal: 24.px,vertical: 2.px),
+      padding: EdgeInsets.symmetric(vertical: 2.px),
       shrinkWrap: true,
       itemCount: mediaMessages.length,
       itemBuilder: (context, index) {
