@@ -95,11 +95,14 @@ class ContactMediaWidgetState extends State<ContactMediaWidget> {
                 initialPage: index,
               );
             },
-            child: GalleryImageWidget(
-              uri: ImageSendingMessageEx(customMsg).uri,
-              fit: BoxFit.cover,
-              decryptKey: ImageSendingMessageEx(customMsg).encryptedKey,
-              decryptNonce: ImageSendingMessageEx(customMsg).encryptedNonce,
+            child: Container(
+              color: ThemeColor.color190,
+              child: GalleryImageWidget(
+                uri: ImageSendingMessageEx(customMsg).uri,
+                fit: BoxFit.cover,
+                decryptKey: ImageSendingMessageEx(customMsg).encryptedKey,
+                decryptNonce: ImageSendingMessageEx(customMsg).encryptedNonce,
+              ),
             ),
           );
         }
