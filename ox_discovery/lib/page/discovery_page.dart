@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/utils/widget_tool.dart';
+import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_discovery/enum/group_type.dart';
 import 'package:ox_discovery/page/moments/groups_page.dart';
 import 'package:ox_discovery/page/widgets/group_selector_dialog.dart';
@@ -86,20 +87,12 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
     setState(() {});
   }
 
-  void _momentPublic(bool isChangeToDiscovery) {
-    if (publicMomentPageKey.currentState == null) return;
-    bool hasNotesList = publicMomentPageKey.currentState!.notesList.isEmpty;
-    if (isChangeToDiscovery && hasNotesList) {
-      publicMomentPageKey.currentState!.refreshController.requestRefresh();
-    }
-
-    if (!isChangeToDiscovery) {
-      publicMomentPageKey.currentState?.momentScrollController.animateTo(
-        0.0,
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.easeInOut,
-      );
-    }
+  void _scrollMomentToTop() {
+    publicMomentPageKey.currentState?.momentScrollController.animateTo(
+      0.0,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
+    );
   }
 
   @override
@@ -128,20 +121,28 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
     super.build(context);
     return Scaffold(
       backgroundColor: ThemeColor.color200,
-      appBar: AppBar(
+      appBar: CommonAppBar(
         backgroundColor: ThemeColor.color200,
         elevation: 0,
         titleSpacing: 0.0,
         actions: _actionWidget(),
-        title: Center(
-          child: Text(
-            pageType.text,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: Adapt.px(20),
-              color: ThemeColor.titleColor,
-            ),
-          ).setPaddingOnly(left: pageType == EDiscoveryPageType.moment ?  36.px : 0.px),
+        titleWidget: GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: (){
+            if(pageType == EDiscoveryPageType.moment){
+              _scrollMomentToTop();
+            }
+          },
+          child: Center(
+            child: Text(
+              pageType.text,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: Adapt.px(20),
+                color: ThemeColor.titleColor,
+              ),
+            ).setPaddingOnly(left: pageType == EDiscoveryPageType.moment ?  36.px : 0.px),
+          ),
         ),
       ),
       body: _body(),
@@ -426,24 +427,4 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
     if (mounted) setState(() {});
   }
 
-  @override
-  void updateClickNum(int num, bool isChangeToDiscovery) {
-    if (pageType == EDiscoveryPageType.group)
-      return _groupPageClickAction(num, isChangeToDiscovery);
-    if (num == 1) return _momentPublic(isChangeToDiscovery);
-    publicMomentPageKey.currentState
-        ?.updateNotesList(true, isWrapRefresh: true);
-  }
-
-  void _groupPageClickAction(int num, bool isChangeToDiscovery) {
-    if (num == 1 && !isChangeToDiscovery) {
-      groupsPageState.currentState?.scrollController.animateTo(
-        0.0,
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.easeInOut,
-      );
-    } else if (num == 2) {
-      groupsPageState.currentState!.refreshController.requestRefresh();
-    }
-  }
 }
