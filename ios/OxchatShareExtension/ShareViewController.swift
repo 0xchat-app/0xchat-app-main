@@ -28,10 +28,14 @@ class ShareViewController: SLComposeServiceViewController {
         return []
     }
     
-    private func openURL(url: NSURL) -> Bool {
+    private func openURL(url: URL) -> Bool {
         do {
             let application = try self.sharedApplication()
-            return application.performSelector(inBackground: "openURL:", with: url) != nil
+            let result = application.performSelector(inBackground: "openURL:", with: url) != nil
+            application.open(url) {success in
+                self.extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
+            }
+            return true
         }
         catch {
             return false
@@ -52,19 +56,16 @@ class ShareViewController: SLComposeServiceViewController {
     }
     
     private func openApp() {
-        
         getShareMedia {
-            guard let scheme = NSURL(string: "oxchat://shareLinkWithScheme") else {
+            guard let scheme = URL(string: "oxchat://shareLinkWithScheme") else {
                 self.extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
                 return
             }
             self.openURL(url: scheme)
-            self.extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
         }
     }
     
     private func getShareMedia(completion: @escaping () -> Void) {
-        
         guard let extensionItem = extensionContext?.inputItems.first as? NSExtensionItem else {
             return
         }
