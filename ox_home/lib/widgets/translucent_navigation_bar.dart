@@ -701,7 +701,6 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
         }
         await OXLoading.show();
         await OXUserInfoManager.sharedInstance.switchAccount(pubKey);
-        LogUtils.e('Michael:----tabbar------_menuOnTap-------switchAccount-----');
         await OXLoading.dismiss();
         break;
       case MenuItemType.addUserType:
