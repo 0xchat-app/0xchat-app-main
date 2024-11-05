@@ -4,6 +4,7 @@ import 'package:ox_chat/widget/media_message_viewer.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:chatcore/chat-core.dart';
+import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/gallery/gallery_image_widget.dart';
 
 class SearchTabGridView extends StatefulWidget {
@@ -45,11 +46,14 @@ class _SearchTabGridViewState extends State<SearchTabGridView> {
                 ),
               );
             },
-            child: GalleryImageWidget(
-              uri: mediaMessage.decryptContent,
-              fit: BoxFit.cover,
-              decryptKey: mediaMessage.decryptSecret,
-              decryptNonce: mediaMessage.decryptNonce,
+            child: Container(
+              color: ThemeColor.color180,
+              child: GalleryImageWidget(
+                uri: mediaMessage.decryptContent,
+                fit: BoxFit.cover,
+                decryptKey: mediaMessage.decryptSecret,
+                decryptNonce: mediaMessage.decryptNonce,
+              ),
             ),
           );
         }
