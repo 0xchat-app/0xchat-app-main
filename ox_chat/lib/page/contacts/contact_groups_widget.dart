@@ -73,7 +73,6 @@ class ContactGroupsWidgetState extends State<ContactGroupsWidget> {
             chatType: ChatType.chatRelayGroup,
             chatName: groupDB.name,
             avatar: groupDB.picture,
-            receiver: widget.userDB.pubKey,
           ),
           isPushWithReplace: false,
         );
