@@ -35,6 +35,9 @@ mixin ShareItemInfoMixin {
       case ChatType.chatGroup:
         showName = Groups.sharedInstance.groups[item.chatId]?.value.name ?? '';
         break;
+      case ChatType.chatRelayGroup:
+        showName = RelayGroup.sharedInstance.groups[item.chatId]?.value.name ?? '';
+        break;
     }
     return Container(
       margin: EdgeInsets.only(right: 4.px),
@@ -98,6 +101,10 @@ mixin ShareItemInfoMixin {
           break;
         case ChatType.chatGroup:
           showPicUrl = Groups.sharedInstance.groups[item.chatId]?.value.picture ?? '';
+          localAvatarPath = 'icon_group_default.png';
+          break;
+        case ChatType.chatRelayGroup:
+          showPicUrl = RelayGroup.sharedInstance.groups[item.chatId]?.value.picture ?? '';
           localAvatarPath = 'icon_group_default.png';
           break;
         case ChatType.chatNotice:
