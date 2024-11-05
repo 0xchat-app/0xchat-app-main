@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/utils/custom_uri_helper.dart';
+import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 
 class OXChatInterface {
@@ -102,5 +103,21 @@ class OXChatInterface {
 
   static Widget showRelayInfoWidget({bool showRelayIcon = true}) {
     return OXModuleService.invoke(moduleName, 'showRelayInfoWidget', [showRelayIcon]);
+  }
+
+  static void addContact(BuildContext context) {
+    OXModuleService.invoke(
+      moduleName,
+      'addContact',
+      [context],
+    );
+  }
+
+  static void addGroup(BuildContext context) {
+    OXModuleService.invoke(
+      moduleName,
+      'addGroup',
+      [context],
+    );
   }
 }
