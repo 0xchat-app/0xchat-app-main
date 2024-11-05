@@ -209,7 +209,6 @@ class ZapsActionHandler {
         context: context,
         showLoading: showLoading,
       );
-      if(showLoading) OXLoading.dismiss();
       if(!result) return;
       if(context.widget is ZapsAssistedPage) OXNavigator.pop(context);
       zapsInfoCallback?.call(zapsInfo);
@@ -281,6 +280,7 @@ class ZapsActionHandler {
         }
       }
     );
+    if(showLoading) OXLoading.dismiss();
     if (OXWalletInterface.checkAndShowDialog(context, response, mint)) return false;
     if (!response.isSuccess) {
       await CommonToast.instance.show(context, response.errorMsg);

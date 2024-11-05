@@ -62,6 +62,23 @@ class OXChatBinding {
     unReadStrangerSessionCount = 0;
   }
 
+  void setAllSessionToReaded(){
+    sessionMap.values.forEach((element) {
+      element.unreadCount = 0;
+    });
+    sessionUpdate();
+  }
+
+  int getAllSessionUnReadCount(){
+    int allUnReadSessionCount = sessionMap.values.fold(
+      0,
+      (int previousValue, ChatSessionModelISAR session) {
+        return previousValue + session.unreadCount;
+      },
+    );
+    return allUnReadSessionCount;
+  }
+
   void _updateUnReadStrangerSessionCount(){
     unReadStrangerSessionCount = sessionMap.values.fold(
       0,
