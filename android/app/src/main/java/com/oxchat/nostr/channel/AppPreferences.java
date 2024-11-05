@@ -104,13 +104,13 @@ public class AppPreferences implements MethodChannel.MethodCallHandler, FlutterP
             case "getAppOpenURL" -> {
                 SharedPreferences preferences = mContext.getSharedPreferences(SharedPreUtils.SP_NAME, Context.MODE_PRIVATE);
                 String jumpInfo = preferences.getString(SharedPreUtils.PARAM_JUMP_INFO, "");
+                SharedPreferences.Editor e = preferences.edit();
+                e.remove(SharedPreUtils.PARAM_JUMP_INFO);
+                e.apply();
                 if (mMethodChannelResult != null) {
                     mMethodChannelResult.success(jumpInfo);
                     mMethodChannelResult = null;
                 }
-                SharedPreferences.Editor e = preferences.edit();
-                e.putString(SharedPreUtils.PARAM_JUMP_INFO, "");
-                e.apply();
             }
             case "changeTheme" -> {
                 int themeStyle = 0;
