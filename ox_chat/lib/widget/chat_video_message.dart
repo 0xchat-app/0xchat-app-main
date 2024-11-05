@@ -34,7 +34,7 @@ class ChatVideoMessageState extends State<ChatVideoMessage> {
 
   String videoURL = '';
   String videoPath = '';
-  late Future<String> snapshotPath;
+  String snapshotPath = '';
   int? width;
   int? height;
   String? encryptedKey;
@@ -64,6 +64,7 @@ class ChatVideoMessageState extends State<ChatVideoMessage> {
     encryptedKey = VideoMessageEx(message).encryptedKey;
     encryptedNonce = VideoMessageEx(message).encryptedNonce;
     canOpen = VideoMessageEx(message).canOpen;
+    snapshotPath = VideoMessageEx(message).snapshotPath;
 
     width = VideoMessageEx(message).width;
     height = VideoMessageEx(message).height;
@@ -80,14 +81,14 @@ class ChatVideoMessageState extends State<ChatVideoMessage> {
       } catch (_) { }
     }
 
-    final snapshotPath = VideoMessageEx(message).snapshotPath;
-    if (snapshotPath.isNotEmpty) {
-      this.snapshotPath = Future.value(snapshotPath);
-    } else if (videoURL.isNotEmpty) {
-      this.snapshotPath = OXVideoUtils.getVideoThumbnailImage(videoURL: videoURL).then((file) => file?.path ?? '');
-    } else if (fileId.isNotEmpty) {
-      this.snapshotPath = Future.value(OXVideoUtils.getVideoThumbnailImageFromMem(cacheKey: fileId)?.path ?? '');
-    }
+    // final snapshotPath = VideoMessageEx(message).snapshotPath;
+    // if (snapshotPath.isNotEmpty) {
+    //   this.snapshotPath = Future.value(snapshotPath);
+    // } else if (videoURL.isNotEmpty) {
+    //   this.snapshotPath = OXVideoUtils.getVideoThumbnailImage(videoURL: videoURL).then((file) => file?.path ?? '');
+    // } else if (fileId.isNotEmpty) {
+    //   this.snapshotPath = Future.value(OXVideoUtils.getVideoThumbnailImageFromMem(cacheKey: fileId)?.path ?? '');
+    // }
   }
 
   void tryInitializeVideoFile() async {
@@ -109,7 +110,7 @@ class ChatVideoMessageState extends State<ChatVideoMessage> {
     final path = sourceFile.path;
     if (path.isEmpty) return ;
 
-    final snapshotPath = (await OXVideoUtils.getVideoThumbnailImageWithFilePath(videoFilePath: path))?.path ?? '';
+    final snapshotPath = (await OXVideoUtils.getVideoThumbnailImageWithFilePath(videoFilePath: path, cacheKey: widget.message.remoteId))?.path ?? '';
 
     types.CustomMessage newMessage = widget.message.copyWith();
     VideoMessageEx(newMessage).videoPath = path;
@@ -122,13 +123,7 @@ class ChatVideoMessageState extends State<ChatVideoMessage> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        FutureBuilder(
-          future: snapshotPath,
-          builder: (context, snapshot) {
-            final snapshotPath = snapshot.data ?? '';
-            return snapshotBuilder(snapshotPath);
-          },
-        ),
+        snapshotBuilder(snapshotPath),
         if (videoURL.isNotEmpty)
           Positioned.fill(
             child: Center(
