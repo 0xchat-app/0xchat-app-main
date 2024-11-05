@@ -122,6 +122,7 @@ public class MainActivity extends FlutterFragmentActivity {
                         SharedPreferences.Editor e = sp.edit();
                         e.putString(SharedPreUtils.PARAM_JUMP_INFO, schemeUrl);
                         e.apply();
+                        intent.removeExtra(Intent.EXTRA_TEXT);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
