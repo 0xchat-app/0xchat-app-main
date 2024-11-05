@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/manager/ecash_helper.dart';
+import 'package:ox_chat/model/community_menu_option_model.dart';
 import 'package:ox_chat/model/option_model.dart';
 import 'package:ox_chat/model/recent_search_user.dart';
 import 'package:ox_chat/model/recent_search_user_isar.dart';
@@ -30,6 +31,7 @@ import 'package:ox_chat/page/session/chat_message_page.dart';
 import 'package:ox_chat/page/session/chat_session_list_page.dart';
 import 'package:ox_chat/page/session/chat_video_play_page.dart';
 import 'package:ox_chat/page/session/search_page.dart';
+import 'package:ox_chat/page/session/unified_search_page.dart';
 import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
 import 'package:ox_chat/utils/general_handler/chat_nostr_scheme_handler.dart';
 import 'package:ox_chat/widget/relay_info_widget.dart';
@@ -88,6 +90,8 @@ class OXChat extends OXFlutterModule {
     'getTryDecodeNostrScheme': getTryDecodeNostrScheme,
     'showRelayInfoWidget': _showRelayInfoWidget,
     'showCashuOpenDialog': showCashuOpenDialog,
+    'addContact': addContact,
+    'addGroup': addGroup,
   };
 
   @override
@@ -171,6 +175,8 @@ class OXChat extends OXFlutterModule {
           allowFetchUserFromRelay: params?['allowFetchUserFromRelay'] ?? false,
           shouldPop: params?['shouldPop'],
         ),);
+      case 'UnifiedSearchPage':
+        return UnifiedSearchPage(initialIndex: params?['initialIndex']).show(context);
     }
     return null;
   }
@@ -360,5 +366,13 @@ class OXChat extends OXFlutterModule {
   Future<bool?> showCashuOpenDialog(String cashuToken) async {
     final package = await EcashHelper.createPackageFromCashuToken(cashuToken);
     return EcashOpenDialog.show(package: package, approveOnTap: () { });
+  }
+
+  void addContact(BuildContext context) async {
+    CommunityMenuOptionModel.optionsOnTap(context, OptionModel.AddFriend);
+  }
+
+  void addGroup(BuildContext context) async {
+    CommunityMenuOptionModel.optionsOnTap(context, OptionModel.AddGroup);
   }
 }

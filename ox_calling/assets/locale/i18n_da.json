@@ -9,5 +9,6 @@
   "str_invite_you_to_a_voice_call": "Inviterer dig til et opkald...",
   "str_invite_you_to_a_video_call": "Inviterer dig til et videoopkald...",
   "str_call_connecting": "Forbinder...",
-  "str_call_busy": "Optaget"
+  "str_call_busy": "Optaget",
+  "str_voice_call_in_use": "Taleopkald i brug"
 }

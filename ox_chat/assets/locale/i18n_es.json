@@ -328,5 +328,14 @@
   "str_group_admin_permission_success_toast": "Permiso cambiado con éxito.",
   "str_dm_auto_delete_hint": "Los mensajes se eliminan automáticamente después de ${time}",
   "delete_message_me_action_mode": "Eliminar para mí",
-  "delete_message_everyone_action_mode": "Eliminar para todos"
+  "delete_message_everyone_action_mode": "Eliminar para todos",
+  "str_group_admin_permission_add_fail_toast": "No se puede añadir el permiso.",
+  "str_title_new_message": "Nuevo Mensaje",
+  "str_mark_as_unread": "Marcar como no leído",
+  "str_mark_as_read": "Marcar como leído",
+  "str_delete_contact": "Eliminar Contacto",
+  "str_title_chats": "Chats",
+  "str_title_media": "Medios",
+  "str_online_channels": "Canales en línea",
+  "str_online_groups": "Grupos en línea"
 }

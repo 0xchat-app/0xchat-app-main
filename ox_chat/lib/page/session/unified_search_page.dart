@@ -16,6 +16,7 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_gradient_tab_bar.dart';
 import 'package:chatcore/chat-core.dart';
+import 'package:ox_theme/ox_theme.dart';
 
 class UnifiedSearchPage extends StatefulWidget {
   final int initialIndex;
@@ -51,7 +52,12 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
       vsync: this,
       initialIndex: widget.initialIndex,
     );
+    ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
     _loadRecentData();
+  }
+
+  onThemeStyleChange() {
+    if (mounted) setState(() {});
   }
 
   void _loadContactsData() {
@@ -60,7 +66,7 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
     if (contactList != null && contactList.length > 0) {
       _contacts.add(
         GroupedModel(
-          title: 'Contacts',
+          title: 'str_title_contacts'.localized(),
           items: contactList,
         ),
       );
@@ -101,7 +107,7 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
     _groups.clear();
     List<GroupUIModel>? groupList = await SearchTxtUtil.loadChatGroupWithSymbol(searchQuery);
     if (groupList != null && groupList.length > 0) {
-      _groups.add(GroupedModel<GroupUIModel>(title: 'Groups', items: groupList));
+      _groups.add(GroupedModel<GroupUIModel>(title: 'str_title_groups'.localized(), items: groupList));
       _searchResult[SearchType.group] = _groups;
     }
   }
@@ -110,7 +116,7 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
     _channels.clear();
     List<ChannelDBISAR>? channelList = SearchTxtUtil.loadChatChannelsWithSymbol(searchQuery);
     if (channelList != null && channelList.length > 0) {
-      _channels.add(GroupedModel<ChannelDBISAR>(title: 'Channels', items: channelList));
+      _channels.add(GroupedModel<ChannelDBISAR>(title: 'str_title_channels'.localized(), items: channelList));
       _searchResult[SearchType.channel] = _channels;
     }
   }
@@ -129,7 +135,7 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
           ChannelDBISAR? c = await Channels.sharedInstance.searchChannel(decodeNote, relays);
           if (c != null) {
             List<ChannelDBISAR> result = [c];
-            _channels.add(GroupedModel(title: 'Online Channels', items: result));
+            _channels.add(GroupedModel(title: 'str_online_channels'.localized(), items: result));
           }
         } else if (kind == 39000) {
           final groupId = map['channelId'];
@@ -137,7 +143,7 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
           RelayGroupDBISAR? relayGroupDB = await RelayGroup.sharedInstance.searchGroupsMetadataWithGroupID(groupId, relays[0]);
           if (relayGroupDB != null) {
             List<GroupUIModel> result = [GroupUIModel.relayGroupdbToUIModel(relayGroupDB)];
-            _groups.add(GroupedModel(title: 'Online Groups', items: result));
+            _groups.add(GroupedModel(title: 'str_online_groups'.localized(), items: result));
           }
         }
       }
@@ -167,7 +173,7 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
           item.avatar ?? '',
           item.chatType,0
       ),).toList();
-      recentChatMessage.add(GroupedModel<ChatMessage>(title: 'Recent', items: chatMessageList));
+      recentChatMessage.add(GroupedModel<ChatMessage>(title: 'str_recent_chats'.localized(), items: chatMessageList));
     }
     _searchResult[SearchType.chat] = recentChatMessage;
     setState(() {});
@@ -192,7 +198,7 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
         groups.add(uIModel);
       });
     }
-    recentGroup.add(GroupedModel<GroupUIModel>(title: 'Recent', items: _getRecentRecord(groups)));
+    recentGroup.add(GroupedModel<GroupUIModel>(title: 'recent_searches'.localized(), items: _getRecentRecord(groups)));
     _searchResult[SearchType.group] = recentGroup;
     setState(() {});
   }
@@ -204,7 +210,7 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
     if (channelsMap.length > 0) {
       channels = channelsMap.values.map((e) => e.value).toList();
     }
-    recentChannel.add(GroupedModel<ChannelDBISAR>(title: 'Recent', items: _getRecentRecord(channels)));
+    recentChannel.add(GroupedModel<ChannelDBISAR>(title: 'recent_searches'.localized(), items: _getRecentRecord(channels)));
     _searchResult[SearchType.channel] = recentChannel;
     setState(() {});
   }
@@ -266,9 +272,9 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
 
   List<GroupedModel<ChatMessage>> _groupedChatMessage(List<ChatMessage> messages) {
     List<GroupedModel<ChatMessage>> groupedChatMessage = [];
-    GroupedModel<ChatMessage> singleChatCategory = GroupedModel(title: 'Person', items: []);
-    GroupedModel<ChatMessage> groupChatCategory = GroupedModel(title: 'Group', items: []);
-    GroupedModel<ChatMessage> channelChatCategory = GroupedModel(title: 'Channel', items: []);
+    GroupedModel<ChatMessage> singleChatCategory = GroupedModel(title: 'str_title_contacts'.localized(), items: []);
+    GroupedModel<ChatMessage> groupChatCategory = GroupedModel(title: 'str_title_groups'.localized(), items: []);
+    GroupedModel<ChatMessage> channelChatCategory = GroupedModel(title: 'str_title_channels'.localized(), items: []);
     GroupedModel<ChatMessage> otherChatCategory = GroupedModel(title: 'Other', items: []);
     for (var message in messages) {
       if (message.chatType == ChatType.chatSingle) {
@@ -307,7 +313,7 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
           ),
           CommonGradientTabBar(
             controller: _controller,
-            data: SearchType.values.map((element) => element.label).toList(),
+            data: SearchType.values.map((element) => element.getLocalizedLabel()).toList(),
           ).setPaddingOnly(left: 24.px),
           Expanded(
             child: TabBarView(
@@ -334,6 +340,7 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
   void dispose() {
     _controller.dispose();
     _searchBarController.dispose();
+    ThemeManager.removeOnThemeChangedCallback(onThemeStyleChange);
     super.dispose();
   }
 }

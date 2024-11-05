@@ -328,5 +328,14 @@
   "str_group_admin_permission_success_toast": "Engedély sikeresen módosítva.",
   "str_dm_auto_delete_hint": "Az üzenetek ${time} után automatikusan törlődnek",
   "delete_message_me_action_mode": "Törlés nekem",
-  "delete_message_everyone_action_mode": "Törlés mindenkinek"
+  "delete_message_everyone_action_mode": "Törlés mindenkinek",
+  "str_group_admin_permission_add_fail_toast": "Az engedély nem adható hozzá.",
+  "str_title_new_message": "Új Üzenet",
+  "str_mark_as_unread": "Megjelölés olvasatlanként",
+  "str_mark_as_read": "Megjelölés olvasottként",
+  "str_delete_contact": "Kapcsolat törlése",
+  "str_title_chats": "Csevegések",
+  "str_title_media": "Média",
+  "str_online_channels": "Online csatornák",
+  "str_online_groups": "Online csoportok"
 }

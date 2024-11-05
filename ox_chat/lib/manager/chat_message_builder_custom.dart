@@ -550,7 +550,7 @@ extension ChatMessageBuilderCustomEx on ChatMessageBuilder {
     Widget reactionWidget,
     String? receiverPubkey,
   ) {
-    final path = ImageSendingMessageEx(message).path;
+    final uri = ImageSendingMessageEx(message).uri;
     final url = ImageSendingMessageEx(message).url;
     final fileId = ImageSendingMessageEx(message).fileId;
     var width = ImageSendingMessageEx(message).width;
@@ -573,7 +573,7 @@ extension ChatMessageBuilderCustomEx on ChatMessageBuilder {
     Widget widget = Hero(
       tag: message.id,
       child: ChatImagePreviewWidget(
-        uri: path.isNotEmpty ? path : url,
+        uri: uri,
         imageWidth: width,
         imageHeight: height,
         maxWidth: messageWidth,

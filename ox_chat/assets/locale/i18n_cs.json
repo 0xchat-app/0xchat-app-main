@@ -328,5 +328,14 @@
   "str_group_admin_permission_success_toast": "Oprávnění úspěšně změněno.",
   "str_dm_auto_delete_hint": "Zprávy se automaticky smažou po ${time}",
   "delete_message_me_action_mode": "Smazat pro mě",
-  "delete_message_everyone_action_mode": "Smazat pro všechny"
+  "delete_message_everyone_action_mode": "Smazat pro všechny",
+  "str_group_admin_permission_add_fail_toast": "Oprávnění nelze přidat.",
+  "str_title_new_message": "Nová zpráva",
+  "str_mark_as_unread": "Označit jako nepřečtené",
+  "str_mark_as_read": "Označit jako přečtené",
+  "str_delete_contact": "Smazat kontakt",
+  "str_title_chats": "Chaty",
+  "str_title_media": "Média",
+  "str_online_channels": "Online kanály",
+  "str_online_groups": "Online skupiny"
 }

@@ -9,5 +9,6 @@
   "str_invite_you_to_a_voice_call": "Lädt Sie zu einem Anruf ein...",
   "str_invite_you_to_a_video_call": "Lädt Sie zu einem Videoanruf ein...",
   "str_call_connecting": "Verbindung wird hergestellt...",
-  "str_call_busy": "Besetzt"
+  "str_call_busy": "Besetzt",
+  "str_voice_call_in_use": "Sprachanruf in Gebrauch"
 }

@@ -328,5 +328,14 @@
   "str_group_admin_permission_success_toast": "Izin berhasil diubah.",
   "str_dm_auto_delete_hint": "Pesan akan dihapus otomatis setelah ${time}",
   "delete_message_me_action_mode": "Hapus untuk saya",
-  "delete_message_everyone_action_mode": "Hapus untuk semua orang"
+  "delete_message_everyone_action_mode": "Hapus untuk semua orang",
+  "str_group_admin_permission_add_fail_toast": "Izin tidak dapat ditambahkan.",
+  "str_title_new_message": "Pesan Baru",
+  "str_mark_as_unread": "Tandai belum dibaca",
+  "str_mark_as_read": "Tandai sudah dibaca",
+  "str_delete_contact": "Hapus Kontak",
+  "str_title_chats": "Obrolan",
+  "str_title_media": "Media",
+  "str_online_channels": "Saluran Daring",
+  "str_online_groups": "Grup Daring"
 }

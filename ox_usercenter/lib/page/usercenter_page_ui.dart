@@ -369,7 +369,7 @@ extension UserCenterPageUI on UserCenterPageState{
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           badgeImgUrl == null
-                              ? (_isShowZapBadge ? _buildUnreadWidget() :const SizedBox())
+                              ? (_isShowZapBadge && iconName == 'icon_settings_zaps.png' ? _buildUnreadWidget() :const SizedBox())
                               : OXCachedNetworkImage(
                             imageUrl: badgeImgUrl,
                             placeholder: (context, url) => placeholderImage,

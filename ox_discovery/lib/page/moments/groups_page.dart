@@ -339,7 +339,8 @@ class GroupsPageState extends State<GroupsPage>
     return InkWell(
       autofocus: true,
       onTap: () {
-        OXModuleService.pushPage(context, 'ox_chat', 'SearchPage', {'searchPageType': 6});
+        final initialIndex  = widget.groupType == GroupType.channel ? 3 : 2;
+        OXModuleService.pushPage(context, 'ox_chat', 'UnifiedSearchPage', {'initialIndex': initialIndex});
       },
       child: Container(
         width: width,

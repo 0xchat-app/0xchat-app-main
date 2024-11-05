@@ -9,5 +9,6 @@
   "str_invite_you_to_a_voice_call": "يدعوك لمكالمة...",
   "str_invite_you_to_a_video_call": "يدعوك لمكالمة فيديو...",
   "str_call_connecting": "جارٍ الاتصال...",
-  "str_call_busy": "الخط مشغول"
+  "str_call_busy": "الخط مشغول",
+  "str_voice_call_in_use": "المكالمة الصوتية قيد الاستخدام"
 }

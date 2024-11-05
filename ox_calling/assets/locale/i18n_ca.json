@@ -9,5 +9,6 @@
   "str_invite_you_to_a_voice_call": "Et convida a una trucada...",
   "str_invite_you_to_a_video_call": "Et convida a una trucada de vídeo...",
   "str_call_connecting": "Connectant...",
-  "str_call_busy": "Línia ocupada"
+  "str_call_busy": "Línia ocupada",
+  "str_voice_call_in_use": "Trucada de veu en ús"
 }

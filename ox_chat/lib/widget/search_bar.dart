@@ -30,14 +30,14 @@ class UnifiedSearchBar extends StatelessWidget {
               margin: EdgeInsets.only(left: 24.px),
               decoration: BoxDecoration(
                 color: ThemeColor.color190,
-                borderRadius: BorderRadius.circular(Adapt.px(16)),
+                borderRadius: BorderRadius.circular(16.px),
               ),
               child: TextField(
                 controller: controller,
                 onChanged: onChanged,
                 decoration: InputDecoration(
                   icon: Container(
-                    margin: EdgeInsets.only(left: Adapt.px(16)),
+                    margin: EdgeInsets.only(left: 16.px),
                     child: CommonImage(
                       iconName: 'icon_search.png',
                       width: 24.px,
@@ -46,7 +46,15 @@ class UnifiedSearchBar extends StatelessWidget {
                     ),
                   ),
                   hintText: Localized.text('ox_chat.search'),
+                  hintStyle: TextStyle(
+                    color: ThemeColor.color160,
+                    fontSize: 15.px,
+                  ),
                   border: InputBorder.none,
+                ),
+                style: TextStyle(
+                  color: ThemeColor.color0,
+                  fontSize: 15.px,
                 ),
               ),
             ),
@@ -54,7 +62,7 @@ class UnifiedSearchBar extends StatelessWidget {
           GestureDetector(
             behavior: HitTestBehavior.translucent,
             child: Container(
-              width: Adapt.px(90),
+              width: 90.px,
               alignment: Alignment.center,
               child: ShaderMask(
                 shaderCallback: (Rect bounds) {
@@ -69,7 +77,7 @@ class UnifiedSearchBar extends StatelessWidget {
                   Localized.text('ox_common.cancel'),
                   style: TextStyle(
                     fontSize: 15.px,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),

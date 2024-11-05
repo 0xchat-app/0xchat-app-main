@@ -5,6 +5,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:glassmorphism/glassmorphism.dart';
+import 'package:ox_common/business_interface/ox_chat/interface.dart';
+import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
@@ -12,6 +14,8 @@ import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_loading.dart';
+import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_theme/ox_theme.dart';
 import 'package:rive/rive.dart' as river;
@@ -98,7 +102,8 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
   late List<int> _unreadList = [0, 0 ,0];
 
   final List<GlobalKey> _navItemKeyList = [GlobalKey(), GlobalKey(), GlobalKey()];
-  List<MultipleUserModel> _userCacheList = [];
+  List<TabbarMenuModel> _userCacheList = [];
+  late TabbarMenuModel _currentUser;
 
   late AnimationController _animationController;
   late Animation<double> _animation;
@@ -163,15 +168,17 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
       await UserConfigTool.saveUser(currentUser);
     }
     Map<String, MultipleUserModel> currentUserMap = await UserConfigTool.getAllUser();
-    _userCacheList = currentUserMap.values.toList();
+    _userCacheList = currentUserMap.values.map((e) {
+      return TabbarMenuModel(type: MenuItemType.userType, name: e.name, picture: e.picture, dns: e.dns, pubKey: e.pubKey);
+    }).toList();
     if (_userCacheList.isNotEmpty) {
-      _userCacheList.add(MultipleUserModel(name: Localized.text('ox_usercenter.str_add_account')));
+      _userCacheList.insert(0, TabbarMenuModel(type: MenuItemType.addUserType, name: Localized.text('ox_usercenter.str_add_account')));
     }
     final int currentIndex = _userCacheList.indexWhere((user) => user.pubKey == (currentUser?.pubKey ?? ''));
     if (currentIndex != -1) {
-      final currentUser = _userCacheList.removeAt(currentIndex);
-      _userCacheList.insert(0, currentUser);
+      _currentUser = _userCacheList.removeAt(currentIndex);
     }
+    if (mounted) setState(() {});
   }
 
   _showLoginPage(BuildContext context) {
@@ -260,7 +267,6 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
             GestureDetector(
               onLongPress: () {
                 int index = _tabBarList.indexOf(item);
-                if (index != 2) return;
                 if (hasVibrator == true && OXUserInfoManager.sharedInstance.canVibrate) {
                   FeedbackType type = FeedbackType.impact;
                   Vibrate.feedback(type);
@@ -422,13 +428,12 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
       if (_tabBarList.isNotEmpty) {
         _tabBarItemOnTap(_tabBarList.elementAt(1));
       }
-      _loadLocalInfo();
     });
+    _loadLocalInfo();
   }
 
   @override
   void didLogout() {
-    // TODO: implement didLogout
     setState(() {
       isLogin = false;
       if (_tabBarList.isNotEmpty) {
@@ -437,6 +442,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
         _tabBarList[2].unreadMsgCount = 0;
       }
     });
+    _loadLocalInfo();
   }
 
   @override
@@ -535,7 +541,9 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     final RenderBox renderBox =
         _navItemKeyList[index].currentContext!.findRenderObject() as RenderBox;
     final position = renderBox.localToGlobal(Offset.zero);
-
+    List<TabbarMenuModel> menuList = _getMenuList(index);
+    if (menuList.isEmpty) return;
+    double leftPosition = _calculateDialogPosition(context, index, position);
     showGeneralDialog(
       context: context,
       barrierDismissible: true,
@@ -554,15 +562,19 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
                 ),
               ),
               Positioned(
-                bottom: Adapt.screenH - position.dy + 4.px,
-                left: _calculateDialogPosition(context, index, position),
+                bottom: Adapt.screenH - position.dy + 4.px + (index == 2 ? 46.px : 0),
+                left: leftPosition,
                 child: Container(
                   width: 180.px,
-                  height: _userCacheList.length * 44.px + (_userCacheList.isNotEmpty ? 2.px : 0),
+                  height: menuList.length * 44.px,
                   constraints: BoxConstraints(maxHeight: Adapt.screenH/2),
                   decoration: BoxDecoration(
                     color: ThemeColor.color180,
-                    borderRadius: BorderRadius.circular(16.px),
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(16.px),
+                        topRight: Radius.circular(16.px),
+                        bottomLeft: Radius.circular(index == 2 ? 0 : 16.px),
+                        bottomRight: Radius.circular(index == 2 ? 0 : 16.px)),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black26,
@@ -572,56 +584,102 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
                     ],
                   ),
                   child: ListView.builder(
-                    shrinkWrap: true,
-                    reverse: true,
-                    itemCount: _userCacheList.length,
-                    itemBuilder: (context, index) {
-                      MultipleUserModel? multipleUserModel;
-                      if (_userCacheList.isNotEmpty && index > -1) {
-                        multipleUserModel = _userCacheList[index];
+                    padding: EdgeInsets.zero,
+                    itemCount: menuList.length,
+                    physics: const BouncingScrollPhysics(),
+                    itemBuilder: (context, menuIndex) {
+                      TabbarMenuModel? model;
+                      if (menuList.isNotEmpty && menuIndex > -1) {
+                        model = menuList[menuIndex];
                       }
-                      String showName = multipleUserModel?.name ?? '';
-                      String showPicture = multipleUserModel?.picture ?? '';
-                      return Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Visibility(visible: index == 0, child: Container(height: 2.px, color: ThemeColor.color200)),
-                          Container(
-                            height: 44.px,
-                            padding: EdgeInsets.symmetric(horizontal: 16.px, vertical: 10.px),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Text(
-                                  showName,
-                                  style: TextStyle(
-                                    fontSize: 16.px,
-                                    color: ThemeColor.color0,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                showName == Localized.text('ox_usercenter.str_add_account')
-                                    ? CommonImage(
-                                  iconName: 'add_circle_icon.png',
-                                  size: 24.px,
-                                  package: 'ox_common',
-                                  useTheme: true,
-                                )
-                                    : OXUserAvatar(imageUrl: showPicture, size: 24.px),
-                              ],
-                            ),
-                          ),
-                        ],
-                      );
+                      return _menuItemView(index, model);
                     },
                   ),
+
+                ),
+              ),
+              Visibility(
+                visible: index == 2,
+                child: Positioned(
+                  bottom: Adapt.screenH - position.dy + 4.px,
+                  left: _calculateDialogPosition(context, index, position),
+                  child: Container(
+                    width: 180.px,
+                    height: 46.px,
+                    constraints: BoxConstraints(maxHeight: Adapt.screenH/2),
+                    decoration: BoxDecoration(
+                      color: ThemeColor.color180,
+                      borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(16.px),
+                          bottomRight: Radius.circular(16.px)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 8.px,
+                          spreadRadius: 0,
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(height: 2.px, color: ThemeColor.color200),
+                      _menuItemView(2, _currentUser),
+                    ],
+                  ),),
                 ),
               ),
             ],
           );
         });
       },
+    );
+  }
+
+  Widget _menuItemView(int index, TabbarMenuModel? model){
+    String showName = model?.name ?? '';
+    String showPicture = model?.picture ?? '';
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () {
+        if (model != null) {
+          _menuOnTap(context, model);
+        }
+      },
+      child: Container(
+        height: 44.px,
+        padding: EdgeInsets.symmetric(horizontal: 16.px),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              showName,
+              style: TextStyle(
+                fontSize: 16.px,
+                color: ThemeColor.color0,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            index == 2
+                ? (showName ==
+                Localized.text(
+                    'ox_usercenter.str_add_account')
+                ? CommonImage(
+              iconName: 'add_circle_icon.png',
+              size: 24.px,
+              package: 'ox_common',
+              useTheme: true,
+            )
+                : OXUserAvatar(
+                imageUrl: showPicture, size: 24.px))
+                : CommonImage(
+                iconName: model?.picture ?? '',
+                size: 24.px,
+                package: model?.iconPackage ?? null),
+          ],
+        ),
+      ),
     );
   }
 
@@ -645,4 +703,70 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     }
     return dialogOffset;
   }
+
+  List<TabbarMenuModel> _getMenuList(int index) {
+    List<TabbarMenuModel> list = [];
+    switch(index){
+      case 0:
+        list.add(TabbarMenuModel(type: MenuItemType.addContact, name: Localized.text('ox_common.str_add_friend'), picture: 'icon_new_friend.png', iconPackage: 'ox_common'));
+        list.add(TabbarMenuModel(type: MenuItemType.addGroup, name: Localized.text('ox_chat.str_new_group'), picture: 'icon_new_group.png', iconPackage: 'ox_common'));
+        break;
+      case 1:
+        int unReadCount = OXChatBinding.sharedInstance.getAllSessionUnReadCount();
+        if (unReadCount > 0) {
+          list.add(TabbarMenuModel(type: MenuItemType.markToRead, name: Localized.text('ox_chat.str_all_chats_mark_as_read'), picture: 'icon_chat_mark_as_read.png', iconPackage: 'ox_chat'));
+        }
+        break;
+      case 2:
+        list = _userCacheList.toList();
+        break;
+    }
+
+    return list;
+  }
+
+  void _menuOnTap(BuildContext context, TabbarMenuModel model) async {
+    OXNavigator.pop(context);
+    switch(model.type){
+      case MenuItemType.userType:
+        String pubKey = model.pubKey ?? '';
+        if (pubKey.isEmpty) {
+          CommonToast.instance.show(context, 'PubKey is empty, try other.');
+          return;
+        }
+        if (pubKey == OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey) return;
+        await OXLoading.show();
+        await OXUserInfoManager.sharedInstance.switchAccount(pubKey);
+        await OXLoading.dismiss();
+        _loadLocalInfo();
+        break;
+      case MenuItemType.addUserType:
+        OXModuleService.pushPage(context, 'ox_login', 'LoginPage', {});
+        break;
+      case MenuItemType.markToRead:
+        OXChatBinding.sharedInstance.setAllSessionToReaded();
+        break;
+      case MenuItemType.addContact:
+        OXChatInterface.addContact(context);
+        break;
+      case MenuItemType.addGroup:
+        OXChatInterface.addGroup(context);
+        break;
+    }
+  }
+}
+
+class TabbarMenuModel extends MultipleUserModel{
+  final MenuItemType type;
+  final String iconPackage;
+
+  TabbarMenuModel({this.type = MenuItemType.userType, this.iconPackage = '', super.pubKey = '', super.name = '', super.picture = '', super.dns = ''});
+}
+
+enum MenuItemType{
+  userType,
+  addUserType,
+  markToRead,
+  addContact,
+  addGroup,
 }

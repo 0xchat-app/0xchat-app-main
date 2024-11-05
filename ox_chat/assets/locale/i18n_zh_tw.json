@@ -328,5 +328,14 @@
   "str_group_admin_permission_success_toast": "權限修改成功。",
   "str_dm_auto_delete_hint": "消息將在 ${time} 後自動刪除",
   "delete_message_me_action_mode": "删除我的消息",
-  "delete_message_everyone_action_mode": "删除所有人的消息"
+  "delete_message_everyone_action_mode": "删除所有人的消息",
+  "str_group_admin_permission_add_fail_toast": "無法新增權限。",
+  "str_title_new_message": "新訊息",
+  "str_mark_as_unread": "標記為未讀",
+  "str_mark_as_read": "標記為已讀",
+  "str_delete_contact": "刪除聯絡人",
+  "str_title_chats": "聊天記錄",
+  "str_title_media": "媒體",
+  "str_online_channels": "在線頻道",
+  "str_online_groups": "在線群組"
 }

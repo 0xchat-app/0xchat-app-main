@@ -36,8 +36,16 @@ class _SwitchAccountPageState extends State<SwitchAccountPage> with OXUserInfoOb
   @override
   void initState() {
     super.initState();
+    OXUserInfoManager.sharedInstance.addObserver(this);
     ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
     _loadLocalInfo();
+  }
+
+
+  @override
+  void dispose() {
+    OXUserInfoManager.sharedInstance.removeObserver(this);
+    super.dispose();
   }
 
   onThemeStyleChange() {
@@ -242,16 +250,16 @@ class _SwitchAccountPageState extends State<SwitchAccountPage> with OXUserInfoOb
 
   @override
   void didLoginSuccess(UserDBISAR? userInfo) {
-    // TODO: implement didLoginSuccess
+    _loadLocalInfo();
   }
 
   @override
   void didLogout() {
-    // TODO: implement didLogout
+
   }
 
   @override
   void didSwitchUser(UserDBISAR? userInfo) {
-    // TODO: implement didSwitchUser
+    _loadLocalInfo();
   }
 }

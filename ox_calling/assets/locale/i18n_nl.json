@@ -9,5 +9,6 @@
   "str_invite_you_to_a_voice_call": "Nodigt je uit voor een gesprek...",
   "str_invite_you_to_a_video_call": "Nodigt je uit voor een videogesprek...",
   "str_call_connecting": "Verbinden...",
-  "str_call_busy": "Lijn bezet"
+  "str_call_busy": "Lijn bezet",
+  "str_voice_call_in_use": "Spraakoproep in gebruik"
 }

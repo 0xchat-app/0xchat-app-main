@@ -244,10 +244,14 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
               delegate: SliverChildListDelegate(
                 <Widget>[
                   _buildHeadImgView(),
-                  SizedBox(height: 16.px),
-                  Align(
-                    alignment: Alignment.topCenter,
-                    child: abbrText('str_set_new_photo'.localized(), 14, ThemeColor.gradientMainStart, fontWeight: FontWeight.w600),
+                  GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onTap: onChangeHeadImg,
+                    child: Container(
+                      alignment: Alignment.topCenter,
+                      padding: EdgeInsets.only(top: 16.px),
+                      child: abbrText('str_set_new_photo'.localized(), 14, ThemeColor.gradientMainStart, fontWeight: FontWeight.w600),
+                    ),
                   ),
                   SizedBox(height: 24.px),
                   _itemView(
@@ -397,9 +401,7 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
             ],
           ),
         ),
-        onTap: () {
-          onChangeHeadImg();
-        },
+        onTap: onChangeHeadImg,
       ),
     );
   }

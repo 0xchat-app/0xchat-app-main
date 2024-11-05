@@ -328,5 +328,14 @@
   "str_group_admin_permission_success_toast": "권한이 성공적으로 변경되었습니다.",
   "str_dm_auto_delete_hint": "메시지는 ${time} 후에 자동으로 삭제됩니다",
   "delete_message_me_action_mode": "내 메시지 삭제",
-  "delete_message_everyone_action_mode": "모두 삭제"
+  "delete_message_everyone_action_mode": "모두 삭제",
+  "str_group_admin_permission_add_fail_toast": "권한을 추가할 수 없습니다.",
+  "str_title_new_message": "새 메시지",
+  "str_mark_as_unread": "읽지 않음으로 표시",
+  "str_mark_as_read": "읽음으로 표시",
+  "str_delete_contact": "연락처 삭제",
+  "str_title_chats": "채팅",
+  "str_title_media": "미디어",
+  "str_online_channels": "온라인 채널",
+  "str_online_groups": "온라인 그룹"
 }

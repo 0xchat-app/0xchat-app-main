@@ -328,5 +328,14 @@
   "str_group_admin_permission_success_toast": "Разрешение успешно изменено.",
   "str_dm_auto_delete_hint": "Сообщения автоматически удаляются через ${time}",
   "delete_message_me_action_mode": "Удалить для меня",
-  "delete_message_everyone_action_mode": "Удалить для всех"
+  "delete_message_everyone_action_mode": "Удалить для всех",
+  "str_group_admin_permission_add_fail_toast": "Не удалось добавить разрешение.",
+  "str_title_new_message": "Новое сообщение",
+  "str_mark_as_unread": "Отметить как непрочитанное",
+  "str_mark_as_read": "Отметить как прочитанное",
+  "str_delete_contact": "Удалить контакт",
+  "str_title_chats": "Чаты",
+  "str_title_media": "Медиа",
+  "str_online_channels": "Онлайн-каналы",
+  "str_online_groups": "Онлайн-группы"
 }
