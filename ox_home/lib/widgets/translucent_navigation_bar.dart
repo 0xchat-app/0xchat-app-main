@@ -12,6 +12,7 @@ import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/user_config_tool.dart';
+import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
@@ -665,7 +666,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
               showName,
               style: TextStyle(
                 fontSize: 16.px,
-                color: ThemeColor.color0,
+                color: ThemeColor.color100,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -683,8 +684,9 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
                 imageUrl: showPicture, size: 24.px))
                 : CommonImage(
                 iconName: model?.picture ?? '',
-                size: 24.px,
-                package: model?.iconPackage ?? null),
+                size: model != null && (model.type == MenuItemType.addContact || model.type == MenuItemType.addGroup) ? 18.px : 24.px,
+                color: ThemeColor.color100,
+                package: model?.iconPackage).setPadding(EdgeInsets.only(right: model != null && (model.type == MenuItemType.addContact || model.type == MenuItemType.addGroup) ? 6.px : 0)),
           ],
         ),
       ),
