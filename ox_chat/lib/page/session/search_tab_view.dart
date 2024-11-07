@@ -100,12 +100,9 @@ class _SearchTabViewState extends State<SearchTabView> with CommonStateViewMixin
       // case SearchType.ecash:
       //   break;
       case SearchType.media:
-        if (widget.data is List<MessageDBISAR>) {
-          final data = widget.data as List<MessageDBISAR>;
-          return SearchTabGridView(
-            data: data,
-          );
-        }
+        return SearchTabGridView(
+          searchQuery: widget.searchQuery,
+        );
         break;
       // case SearchType.link:
       //   break;
@@ -116,6 +113,7 @@ class _SearchTabViewState extends State<SearchTabView> with CommonStateViewMixin
   }
 
   void _handleNoData() {
+    if(widget.type == SearchType.media) return;
     if (widget.data.isEmpty) {
       updateStateView(CommonStateView.CommonStateView_NoData);
     } else {

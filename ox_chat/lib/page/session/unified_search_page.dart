@@ -247,7 +247,7 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
       _loadChannelsData();
       _loadOnlineGroupsAndChannelsData();
       _loadUsersData();
-      _getMediaList(content: searchQuery);
+      // _getMediaList(content: searchQuery);
     }
     setState(() {});
   }
@@ -257,7 +257,7 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
     _loadRecentChatMessage();
     _loadRecentGroup();
     _loadRecentChannel();
-    _getMediaList();
+    // _getMediaList();
   }
 
 
