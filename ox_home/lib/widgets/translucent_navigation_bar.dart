@@ -427,6 +427,9 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
       fetchUnreadCount();
       if (_tabBarList.isNotEmpty) {
         _tabBarItemOnTap(_tabBarList.elementAt(1));
+        for (var element in _tabBarList) {
+          element.unreadMsgCount = 0;
+        }
       }
     });
     _loadLocalInfo();
@@ -437,9 +440,9 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     setState(() {
       isLogin = false;
       if (_tabBarList.isNotEmpty) {
-        _tabBarList[0].unreadMsgCount = 0;
-        _tabBarList[1].unreadMsgCount = 0;
-        _tabBarList[2].unreadMsgCount = 0;
+        for (var element in _tabBarList) {
+          element.unreadMsgCount = 0;
+        }
       }
     });
     _loadLocalInfo();
@@ -447,7 +450,13 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
 
   @override
   void didSwitchUser(UserDBISAR? userInfo) {
-    // TODO: implement didSwitchUser
+    setState(() {
+      if (_tabBarList.isNotEmpty) {
+        for (var element in _tabBarList) {
+          element.unreadMsgCount = 0;
+        }
+      }
+    });
   }
 
   @override
