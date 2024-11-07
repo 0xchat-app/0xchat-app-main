@@ -533,6 +533,9 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
   void _copyMenuItemPressHandler(types.Message message) {
     if (message is types.TextMessage) {
       Clipboard.setData(ClipboardData(text: message.text));
+    } else if (message.isSingleEcashMessage) {
+      final token = EcashV2MessageEx(message as types.CustomMessage).tokenList.first;
+      Clipboard.setData(ClipboardData(text: token));
     }
   }
 
