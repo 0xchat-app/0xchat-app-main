@@ -29,5 +29,5 @@
   "enter_account_key_login_hint": "Adja meg a privát kulcsát a bejelentkezéshez:",
   "private_key_regular_failed": "A magánkulcs rendszeres hibája",
   "pub_key_regular_failed": "A nyilvános kulcs rendszeres hibája",
-  "str_not_installed_amber": "Nem telepítetted az Amber-t",
+  "str_not_installed_amber": "Nem telepítetted az Amber-t"
 }
