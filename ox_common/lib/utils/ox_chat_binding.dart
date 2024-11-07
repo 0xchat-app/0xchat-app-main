@@ -62,10 +62,13 @@ class OXChatBinding {
     unReadStrangerSessionCount = 0;
   }
 
-  void setAllSessionToReaded(){
-    sessionMap.values.forEach((element) {
+  void setAllSessionToReaded() async {
+    final sessionList = sessionMap.values.toList();
+    sessionList.forEach((element) {
       element.unreadCount = 0;
     });
+    unReadStrangerSessionCount = 0;
+    await DBISAR.sharedInstance.saveObjectsToDB(sessionList);
     sessionUpdate();
   }
 
