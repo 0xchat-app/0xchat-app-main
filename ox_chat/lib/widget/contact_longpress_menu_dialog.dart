@@ -149,14 +149,20 @@ class _ContactLongPressMenuDialogState extends State<ContactLongPressMenuDialog>
                     showItemName,
                     style: TextStyle(
                       fontSize: 14.px,
-                      color: ThemeColor.color100,
+                      color: optionType == CLongPressOptionType.deleteContact ||
+                              optionType == CLongPressOptionType.leaveGroupOrChannel
+                          ? ThemeColor.red
+                          : ThemeColor.color100,
                     ),
                   ),
                   CommonImage(
                     iconName: optionType.icon,
                     size: 24.px,
                     package: 'ox_chat',
-                    color: ThemeColor.color100,
+                    color: optionType == CLongPressOptionType.deleteContact ||
+                        optionType == CLongPressOptionType.leaveGroupOrChannel
+                        ? ThemeColor.red
+                        : ThemeColor.color100,
                   ),
                 ],
               ),

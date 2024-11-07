@@ -136,14 +136,14 @@ class _SessionLongPressMenuDialogState extends State<SessionLongPressMenuDialog>
                     model.content,
                     style: TextStyle(
                       fontSize: 14.px,
-                      color: ThemeColor.color100,
+                      color: model.optionEnum == LongPressOptionEnum.delete ? ThemeColor.red : ThemeColor.color100,
                     ),
                   ),
                   CommonImage(
                     iconName: model.iconName,
                     size: 24.px,
                     package: 'ox_chat',
-                    color: ThemeColor.color100,
+                    color: model.optionEnum == LongPressOptionEnum.delete ? ThemeColor.red : ThemeColor.color100,
                   ),
                 ],
               ),
