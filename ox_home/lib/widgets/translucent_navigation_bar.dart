@@ -103,7 +103,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
 
   final List<GlobalKey> _navItemKeyList = [GlobalKey(), GlobalKey(), GlobalKey()];
   List<TabbarMenuModel> _userCacheList = [];
-  late TabbarMenuModel _currentUser;
+  TabbarMenuModel? _currentUser;
 
   late AnimationController _animationController;
   late Animation<double> _animation;
@@ -141,7 +141,6 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     prepareMessageTimer();
     dataInit();
     isHasVibrator();
-    _loadLocalInfo();
 
   }
 
@@ -161,7 +160,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     }
   }
 
-  void _loadLocalInfo() async {
+  Future<void> _loadLocalInfo() async {
     UserDBISAR? currentUser = OXUserInfoManager.sharedInstance.currentUserInfo;
     if (currentUser != null) {
       //update user list
@@ -178,7 +177,6 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     if (currentIndex != -1) {
       _currentUser = _userCacheList.removeAt(currentIndex);
     }
-    if (mounted) setState(() {});
   }
 
   _showLoginPage(BuildContext context) {
@@ -432,7 +430,6 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
         }
       }
     });
-    _loadLocalInfo();
   }
 
   @override
@@ -445,7 +442,6 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
         }
       }
     });
-    _loadLocalInfo();
   }
 
   @override
@@ -546,7 +542,10 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     return true; //
   }
 
-  void _showPopupDialog(BuildContext context, int index) {
+  void _showPopupDialog(BuildContext context, int index) async {
+    if (index == 2) {
+      await _loadLocalInfo();
+    }
     final RenderBox renderBox =
         _navItemKeyList[index].currentContext!.findRenderObject() as RenderBox;
     final position = renderBox.localToGlobal(Offset.zero);
@@ -747,7 +746,6 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
         await OXLoading.show();
         await OXUserInfoManager.sharedInstance.switchAccount(pubKey);
         await OXLoading.dismiss();
-        _loadLocalInfo();
         break;
       case MenuItemType.addUserType:
         OXModuleService.pushPage(context, 'ox_login', 'LoginPage', {});
