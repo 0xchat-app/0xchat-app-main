@@ -6,6 +6,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:glassmorphism/glassmorphism.dart';
 import 'package:ox_common/business_interface/ox_chat/interface.dart';
+import 'package:ox_common/mixin/common_navigator_observer_mixin.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
@@ -82,7 +83,7 @@ class TranslucentNavigationBar extends StatefulWidget {
   State<TranslucentNavigationBar> createState() => TranslucentNavigationBarState();
 }
 
-class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with OXUserInfoObserver, OXChatObserver, TickerProviderStateMixin, WidgetsBindingObserver {
+class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with OXUserInfoObserver, OXChatObserver, TickerProviderStateMixin, WidgetsBindingObserver, NavigatorObserverMixin {
   bool isLogin = false;
   Timer? _refreshMessagesTimer;
   int selectedIndex = 1;
@@ -128,6 +129,10 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
 
   isHasVibrator() async {
     hasVibrator = (await Vibrate.canVibrate);
+  }
+
+  @override
+  Future<void> didPopNext() async {
   }
 
   @override
