@@ -32,6 +32,7 @@ import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/throttle_utils.dart';
+import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/widgets/base_page_state.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
@@ -67,7 +68,7 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   RefreshController _refreshController = new RefreshController();
   List<ChatSessionModelISAR> _msgDatas = []; // Message List
   int _allUnreadCount = 0;
-  List<ValueNotifier<double>> _scaleList = [];
+  List<ValueNotifier<bool>> _scaleList = [];
   Map<String, BadgeDBISAR> _badgeCache = {};
   Map<String, bool> _muteCache = {};
   Map<String, List<String>> _groupMembersCache = {};
@@ -106,6 +107,9 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     _refreshController.dispose();
     WidgetsBinding.instance.removeObserver(this);
     OXUserInfoManager.sharedInstance.removeObserver(this);
+    for (var notifier in _scaleList) {
+      notifier.dispose();
+    }
     super.dispose();
   }
 
@@ -324,7 +328,7 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
       setState(() {});
     }
     if (_msgDatas.length > 0) {
-      _scaleList = List.generate(_msgDatas.length, (index) => ValueNotifier(1.0));
+      _scaleList = List.generate(_msgDatas.length, (index) => ValueNotifier(false));
       updateStateView(CommonStateView.CommonStateView_None);
       _updateReadStatus();
     } else {
@@ -525,16 +529,11 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     }
   }
 
-  void _itemLongPressFn(ChatSessionModelISAR item, int index) async {
+  void _itemLongPressFn(ChatSessionModelISAR item, int index) {
     if (_hasVibrator && OXUserInfoManager.sharedInstance.canVibrate) {
-      FeedbackType type = FeedbackType.impact;
-      Vibrate.feedback(type);
+      TookKit.vibrateEffect();
     }
     if (item.chatId == CommonConstant.NOTICE_CHAT_ID) return;
-    _scaleList[index].value = 0.96;
-    await Future.delayed(Duration(milliseconds: 80));
-    _scaleList[index].value = 1.0;
-    await Future.delayed(Duration(milliseconds: 80));
     ChatMessagePage.open(
       context: context,
       communityItem: item,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_link_previewer/flutter_link_previewer.dart'
-    show LinkPreview, regexEmail, regexLink, regexNostr;
+    show LinkPreview;
 import 'package:flutter_parsed_text/flutter_parsed_text.dart';
 import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/utils/theme_color.dart';

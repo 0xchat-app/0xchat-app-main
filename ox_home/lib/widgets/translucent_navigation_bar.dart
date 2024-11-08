@@ -6,12 +6,15 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:glassmorphism/glassmorphism.dart';
 import 'package:ox_common/business_interface/ox_chat/interface.dart';
+import 'package:ox_common/mixin/common_navigator_observer_mixin.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
+import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/utils/user_config_tool.dart';
+import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
@@ -103,7 +106,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
 
   final List<GlobalKey> _navItemKeyList = [GlobalKey(), GlobalKey(), GlobalKey()];
   List<TabbarMenuModel> _userCacheList = [];
-  late TabbarMenuModel _currentUser;
+  TabbarMenuModel? _currentUser;
 
   late AnimationController _animationController;
   late Animation<double> _animation;
@@ -141,7 +144,6 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     prepareMessageTimer();
     dataInit();
     isHasVibrator();
-    _loadLocalInfo();
 
   }
 
@@ -161,7 +163,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     }
   }
 
-  void _loadLocalInfo() async {
+  Future<void> _loadLocalInfo() async {
     UserDBISAR? currentUser = OXUserInfoManager.sharedInstance.currentUserInfo;
     if (currentUser != null) {
       //update user list
@@ -178,7 +180,6 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     if (currentIndex != -1) {
       _currentUser = _userCacheList.removeAt(currentIndex);
     }
-    if (mounted) setState(() {});
   }
 
   _showLoginPage(BuildContext context) {
@@ -266,12 +267,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
           for (final item in _tabBarList)
             GestureDetector(
               onLongPress: () {
-                int index = _tabBarList.indexOf(item);
-                if (hasVibrator == true && OXUserInfoManager.sharedInstance.canVibrate) {
-                  FeedbackType type = FeedbackType.impact;
-                  Vibrate.feedback(type);
-                }
-                _showPopupDialog(context, index);
+                _tabbarItemOnLongPress(item);
               },
               onTap: () {
                 _tabBarItemOnTap(item);
@@ -286,13 +282,19 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     );
   }
 
+  void _tabbarItemOnLongPress(TranslucentNavigationBarItem item){
+    int index = _tabBarList.indexOf(item);
+    if (hasVibrator == true && OXUserInfoManager.sharedInstance.canVibrate) {
+      TookKit.vibrateEffect();
+    }
+    _showPopupDialog(context, index);
+  }
+
   void _tabBarItemOnTap(TranslucentNavigationBarItem item) {
     int draftIndex = selectedIndex;
     int index = _tabBarList.indexOf(item);
     if (selectedIndex != index && hasVibrator == true && OXUserInfoManager.sharedInstance.canVibrate) {
-      //Vibration feedback
-      FeedbackType type = FeedbackType.impact;
-      Vibrate.feedback(type);
+      TookKit.vibrateEffect();
     }
     if (!OXUserInfoManager.sharedInstance.isLogin && (index == 2)) {
       _showLoginPage(context);
@@ -427,9 +429,11 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
       fetchUnreadCount();
       if (_tabBarList.isNotEmpty) {
         _tabBarItemOnTap(_tabBarList.elementAt(1));
+        for (var element in _tabBarList) {
+          element.unreadMsgCount = 0;
+        }
       }
     });
-    _loadLocalInfo();
   }
 
   @override
@@ -437,17 +441,22 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     setState(() {
       isLogin = false;
       if (_tabBarList.isNotEmpty) {
-        _tabBarList[0].unreadMsgCount = 0;
-        _tabBarList[1].unreadMsgCount = 0;
-        _tabBarList[2].unreadMsgCount = 0;
+        for (var element in _tabBarList) {
+          element.unreadMsgCount = 0;
+        }
       }
     });
-    _loadLocalInfo();
   }
 
   @override
   void didSwitchUser(UserDBISAR? userInfo) {
-    // TODO: implement didSwitchUser
+    setState(() {
+      if (_tabBarList.isNotEmpty) {
+        for (var element in _tabBarList) {
+          element.unreadMsgCount = 0;
+        }
+      }
+    });
   }
 
   @override
@@ -537,7 +546,10 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     return true; //
   }
 
-  void _showPopupDialog(BuildContext context, int index) {
+  void _showPopupDialog(BuildContext context, int index) async {
+    if (index == 2) {
+      await _loadLocalInfo();
+    }
     final RenderBox renderBox =
         _navItemKeyList[index].currentContext!.findRenderObject() as RenderBox;
     final position = renderBox.localToGlobal(Offset.zero);
@@ -657,7 +669,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
               showName,
               style: TextStyle(
                 fontSize: 16.px,
-                color: ThemeColor.color0,
+                color: ThemeColor.color100,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -675,8 +687,9 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
                 imageUrl: showPicture, size: 24.px))
                 : CommonImage(
                 iconName: model?.picture ?? '',
-                size: 24.px,
-                package: model?.iconPackage ?? null),
+                size: model != null && (model.type == MenuItemType.addContact || model.type == MenuItemType.addGroup) ? 18.px : 24.px,
+                color: ThemeColor.color100,
+                package: model?.iconPackage).setPadding(EdgeInsets.only(right: model != null && (model.type == MenuItemType.addContact || model.type == MenuItemType.addGroup) ? 6.px : 0)),
           ],
         ),
       ),
@@ -738,7 +751,6 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
         await OXLoading.show();
         await OXUserInfoManager.sharedInstance.switchAccount(pubKey);
         await OXLoading.dismiss();
-        _loadLocalInfo();
         break;
       case MenuItemType.addUserType:
         OXModuleService.pushPage(context, 'ox_login', 'LoginPage', {});

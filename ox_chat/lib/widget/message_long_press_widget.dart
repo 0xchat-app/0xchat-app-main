@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/model/constant.dart';
 import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
 import 'package:ox_chat/widget/reaction_input_widget.dart';
@@ -71,7 +72,7 @@ class MessageLongPressWidgetState extends State<MessageLongPressWidget> {
     menuList.clear();
     // Base
     menuList.addAll([
-      if (message is types.TextMessage)
+      if (message is types.TextMessage || message.isSingleEcashMessage)
         ItemModel(
           Localized.text('ox_chat.message_menu_copy'),
           AssetImageData('icon_copy.png', package: 'ox_chat'),

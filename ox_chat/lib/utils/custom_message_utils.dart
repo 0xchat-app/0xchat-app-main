@@ -252,8 +252,16 @@ extension EcashMessageEx on types.CustomMessage {
     metadata?[CustomMessageEx.metaContentKey]?[EcashMessageEx.metaAmountKey] = totalAmount.toString();
   }
 
-  static List<String> getTokenListWithMetadata(Map? metadata) =>
-      metadata?[CustomMessageEx.metaContentKey]?[EcashMessageEx.metaTokenListKey] ?? [];
+  static List<String> getTokenListWithMetadata(Map? metadata) {
+    List<String> result = <String>[];
+    final tokenList = metadata?[CustomMessageEx.metaContentKey]?[EcashMessageEx.metaTokenListKey];
+    if (tokenList is List) {
+      try {
+        result = tokenList.cast<String>();
+      } catch (_) {}
+    }
+    return result;
+  }
 
   static String getDescriptionWithMetadata(Map? metadata) {
     final amount = metadata?[CustomMessageEx.metaContentKey]?[EcashMessageEx.metaMemoKey];
@@ -354,8 +362,16 @@ extension EcashV2MessageEx on types.CustomMessage {
     metadata?[CustomMessageEx.metaContentKey]?[EcashV2MessageEx.metaAmountKey] = totalAmount.toString();
   }
 
-  static List<String> getTokenListWithMetadata(Map? metadata) =>
-      metadata?[CustomMessageEx.metaContentKey]?[EcashV2MessageEx.metaTokenListKey] ?? [];
+  static List<String> getTokenListWithMetadata(Map? metadata) {
+    List<String> result = <String>[];
+    final tokenList = metadata?[CustomMessageEx.metaContentKey]?[EcashV2MessageEx.metaTokenListKey];
+    if (tokenList is List) {
+      try {
+        result = tokenList.cast<String>();
+      } catch (_) {}
+    }
+    return result;
+  }
 
   static String getDescriptionWithMetadata(Map? metadata) {
     final amount = metadata?[CustomMessageEx.metaContentKey]?[EcashV2MessageEx.metaMemoKey];

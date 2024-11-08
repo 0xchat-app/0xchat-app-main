@@ -89,6 +89,11 @@ class UserCenterPageState extends State<UserCenterPage>
           }
         }
       });
+    _loadData();
+  }
+
+  void _loadData() {
+    _isShowMomentUnread = false;
     _initInterface();
     _verifiedDNS();
   }
@@ -240,6 +245,7 @@ class UserCenterPageState extends State<UserCenterPage>
 
   @override
   void didLoginSuccess(UserDBISAR? userInfo) {
+    _loadData();
     if (mounted) {
       setState(() {
         updateStateView(CommonStateView.CommonStateView_None);
@@ -249,11 +255,24 @@ class UserCenterPageState extends State<UserCenterPage>
 
   @override
   void didLogout() {
+    _loadData();
     if (mounted) {
       setState(() {
         updateStateView(CommonStateView.CommonStateView_NotLogin);
         LogUtil.e("usercenter.didLogout");
       });
+    }
+  }
+
+  @override
+  void didSwitchUser(UserDBISAR? userInfo) {
+    _loadData();
+    if (mounted) {
+      if (OXUserInfoManager.sharedInstance.isLogin){
+        setState(() {
+          updateStateView(CommonStateView.CommonStateView_None);
+        });
+      }
     }
   }
 
@@ -340,18 +359,6 @@ class UserCenterPageState extends State<UserCenterPage>
 
   void _switchAccount() {
     OXNavigator.pushPage(context, (context) => const SwitchAccountPage());
-  }
-
-  @override
-  void didSwitchUser(UserDBISAR? userInfo) {
-    if (mounted) {
-      if (OXUserInfoManager.sharedInstance.isLogin){
-        setState(() {
-          updateStateView(CommonStateView.CommonStateView_None);
-        });
-      }
-      _verifiedDNS();
-    }
   }
 
   @override

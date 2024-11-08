@@ -15,6 +15,7 @@ import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
@@ -409,7 +410,7 @@ class ContractListItem extends StatefulWidget {
 
 class _ContractListItemState extends State<ContractListItem> {
   bool isChecked = false;
-  ValueNotifier<double> valueNotifier = ValueNotifier(1.0);
+  ValueNotifier<bool> valueNotifier = ValueNotifier(false);
 
   void _onCheckChanged() {
     setState(() {
@@ -419,15 +420,13 @@ class _ContractListItemState extends State<ContractListItem> {
   }
 
   void _itemLongPress() async {
+    await Future.delayed(Duration(milliseconds: 100));
+    valueNotifier.value = false;
+    await Future.delayed(Duration(milliseconds: 100));
     if (widget.supportLongPress && widget.item.pubKey.isNotEmpty) {
       if (widget.hasVibrator && OXUserInfoManager.sharedInstance.canVibrate) {
-        FeedbackType type = FeedbackType.impact;
-        Vibrate.feedback(type);
+        TookKit.vibrateEffect();
       }
-      valueNotifier.value = 0.96;
-      await Future.delayed(Duration(milliseconds: 80));
-      valueNotifier.value = 1.0;
-      await Future.delayed(Duration(milliseconds: 80));
       UserDBISAR? userDB = Contacts.sharedInstance.allContacts[widget.item.pubKey] as UserDBISAR;
       ChatMessagePage.open(
         context: context,
@@ -486,82 +485,89 @@ class _ContractListItemState extends State<ContractListItem> {
             24.0,
             useTheme: true,
           );
-    return ValueListenableBuilder<double>(
-      valueListenable: valueNotifier,
-      builder: (context, scale, child) {
-        return GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onTap: widget.editable ? _onCheckChanged : _onItemClick,
-          onLongPress: _itemLongPress,
-          child: AnimatedScale(
-            scale: scale,
-            duration: Duration(milliseconds: 80),
-            curve: Curves.easeOut,
-            child: Container(
-              width: double.infinity,
-              height: itemHeight,
-              padding: EdgeInsets.only(
-                  left: Adapt.px(24.0),
-                  top: Adapt.px(10.0),
-                  bottom: Adapt.px(10.0)),
-              child: Row(
-                children: <Widget>[
-                  widget.editable
-                      ? Container(
-                          margin: EdgeInsets.only(right: Adapt.px(7.0)),
-                          child: checkWidget,
-                        )
-                      : SizedBox(),
-                  Stack(
-                    children: [
-                      iconAvatar,
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: FutureBuilder<BadgeDBISAR?>(
-                          builder: (context, snapshot) {
-                            return (snapshot.data != null)
-                                ? OXCachedNetworkImage(
-                                    imageUrl: snapshot.data?.thumb ?? '',
-                                    errorWidget: (context, url, error) =>
-                                        badgePlaceholderImage,
-                                    width: Adapt.px(20),
-                                    height: Adapt.px(20),
-                                    fit: BoxFit.cover,
-                                  )
-                                : SizedBox();
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: widget.editable ? _onCheckChanged : _onItemClick,
+      onLongPressStart: (_) {
+        valueNotifier.value = true;
+      },
+      onLongPress: _itemLongPress,
+      child: ValueListenableBuilder<bool>(
+        valueListenable: valueNotifier,
+        builder: (context, scale, child) {
+          return TweenAnimationBuilder<double>(
+            tween: Tween<double>(begin: 1.0, end: scale ? 0.9 : 1.0),
+            duration: Duration(milliseconds: 100),
+            builder: (context, value, child) {
+              return Transform.scale(
+                scale: value,
+                child: Container(
+                  width: double.infinity,
+                  height: itemHeight,
+                  padding: EdgeInsets.only(
+                      left: Adapt.px(24.0),
+                      top: Adapt.px(10.0),
+                      bottom: Adapt.px(10.0)),
+                  child: Row(
+                    children: <Widget>[
+                      widget.editable
+                          ? Container(
+                        margin: EdgeInsets.only(right: Adapt.px(7.0)),
+                        child: checkWidget,
+                      )
+                          : SizedBox(),
+                      Stack(
+                        children: [
+                          iconAvatar,
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: FutureBuilder<BadgeDBISAR?>(
+                              builder: (context, snapshot) {
+                                return (snapshot.data != null)
+                                    ? OXCachedNetworkImage(
+                                  imageUrl: snapshot.data?.thumb ?? '',
+                                  errorWidget: (context, url, error) =>
+                                  badgePlaceholderImage,
+                                  width: Adapt.px(20),
+                                  height: Adapt.px(20),
+                                  fit: BoxFit.cover,
+                                )
+                                    : SizedBox();
+                              },
+                              future: _getUserSelectedBadgeInfo(widget.item),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Container(
+                        width: Adapt.screenW - Adapt.px(120),
+                        margin: EdgeInsets.only(left: Adapt.px(16.0)),
+                        child: ValueListenableBuilder<UserDBISAR>(
+                          valueListenable: Account.sharedInstance
+                              .getUserNotifier(widget.item.pubKey),
+                          builder: (context, value, child) {
+                            return MyText(
+                              (widget.item.nickName != null &&
+                                  widget.item.nickName!.isNotEmpty)
+                                  ? widget.item.nickName!
+                                  : widget.item.name ?? '',
+                              18,
+                              ThemeColor.white02,
+                              fontWeight: FontWeight.bold,
+                              overflow: TextOverflow.ellipsis,
+                            );
                           },
-                          future: _getUserSelectedBadgeInfo(widget.item),
                         ),
                       ),
                     ],
                   ),
-                  Container(
-                    width: Adapt.screenW - Adapt.px(120),
-                    margin: EdgeInsets.only(left: Adapt.px(16.0)),
-                    child: ValueListenableBuilder<UserDBISAR>(
-                      valueListenable: Account.sharedInstance
-                          .getUserNotifier(widget.item.pubKey),
-                      builder: (context, value, child) {
-                        return MyText(
-                          (widget.item.nickName != null &&
-                                  widget.item.nickName!.isNotEmpty)
-                              ? widget.item.nickName!
-                              : widget.item.name ?? '',
-                          18,
-                          ThemeColor.white02,
-                          fontWeight: FontWeight.bold,
-                          overflow: TextOverflow.ellipsis,
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
+                ),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 

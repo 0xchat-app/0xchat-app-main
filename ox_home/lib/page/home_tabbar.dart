@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/business_interface/ox_chat/contact_base_page_state.dart';
+import 'package:ox_common/mixin/common_navigator_observer_mixin.dart';
 import 'package:ox_common/model/msg_notification_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -36,7 +37,7 @@ class HomeTabBarPage extends StatefulWidget {
   State<HomeTabBarPage> createState() => _HomeTabBarPageState();
 }
 
-class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver, OXChatObserver, TickerProviderStateMixin, WidgetsBindingObserver {
+class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver, OXChatObserver, TickerProviderStateMixin, WidgetsBindingObserver, NavigatorObserverMixin {
   bool isLogin = false;
   final PageController _pageController = PageController(initialPage: 1);
 
@@ -194,6 +195,12 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
         child: page,
       ),
     );
+  }
+
+  @override
+  Future<void> didPopNext() async {
+    _bottomNavOffset = 0.0;
+    tabBarGlobalKey.currentState?.updateOffset(_bottomNavOffset);
   }
 
   @override

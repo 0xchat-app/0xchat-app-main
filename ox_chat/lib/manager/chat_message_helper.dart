@@ -713,4 +713,17 @@ extension UIMessageEx on types.Message {
         && msg.customType == CustomMessageType.video
         && ImageSendingMessageEx(msg).url.isNotEmpty;
   }
+
+  bool get isEcashMessage {
+    final msg = this;
+    return msg is types.CustomMessage
+        && msg.customType == CustomMessageType.ecashV2;
+  }
+
+  bool get isSingleEcashMessage {
+    if (!isEcashMessage) return false;
+
+    final msg = this as types.CustomMessage;
+    return EcashV2MessageEx(msg).tokenList.length == 1;
+  }
 }
