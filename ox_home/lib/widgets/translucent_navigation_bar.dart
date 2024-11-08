@@ -83,7 +83,7 @@ class TranslucentNavigationBar extends StatefulWidget {
   State<TranslucentNavigationBar> createState() => TranslucentNavigationBarState();
 }
 
-class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with OXUserInfoObserver, OXChatObserver, TickerProviderStateMixin, WidgetsBindingObserver, NavigatorObserverMixin {
+class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with OXUserInfoObserver, OXChatObserver, TickerProviderStateMixin, WidgetsBindingObserver {
   bool isLogin = false;
   Timer? _refreshMessagesTimer;
   int selectedIndex = 1;
@@ -129,10 +129,6 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
 
   isHasVibrator() async {
     hasVibrator = (await Vibrate.canVibrate);
-  }
-
-  @override
-  Future<void> didPopNext() async {
   }
 
   @override
