@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_vibrate/flutter_vibrate.dart';
 import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 
@@ -54,5 +55,9 @@ class TookKit{
     );
     await CommonToast.instance
         .show(context, 'copied_to_clipboard'.commonLocalized());
+  }
+
+  static Future<void> vibrateEffect() async {
+    Vibrate.feedback(FeedbackType.impact);
   }
 }
