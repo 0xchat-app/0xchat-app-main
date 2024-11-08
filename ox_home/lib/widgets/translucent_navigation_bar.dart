@@ -266,12 +266,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
           for (final item in _tabBarList)
             GestureDetector(
               onLongPress: () {
-                int index = _tabBarList.indexOf(item);
-                if (hasVibrator == true && OXUserInfoManager.sharedInstance.canVibrate) {
-                  FeedbackType type = FeedbackType.impact;
-                  Vibrate.feedback(type);
-                }
-                _showPopupDialog(context, index);
+                _tabbarItemOnLongPress(item);
               },
               onTap: () {
                 _tabBarItemOnTap(item);
@@ -286,13 +281,24 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     );
   }
 
+  void _tabbarItemOnLongPress(TranslucentNavigationBarItem item){
+    int index = _tabBarList.indexOf(item);
+    if (hasVibrator == true && OXUserInfoManager.sharedInstance.canVibrate) {
+      _vibrate();
+    }
+    _showPopupDialog(context, index);
+  }
+
+  Future<void> _vibrate() async {
+    FeedbackType type = FeedbackType.impact;
+    Vibrate.feedback(type);
+  }
+
   void _tabBarItemOnTap(TranslucentNavigationBarItem item) {
     int draftIndex = selectedIndex;
     int index = _tabBarList.indexOf(item);
     if (selectedIndex != index && hasVibrator == true && OXUserInfoManager.sharedInstance.canVibrate) {
-      //Vibration feedback
-      FeedbackType type = FeedbackType.impact;
-      Vibrate.feedback(type);
+      _vibrate();
     }
     if (!OXUserInfoManager.sharedInstance.isLogin && (index == 2)) {
       _showLoginPage(context);
