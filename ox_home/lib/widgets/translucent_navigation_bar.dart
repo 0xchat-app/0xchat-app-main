@@ -12,6 +12,7 @@ import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
+import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/avatar.dart';
@@ -284,21 +285,16 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
   void _tabbarItemOnLongPress(TranslucentNavigationBarItem item){
     int index = _tabBarList.indexOf(item);
     if (hasVibrator == true && OXUserInfoManager.sharedInstance.canVibrate) {
-      _vibrate();
+      TookKit.vibrateEffect();
     }
     _showPopupDialog(context, index);
-  }
-
-  Future<void> _vibrate() async {
-    FeedbackType type = FeedbackType.impact;
-    Vibrate.feedback(type);
   }
 
   void _tabBarItemOnTap(TranslucentNavigationBarItem item) {
     int draftIndex = selectedIndex;
     int index = _tabBarList.indexOf(item);
     if (selectedIndex != index && hasVibrator == true && OXUserInfoManager.sharedInstance.canVibrate) {
-      _vibrate();
+      TookKit.vibrateEffect();
     }
     if (!OXUserInfoManager.sharedInstance.isLogin && (index == 2)) {
       _showLoginPage(context);

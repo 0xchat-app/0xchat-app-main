@@ -364,18 +364,17 @@ class GroupContactListItem extends StatefulWidget {
 }
 
 class _GroupContactListItemState extends State<GroupContactListItem> {
-  ValueNotifier<double> valueNotifier = ValueNotifier(1.0);
+  ValueNotifier<bool> valueNotifier = ValueNotifier(false);
 
   void _itemLongPress() async {
+    await Future.delayed(Duration(milliseconds: 100));
+    valueNotifier.value = false;
+    await Future.delayed(Duration(milliseconds: 100));
     if (widget.supportLongPress && widget.item.groupId.isNotEmpty) {
       if (widget.hasVibrator && OXUserInfoManager.sharedInstance.canVibrate) {
         FeedbackType type = FeedbackType.impact;
         Vibrate.feedback(type);
       }
-      valueNotifier.value = 0.96;
-      await Future.delayed(Duration(milliseconds: 80));
-      valueNotifier.value = 1.0;
-      await Future.delayed(Duration(milliseconds: 80));
       ChatMessagePage.open(
         context: context,
         communityItem: ChatSessionModelISAR(
@@ -435,52 +434,63 @@ class _GroupContactListItemState extends State<GroupContactListItem> {
         break;
     }
     Widget? groupTypeWidget = ChatSessionUtils.getTypeSessionView(widget.item.chatType, widget.item.groupId);
-    return ValueListenableBuilder<double>(
-      valueListenable: valueNotifier,
-      builder: (context, scale, child) {
-        return GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onTap: _onItemClick,
-          onLongPress: _itemLongPress,
-          child: Container(
-            color: ThemeColor.color200,
-            width: double.infinity,
-            height: itemHeight,
-            padding: EdgeInsets.only(left: Adapt.px(24.0), top: Adapt.px(10.0), bottom: Adapt.px(10.0)),
-            child: Row(
-              children: <Widget>[
-                SizedBox(
-                  width: 48.px,
-                  height: 48.px,
-                  child: Stack(
-                    children: [
-                      iconAvatar,
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: groupTypeWidget,
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  width: Adapt.screenW - Adapt.px(120),
-                  margin: EdgeInsets.only(left: Adapt.px(16)),
-                  child: Text(
-                    showName,
-                    style: TextStyle(
-                      fontSize: Adapt.px(16),
-                      color: ThemeColor.color10,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: _onItemClick,
+      onLongPressStart: (_) {
+        valueNotifier.value = true;
       },
+      onLongPress: _itemLongPress,
+      child: ValueListenableBuilder<bool>(
+        valueListenable: valueNotifier,
+        builder: (context, scale, child) {
+          return TweenAnimationBuilder<double>(tween: Tween<double>(begin: 1.0, end: scale ? 0.9 : 1.0),
+              duration: Duration(milliseconds: 100),
+              builder: (context, value, child) {
+                return Transform.scale(
+                  scale: value,
+                  child: Container(
+                    color: ThemeColor.color200,
+                    width: double.infinity,
+                    height: itemHeight,
+                    padding: EdgeInsets.only(left: Adapt.px(24.0), top: Adapt.px(10.0), bottom: Adapt.px(10.0)),
+                    child: Row(
+                      children: <Widget>[
+                        SizedBox(
+                          width: 48.px,
+                          height: 48.px,
+                          child: Stack(
+                            children: [
+                              iconAvatar,
+                              Positioned(
+                                bottom: 0,
+                                right: 0,
+                                child: groupTypeWidget,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          width: Adapt.screenW - Adapt.px(120),
+                          margin: EdgeInsets.only(left: Adapt.px(16)),
+                          child: Text(
+                            showName,
+                            style: TextStyle(
+                              fontSize: Adapt.px(16),
+                              color: ThemeColor.color10,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+          );
+        },
+      ),
     );
   }
 }

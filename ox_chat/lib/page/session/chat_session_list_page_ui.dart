@@ -101,87 +101,98 @@ extension ChatSessionListPageUI on ChatSessionListPageState{
   }
 
   Widget _buildBusinessInfo(ChatSessionModelISAR item, int index) {
-    return ValueListenableBuilder<double>(
-      valueListenable: _scaleList[index],
-      builder: (context, scale, child) {
-        return GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onTap: () {
-            _itemFn(item);
-          },
-          onLongPress: () {
-            _itemLongPressFn(item, index);
-          },
-          child: AnimatedScale(
-            scale: scale,
-            duration: Duration(milliseconds: 80),
-            curve: Curves.easeOut,
-            child: Container(
-              padding: EdgeInsets.only(top: Adapt.px(12), left: Adapt.px(16), bottom: Adapt.px(12), right: Adapt.px(16)),
-              constraints: BoxConstraints(
-                minWidth: 30.px,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Expanded(
-                    child: Row(
-                      children: <Widget>[
-                        _getMsgIcon(item),
-                        Expanded(
-                          child: Container(
-                            alignment: Alignment.centerLeft,
-                            padding: EdgeInsets.only(left: Adapt.px(16), right: Adapt.px(16)),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Row(
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () {
+        _itemFn(item);
+      },
+      onLongPressStart: (_) {
+        _scaleList[index].value = true;
+      },
+      onLongPress: () async {
+        await Future.delayed(Duration(milliseconds: 100));
+        _scaleList[index].value = false;
+        await Future.delayed(Duration(milliseconds: 100));
+        _itemLongPressFn(item, index);
+      },
+      child: ValueListenableBuilder<bool>(
+        valueListenable: _scaleList[index],
+        builder: (context, scale, child) {
+          return TweenAnimationBuilder<double>(
+            tween: Tween<double>(begin: 1.0, end: scale ? 0.9 : 1.0),
+            duration: Duration(milliseconds: 100),
+            builder: (context, value, child) {
+              return Transform.scale(
+                scale: value,
+                child: Container(
+                  padding: EdgeInsets.only(top: Adapt.px(12), left: Adapt.px(16), bottom: Adapt.px(12), right: Adapt.px(16)),
+                  constraints: BoxConstraints(
+                    minWidth: 30.px,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Expanded(
+                        child: Row(
+                          children: <Widget>[
+                            _getMsgIcon(item),
+                            Expanded(
+                              child: Container(
+                                alignment: Alignment.centerLeft,
+                                padding: EdgeInsets.only(left: Adapt.px(16), right: Adapt.px(16)),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: <Widget>[
-                                    _buildItemName(item),
-                                    if (_getChatSessionMute(item))
-                                      CommonImage(
-                                        iconName: 'icon_mute.png',
-                                        width: Adapt.px(16),
-                                        height: Adapt.px(16),
-                                        package: 'ox_chat',
+                                    Row(
+                                      children: <Widget>[
+                                        _buildItemName(item),
+                                        if (_getChatSessionMute(item))
+                                          CommonImage(
+                                            iconName: 'icon_mute.png',
+                                            width: Adapt.px(16),
+                                            height: Adapt.px(16),
+                                            package: 'ox_chat',
+                                          ),
+                                      ],
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.only(top: 6.px),
+                                      child: Container(
+                                        constraints: BoxConstraints(maxWidth: _subTitleMaxW),
+                                        child: _buildItemSubtitle(item),
                                       ),
+                                    ),
                                   ],
                                 ),
-                                Padding(
-                                  padding: EdgeInsets.only(top: 6.px),
-                                  child: Container(
-                                    constraints: BoxConstraints(maxWidth: _subTitleMaxW),
-                                    child: _buildItemSubtitle(item),
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
-                          ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: <Widget>[
-                      _buildReadWidget(item),
-                      SizedBox(height: 8.px),
-                      Padding(
-                        padding: EdgeInsets.only(bottom: 0),
-                        child: Text(OXDateUtils.convertTimeFormatString2(item.createTime* 1000, pattern: 'MM-dd'),
-                            textAlign: TextAlign.left, maxLines: 1, style: _Style.newsContentSub()),
+                      ),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: <Widget>[
+                          _buildReadWidget(item),
+                          SizedBox(height: 8.px),
+                          Padding(
+                            padding: EdgeInsets.only(bottom: 0),
+                            child: Text(OXDateUtils.convertTimeFormatString2(item.createTime* 1000, pattern: 'MM-dd'),
+                                textAlign: TextAlign.left, maxLines: 1, style: _Style.newsContentSub()),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
+                ),
+              );
+            },
+          );
+        },
+      ),
     );
+
   }
 
   Widget _getMsgIcon(ChatSessionModelISAR item) {
