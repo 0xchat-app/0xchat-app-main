@@ -25,15 +25,16 @@ class SearchTabGridView extends StatefulWidget {
 class _SearchTabGridViewState extends State<SearchTabGridView> with CommonStateViewMixin {
 
   List<MessageDBISAR> _mediaMessages = [];
+  final ScrollController _scrollController = ScrollController();
+  int? lastTimestamp;
+  final int pageSize = 51;
+  bool hasMore = true;
 
   @override
   void initState() {
     super.initState();
-    if (widget.searchQuery.isEmpty) {
-      _getMediaList();
-    } else {
-      _getMediaList(content: widget.searchQuery);
-    }
+    _updateState();
+    _scrollController.addListener(_scrollListener);
   }
 
   @override
@@ -49,12 +50,28 @@ class _SearchTabGridViewState extends State<SearchTabGridView> with CommonStateV
     }
   }
 
+  void _updateState() {
+    if (widget.searchQuery.isEmpty) {
+      _getMediaList();
+    } else {
+      _getMediaList(content: widget.searchQuery);
+    }
+  }
+
+  void _scrollListener() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent) {
+      _updateState();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final mediaMessages = _mediaMessages;
     return commonStateViewWidget(
       context,
       GridView.builder(
+        controller: _scrollController,
         padding: EdgeInsets.symmetric(vertical: 2.px),
         shrinkWrap: true,
         itemCount: mediaMessages.length,
@@ -98,13 +115,17 @@ class _SearchTabGridViewState extends State<SearchTabGridView> with CommonStateV
 
   @override
   void didUpdateWidget(covariant SearchTabGridView oldWidget) {
+    super.didUpdateWidget(oldWidget);
     if (widget.searchQuery != oldWidget.searchQuery) {
+      _mediaMessages.clear();
+      hasMore = true;
+      lastTimestamp = null;
       _getMediaList(content: widget.searchQuery);
     }
-    super.didUpdateWidget(oldWidget);
   }
 
   void _getMediaList({String? content}) async {
+    if(!hasMore) return;
     Map result = await Messages.loadMessagesFromDB(
       messageTypes: [
         MessageType.image,
@@ -113,17 +134,25 @@ class _SearchTabGridViewState extends State<SearchTabGridView> with CommonStateV
         MessageType.encryptedVideo,
       ],
       decryptContentLike: content,
-      // since: 0
-      // until: DateTime.now().microsecondsSinceEpoch,
-      // limit: 50,
+      until: lastTimestamp,
+      limit: pageSize,
     );
     List<MessageDBISAR> messages = result['messages'] ?? <MessageDBISAR>[];
-    _mediaMessages = messages;
-    if (_mediaMessages.isEmpty) {
+    if (messages.isEmpty) {
       updateStateView(CommonStateView.CommonStateView_NoData);
     } else {
+      lastTimestamp = messages.last.createTime - 1;
+      _mediaMessages.addAll(messages);
+      if (messages.length < pageSize) hasMore = false;
       updateStateView(CommonStateView.CommonStateView_None);
+      setState(() {});
     }
-    setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _scrollController.removeListener(_scrollListener);
+    super.dispose();
   }
 }
