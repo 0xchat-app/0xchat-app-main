@@ -4,9 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
-import 'package:ox_common/utils/extension.dart';
-import 'package:ox_common/utils/future_extension.dart';
-import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
@@ -48,14 +45,16 @@ class _IntelligentInputBoxWidgetState extends State<IntelligentInputBoxWidget> {
 
   int? saveCursorPosition;
 
+  bool isShowModalBottomSheet = false;
+
   @override
   void initState() {
     super.initState();
-    widget.textController.addListener(() {
-      if (widget.textController.selection.isValid) {
-        _inputChangeOption(widget.textController.text);
-      }
-    });
+    // widget.textController.addListener(() {
+    //   if (widget.textController.selection.isValid) {
+    //     _inputChangeOption(widget.textController.text);
+    //   }
+    // });
 
     _replyFocusNode.addListener(() {
       widget.isFocusedCallback?.call(_replyFocusNode.hasFocus);
@@ -102,7 +101,7 @@ class _IntelligentInputBoxWidgetState extends State<IntelligentInputBoxWidget> {
             ],
           ),
         ),
-        _selectListWidget(),
+        // _selectListWidget(),
       ],
     );
   }
@@ -153,6 +152,10 @@ class _IntelligentInputBoxWidgetState extends State<IntelligentInputBoxWidget> {
               });
               final result = await OXNavigator.presentPage(
                   context, (context) => const SelectMentionPage());
+              if(isShowModalBottomSheet){
+                OXNavigator.pop(context);
+                FocusScope.of(context).requestFocus(_replyFocusNode);
+              }
 
               if (result is List<UserDBISAR>) {
                 widget.cueUserCallback?.call(result);
@@ -226,6 +229,10 @@ class _IntelligentInputBoxWidgetState extends State<IntelligentInputBoxWidget> {
     UserDBISAR user = showContactsList[index];
     return GestureDetector(
       onTap: () {
+        if(isShowModalBottomSheet){
+          OXNavigator.pop(context);
+          FocusScope.of(context).requestFocus(_replyFocusNode);
+        }
         widget.cueUserCallback?.call([user]);
         final name = '@${user.name ?? user.pubKey} ';
         _insertText(name, null);
@@ -293,7 +300,7 @@ class _IntelligentInputBoxWidgetState extends State<IntelligentInputBoxWidget> {
     );
   }
 
-  void _inputChangeOption(String text){
+  void _inputChangeOption(String text)async{
     final cursorPosition = widget.textController.selection.start;
 
     if (text.isEmpty || !text.contains(_mentionPrefix) || !widget.textController.selection.isCollapsed) {
@@ -306,6 +313,20 @@ class _IntelligentInputBoxWidgetState extends State<IntelligentInputBoxWidget> {
         showContactsList = contactsList;
         isShowUserList = true;
       });
+
+        isShowModalBottomSheet = true;
+        await showModalBottomSheet(
+          context: context,
+          backgroundColor: Colors.transparent,
+          builder: (BuildContext context) {
+            return Container(
+              height: 400.px,
+              child: _selectListWidget(),
+            );
+          },
+        );
+        isShowModalBottomSheet = false;
+
       return;
     }
 
@@ -364,6 +385,7 @@ class _IntelligentInputBoxWidgetState extends State<IntelligentInputBoxWidget> {
       text: newText,
       selection: TextSelection.collapsed(offset: setSelectionStart),
     );
+
 
     setState(() {
       isShowUserList = false;
