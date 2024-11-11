@@ -8,7 +8,7 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_image_gallery.dart';
 import 'package:chatcore/chat-core.dart';
 
-class MediaMessageViewer extends StatelessWidget {
+class MediaMessageViewer extends StatefulWidget {
   final List<MessageDBISAR> messages;
   final int initialIndex;
 
@@ -19,28 +19,77 @@ class MediaMessageViewer extends StatelessWidget {
   });
 
   @override
+  State<MediaMessageViewer> createState() => _MediaMessageViewerState();
+}
+
+class _MediaMessageViewerState extends State<MediaMessageViewer> {
+
+  VoidCallback? scrollNextPage;
+  late List<MessageDBISAR> _messages;
+
+  @override
+  void initState() {
+    super.initState();
+    _messages = widget.messages;
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final initialIndex = widget.initialIndex;
     return CommonImageGallery(
-      imageList: messages.map((e) => ImageEntry(
+      imageList: _messages.map((e) => ImageEntry(
           id: initialIndex.toString(),
           url: e.decryptContent,
           decryptedKey: e.decryptSecret),
       ).toList(),
       initialPage: initialIndex,
-      extraMenus: _buildShowInChatButton(context, messages[initialIndex]),
+      extraMenus: Column(
+        children: [
+          _buildShowInChatButton(context, _messages[initialIndex]),
+          _buildDeleteMediaButton(context, _messages[initialIndex])
+        ],
+      ),
+      onNextPage: (nextPageCallback) {
+        scrollNextPage = nextPageCallback;
+      },
     );
   }
 
-  Widget _buildShowInChatButton(BuildContext context,MessageDBISAR message) {
+  Widget _buildShowInChatButton(BuildContext context, MessageDBISAR message) {
+    return _buildActionButton(
+      context,
+      label: 'Show in Chat',
+      onTap: () async {
+        _showInChatMessagePage(context, message);
+        OXNavigator.pop(context);
+      },
+    );
+  }
+
+  Widget _buildDeleteMediaButton(BuildContext context, MessageDBISAR message) {
+    return _buildActionButton(
+      context,
+      label: 'Delete',
+      onTap: () async {
+        await Messages.deleteMessagesFromDB(messageIds: [message.messageId]);
+        OXNavigator.pop(context);
+        scrollNextPage?.call();
+        _messages.remove(message);
+      },
+    );
+  }
+
+  Widget _buildActionButton(
+    BuildContext context, {
+    required String label,
+    GestureTapCallback? onTap,
+  }) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.end,
       children: <Widget>[
         new GestureDetector(
-          onTap: () async {
-            _showInChatMessagePage(context,message);
-            OXNavigator.pop(context);
-          },
+          onTap: onTap,
           child: Container(
             height: 48.px,
             padding: EdgeInsets.all(8.px),
@@ -49,7 +98,7 @@ class MediaMessageViewer extends StatelessWidget {
               color: ThemeColor.color180,
             ),
             child: Text(
-              'Show in Chat',
+              label,
               style: new TextStyle(
                 color: ThemeColor.gray02,
                 fontSize: 16.px,
