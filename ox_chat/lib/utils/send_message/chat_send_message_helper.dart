@@ -28,7 +28,7 @@ class ChatSendMessageHelper {
     final type = message.dbMessageType;
     final contentString = (await contentEncoder?.call(message)) ??
         message.contentString();
-    final replayId = message.repliedMessage?.id ?? '';
+    final replyId = message.repliedMessage?.id ?? '';
     EncryptedFile? encryptedFile = _createEncryptedFileIfNeeded(message);
 
     types.Message sendMsg = message;
@@ -42,7 +42,7 @@ class ChatSendMessageHelper {
       Event? event = await senderStrategy.getSendMessageEvent(
         messageType: type,
         contentString: contentString,
-        replayId: replayId,
+        replyId: replyId,
         encryptedFile: encryptedFile,
         source: await sourceCreator?.call(message),
       );
@@ -75,7 +75,7 @@ class ChatSendMessageHelper {
       final sendResultEvent = senderStrategy.doSendMessageAction(
         messageType: type,
         contentString: contentString,
-        replayId: replayId,
+        replyId: replyId,
         encryptedFile: encryptedFile,
         event: event,
         isLocal: sendingType != ChatSendingType.remote,
