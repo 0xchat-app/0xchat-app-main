@@ -77,7 +77,7 @@ class ChatSendMessageHelper {
         messageType: type,
         contentString: contentString,
         replayId: replayId,
-        encryptedFile: message.decryptKey == null ? null : EncryptedFile(message.content, 'image', 'aes-gcm', message.decryptKey!, message.decryptNonce!),
+        encryptedFile: message.decryptKey == null ? null : EncryptedFile(message.content, 'image/', 'aes-gcm', message.decryptKey!, message.decryptNonce!),
         event: event,
         isLocal: sendingType != ChatSendingType.remote,
         replaceMessageId: replaceMessageId,
