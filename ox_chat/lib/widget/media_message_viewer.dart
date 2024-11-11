@@ -12,11 +12,13 @@ import 'package:ox_localizable/ox_localizable.dart';
 class MediaMessageViewer extends StatefulWidget {
   final List<MessageDBISAR> messages;
   final int initialIndex;
+  final ValueChanged<MessageDBISAR>? onDeleteChanged;
 
   const MediaMessageViewer({
     super.key,
     required this.messages,
     required this.initialIndex,
+    this.onDeleteChanged,
   });
 
   @override
@@ -74,8 +76,8 @@ class _MediaMessageViewerState extends State<MediaMessageViewer> {
       onTap: () async {
         await Messages.deleteMessagesFromDB(messageIds: [message.messageId]);
         OXNavigator.pop(context);
-        scrollNextPage?.call();
         _messages.remove(message);
+        widget.onDeleteChanged?.call(message);
       },
     );
   }
