@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart' hide Element;
 import 'package:html/dom.dart' show Document, Element;
 import 'package:html/parser.dart' as parser show parse;
-import 'package:http/http.dart' as http show get;
+import 'package:http/http.dart' as http show head, get;
 
 class PreviewDataImage {
   PreviewDataImage({
@@ -90,6 +90,8 @@ class WebURLHelper {
 
   /// Regex to check if content type is an image.
   static const regexImageContentType = r'image/.*';
+
+  static const regexHTMLContentType = r'^text\/html(;.*)?$';
 
   /// Regex to find all links in the text.
   static const regexLink =
@@ -194,7 +196,7 @@ class WebURLHelper {
     return imageUrl;
   }
 
-  static Future<Size> _getImageSize(String url) {
+  static Future<Size> _getImageSize(String url) async {
     final completer = Completer<Size>();
     final stream = Image.network(url).image.resolve(ImageConfiguration.empty);
     late ImageStreamListener streamListener;
@@ -245,7 +247,7 @@ class WebURLHelper {
   }
 
   /// Parses provided text and returns [PreviewData] for the first found link.
-  static Future<PreviewData> getPreviewData(
+  static Future<PreviewData?> getPreviewData(
       String text, {
         String? proxy,
         Duration? requestTimeout,
@@ -283,12 +285,12 @@ class WebURLHelper {
       }
       previewDataUrl = _calculateUrl(url, proxy);
       final uri = Uri.parse(previewDataUrl);
-      final response = await http.get(uri, headers: {
-        'User-Agent': userAgent ?? 'WhatsApp/2',
-      }).timeout(requestTimeout ?? const Duration(seconds: 5));
+      
+      final headResponse = await http.head(uri);
+      final contentType = headResponse.headers['content-type'] ?? '';
 
       final imageRegexp = RegExp(regexImageContentType);
-      if (imageRegexp.hasMatch(response.headers['content-type'] ?? '')) {
+      if (imageRegexp.hasMatch(contentType)) {
         final imageSize = await _getImageSize(previewDataUrl);
         previewDataImage = PreviewDataImage(
           height: imageSize.height,
@@ -300,6 +302,14 @@ class WebURLHelper {
           link: previewDataUrl,
         );
       }
+
+      final htmlReg = RegExp(r'^text\/html(;.*)?$', caseSensitive: false);
+      final isHtmlContent = htmlReg.hasMatch(contentType);
+      if (!isHtmlContent) return null;
+
+      final response = await http.get(uri, headers: {
+        'User-Agent': userAgent ?? 'WhatsApp/2',
+      }).timeout(requestTimeout ?? const Duration(seconds: 5));
 
       final document = parser.parse(utf8.decode(response.bodyBytes));
 
