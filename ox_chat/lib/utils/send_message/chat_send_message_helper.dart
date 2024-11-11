@@ -25,12 +25,11 @@ class ChatSendMessageHelper {
     Function(types.Message)? sendActionFinishHandler,
   }) async {
     // prepare data
-    final type = message.dbMessageType(
-      encrypt: message.decryptKey != null,
-    );
+    final type = message.dbMessageType;
     final contentString = (await contentEncoder?.call(message)) ??
         message.contentString();
     final replayId = message.repliedMessage?.id ?? '';
+    EncryptedFile? encryptedFile = _createEncryptedFileIfNeeded(message);
 
     types.Message sendMsg = message;
 
@@ -44,7 +43,7 @@ class ChatSendMessageHelper {
         messageType: type,
         contentString: contentString,
         replayId: replayId,
-        encryptedFile: message.decryptKey == null ? null : EncryptedFile(message.content, MessageDBISAR.tpyeStringToMimeType(type), 'aes-gcm', message.decryptKey!, message.decryptNonce!),
+        encryptedFile: encryptedFile,
         source: await sourceCreator?.call(message),
       );
 
@@ -77,7 +76,7 @@ class ChatSendMessageHelper {
         messageType: type,
         contentString: contentString,
         replayId: replayId,
-        encryptedFile: message.decryptKey == null ? null : EncryptedFile(message.content, 'image/', 'aes-gcm', message.decryptKey!, message.decryptNonce!),
+        encryptedFile: encryptedFile,
         event: event,
         isLocal: sendingType != ChatSendingType.remote,
         replaceMessageId: replaceMessageId,
@@ -94,5 +93,16 @@ class ChatSendMessageHelper {
     sendActionFinishHandler?.call(sendMsg);
 
     return null;
+  }
+
+  static EncryptedFile? _createEncryptedFileIfNeeded(types.Message message) {
+    if (!message.isEncrypted) return null;
+    return EncryptedFile(
+      message.content,
+      MessageDBISAR.tpyeStringToMimeType(message.dbMessageType),
+      'aes-gcm',
+      message.decryptKey!,
+      message.decryptNonce!,
+    );
   }
 }

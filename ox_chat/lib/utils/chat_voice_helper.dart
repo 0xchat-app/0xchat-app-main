@@ -18,24 +18,41 @@ class ChatVoiceMessageHelper {
     required types.AudioMessage message,
   }) async {
     File sourceFile;
-    String extension = message.uri.split('.').last;
+    final uri = message.uri;
+    final urlExtension = uri.split('.').last;
     final audioManager =
         OXFileCacheManager.get(encryptKey: message.decryptKey, encryptNonce: message.decryptNonce);
-    final cacheFile = await audioManager.getFileFromCache(message.uri);
+    final cacheFile = message.audioFile ?? (await audioManager.getFileFromCache(uri))?.file;
+
     if (cacheFile != null) {
-      sourceFile = cacheFile.file;
+      sourceFile = cacheFile;
     } else {
-      sourceFile = await audioManager.getSingleFile(message.uri);
+      final response = await audioManager.downloadFile(uri);
+
+      File tempFile = response.file;
+      String newExtension = tempFile.path.split('.').last;
+      String newPath = tempFile.path.replaceAll(newExtension, urlExtension);
+      tempFile = await tempFile.rename(newPath);
+
       if (message.fileEncryptionType == types.EncryptionType.encrypted &&
           message.decryptKey != null) {
-        sourceFile = await DecryptedCacheManager.decryptFile(sourceFile, message.decryptKey!,
-            nonce: message.decryptNonce);
+        final decryptedFile = await DecryptedCacheManager.decryptFile(
+          tempFile,
+          message.decryptKey!,
+          nonce: message.decryptNonce,
+        );
+        tempFile = decryptedFile;
       }
+
+      sourceFile = await audioManager.putFile(
+        uri,
+        tempFile.readAsBytesSync(),
+        fileExtension: tempFile.path.getFileExtension(),
+      );
+
+      tempFile.delete();
     }
 
-    String newExtension = sourceFile.path.split('.').last;
-    String newPath = sourceFile.path.replaceAll(newExtension, extension);
-    sourceFile = await sourceFile.rename(newPath);
     final duration = await getAudioDuration(sourceFile.path);
     return (sourceFile, duration);
   }
