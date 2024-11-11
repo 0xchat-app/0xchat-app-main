@@ -295,7 +295,7 @@ class _LinkPreviewState extends State<LinkPreview>
         ),
       );
 
-  Future<PreviewData> _fetchData(String text) async {
+  Future<PreviewData?> _fetchData(String text) async {
     setState(() {
       isFetchingPreviewData = true;
     });
@@ -306,6 +306,8 @@ class _LinkPreviewState extends State<LinkPreview>
       requestTimeout: widget.requestTimeout,
       userAgent: widget.userAgent,
     );
+    if (previewData == null) return null;
+
     _handlePreviewDataFetched(previewData);
     return previewData;
   }

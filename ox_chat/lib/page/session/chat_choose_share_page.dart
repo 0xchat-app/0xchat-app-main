@@ -323,9 +323,9 @@ class _ChatChooseSharePageState extends State<ChatChooseSharePage> with ShareIte
                 final urlPreviewData = await WebURLHelper.getPreviewData(widget.msg, isShare: true);
                 OXLoading.dismiss();
 
-                final title = urlPreviewData.title ?? '';
-                final link = urlPreviewData.link ?? '';
-                if (title.isNotEmpty && link.isNotEmpty) {
+                final title = urlPreviewData?.title ?? '';
+                final link = urlPreviewData?.link ?? '';
+                if (urlPreviewData != null && title.isNotEmpty && link.isNotEmpty) {
                   ChatMessageSendEx.sendTemplateMessage(
                     receiverPubkey: sessionModel.chatId,
                     title: title,
