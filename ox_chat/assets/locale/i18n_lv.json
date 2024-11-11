@@ -337,5 +337,7 @@
   "str_title_chats": "Čati",
   "str_title_media": "Mediji",
   "str_online_channels": "Tiešsaistes Kanāli",
-  "str_online_groups": "Tiešsaistes Grupas"
+  "str_online_groups": "Tiešsaistes Grupas",
+  "str_all_chats_mark_as_read": "Atzīmēt visu kā izlasītu",
+  "str_show_in_chat": "Rādīt tērzēšanā"
 }

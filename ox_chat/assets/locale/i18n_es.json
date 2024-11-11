@@ -337,5 +337,7 @@
   "str_title_chats": "Chats",
   "str_title_media": "Medios",
   "str_online_channels": "Canales en línea",
-  "str_online_groups": "Grupos en línea"
+  "str_online_groups": "Grupos en línea",
+  "str_all_chats_mark_as_read": "Marcar todo como leído",
+  "str_show_in_chat": "Mostrar en el chat"
 }

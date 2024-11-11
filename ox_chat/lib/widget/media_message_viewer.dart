@@ -7,6 +7,7 @@ import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_image_gallery.dart';
 import 'package:chatcore/chat-core.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 class MediaMessageViewer extends StatefulWidget {
   final List<MessageDBISAR> messages;
@@ -58,7 +59,7 @@ class _MediaMessageViewerState extends State<MediaMessageViewer> {
   Widget _buildShowInChatButton(BuildContext context, MessageDBISAR message) {
     return _buildActionButton(
       context,
-      label: 'Show in Chat',
+      label: Localized.text('ox_chat.str_show_in_chat'),
       onTap: () async {
         _showInChatMessagePage(context, message);
         OXNavigator.pop(context);
@@ -69,7 +70,7 @@ class _MediaMessageViewerState extends State<MediaMessageViewer> {
   Widget _buildDeleteMediaButton(BuildContext context, MessageDBISAR message) {
     return _buildActionButton(
       context,
-      label: 'Delete',
+      label: Localized.text('ox_chat.delete'),
       onTap: () async {
         await Messages.deleteMessagesFromDB(messageIds: [message.messageId]);
         OXNavigator.pop(context);

@@ -337,5 +337,7 @@
   "str_title_chats": "Чатове",
   "str_title_media": "Медия",
   "str_online_channels": "Онлайн канали",
-  "str_online_groups": "Онлайн групи"
+  "str_online_groups": "Онлайн групи",
+  "str_all_chats_mark_as_read": "Отбележи всичко като прочетено",
+  "str_show_in_chat": "Показване в чата"
 }

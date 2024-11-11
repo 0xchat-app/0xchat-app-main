@@ -337,5 +337,7 @@
   "str_title_chats": "แชท",
   "str_title_media": "สื่อ",
   "str_online_channels": "ช่องออนไลน์",
-  "str_online_groups": "กลุ่มออนไลน์"
+  "str_online_groups": "กลุ่มออนไลน์",
+  "str_all_chats_mark_as_read": "ทำเครื่องหมายว่าอ่านทั้งหมดแล้ว",
+  "str_show_in_chat": "แสดงในแชท"
 }

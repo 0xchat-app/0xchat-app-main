@@ -337,5 +337,7 @@
   "str_title_chats": "Csevegések",
   "str_title_media": "Média",
   "str_online_channels": "Online csatornák",
-  "str_online_groups": "Online csoportok"
+  "str_online_groups": "Online csoportok",
+  "str_all_chats_mark_as_read": "Mindet olvasottnak jelöl",
+  "str_show_in_chat": "Mutat a csevegésben"
 }

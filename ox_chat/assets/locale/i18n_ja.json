@@ -337,5 +337,7 @@
   "str_title_chats": "チャット",
   "str_title_media": "メディア",
   "str_online_channels": "オンラインチャンネル",
-  "str_online_groups": "オンライングループ"
+  "str_online_groups": "オンライングループ",
+  "str_all_chats_mark_as_read": "すべて既読にする",
+  "str_show_in_chat": "チャットで表示"
 }

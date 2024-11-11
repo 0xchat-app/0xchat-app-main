@@ -271,7 +271,7 @@
   "str_group_private_description": "NIP-17 चैट रूम का कार्यान्वयन। सभी संदेश प्रत्येक समूह सदस्य के लिए व्यक्तिगत रूप से भेजे जाते हैं",
   "str_public_channel_description": "NIP-28 सार्वजनिक चैट का कार्यान्वयन। कोई भी शामिल हो सकता है और स्वतंत्र रूप से संदेश भेज सकता है",
   "str_group_show_description": "समूह की जानकारी गैर-सदस्यों के लिए दिखाई देती है",
-  "str_group_hidden_description": "समूह की जानकारी गैर-सदस्यों से छिपी होती है"
+  "str_group_hidden_description": "समूह की जानकारी गैर-सदस्यों से छिपी होती है",
   "str_group_type": "प्रकार",
   "str_group_relay": "रिले",
   "str_group_ID": "ID",
@@ -337,5 +337,7 @@
   "str_title_chats": "चैट्स",
   "str_title_media": "मीडिया",
   "str_online_channels": "ऑनलाइन चैनल्स",
-  "str_online_groups": "ऑनलाइन समूह"
+  "str_online_groups": "ऑनलाइन समूह",
+  "str_all_chats_mark_as_read": "सभी को पढ़ा हुआ चिह्नित करें",
+  "str_show_in_chat": "चैट में दिखाएं"
 }

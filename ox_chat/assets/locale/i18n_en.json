@@ -338,5 +338,6 @@
   "str_title_chats": "Chats",
   "str_title_media": "Media",
   "str_online_channels": "Online Channels",
-  "str_online_groups": "Online Groups"
+  "str_online_groups": "Online Groups",
+  "str_show_in_chat": "Show in Chat"
 }
