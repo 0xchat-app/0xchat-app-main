@@ -5,6 +5,7 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image_gallery.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:ox_localizable/ox_localizable.dart';
@@ -74,10 +75,26 @@ class _MediaMessageViewerState extends State<MediaMessageViewer> {
       context,
       label: Localized.text('ox_chat.delete'),
       onTap: () async {
-        await Messages.deleteMessagesFromDB(messageIds: [message.messageId]);
-        OXNavigator.pop(context);
-        _messages.remove(message);
-        widget.onDeleteChanged?.call(message);
+        bool? result = await OXCommonHintDialog.show(
+          context,
+          content: Localized.text('ox_chat.media_message_delete_tips'),
+          actionList: [
+            OXCommonHintAction(
+              text: () => Localized.text('ox_common.confirm'),
+              onTap: () {
+                OXNavigator.pop(context, true);
+              },
+            ),
+          ],
+          isRowAction: true,
+          showCancelButton: true,
+        );
+        if (result != null && result) {
+          await Messages.deleteMessagesFromDB(messageIds: [message.messageId]);
+          OXNavigator.pop(context);
+          _messages.remove(message);
+          widget.onDeleteChanged?.call(message);
+        }
       },
     );
   }
