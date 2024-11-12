@@ -339,5 +339,6 @@
   "str_online_channels": "Çevrimiçi Kanallar",
   "str_online_groups": "Çevrimiçi Gruplar",
   "str_all_chats_mark_as_read": "Tümünü Okundu Olarak İşaretle",
-  "str_show_in_chat": "Sohbette Göster"
+  "str_show_in_chat": "Sohbette Göster",
+  "media_message_delete_tips": "Bu yerel medya mesajlarını silmek istediğinizden emin misiniz?"
 }

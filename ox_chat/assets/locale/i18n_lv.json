@@ -339,5 +339,6 @@
   "str_online_channels": "Tiešsaistes Kanāli",
   "str_online_groups": "Tiešsaistes Grupas",
   "str_all_chats_mark_as_read": "Atzīmēt visu kā izlasītu",
-  "str_show_in_chat": "Rādīt tērzēšanā"
+  "str_show_in_chat": "Rādīt tērzēšanā",
+  "media_message_delete_tips": "Vai tiešām vēlaties izdzēst šos vietējos multivides ziņojumus?"
 }

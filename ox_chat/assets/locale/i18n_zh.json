@@ -339,5 +339,6 @@
   "str_title_media": "媒体",
   "str_online_channels": "在线频道",
   "str_online_groups": "在线群聊",
-  "str_show_in_chat": "定位到聊天位置"
+  "str_show_in_chat": "定位到聊天位置",
+  "media_message_delete_tips": "您确定要删除此本地图片消息吗？"
 }

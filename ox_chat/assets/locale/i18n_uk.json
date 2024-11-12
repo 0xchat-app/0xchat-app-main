@@ -339,5 +339,6 @@
   "str_online_channels": "Онлайн-канали",
   "str_online_groups": "Онлайн-групи",
   "str_all_chats_mark_as_read": "Позначити всі як прочитані",
-  "str_show_in_chat": "Показати в чаті"
+  "str_show_in_chat": "Показати в чаті",
+  "media_message_delete_tips": "Ви впевнені, що хочете видалити ці локальні медіа-повідомлення?"
 }

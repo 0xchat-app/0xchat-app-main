@@ -339,5 +339,6 @@
   "str_online_channels": "Онлайн канали",
   "str_online_groups": "Онлайн групи",
   "str_all_chats_mark_as_read": "Отбележи всичко като прочетено",
-  "str_show_in_chat": "Показване в чата"
+  "str_show_in_chat": "Показване в чата",
+  "media_message_delete_tips": "Сигурни ли сте, че искате да изтриете тези локални медийни съобщения?"
 }

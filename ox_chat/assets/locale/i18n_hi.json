@@ -339,5 +339,6 @@
   "str_online_channels": "ऑनलाइन चैनल्स",
   "str_online_groups": "ऑनलाइन समूह",
   "str_all_chats_mark_as_read": "सभी को पढ़ा हुआ चिह्नित करें",
-  "str_show_in_chat": "चैट में दिखाएं"
+  "str_show_in_chat": "चैट में दिखाएं",
+  "media_message_delete_tips": "क्या आप वाकई इन स्थानीय मीडिया संदेशों को हटाना चाहते हैं?"
 }

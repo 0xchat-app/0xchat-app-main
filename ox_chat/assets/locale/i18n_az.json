@@ -339,5 +339,6 @@
   "str_online_channels": "Onlayn Kanallar",
   "str_online_groups": "Onlayn Qruplar",
   "str_all_chats_mark_as_read": "Hamısını oxundu kimi işarələ",
-  "str_show_in_chat": "Çatda göstər"
+  "str_show_in_chat": "Çatda göstər",
+  "media_message_delete_tips": "Bu yerli medya mesajlarını silmək istədiyinizə əminsinizmi?"
 }

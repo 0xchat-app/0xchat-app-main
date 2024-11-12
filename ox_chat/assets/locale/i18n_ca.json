@@ -339,5 +339,6 @@
   "str_online_channels": "Canals en línia",
   "str_online_groups": "Grups en línia",
   "str_all_chats_mark_as_read": "Marcar tot com a llegit",
-  "str_show_in_chat": "Mostra al xat"
+  "str_show_in_chat": "Mostra al xat",
+  "media_message_delete_tips": "Estàs segur que vols eliminar aquests missatges de mitjans locals?"
 }

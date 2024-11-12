@@ -339,5 +339,6 @@
   "str_online_channels": "Kanały Online",
   "str_online_groups": "Grupy Online",
   "str_all_chats_mark_as_read": "Oznacz wszystko jako przeczytane",
-  "str_show_in_chat": "Pokaż w czacie"
+  "str_show_in_chat": "Pokaż w czacie",
+  "media_message_delete_tips": "Czy na pewno chcesz usunąć te lokalne wiadomości multimedialne?"
 }

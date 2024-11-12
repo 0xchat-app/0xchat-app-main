@@ -339,5 +339,6 @@
   "str_online_channels": "Online csatornák",
   "str_online_groups": "Online csoportok",
   "str_all_chats_mark_as_read": "Mindet olvasottnak jelöl",
-  "str_show_in_chat": "Mutat a csevegésben"
+  "str_show_in_chat": "Mutat a csevegésben",
+  "media_message_delete_tips": "Biztosan törölni szeretné ezeket a helyi médiaüzeneteket?"
 }
