@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:ox_common/model/msg_notification_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/chat_prompt_tone.dart';
 import 'package:ox_common/utils/file_utils.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
@@ -30,6 +31,7 @@ import 'package:ox_usercenter/page/set_up/relays_page.dart';
 import 'package:ox_usercenter/page/set_up/theme_settings_page.dart';
 import 'package:ox_usercenter/page/set_up/zaps_page.dart';
 import 'package:ox_usercenter/utils/import_data_tools.dart';
+import 'package:ox_usercenter/widget/bottom_sheet_dialog.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import 'nuts_zaps/nuts_zaps_page.dart';
@@ -159,6 +161,9 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
           ? Localized.text('ox_usercenter.theme_color_light')
           : Localized.text('ox_usercenter.theme_color_dart');
     }
+    if (_settingModel.settingItemType == SettingItemType.sound) {
+      _settingModel.rightContent = PromptToneManager.sharedInstance.currentSoundTheme.symbol;
+    }
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () async {
@@ -224,6 +229,17 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
             break;
           case SettingItemType.fileServer:
             OXNavigator.pushPage(context, (context) => const FileServerPage());
+            break;
+          case SettingItemType.sound:
+            List<BottomSheetItem> items = SoundTheme.values
+                .map((theme) => BottomSheetItem(
+                    title: theme.symbol,
+                    onTap: () {
+                      PromptToneManager.sharedInstance.currentSoundTheme = theme;
+                      UserConfigTool.saveSetting(StorageSettingKey.KEY_SOUND_THEME.name, theme.id);
+                      setState(() {});
+                    })).toList();
+            BottomSheetDialog.showBottomSheet(context, items);
             break;
           case SettingItemType.none:
             // TODO: Handle this case.
