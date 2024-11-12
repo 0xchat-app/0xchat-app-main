@@ -117,6 +117,8 @@ flutter:
    - assets/images/
    - assets/locale/
    - assets/sounds/
+   - assets/sounds/classic/
+   - assets/sounds/ostrich/
 
   fonts:
     - family: OX Font
