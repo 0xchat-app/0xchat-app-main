@@ -68,7 +68,7 @@ class EcashService {
         ecashString: ecashString,
       );
     } catch(e, s) {
-      final msg = 'Create Lightning Invoice Failed: $e\r\n$s';
+      final msg = 'Redeem ecash Failed: $e\r\n$s';
       return CashuResponse.fromErrorMsg(msg);
     }
   }
@@ -78,7 +78,7 @@ class EcashService {
     try{
       amount = Cashu.amountOfLightningInvoice(invoice);
     }catch(e,s){
-      LogUtil.e('decode Lightning Invoice Failed: $e\r\n$s');
+      LogUtil.e('Decode Lightning Invoice Failed: $e\r\n$s');
     }
     return amount;
   }
@@ -87,7 +87,7 @@ class EcashService {
     try{
       return await Cashu.payingLightningInvoice(mint: mint, pr: pr);
     }catch(e,s){
-      LogUtil.e('decode Lightning Invoice Failed: $e\r\n$s');
+      LogUtil.e('Paying Lightning Invoice Failed: $e\r\n$s');
     }
     return null;
   }
@@ -97,7 +97,7 @@ class EcashService {
     try{
       proofs = await Cashu.getAllUseProofs(mint);
     }catch(e,s){
-      LogUtil.e('decode Lightning Invoice Failed: $e\r\n$s');
+      LogUtil.e('Get Proofs Failed: $e\r\n$s');
     }
     return proofs;
   }
