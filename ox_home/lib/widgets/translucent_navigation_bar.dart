@@ -110,7 +110,6 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
 
   late AnimationController _animationController;
   late Animation<double> _animation;
-  double navOffset = 0.0;
 
   void updateOffset(double offset) {
     _animationController.value = offset;
