@@ -109,6 +109,7 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
     if (groupList != null && groupList.length > 0) {
       _groups.add(GroupedModel<GroupUIModel>(title: 'str_title_groups'.localized(), items: groupList));
       _searchResult[SearchType.group] = _groups;
+      setState(() {});
     }
   }
 
