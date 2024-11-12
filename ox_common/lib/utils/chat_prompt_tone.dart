@@ -3,11 +3,24 @@ import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:chatcore/chat-core.dart';
+import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/throttle_utils.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
 
 import 'ox_userinfo_manager.dart';
 
 enum SoundType { Message_Received, Message_Sent, Zap_Received, Zap_Sent }
+
+enum SoundTheme {
+  classic(1, 'classic', 'Default'),
+  ostrich(2, 'ostrich', 'Ostrich');
+
+  final int id;
+  final String name;
+  final String symbol;
+
+  const SoundTheme(this.id, this.name, this.symbol);
+}
 
 class PromptToneManager {
   bool Function(MessageDBISAR msg)? isCurrencyChatPage;
@@ -20,6 +33,14 @@ class PromptToneManager {
 
   PromptToneManager._internal() : _player = AudioPlayer();
 
+  SoundTheme _currentSoundTheme = SoundTheme.classic;
+
+  SoundTheme get currentSoundTheme => _currentSoundTheme;
+
+  set currentSoundTheme(SoundTheme theme) {
+    _currentSoundTheme = theme;
+  }
+
   static AudioContext get _defaultAudioContext => AudioContextConfig(
         respectSilence: Platform.isIOS ? true : false,
         stayAwake: false,
@@ -29,6 +50,13 @@ class PromptToneManager {
 
   Future setup() async {
     await AudioPlayer.global.setAudioContext(_defaultAudioContext);
+  }
+
+  initSoundTheme() {
+    int index = UserConfigTool.getSetting(StorageSettingKey.KEY_SOUND_THEME.name, defaultValue: 0);
+    currentSoundTheme = index == SoundTheme.classic.id
+        ? SoundTheme.classic
+        : SoundTheme.ostrich;
   }
 
   void playMessageReceived() async {
@@ -53,13 +81,13 @@ class PromptToneManager {
       String source = '';
       switch (type) {
         case SoundType.Message_Received:
-          source = 'sounds/message-receive.mp3';
+          source = 'sounds/${_currentSoundTheme.name}/message-receive.mp3';
         case SoundType.Message_Sent:
-          source = 'sounds/message-send.mp3';
+          source = 'sounds/${_currentSoundTheme.name}/message-send.mp3';
         case SoundType.Zap_Received:
-          source = 'sounds/zap-receive.mp3';
+          source = 'sounds/${_currentSoundTheme.name}/zap-receive.mp3';
         case SoundType.Zap_Sent:
-          source = 'sounds/zap-send.mp3';
+          source = 'sounds/${_currentSoundTheme.name}/zap-send.mp3';
       }
       if (_player.state != PlayerState.playing) {
         _player.setReleaseMode(ReleaseMode.release);
@@ -84,7 +112,7 @@ class PromptToneManager {
     // There is no need to set AudioContext because WebRTC has its own playback type control
     // await AudioPlayer.global.setGlobalAudioContext(audioContext);
     _player.play(
-      AssetSource('sounds/calling.mp3'),
+      AssetSource('sounds/${_currentSoundTheme.name}/calling.mp3'),
     );
   }
 
