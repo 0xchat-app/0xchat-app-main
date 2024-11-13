@@ -74,7 +74,7 @@
   "str_reject_secret_chat": "Reject",
   "str_john_secret_chat": "Join Secret Chat",
   "str_video_call": "Video Call",
-  "str_voice_call": "Call",
+  "str_voice_call": "Audio Call",
   "edit_channel": "Edit Channel",
   "channel_name": "Channel Name",
   "badge_requirement": "Badge Requirements",
