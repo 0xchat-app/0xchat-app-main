@@ -100,8 +100,9 @@ class CommonImageGallery extends StatefulWidget {
   final List<ImageEntry> imageList;
   final int initialPage;
   final Widget? extraMenus;
+  final void Function(VoidCallback nextPage)? onNextPage;
   const CommonImageGallery({
-    required this.imageList, required this.initialPage, this.extraMenus});
+    required this.imageList, required this.initialPage, this.extraMenus, this.onNextPage});
 
   @override
   _CommonImageGalleryState createState() => _CommonImageGalleryState();
@@ -174,6 +175,7 @@ class _CommonImageGalleryState extends State<CommonImageGallery>
       }
       rebuildDetail.sink.add(_imageDetailY);
     });
+    if (widget.onNextPage != null) widget.onNextPage!(_nextPage);
   }
 
   @override
@@ -534,6 +536,13 @@ class _CommonImageGalleryState extends State<CommonImageGallery>
     } else {
       unawaited(CommonToast.instance.show(context, Localized.text('ox_chat.str_save_failed')));
     }
+  }
+
+  void _nextPage() {
+    _pageController.nextPage(
+      duration: Duration(milliseconds: 300),
+      curve: Curves.easeIn,
+    );
   }
 }
 
