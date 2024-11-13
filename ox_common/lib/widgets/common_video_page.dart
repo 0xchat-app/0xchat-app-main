@@ -3,6 +3,8 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:chewie/chewie.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -24,7 +26,7 @@ class CommonVideoPage extends StatefulWidget {
   @override
   State<CommonVideoPage> createState() => _CommonVideoPageState();
 
-  static show(String videoUrl,{BuildContext? context}) {
+  static show(String videoUrl, {BuildContext? context}) {
     return OXNavigator.presentPage(
       context,
       (context) => CommonVideoPage(videoUrl: videoUrl),
@@ -34,7 +36,6 @@ class CommonVideoPage extends StatefulWidget {
 }
 
 class _CommonVideoPageState extends State<CommonVideoPage> {
-
   final GlobalKey<_CustomControlsState> _customControlsKey = GlobalKey<_CustomControlsState>();
   ChewieController? _chewieController;
   late VideoPlayerController _videoPlayerController;
@@ -69,7 +70,8 @@ class _CommonVideoPageState extends State<CommonVideoPage> {
 
   @override
   Widget build(BuildContext context) {
-    bool isShowVideoWidget = _chewieController != null && _chewieController!.videoPlayerController.value.isInitialized;
+    bool isShowVideoWidget = _chewieController != null &&
+        _chewieController!.videoPlayerController.value.isInitialized;
     if (!isShowVideoWidget) {
       OXLoading.show();
       return Container(
@@ -108,10 +110,10 @@ class _CommonVideoPageState extends State<CommonVideoPage> {
     }
 
     OXLoading.dismiss();
+    Size size = MediaQuery.of(context).size;
     return Container(
       color: ThemeColor.color180,
       child: Stack(
-        alignment: Alignment.center,
         children: [
           GestureDetector(
             onTap: _onVideoTap,
@@ -121,9 +123,38 @@ class _CommonVideoPageState extends State<CommonVideoPage> {
               ),
             ),
           ),
+          GestureDetector(
+            onTap: toggleFullScreen,
+            child: Container(
+              margin: EdgeInsets.only(
+                top: 100,
+                left: size.width - 50,
+              ),
+              width: 30.px,
+              height: 30.px,
+              child: CommonImage(
+                iconName: 'video_screen_icon.png',
+                size: 30,
+              ),
+            ),
+          ),
         ],
       ),
     );
+  }
+
+  void toggleFullScreen() {
+    if (MediaQuery.of(context).orientation == Orientation.portrait) {
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+      ]);
+    } else {
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+      ]);
+    }
   }
 
   Future<void> initializePlayer() async {
@@ -274,12 +305,11 @@ class _CustomControlsState extends State<CustomControls> {
           child: GestureDetector(
             onTap: _toggleControls,
             child: SizedBox(
-              height: size.height - 200,
+              height: size.height,
               width: double.infinity,
             ),
           ),
         ),
-        _buildPlayPause(),
         _buildProgressBar(),
         _buildBottomOption(),
       ],
@@ -293,37 +323,26 @@ class _CustomControlsState extends State<CustomControls> {
         if (!value.isVisible) return Container();
         return Positioned(
           bottom: 10.0,
-          left: 20.0,
-          right: 20.0,
+          left: 20,
+          right: 20,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               GestureDetector(
                 onTap: () => OXNavigator.pop(context),
-                child: Container(
-                  width: 35.px,
-                  height: 35.px,
-                  decoration: BoxDecoration(
-                    color: ThemeColor.color180,
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(35.px),
-                    ),
-                  ),
-                  child: Center(
-                    child: CommonImage(
-                      iconName: 'circle_close_icon.png',
-                      size: 24.px,
-                      color: Colors.white,
-                    ),
-                  ),
+                child: CommonImage(
+                  iconName: 'video_del_icon.png',
+                  size: 30.px,
                 ),
               ),
+              _buildPlayPause(),
               GestureDetector(
                 onTap: () async {
                   await OXLoading.show();
                   if (RegExp(r'https?:\/\/').hasMatch(widget.videoUrl)) {
                     var result;
-                    final fileInfo = await OXFileCacheManager.get().getFileFromCache(widget.videoUrl);
+                    final fileInfo = await OXFileCacheManager.get()
+                        .getFileFromCache(widget.videoUrl);
                     if (fileInfo != null) {
                       result =
                           await ImageGallerySaver.saveFile(fileInfo.file.path);
@@ -347,21 +366,9 @@ class _CustomControlsState extends State<CustomControls> {
                     }
                   }
                 },
-                child: Container(
-                  width: 35.px,
-                  height: 35.px,
-                  decoration: BoxDecoration(
-                    color: ThemeColor.color180,
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(35.px),
-                    ),
-                  ),
-                  child: Center(
-                    child: CommonImage(
-                      iconName: 'icon_download.png',
-                      size: 24,
-                    ),
-                  ),
+                child: CommonImage(
+                  iconName: 'video_down_icon.png',
+                  size: 30,
                 ),
               ),
             ],
@@ -375,33 +382,28 @@ class _CustomControlsState extends State<CustomControls> {
     return ValueListenableBuilder<CustomControlsOption>(
       valueListenable: customControlsStatus,
       builder: (context, value, child) {
+        String iconName = 'video_palyer_icon.png';
+
         if (widget.videoPlayerController.value.isPlaying ||
             value.isDragging ||
             !value.isVisible) {
-          return Container();
+          iconName = 'video_stop_icon.png';
         }
-        Size size = MediaQuery.of(context).size;
-        return Positioned(
-          bottom: (size.height / 2) - 40,
-          left: (size.width / 2) - 40,
-          child: GestureDetector(
-            onTap: () {
-              if (widget.videoPlayerController.value.isPlaying) {
-                widget.videoPlayerController.pause();
+        return GestureDetector(
+          onTap: () {
+            if (widget.videoPlayerController.value.isPlaying) {
+              widget.videoPlayerController.pause();
 
-                showControls();
-              } else {
-                widget.videoPlayerController.play();
+              showControls();
+            } else {
+              widget.videoPlayerController.play();
 
-                hideControlsAfterDelay();
-              }
-            },
-            child: CommonImage(
-              iconName: 'play_moment_icon.png',
-              package: 'ox_discovery',
-              size: 80.0.px,
-              color: Colors.white,
-            ),
+              hideControlsAfterDelay();
+            }
+          },
+          child: CommonImage(
+            iconName: iconName,
+            size: 30.px,
           ),
         );
       },
@@ -415,17 +417,19 @@ class _CustomControlsState extends State<CustomControls> {
         if (!value.isVisible) return Container();
         return Positioned(
           bottom: 40.0,
-          left: 20.0,
-          right: 20.0,
+          left: 0,
+          right: 0,
           child: Column(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  SizedBox(
-                    child: Row(
-                      children: [
-                        Text(
+              Container(
+                width: double.infinity,
+                child: Expanded(
+                  child: Row(
+                    children: [
+                      Container(
+                        margin: EdgeInsets.only(left: 20.px),
+                        width: 40.px,
+                        child: Text(
                           _formatDuration(
                               widget.videoPlayerController.value.position),
                           style: const TextStyle(
@@ -433,53 +437,33 @@ class _CustomControlsState extends State<CustomControls> {
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                        const Text(
-                          ' / ',
-                          style: TextStyle(
-                            color: Colors.white,
+                      ),
+                      Expanded(
+                        child: Container(
+                          child: CustomVideoProgressIndicator(
+                            controller: widget.videoPlayerController,
+                            callback: _progressCallback,
                           ),
+                        ).setPadding(
+                          EdgeInsets.symmetric(horizontal: 10.px),
                         ),
-                        Text(
+                      ),
+                      Container(
+                        width: 40.px,
+                        margin: EdgeInsets.only(right: 20.px),
+                        child: Text(
                           _formatDuration(
                               widget.videoPlayerController.value.duration),
                           style: TextStyle(
-                            color: ThemeColor.color100,
+                            color: ThemeColor.white,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                  ValueListenableBuilder<double>(
-                    valueListenable: videoSpeedNotifier,
-                    builder: (context, value, child) {
-                      return GestureDetector(
-                          onTap: () {
-                            int findIndex = videoSpeedList.indexOf(value);
-                            double lastValue;
-                            if (findIndex == videoSpeedList.length - 1) {
-                              lastValue = videoSpeedList[0];
-                            } else {
-                              lastValue = videoSpeedList[findIndex + 1];
-                            }
-                            videoSpeedNotifier.value = lastValue;
-                            widget.videoPlayerController
-                                .setPlaybackSpeed(lastValue);
-                          },
-                          child: Text(
-                            value.toString(),
-                            style: TextStyle(
-                                color: ThemeColor.white,
-                                fontWeight: FontWeight.w600),
-                          ));
-                    },
-                  ),
-                ],
+                ),
               ).setPaddingOnly(bottom: 10.px),
-              CustomVideoProgressIndicator(
-                controller: widget.videoPlayerController,
-                callback: _progressCallback,
-              ),
             ],
           ),
         );
@@ -557,26 +541,26 @@ class CustomVideoProgressIndicator extends StatelessWidget {
                         height: 5, // Thin progress bar
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          color: Colors.grey[300],
+                          color: ThemeColor.color160,
                           borderRadius: BorderRadius.circular(5),
                         ),
                         child: LinearProgressIndicator(
                           value: progress,
                           valueColor:
-                              AlwaysStoppedAnimation<Color>(Colors.white),
+                              AlwaysStoppedAnimation<Color>(ThemeColor.purple2),
                           backgroundColor: Colors.transparent,
                         ),
                       ),
                     ),
                     Positioned(
                       left: constraints.maxWidth * progress -
-                          10, // Adjust for circle size
+                          20, // Adjust for circle size
                       child: GestureDetector(
                         onPanUpdate: (details) =>
                             _dragUpdate(context, constraints, details),
                         child: Container(
-                          width: 15,
-                          height: 15,
+                          width: 20,
+                          height: 20,
                           decoration: const BoxDecoration(
                             color: Colors.white,
                             shape: BoxShape.circle,
