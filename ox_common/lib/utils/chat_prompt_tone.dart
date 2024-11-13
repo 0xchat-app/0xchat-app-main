@@ -53,7 +53,7 @@ class PromptToneManager {
   }
 
   initSoundTheme() {
-    int index = UserConfigTool.getSetting(StorageSettingKey.KEY_SOUND_THEME.name, defaultValue: 0);
+    int index = UserConfigTool.getSetting(StorageSettingKey.KEY_SOUND_THEME.name, defaultValue: 1);
     currentSoundTheme = index == SoundTheme.classic.id
         ? SoundTheme.classic
         : SoundTheme.ostrich;
