@@ -340,5 +340,6 @@
   "str_online_channels": "Online Channels",
   "str_online_groups": "Online Groups",
   "str_show_in_chat": "Show in Chat",
-  "media_message_delete_tips": "Are you sure you want to delete this local media messages?"
+  "media_message_delete_tips": "Are you sure you want to delete this local media messages?",
+  "message": "Message"
 }

@@ -8,11 +8,13 @@ import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_chat/page/contacts/contact_friend_remark_page.dart';
 import 'package:ox_chat/page/session/chat_message_page.dart';
 import 'package:ox_chat/page/session/single_search_page.dart';
+import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/utils/custom_uri_helper.dart';
 import 'package:ox_common/utils/took_kit.dart';
+import 'package:ox_common/widgets/common_action_dialog.dart';
 import 'package:ox_common/widgets/common_gradient_tab_bar.dart';
 import 'package:ox_common/widgets/common_time_dialog.dart';
 import 'package:ox_common/model/chat_session_model_isar.dart';
@@ -235,35 +237,17 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> with SingleTi
       modelList = [
         TabModel(
           onTap: () {
-            if (userDB.pubKey ==
-                OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
-              return CommonToast.instance.show(context, "Don't call yourself");
-            }
-            OXModuleService.pushPage(
-              context,
-              'ox_calling',
-              'CallPage',
-              {'userDB': userDB, 'media': CallMessageType.audio.text},
-            );
+            _sendMsg();
+          },
+          iconName: 'icon_message.png',
+          content:  Localized.text('ox_chat.message'),
+        ),
+        TabModel(
+          onTap: () {
+            _clickCall();
           },
           iconName: 'icon_chat_call.png',
           content: Localized.text('ox_chat.call'),
-        ),
-        TabModel(
-          iconName: 'chat_camera.png',
-          onTap: () {
-            if (userDB.pubKey ==
-                OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
-              return CommonToast.instance.show(context, "Don't call yourself");
-            }
-            OXModuleService.pushPage(
-              context,
-              'ox_calling',
-              'CallPage',
-              {'userDB': userDB, 'media': CallMessageType.video.text},
-            );
-          },
-          content: 'Video',
         ),
         TabModel(
           onTap: () => _onChangedMute(!_isMute),
@@ -1313,5 +1297,45 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> with SingleTi
         }
       },
     );
+  }
+
+  void _clickCall() async {
+    if (userDB.pubKey ==
+        OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
+      CommonToast.instance.show(context, "Don't call yourself");
+    } else {
+      OXActionModel? oxActionModel = await OXActionDialog.show(
+        context,
+        data: [
+          OXActionModel(
+              identify: 0,
+              text: 'str_video_call'.localized(),
+              iconName: 'icon_call_video.png',
+              package: 'ox_chat',
+              isUseTheme: true),
+          OXActionModel(
+              identify: 1,
+              text: 'str_voice_call'.localized(),
+              iconName: 'icon_call_voice.png',
+              package: 'ox_chat',
+              isUseTheme: true),
+        ],
+        backGroundColor: ThemeColor.color180,
+        separatorCancelColor: ThemeColor.color190,
+      );
+      if (oxActionModel != null) {
+        OXModuleService.pushPage(
+          context,
+          'ox_calling',
+          'CallPage',
+          {
+            'userDB': userDB,
+            'media': oxActionModel.identify == 1
+                ? CallMessageType.audio.text
+                : CallMessageType.video.text,
+          },
+        );
+      }
+    }
   }
 }
