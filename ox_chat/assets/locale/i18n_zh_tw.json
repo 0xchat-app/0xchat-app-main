@@ -337,5 +337,8 @@
   "str_title_chats": "聊天記錄",
   "str_title_media": "媒體",
   "str_online_channels": "在線頻道",
-  "str_online_groups": "在線群組"
+  "str_online_groups": "在線群組",
+  "str_all_chats_mark_as_read": "全部標記為已讀",
+  "str_show_in_chat": "在聊天中顯示",
+  "media_message_delete_tips": "您確定要刪除此本地媒體訊息嗎？"
 }

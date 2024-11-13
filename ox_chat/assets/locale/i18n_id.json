@@ -337,5 +337,8 @@
   "str_title_chats": "Obrolan",
   "str_title_media": "Media",
   "str_online_channels": "Saluran Daring",
-  "str_online_groups": "Grup Daring"
+  "str_online_groups": "Grup Daring",
+  "str_all_chats_mark_as_read": "Tandai semua sudah dibaca",
+  "str_show_in_chat": "Tampilkan di obrolan",
+  "media_message_delete_tips": "Apakah Anda yakin ingin menghapus pesan media lokal ini?"
 }

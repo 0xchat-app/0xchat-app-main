@@ -337,5 +337,8 @@
   "str_title_chats": "Chats",
   "str_title_media": "Medier",
   "str_online_channels": "Online kanaler",
-  "str_online_groups": "Online grupper"
+  "str_online_groups": "Online grupper",
+  "str_all_chats_mark_as_read": "Marker alle som læst",
+  "str_show_in_chat": "Vis i chatten",
+  "media_message_delete_tips": "Er du sikker på, at du vil slette disse lokale mediebeskeder?"
 }

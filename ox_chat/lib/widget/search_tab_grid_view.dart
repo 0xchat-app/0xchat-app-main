@@ -86,6 +86,11 @@ class _SearchTabGridViewState extends State<SearchTabGridView> with CommonStateV
                   (context) => MediaMessageViewer(
                     messages: mediaMessages,
                     initialIndex: index,
+                    onDeleteChanged: (message) {
+                      setState(() {
+                        _mediaMessages.remove(message);
+                      });
+                    },
                   ),
                 );
               },

@@ -45,7 +45,7 @@ abstract class ChatStrategy {
   Future getSendMessageEvent({
     required MessageType messageType,
     required String contentString,
-    required String replayId,
+    required String replyId,
     EncryptedFile? encryptedFile,
     String? source,
   });
@@ -53,7 +53,7 @@ abstract class ChatStrategy {
   Future<OKEvent> doSendMessageAction({
     required MessageType messageType,
     required String contentString,
-    required String replayId,
+    required String replyId,
     EncryptedFile? encryptedFile,
     bool isLocal = false,
     Event? event,
@@ -73,7 +73,7 @@ class ChannelChatStrategy extends ChatStrategy {
   Future getSendMessageEvent({
     required MessageType messageType,
     required String contentString,
-    required String replayId,
+    required String replyId,
     EncryptedFile? encryptedFile,
     String? source,
   }) async {
@@ -81,7 +81,7 @@ class ChannelChatStrategy extends ChatStrategy {
       receiverId,
       messageType,
       contentString,
-      replyMessage: replayId,
+      replyMessage: replyId,
       source: source,
     );
   }
@@ -90,7 +90,7 @@ class ChannelChatStrategy extends ChatStrategy {
   Future<OKEvent> doSendMessageAction({
     required MessageType messageType,
     required String contentString,
-    required String replayId,
+    required String replyId,
     EncryptedFile? encryptedFile,
     bool isLocal = false,
     Event? event,
@@ -98,7 +98,7 @@ class ChannelChatStrategy extends ChatStrategy {
   }) async {
     return Channels.sharedInstance.sendChannelMessage(
       receiverId,
-      replyMessage: replayId,
+      replyMessage: replyId,
       messageType,
       contentString,
       event: event,
@@ -120,7 +120,7 @@ class GroupChatStrategy extends ChatStrategy {
   Future getSendMessageEvent({
     required MessageType messageType,
     required String contentString,
-    required String replayId,
+    required String replyId,
     EncryptedFile? encryptedFile,
     String? source,
   }) async {
@@ -128,7 +128,7 @@ class GroupChatStrategy extends ChatStrategy {
       receiverId,
       messageType,
       contentString,
-      replyMessage: replayId,
+      replyMessage: replyId,
       encryptedFile: encryptedFile,
       source: source,
     );
@@ -138,7 +138,7 @@ class GroupChatStrategy extends ChatStrategy {
   Future<OKEvent> doSendMessageAction({
     required MessageType messageType,
     required String contentString,
-    required String replayId,
+    required String replyId,
     EncryptedFile? encryptedFile,
     bool isLocal = false,
     Event? event,
@@ -146,7 +146,7 @@ class GroupChatStrategy extends ChatStrategy {
   }) async {
     return Groups.sharedInstance.sendPrivateGroupMessage(
       receiverId,
-      replyMessage: replayId,
+      replyMessage: replyId,
       messageType,
       contentString,
       event: event,
@@ -166,13 +166,13 @@ class PrivateChatStrategy extends ChatStrategy {
   Future getSendMessageEvent({
     required MessageType messageType,
     required String contentString,
-    required String replayId,
+    required String replyId,
     EncryptedFile? encryptedFile,
     String? source,
   }) async {
     return await Contacts.sharedInstance.getSendMessageEvent(
       receiverId,
-      replayId,
+      replyId,
       messageType,
       contentString,
       kind: session.messageKind,
@@ -186,7 +186,7 @@ class PrivateChatStrategy extends ChatStrategy {
   Future<OKEvent> doSendMessageAction({
     required MessageType messageType,
     required String contentString,
-    required String replayId,
+    required String replyId,
     EncryptedFile? encryptedFile,
     bool isLocal = false,
     Event? event,
@@ -194,7 +194,7 @@ class PrivateChatStrategy extends ChatStrategy {
   }) async {
     return await Contacts.sharedInstance.sendPrivateMessage(
       receiverId,
-      replayId,
+      replyId,
       messageType,
       contentString,
       event: event,
@@ -216,14 +216,14 @@ class SecretChatStrategy extends ChatStrategy {
   Future getSendMessageEvent({
     required MessageType messageType,
     required String contentString,
-    required String replayId,
+    required String replyId,
     EncryptedFile? encryptedFile,
     String? source,
   }) async {
     return await Contacts.sharedInstance.getSendSecretMessageEvent(
       receiverId,
       receiverPubkey,
-      replayId,
+      replyId,
       messageType,
       contentString,
       session.expiration,
@@ -236,7 +236,7 @@ class SecretChatStrategy extends ChatStrategy {
   Future<OKEvent> doSendMessageAction({
     required MessageType messageType,
     required String contentString,
-    required String replayId,
+    required String replyId,
     EncryptedFile? encryptedFile,
     bool isLocal = false,
     Event? event,
@@ -245,7 +245,7 @@ class SecretChatStrategy extends ChatStrategy {
     return Contacts.sharedInstance.sendSecretMessage(
       receiverId,
       receiverPubkey,
-      replayId,
+      replyId,
       messageType,
       contentString,
       event: event,
@@ -268,7 +268,7 @@ class RelayGroupChatStrategy extends ChatStrategy {
   Future getSendMessageEvent({
     required MessageType messageType,
     required String contentString,
-    required String replayId,
+    required String replyId,
     EncryptedFile? encryptedFile,
     String? source,
   }) async {
@@ -278,7 +278,7 @@ class RelayGroupChatStrategy extends ChatStrategy {
       messageType,
       contentString,
       previous,
-      rootEvent: replayId,
+      rootEvent: replyId,
       source: source,
     );
   }
@@ -287,7 +287,7 @@ class RelayGroupChatStrategy extends ChatStrategy {
   Future<OKEvent> doSendMessageAction({
     required MessageType messageType,
     required String contentString,
-    required String replayId,
+    required String replyId,
     EncryptedFile? encryptedFile,
     bool isLocal = false,
     Event? event,
@@ -301,7 +301,7 @@ class RelayGroupChatStrategy extends ChatStrategy {
       previous,
       event: event,
       local: isLocal,
-      rootEvent: replayId,
+      rootEvent: replyId,
       replaceMessageId: replaceMessageId,
     );
   }

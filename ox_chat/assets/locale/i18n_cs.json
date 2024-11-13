@@ -337,5 +337,8 @@
   "str_title_chats": "Chaty",
   "str_title_media": "Média",
   "str_online_channels": "Online kanály",
-  "str_online_groups": "Online skupiny"
+  "str_online_groups": "Online skupiny",
+  "str_all_chats_mark_as_read": "Označit vše jako přečtené",
+  "str_show_in_chat": "Zobrazit v chatu",
+  "media_message_delete_tips": "Opravdu chcete smazat tyto místní mediální zprávy?"
 }

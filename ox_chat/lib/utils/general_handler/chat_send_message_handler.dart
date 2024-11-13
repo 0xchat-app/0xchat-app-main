@@ -853,7 +853,31 @@ extension ChatMessageSendUtileEx on ChatGeneralHandler {
             context, '${Localized.text('ox_chat.message_send_audio_fail')}: ${result.errorMsg}');
         return null;
       }
-      return message.copyWith(uri: result.url, decryptKey: encryptedKey, decryptNonce: encryptedNonce);
+
+      final audioURL = result.url;
+      final audioFile = File(filePath);
+
+      final audioManager = OXFileCacheManager.get(
+        encryptKey: encryptedKey,
+        encryptNonce: encryptedNonce,
+      );
+
+      final cacheFile = await audioManager.putFile(
+        audioURL,
+        audioFile.readAsBytesSync(),
+        fileExtension: audioFile.path.getFileExtension(),
+      );
+
+      if (audioFile.path != cacheFile.path) {
+        audioFile.delete();
+      }
+
+      return message.copyWith(
+        uri: audioURL,
+        audioFile: cacheFile,
+        decryptKey: encryptedKey,
+        decryptNonce: encryptedNonce,
+      );
     }
     return message;
   }

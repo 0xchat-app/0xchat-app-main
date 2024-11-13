@@ -337,5 +337,8 @@
   "str_title_chats": "Discussions",
   "str_title_media": "Médias",
   "str_online_channels": "Canaux en ligne",
-  "str_online_groups": "Groupes en ligne"
+  "str_online_groups": "Groupes en ligne",
+  "str_all_chats_mark_as_read": "Marquer tout comme lu",
+  "str_show_in_chat": "Afficher dans le chat",
+  "media_message_delete_tips": "Êtes-vous sûr de vouloir supprimer ces messages multimédias locaux ?"
 }

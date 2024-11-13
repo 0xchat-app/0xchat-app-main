@@ -337,5 +337,8 @@
   "str_title_chats": "Vestlused",
   "str_title_media": "Meedia",
   "str_online_channels": "Veebikanalid",
-  "str_online_groups": "Veebigrupid"
+  "str_online_groups": "Veebigrupid",
+  "str_all_chats_mark_as_read": "Märgi kõik loetuks",
+  "str_show_in_chat": "Näita vestluses",
+  "media_message_delete_tips": "Kas olete kindel, et soovite kustutada need kohalikud meediasõnumid?"
 }

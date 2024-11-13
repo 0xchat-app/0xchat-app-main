@@ -9,9 +9,11 @@ import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_loading.dart';
 
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:chatcore/chat-core.dart';
+import 'package:nostr_core_dart/nostr.dart';
 
 ///Title: save_account_page
 ///Description: TODO(Fill in by oneself)
@@ -19,9 +21,12 @@ import 'package:chatcore/chat-core.dart';
 ///@author Michael
 ///CreateTime: 2023/4/25 14:14
 class SaveAccountPage extends StatefulWidget {
-  final UserDBISAR userDB;
+  final String userName;
+  final String userAbout;
+  final String userDns;
+  final Keychain keychain;
 
-  SaveAccountPage({required this.userDB});
+  SaveAccountPage({required this.userName, required this.userAbout, required this.userDns, required this.keychain});
 
   @override
   State<StatefulWidget> createState() {
@@ -38,10 +43,14 @@ class _SaveAccountPageState extends State<SaveAccountPage>
 
   late final AnimationController opacityController;
   late final Animation<double> opacityAnimation;
+  late String _encodedPubkey;
+  late String _encodedPrivkey;
 
   @override
   void initState() {
     super.initState();
+    _encodedPubkey = Nip19.encodePubkey(widget.keychain.public);
+    _encodedPrivkey = Nip19.encodePubkey(widget.keychain.private);
     opacityController = AnimationController(
       duration: Duration(milliseconds: 500),
       vsync: this,
@@ -77,7 +86,7 @@ class _SaveAccountPageState extends State<SaveAccountPage>
             KeyType.PublicKey,
             Localized.text('ox_login.public_key'),
             "Before we get started, you need to save your account info. This is your account ID; you can give it to your friends so they can follow you. Tap to copy.",
-            widget.userDB.encodedPubkey,
+            _encodedPubkey,
           ),
           AnimatedBuilder(
             animation: opacityAnimation,
@@ -89,7 +98,7 @@ class _SaveAccountPageState extends State<SaveAccountPage>
                   Localized.text('ox_login.private_key'),
                   "This is your account secret key. You need this to access your account; without it, you won't be able to log in if you ever uninstall 0xchat."
                   "Don't share this with anyone! Save it in a password manager for safekeeping!",
-                  widget.userDB.encodedPrivkey,
+                  _encodedPrivkey,
                 ),
               );
             },
@@ -268,15 +277,23 @@ class _SaveAccountPageState extends State<SaveAccountPage>
   }
 
   void _login() async {
-    await OXUserInfoManager.sharedInstance.loginSuccess(widget.userDB);
+    await OXLoading.show();
+    await OXUserInfoManager.sharedInstance.initDB(widget.keychain.public);
+    UserDBISAR userDB = await Account.newAccount(user: widget.keychain);
+    userDB = await Account.sharedInstance.loginWithPriKey(widget.keychain.private) ?? userDB;
+    userDB.name = widget.userName;
+    userDB.about = widget.userAbout;
+    userDB.dns = widget.userDns;
+    Account.sharedInstance.updateProfile(userDB);
+    await OXUserInfoManager.sharedInstance.loginSuccess(userDB);
+    await OXLoading.dismiss();
     OXNavigator.popToRoot(context);
     AppInitializationManager.shared.showInitializationLoading();
   }
 
   void _clickKey(KeyType keyType) async {
-    UserDBISAR db = widget.userDB;
     String getKey =
-        keyType == KeyType.PublicKey ? db.encodedPubkey : db.encodedPrivkey;
+        keyType == KeyType.PublicKey ? _encodedPubkey : _encodedPrivkey;
 
     await TookKit.copyKey(context, getKey);
 

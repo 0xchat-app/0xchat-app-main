@@ -337,5 +337,8 @@
   "str_title_chats": "Trò chuyện",
   "str_title_media": "Phương tiện",
   "str_online_channels": "Kênh trực tuyến",
-  "str_online_groups": "Nhóm trực tuyến"
+  "str_online_groups": "Nhóm trực tuyến",
+  "str_all_chats_mark_as_read": "Đánh dấu tất cả đã đọc",
+  "str_show_in_chat": "Hiển thị trong trò chuyện",
+  "media_message_delete_tips": "Bạn có chắc chắn muốn xóa các tin nhắn phương tiện cục bộ này không?"
 }

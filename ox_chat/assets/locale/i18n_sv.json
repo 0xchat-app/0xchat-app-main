@@ -337,5 +337,8 @@
   "str_title_chats": "Chattar",
   "str_title_media": "Media",
   "str_online_channels": "Onlinekanaler",
-  "str_online_groups": "Onlinegrupper"
+  "str_online_groups": "Onlinegrupper",
+  "str_all_chats_mark_as_read": "Markera allt som läst",
+  "str_show_in_chat": "Visa i chatten",
+  "media_message_delete_tips": "Är du säker på att du vill radera dessa lokala meddelanden?"
 }

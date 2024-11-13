@@ -337,5 +337,8 @@
   "str_title_chats": "Συνομιλίες",
   "str_title_media": "Μέσα",
   "str_online_channels": "Διαδικτυακά Κανάλια",
-  "str_online_groups": "Διαδικτυακές Ομάδες"
+  "str_online_groups": "Διαδικτυακές Ομάδες",
+  "str_all_chats_mark_as_read": "Σήμανση όλων ως αναγνωσμένων",
+  "str_show_in_chat": "Εμφάνιση στη συνομιλία",
+  "media_message_delete_tips": "Είστε βέβαιοι ότι θέλετε να διαγράψετε αυτά τα τοπικά μηνύματα μέσων;"
 }

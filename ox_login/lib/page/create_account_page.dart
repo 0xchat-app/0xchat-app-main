@@ -28,9 +28,9 @@ import 'package:nostr_core_dart/nostr.dart';
 ///@author Michael
 ///CreateTime: 2023/4/25 09:40
 class CreateAccountPage extends StatefulWidget {
-  final UserDBISAR userDB;
+  final Keychain keychain;
 
-  CreateAccountPage({required this.userDB});
+  CreateAccountPage({required this.keychain});
 
   @override
   State<StatefulWidget> createState() {
@@ -110,7 +110,7 @@ class _CreateAccountPageState extends BasePageState<CreateAccountPage> {
           InputWrap(
             title: Localized.text('ox_login.account_id'),
             contentWidget: Text(
-              widget.userDB.encodedPubkey,
+              Nip19.encodePubkey(widget.keychain.public),
               style: TextStyle(
                 fontSize: Adapt.px(16),
                 color: ThemeColor.color40,
@@ -160,15 +160,10 @@ class _CreateAccountPageState extends BasePageState<CreateAccountPage> {
     bool checkResult = await _checkForm();
     if (!checkResult) return;
     String dnsText = _dnsTextEditingController.text;
-
-    widget.userDB.name = _userNameTextEditingController.text;
-    widget.userDB.about = _aboutTextEditingController.text;
-    widget.userDB.dns = dnsText.length == 0 ? '' : dnsText + dnsSuffix;
-
-    Account.sharedInstance.updateProfile(widget.userDB);
-
-    OXNavigator.pushPage(
-        context, (context) => SaveAccountPage(userDB: widget.userDB));
+    String userName = _userNameTextEditingController.text;
+    String userAbout = _aboutTextEditingController.text;
+    String userDns = dnsText.length == 0 ? '' : dnsText + dnsSuffix;
+    OXNavigator.pushPage(context, (context) => SaveAccountPage(userName: userName, userAbout: userAbout, userDns: userDns, keychain: widget.keychain));
   }
 
   Future<bool> _checkForm() async {
@@ -180,7 +175,7 @@ class _CreateAccountPageState extends BasePageState<CreateAccountPage> {
 
     String dnsText = _dnsTextEditingController.text;
     if (dnsText.length > 0) {
-      String pubKey = widget.userDB.pubKey;
+      String pubKey = widget.keychain.public;
       String nip05Url = dnsText + dnsSuffix;
 
       Map<String, dynamic>? dnsParams = {

@@ -263,19 +263,9 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  void _createAccount() async {
-
-    await OXLoading.show();
+  void _createAccount() {
     Keychain keychain = Account.generateNewKeychain();
-    String currentUserPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
-    await OXUserInfoManager.sharedInstance.initDB(keychain.public);
-    UserDBISAR? userDB = await Account.newAccount(user: keychain);
-    userDB = await Account.sharedInstance.loginWithPriKey(keychain.private);
-    userDB = await OXUserInfoManager.sharedInstance.handleSwitchFailures(userDB, currentUserPubKey);
-    LogUtil.e('Michael: pubKey =${userDB?.pubKey}');
-    await OXLoading.dismiss();
-    if(userDB != null)
-    OXNavigator.pushPage(context, (context) => CreateAccountPage(userDB: userDB!));
+    OXNavigator.pushPage(context, (context) => CreateAccountPage(keychain: keychain));
   }
 
   void _login() {

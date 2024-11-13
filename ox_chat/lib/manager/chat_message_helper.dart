@@ -604,14 +604,14 @@ extension MessageDBToUIEx on MessageDBISAR {
 }
 
 extension MessageUIToDBEx on types.Message {
-  MessageType dbMessageType({bool encrypt = false}) {
+  MessageType get dbMessageType {
     switch (type) {
       case types.MessageType.text:
         return MessageType.text;
       case types.MessageType.image:
-        return encrypt ? MessageType.encryptedImage : MessageType.image;
+        return isEncrypted ? MessageType.encryptedImage : MessageType.image;
       case types.MessageType.audio:
-        return encrypt ? MessageType.encryptedAudio: MessageType.audio;
+        return isEncrypted ? MessageType.encryptedAudio: MessageType.audio;
       case types.MessageType.video:
         return MessageType.video;
       case types.MessageType.file:
@@ -619,9 +619,9 @@ extension MessageUIToDBEx on types.Message {
       case types.MessageType.custom:
         final msg = this;
         if (msg.isImageMessage) {
-          return encrypt ? MessageType.encryptedImage : MessageType.image;
+          return isEncrypted ? MessageType.encryptedImage : MessageType.image;
         } else if (msg.isVideoMessage) {
-          return encrypt ? MessageType.encryptedVideo : MessageType.video;
+          return isEncrypted ? MessageType.encryptedVideo : MessageType.video;
         }
         return MessageType.template;
       case types.MessageType.system:
@@ -669,6 +669,8 @@ extension UserDBToUIEx on UserDBISAR {
 
 
 extension UIMessageEx on types.Message {
+  bool get isEncrypted => decryptKey != null;
+
   String get replyDisplayContent {
     final author = this.author.sourceObject;
     if (author == null) {
@@ -681,7 +683,7 @@ extension UIMessageEx on types.Message {
   String get messagePreviewText {
     return ChatMessageHelper.getMessagePreviewText(
       this.content,
-      this.dbMessageType(),
+      this.dbMessageType,
       this.author.id,
     );
   }

@@ -337,5 +337,8 @@
   "str_title_chats": "채팅",
   "str_title_media": "미디어",
   "str_online_channels": "온라인 채널",
-  "str_online_groups": "온라인 그룹"
+  "str_online_groups": "온라인 그룹",
+  "str_all_chats_mark_as_read": "모두 읽음으로 표시",
+  "str_show_in_chat": "채팅에서 보기",
+  "media_message_delete_tips": "이 로컬 미디어 메시지를 삭제하시겠습니까?"
 }

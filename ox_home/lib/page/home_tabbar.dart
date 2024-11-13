@@ -164,7 +164,7 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
                 _bottomNavOffset = _tabbarSH;
                 return false;
               }
-              if (_bottomNavOffset < _tabbarSH && _bottomNavOffset > _bottomNavHeight / 2) {
+              if (_bottomNavOffset > 15.px) {
                 tabBarGlobalKey.currentState?.executeAnim(isReverse: false, fromValue: _bottomNavOffset* 0.01);
                 _bottomNavOffset = _tabbarSH;
               } else {

@@ -1,3 +1,4 @@
+import 'package:ox_common/utils/chat_prompt_tone.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_theme/ox_theme.dart';
 
@@ -99,6 +100,12 @@ class SettingModel {
         rightContent: '',
         settingItemType: SettingItemType.devLog
     ));
+    settingModelList.add(SettingModel(
+        iconName: 'icon_settings_sound.png',
+        title: 'ox_usercenter.sound_feedback',
+        rightContent: PromptToneManager.sharedInstance.currentSoundTheme.symbol,
+        settingItemType: SettingItemType.sound
+    ));
     return settingModelList;
   }
 }
@@ -115,6 +122,7 @@ enum SettingItemType {
   ice,
   language,
   theme,
+  sound,
   dataRevovery,
   devLog,
   none,

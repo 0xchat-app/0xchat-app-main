@@ -337,5 +337,8 @@
   "str_title_chats": "Chat",
   "str_title_media": "Media",
   "str_online_channels": "Canali Online",
-  "str_online_groups": "Gruppi Online"
+  "str_online_groups": "Gruppi Online",
+  "str_all_chats_mark_as_read": "Segna tutto come letto",
+  "str_show_in_chat": "Mostra nella chat",
+  "media_message_delete_tips": "Sei sicuro di voler eliminare questi messaggi multimediali locali?"
 }
