@@ -8,12 +8,14 @@ import 'package:ox_localizable/ox_localizable.dart';
 class UnifiedSearchBar extends StatelessWidget {
   final TextEditingController controller;
   final ValueChanged<String>? onChanged;
+  final ValueChanged<String>? onSubmitted;
   final EdgeInsetsGeometry? margin;
 
   const UnifiedSearchBar({
     super.key,
     required this.controller,
     this.onChanged,
+    this.onSubmitted,
     this.margin,
   });
 
@@ -35,6 +37,7 @@ class UnifiedSearchBar extends StatelessWidget {
               child: TextField(
                 controller: controller,
                 onChanged: onChanged,
+                onSubmitted: onSubmitted,
                 decoration: InputDecoration(
                   icon: Container(
                     margin: EdgeInsets.only(left: 16.px),
