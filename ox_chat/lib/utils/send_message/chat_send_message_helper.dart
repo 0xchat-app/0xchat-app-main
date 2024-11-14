@@ -97,9 +97,15 @@ class ChatSendMessageHelper {
 
   static EncryptedFile? _createEncryptedFileIfNeeded(types.Message message) {
     if (!message.isEncrypted) return null;
+    MessageType type = message.dbMessageType;
+    if (message.isImageSendingMessage || message.isImageMessage) {
+      type = MessageType.encryptedImage;
+    } else if (message.isVideoSendingMessage || message.isVideoMessage) {
+      type = MessageType.encryptedVideo;
+    }
     return EncryptedFile(
       message.content,
-      MessageDBISAR.tpyeStringToMimeType(message.dbMessageType),
+      MessageDBISAR.tpyeStringToMimeType(type),
       'aes-gcm',
       message.decryptKey!,
       message.decryptNonce!,
