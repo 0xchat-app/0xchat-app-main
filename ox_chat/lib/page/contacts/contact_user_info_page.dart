@@ -612,8 +612,10 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> with SingleTi
 
   Widget _addFriendBtnView() {
     bool friendsStatus = false;
+    bool isMe = myPubkey == widget.pubkey;
     friendsStatus = isFriend(userDB.pubKey ?? '');
-    if (friendsStatus) return const SizedBox();
+    myPubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
+    if (friendsStatus && !isMe) return const SizedBox();
 
     return GestureDetector(
       child: Container(
@@ -633,7 +635,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> with SingleTi
         ),
         alignment: Alignment.center,
         child: Text(
-          'Add Contact',
+          isMe  ?  'Send Message' : 'Add Contact',
           style: TextStyle(
             color: myPubkey != widget.pubkey && friendsStatus
                 ? ThemeColor.red
@@ -643,7 +645,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> with SingleTi
           ),
         ),
       ),
-      onTap: _addFriends,
+      onTap: isMe ? _sendMsg : _addFriends,
     ).setPaddingOnly(top: 16.px);
   }
 
