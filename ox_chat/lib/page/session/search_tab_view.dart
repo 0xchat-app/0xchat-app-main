@@ -10,12 +10,14 @@ class SearchTabView extends StatefulWidget {
   final String searchQuery;
   final SearchType type;
   final List<dynamic> data;
+  final String? chatId;
 
   const SearchTabView({
     super.key,
     required this.data,
     required this.type,
     required this.searchQuery,
+    this.chatId,
   });
 
   @override
@@ -102,6 +104,7 @@ class _SearchTabViewState extends State<SearchTabView> with CommonStateViewMixin
       case SearchType.media:
         return SearchTabGridView(
           searchQuery: widget.searchQuery,
+          chatId: widget.chatId,
         );
         break;
       // case SearchType.link:

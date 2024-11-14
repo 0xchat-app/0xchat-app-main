@@ -16,6 +16,7 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_gradient_tab_bar.dart';
 import 'package:chatcore/chat-core.dart';
+import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_theme/ox_theme.dart';
 
 class UnifiedSearchPage extends StatefulWidget {
@@ -105,7 +106,9 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
 
   void _loadGroupsData() async {
     _groups.clear();
+    OXLoading.show();
     List<GroupUIModel>? groupList = await SearchTxtUtil.loadChatGroupWithSymbol(searchQuery);
+    OXLoading.dismiss();
     if (groupList != null && groupList.length > 0) {
       _groups.add(GroupedModel<GroupUIModel>(title: 'str_title_groups'.localized(), items: groupList));
       _searchResult[SearchType.group] = _groups;

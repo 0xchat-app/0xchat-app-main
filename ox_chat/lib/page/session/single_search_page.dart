@@ -9,7 +9,6 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_gradient_tab_bar.dart';
-import 'package:chatcore/chat-core.dart';
 
 class SingleSearchPage extends StatefulWidget {
   final String chatId;
@@ -42,7 +41,6 @@ class _SingleSearchPageState extends State<SingleSearchPage>
       length: SearchType.values.length,
       vsync: this,
     );
-    _getMediaList();
   }
 
   void _loadChatMessagesData({String? chatId}) async {
@@ -57,22 +55,6 @@ class _SingleSearchPageState extends State<SingleSearchPage>
       groupedChatMessage.add(GroupedModel<ChatMessage>(title: 'Chat Result', items: chatMessageList));
       _searchResult[SearchType.chat] = groupedChatMessage;
     }
-    setState(() {});
-  }
-
-  void _getMediaList() async {
-    Map result = await Messages.loadMessagesFromDB(
-      receiver: widget.chatId,
-      decryptContentLike: searchQuery,
-      messageTypes: [
-        MessageType.image,
-        MessageType.encryptedImage,
-        MessageType.video,
-        MessageType.encryptedVideo,
-      ],
-    );
-    List<MessageDBISAR> messages = result['messages'] ?? <MessageDBISAR>[];
-    _searchResult[SearchType.media] = messages;
     setState(() {});
   }
 
@@ -102,6 +84,7 @@ class _SingleSearchPageState extends State<SingleSearchPage>
                   data: _searchResult[searchType] ?? [],
                   type: searchType,
                   searchQuery: _searchQuery,
+                  chatId: widget.chatId,
                 ),
               ).toList(),
             ),
@@ -114,10 +97,6 @@ class _SingleSearchPageState extends State<SingleSearchPage>
   void _onTextChanged(String value) {
     _searchResult.clear();
     _searchQuery = value;
-    // if(value.isEmpty) {
-    //   _getMediaList();
-    // }
-    _getMediaList();
     _loadChatMessagesData(chatId: widget.chatId);
   }
 }
