@@ -86,6 +86,7 @@ dev_dependencies:
   isar_generator: ^3.1.0+1
   json_serializable: ^6.1.5
   watcher: ^1.1.0
+  flutter_socks_proxy: ^0.0.3
 
 dependency_overrides:
   collection: 1.18.0
