@@ -189,7 +189,7 @@ class UserCenterPageState extends State<UserCenterPage>
             iconName: 'icon_qrcode.png',
             size: 24.px,
             package: 'ox_usercenter',
-            color: ThemeManager.getCurrentThemeStyle().index == 0 ? ThemeColor.color200 : null,
+            color: ThemeColor.color0,
           ),
           onPressed: () {
             OXModuleService.invoke('ox_chat', 'showMyIdCardDialog', [context]);

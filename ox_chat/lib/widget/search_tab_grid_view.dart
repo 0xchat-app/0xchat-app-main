@@ -9,13 +9,13 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/gallery/gallery_image_widget.dart';
 
 class SearchTabGridView extends StatefulWidget {
-  // final List<MessageDBISAR> data;
   final String searchQuery;
+  final String? chatId;
 
   const SearchTabGridView({
     super.key,
-    // required this.data,
     required this.searchQuery,
+    this.chatId,
   });
 
   @override
@@ -132,6 +132,7 @@ class _SearchTabGridViewState extends State<SearchTabGridView> with CommonStateV
   void _getMediaList({String? content}) async {
     if(!hasMore) return;
     Map result = await Messages.loadMessagesFromDB(
+      receiver: widget.chatId,
       messageTypes: [
         MessageType.image,
         MessageType.encryptedImage,
@@ -150,8 +151,8 @@ class _SearchTabGridViewState extends State<SearchTabGridView> with CommonStateV
       _mediaMessages.addAll(messages);
       if (messages.length < pageSize) hasMore = false;
       updateStateView(CommonStateView.CommonStateView_None);
-      setState(() {});
     }
+    setState(() {});
   }
 
   @override

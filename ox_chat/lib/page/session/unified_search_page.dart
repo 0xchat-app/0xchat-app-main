@@ -16,6 +16,7 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_gradient_tab_bar.dart';
 import 'package:chatcore/chat-core.dart';
+import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_theme/ox_theme.dart';
 
 class UnifiedSearchPage extends StatefulWidget {
@@ -105,7 +106,9 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
 
   void _loadGroupsData() async {
     _groups.clear();
+    OXLoading.show();
     List<GroupUIModel>? groupList = await SearchTxtUtil.loadChatGroupWithSymbol(searchQuery);
+    OXLoading.dismiss();
     if (groupList != null && groupList.length > 0) {
       _groups.add(GroupedModel<GroupUIModel>(title: 'str_title_groups'.localized(), items: groupList));
       _searchResult[SearchType.group] = _groups;
@@ -216,24 +219,6 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
     setState(() {});
   }
 
-  void _getMediaList({String? content}) async {
-    Map result = await Messages.loadMessagesFromDB(
-      messageTypes: [
-        MessageType.image,
-        MessageType.encryptedImage,
-        MessageType.video,
-        MessageType.encryptedVideo,
-      ],
-      decryptContentLike: content,
-      // since: 0
-      // until: DateTime.now().microsecondsSinceEpoch,
-      // limit: 50,
-    );
-    List<MessageDBISAR> messages = result['messages'] ?? <MessageDBISAR>[];
-    _searchResult[SearchType.media] = messages;
-    setState(() {});
-  }
-
   void _prepareData() {
     _searchResult.clear();
     if (!OXUserInfoManager.sharedInstance.isLogin) return;
@@ -248,7 +233,6 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
       _loadChannelsData();
       _loadOnlineGroupsAndChannelsData();
       _loadUsersData();
-      // _getMediaList(content: searchQuery);
     }
     setState(() {});
   }
@@ -258,7 +242,6 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
     _loadRecentChatMessage();
     _loadRecentGroup();
     _loadRecentChannel();
-    // _getMediaList();
   }
 
 
@@ -269,6 +252,10 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
     } else {
       _prepareData();
     }
+  }
+
+  _onSubmitted(String value) {
+    _onTextChanged(value);
   }
 
   List<GroupedModel<ChatMessage>> _groupedChatMessage(List<ChatMessage> messages) {
@@ -300,35 +287,40 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: ThemeColor.color200,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          UnifiedSearchBar(
-            margin: EdgeInsets.only(
-              top: MediaQuery.of(context).padding.top,
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () => FocusScope.of(context).requestFocus(FocusNode()),
+      child: Scaffold(
+        backgroundColor: ThemeColor.color200,
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            UnifiedSearchBar(
+              margin: EdgeInsets.only(
+                top: MediaQuery.of(context).padding.top,
+              ),
+              controller: _searchBarController,
+              // onChanged: _onTextChanged,
+              onSubmitted: _onSubmitted,
             ),
-            controller: _searchBarController,
-            onChanged: _onTextChanged,
-          ),
-          CommonGradientTabBar(
-            controller: _controller,
-            data: SearchType.values.map((element) => element.getLocalizedLabel()).toList(),
-          ).setPaddingOnly(left: 24.px),
-          Expanded(
-            child: TabBarView(
+            CommonGradientTabBar(
               controller: _controller,
-              children: SearchType.values.map(
-                    (searchType) => SearchTabView(
-                      data: _searchResult[searchType] ?? [],
-                      type: searchType,
-                      searchQuery: searchQuery,
-                    ),
-                  ).toList(),
+              data: SearchType.values.map((element) => element.getLocalizedLabel()).toList(),
+            ).setPaddingOnly(left: 24.px),
+            Expanded(
+              child: TabBarView(
+                controller: _controller,
+                children: SearchType.values.map(
+                      (searchType) => SearchTabView(
+                        data: _searchResult[searchType] ?? [],
+                        type: searchType,
+                        searchQuery: searchQuery,
+                      ),
+                    ).toList(),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
