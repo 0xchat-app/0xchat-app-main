@@ -151,8 +151,8 @@ class _SearchTabGridViewState extends State<SearchTabGridView> with CommonStateV
       _mediaMessages.addAll(messages);
       if (messages.length < pageSize) hasMore = false;
       updateStateView(CommonStateView.CommonStateView_None);
-      setState(() {});
     }
+    setState(() {});
   }
 
   @override
