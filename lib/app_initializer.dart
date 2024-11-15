@@ -23,6 +23,7 @@ import 'package:ox_theme/ox_theme.dart';
 import 'package:ox_usercenter/ox_usercenter.dart';
 import 'package:ox_wallet/ox_wallet.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:flutter_socks_proxy/socks_proxy.dart';
 
 import 'main.reflectable.dart';
 
@@ -127,7 +128,7 @@ extension ThemeStyleOverlayEx on ThemeStyle {
 class OXHttpOverrides extends HttpOverrides {
   @override
   HttpClient createHttpClient(SecurityContext? context) {
-    final client = super.createHttpClient(context)
+    final client = createProxyHttpClient(context: context)
       ..findProxy = (Uri uri) {
         ProxySettings? settings = Config.sharedInstance.proxySettings;
         if (settings == null) {
@@ -137,13 +138,13 @@ class OXHttpOverrides extends HttpOverrides {
           bool onionURI = uri.host.contains(".onion");
           switch (settings.onionHostOption) {
             case EOnionHostOption.no:
-              return onionURI ? '' : 'PROXY ${settings.socksProxyHost}:${settings.socksProxyPort}';
+              return onionURI ? '' : 'SOCKS5 ${settings.socksProxyHost}:${settings.socksProxyPort}';
             case EOnionHostOption.whenAvailable:
               return !onionURI
                   ? 'DIRECT'
-                  : 'PROXY ${settings.socksProxyHost}:${settings.socksProxyPort}';
+                  : 'SOCKS5 ${settings.socksProxyHost}:${settings.socksProxyPort}';
             case EOnionHostOption.required:
-              return !onionURI ? '' : 'PROXY ${settings.socksProxyHost}:${settings.socksProxyPort}';
+              return !onionURI ? '' : 'SOCKS5 ${settings.socksProxyHost}:${settings.socksProxyPort}';
             default:
               break;
           }
