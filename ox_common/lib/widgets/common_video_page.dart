@@ -304,10 +304,7 @@ class _CustomControlsState extends State<CustomControls> {
           right: 0,
           child: GestureDetector(
             onTap: _toggleControls,
-            child: SizedBox(
-              height: size.height,
-              width: double.infinity,
-            ),
+            child: Container(),
           ),
         ),
         _buildProgressBar(),
@@ -419,53 +416,44 @@ class _CustomControlsState extends State<CustomControls> {
           bottom: 40.0,
           left: 0,
           right: 0,
-          child: Column(
+          child: Row(
             children: [
               Container(
-                width: double.infinity,
-                child: Expanded(
-                  child: Row(
-                    children: [
-                      Container(
-                        margin: EdgeInsets.only(left: 20.px),
-                        width: 40.px,
-                        child: Text(
-                          _formatDuration(
-                              widget.videoPlayerController.value.position),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Container(
-                          child: CustomVideoProgressIndicator(
-                            controller: widget.videoPlayerController,
-                            callback: _progressCallback,
-                          ),
-                        ).setPadding(
-                          EdgeInsets.symmetric(horizontal: 10.px),
-                        ),
-                      ),
-                      Container(
-                        width: 40.px,
-                        margin: EdgeInsets.only(right: 20.px),
-                        child: Text(
-                          _formatDuration(
-                              widget.videoPlayerController.value.duration),
-                          style: TextStyle(
-                            color: ThemeColor.white,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
+                margin: EdgeInsets.only(left: 20.px),
+                width: 40.px,
+                child: Text(
+                  _formatDuration(
+                      widget.videoPlayerController.value.position),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-              ).setPaddingOnly(bottom: 10.px),
+              ),
+              Expanded(
+                child: Container(
+                  child: CustomVideoProgressIndicator(
+                    controller: widget.videoPlayerController,
+                    callback: _progressCallback,
+                  ),
+                ).setPadding(
+                  EdgeInsets.symmetric(horizontal: 10.px),
+                ),
+              ),
+              Container(
+                width: 40.px,
+                margin: EdgeInsets.only(right: 20.px),
+                child: Text(
+                  _formatDuration(
+                      widget.videoPlayerController.value.duration),
+                  style: TextStyle(
+                    color: ThemeColor.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
             ],
-          ),
+          ).setPaddingOnly(bottom: 10.px),
         );
       },
     );
