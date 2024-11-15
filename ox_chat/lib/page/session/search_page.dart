@@ -402,24 +402,30 @@ class SearchPageState extends State<SearchPage> {
           } else if ((element.type == SearchItemType.messagesGroup || element.type == SearchItemType.message) && items is List<ChatMessage>) {
             return Column(
               children: items.map((item) {
-                return _buildResultItemView(
-                    isUser: false,
-                    avatarURL: item.picture,
-                    title: item.name,
-                    subTitle: item.subtitle,
-                    onTap: () {
-                      SearchItemType tempType = item.relatedCount > 1 ? SearchItemType.messagesGroup : SearchItemType.message;
-                      switch (tempType) {
-                        case SearchItemType.messagesGroup:
-                          _gotoSingleRelatedPage(item);
-                          break;
-                        case SearchItemType.message:
-                          _gotoChatMessagePage(item);
-                          break;
-                        default:
-                          break;
-                      }
-                    });
+                ValueNotifier<RelayGroupDBISAR> valueNotifier = RelayGroup.sharedInstance.getRelayGroupNotifier(item.chatId);
+                return ValueListenableBuilder(
+                  valueListenable: valueNotifier,
+                  builder: (context, value, child) {
+                    return _buildResultItemView(
+                        isUser: false,
+                        avatarURL: value.picture,
+                        title: value.name,
+                        subTitle: item.subtitle,
+                        onTap: () {
+                          SearchItemType tempType = item.relatedCount > 1 ? SearchItemType.messagesGroup : SearchItemType.message;
+                          switch (tempType) {
+                            case SearchItemType.messagesGroup:
+                              _gotoSingleRelatedPage(item);
+                              break;
+                            case SearchItemType.message:
+                              _gotoChatMessagePage(item);
+                              break;
+                            default:
+                              break;
+                          }
+                        });
+                  }
+                );
               }).toList(),
             );
           }
