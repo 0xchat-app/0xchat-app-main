@@ -6,6 +6,57 @@ part of 'chat_session_list_page.dart';
 ///@author Michael
 ///CreateTime: 2024/10/22 18:21
 extension ChatSessionListPageUI on ChatSessionListPageState{
+  Widget _buildTitleView() {
+    return SizedBox(
+      height: 56.px,
+      child: CommonAppBarNoPreferredSize(
+        backgroundColor: ThemeColor.color200,
+        leading: Container(
+          margin: EdgeInsets.only(left: Adapt.px(24)),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: 103.px,
+                height: 24.px,
+                child: CommonImage(
+                  iconName: '0xchat_title_icon.png',
+                  useTheme: true,
+                ),
+              ),
+              SizedBox(width: 4.px),
+              if (_isLogin) RelayInfoWidget(iconSize: 16.px, iconColor: ThemeColor.color0, fontSize: 12.sp, fontWeight: FontWeight.w600, fontColor: ThemeColor.color0, padding: 2.px),
+            ],
+          ),
+        ),
+        title: '',
+        isClose: true,
+        centerTitle: false,
+        canBack: false,
+        actions: [
+          GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            child: CommonImage(
+              iconName: 'icon_home_add.png',
+              size: 24.px,
+              useTheme: true,
+              package: 'ox_chat',
+            ),
+            onTap: () {
+              if (_isLogin) {
+                OXNavigator.presentPage(context, (context) => ChatNewMessagePage());
+              } else {
+                OXModuleService.pushPage(context, "ox_login", "LoginPage", {});
+              }
+            },
+          ),
+          SizedBox(
+            width: Adapt.px(24),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildListViewItem(context, int index) {
     if(index >= _msgDatas.length) return SizedBox();

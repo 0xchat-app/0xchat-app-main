@@ -35,6 +35,7 @@ import 'package:ox_common/utils/throttle_utils.dart';
 import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/widgets/base_page_state.dart';
+import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
@@ -202,51 +203,6 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
         }
       },
       child: Scaffold(
-        appBar: AppBar(
-          centerTitle: false,
-          backgroundColor: ThemeColor.color200,
-          elevation: 0,
-          titleSpacing: 0.0,
-          title: Container(
-            margin: EdgeInsets.only(left: Adapt.px(24)),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(
-                  width: 103.px,
-                  height: 24.px,
-                  child: CommonImage(
-                    iconName: '0xchat_title_icon.png',
-                    useTheme: true,
-                  ),
-                ),
-                SizedBox(width: 4.px),
-                if (_isLogin) RelayInfoWidget(iconSize: 16.px, iconColor: ThemeColor.color0, fontSize: 12.sp, fontWeight: FontWeight.w600, fontColor: ThemeColor.color0, padding: 2.px),
-              ],
-            ),
-          ),
-          actions: <Widget>[
-            GestureDetector(
-              behavior: HitTestBehavior.translucent,
-              child: CommonImage(
-                iconName: 'icon_home_add.png',
-                size: 24.px,
-                useTheme: true,
-                package: 'ox_chat',
-              ),
-              onTap: () {
-                if (_isLogin) {
-                  OXNavigator.presentPage(context, (context) => ChatNewMessagePage());
-                } else {
-                  OXModuleService.pushPage(context, "ox_login", "LoginPage", {});
-                }
-              },
-            ),
-            SizedBox(
-              width: Adapt.px(24),
-            ),
-          ],
-        ),
         backgroundColor: ThemeColor.color200,
         body: OXSmartRefresher(
           controller: _refreshController,
@@ -258,23 +214,36 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
             physics: BouncingScrollPhysics(),
             controller: _controller,
             slivers: [
-              SliverToBoxAdapter(
-                child: _topSearch(),
+              SliverAppBar(
+                floating: true,
+                snap: true,
+                backgroundColor: ThemeColor.color200,
+                expandedHeight: 56.px + 60.px,
+                flexibleSpace: FlexibleSpaceBar(
+                  collapseMode: CollapseMode.none,
+                  background:  Column(
+                    children: [
+                      SizedBox(height: MediaQuery.of(context).padding.top),
+                      _buildTitleView(),
+                      _topSearch(),
+                    ],
+                  ),
+                ),
               ),
               _isLogin && _msgDatas.length > 0
                   ? SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) {
-                          return _buildListViewItem(context, index);
-                        },
-                        childCount: itemCount(),
-                        // addAutomaticKeepAlives: false,
-                        // addRepaintBoundaries: false,
-                      ),
-                    )
+                delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                    return _buildListViewItem(context, index);
+                  },
+                  childCount: itemCount(),
+                  // addAutomaticKeepAlives: false,
+                  // addRepaintBoundaries: false,
+                ),
+              )
                   : SliverToBoxAdapter(
-                      child: commonStateViewWidget(context, Container()),
-                    ),
+                child: commonStateViewWidget(context, Container()),
+              ),
               SliverToBoxAdapter(
                 child: SizedBox(height: 120.px),
               ),
