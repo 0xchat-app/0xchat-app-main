@@ -48,7 +48,7 @@ class ChatMessagePage extends StatefulWidget {
       anchorMsgId: anchorMsgId,
       unreadMessageCount: unreadMessageCount ?? 0,
     );
-    await handler.initializeMessage();
+    handler.initializeMessage();
 
     Widget? pageWidget;
     final sessionType = communityItem.chatType;
