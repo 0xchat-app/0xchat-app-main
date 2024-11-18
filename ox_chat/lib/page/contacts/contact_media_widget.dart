@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
+import 'package:ox_common/mixin/common_state_view_mixin.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -21,18 +22,32 @@ import 'package:ox_common/upload/upload_utils.dart';
 
 class ContactMediaWidget extends StatefulWidget {
   final UserDBISAR userDB;
-  ContactMediaWidget({required this.userDB});
+
+  final ValueNotifier<bool> isScrollBottom;
+
+  ContactMediaWidget({required this.userDB, required this.isScrollBottom});
 
   @override
   ContactMediaWidgetState createState() => new ContactMediaWidgetState();
 }
 
-class ContactMediaWidgetState extends State<ContactMediaWidget> {
+class ContactMediaWidgetState extends State<ContactMediaWidget>
+    with CommonStateViewMixin {
   List<types.CustomMessage> messagesList = [];
+  final ScrollController _scrollController = ScrollController();
+  int? lastTimestamp;
+  final int pageSize = 30;
+  bool hasMore = true;
+
+  bool isTop = false;
+
+  bool _previousScrollStatus = false;
+
   @override
   void initState() {
     super.initState();
     _getMediaList();
+    _scrollController.addListener(_scrollListener);
   }
 
   @override
@@ -40,102 +55,132 @@ class ContactMediaWidgetState extends State<ContactMediaWidget> {
     super.dispose();
   }
 
-  void _getMediaList() async {
-    List<MessageDBISAR> messages = (await Messages.loadMessagesFromDB(
-            receiver: widget.userDB.pubKey,
-            messageTypes: [
-              MessageType.image,
-              MessageType.encryptedImage,
-              MessageType.video,
-              MessageType.encryptedVideo,
-              MessageType.template,
-            ]))['messages'] ??
-        <MessageDBISAR>[];
-    for(var custom in messages){
-      final customMsg = await custom.toChatUIMessage();
-      if (customMsg == null) continue;
-      if (customMsg is! types.CustomMessage) continue;
-      if (customMsg.customType == CustomMessageType.imageSending
-          || customMsg.customType == CustomMessageType.video) {
-        messagesList.add(customMsg);
-      }
+  void _scrollListener() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent) {
+      _getMediaList();
     }
-    if (messagesList.isNotEmpty && mounted) {
+    final atTop = _scrollController.position.pixels <= 0;
+    if (isTop != atTop) {
+      isTop = atTop;
       setState(() {});
+    }
+  }
+
+  void _getMediaList() async {
+    if (!hasMore) return;
+    List<MessageDBISAR> messages = (await Messages.loadMessagesFromDB(
+          receiver: widget.userDB.pubKey,
+          messageTypes: [
+            MessageType.image,
+            MessageType.encryptedImage,
+            MessageType.video,
+            MessageType.encryptedVideo,
+            MessageType.template,
+          ],
+          until: lastTimestamp,
+          limit: pageSize,
+        ))['messages'] ??
+        <MessageDBISAR>[];
+    if (messages.isEmpty) {
+      updateStateView(CommonStateView.CommonStateView_NoData);
+    } else {
+      for (var custom in messages) {
+        final customMsg = await custom.toChatUIMessage();
+        if (customMsg == null) continue;
+        if (customMsg is! types.CustomMessage) continue;
+        if (customMsg.customType == CustomMessageType.imageSending ||
+            customMsg.customType == CustomMessageType.video) {
+          messagesList.add(customMsg);
+        }
+      }
+      lastTimestamp = messages.last.createTime - 1;
+      if (messages.length < pageSize) hasMore = false;
+      if (messagesList.isNotEmpty && mounted) {
+        setState(() {});
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     if (messagesList.isEmpty) return _noDataWidget();
-    return GridView.builder(
-      padding: EdgeInsets.zero,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: messagesList.length,
-      itemBuilder: (context, index) {
-        types.CustomMessage customMsg = messagesList[index];
-        if (customMsg.customType == CustomMessageType.imageSending) {
-          if(ImageSendingMessageEx(customMsg).url.isEmpty) {
-            return  Container(
-              color: ThemeColor.color190,
-            );
-          }
-          return GestureDetector(
-            onTap: () {
-              CommonImageGallery.show(
-                context: context,
-                imageList: messagesList
-                    .map((e) => ImageEntry(
-                          id: index.toString(),
-                          url: ImageSendingMessageEx(e).uri,
-                          decryptedKey: ImageSendingMessageEx(e).encryptedKey,
-                        ))
-                    .toList(),
-                initialPage: index,
-              );
+    return ValueListenableBuilder<bool>(
+        valueListenable: widget.isScrollBottom,
+        builder: (context, value, child) {
+          ScrollPhysics physicsNever = const NeverScrollableScrollPhysics();
+          bool isDisableScroll = isTop && _previousScrollStatus == value;
+
+          ScrollPhysics? physicsPre = (isDisableScroll ? physicsNever : null);
+          physicsPre = value ? physicsPre : physicsNever;
+
+          _previousScrollStatus = value;
+          return GridView.builder(
+            controller: _scrollController,
+            padding: EdgeInsets.zero,
+            shrinkWrap: false,
+            physics: physicsPre,
+            itemCount: messagesList.length,
+            itemBuilder: (context, index) {
+              types.CustomMessage customMsg = messagesList[index];
+              if (customMsg.customType == CustomMessageType.imageSending) {
+                if (ImageSendingMessageEx(customMsg).url.isEmpty) {
+                  return const SizedBox();
+                }
+                return GestureDetector(
+                  onTap: () {
+                    CommonImageGallery.show(
+                      context: context,
+                      imageList: messagesList
+                          .map((e) => ImageEntry(
+                                id: index.toString(),
+                                url: ImageSendingMessageEx(e).uri,
+                                decryptedKey:
+                                    ImageSendingMessageEx(e).encryptedKey,
+                              ))
+                          .toList(),
+                      initialPage: index,
+                    );
+                  },
+                  child: Container(
+                    color: ThemeColor.color190,
+                    child: GalleryImageWidget(
+                      uri: ImageSendingMessageEx(customMsg).uri,
+                      fit: BoxFit.cover,
+                      decryptKey:
+                      ImageSendingMessageEx(customMsg).encryptedKey,
+                      decryptNonce:
+                      ImageSendingMessageEx(customMsg).encryptedNonce,
+                    ),
+                  ),
+                );
+              }
+
+              if (customMsg.customType == CustomMessageType.video) {
+                return Container(
+                  color: ThemeColor.color190,
+                  child: RenderVideoMessage(
+                    message: messagesList[index],
+                    reactionWidget: Container(),
+                    receiverPubkey: null,
+                    messageUpdateCallback: (newMessage) {
+                      setState(() {
+                        messagesList[index] = newMessage;
+                      });
+                    },
+                  ),
+                );
+              }
+              return const SizedBox();
             },
-            child: Expanded(
-              child: Container(
-                color: ThemeColor.color190,
-                child: GalleryImageWidget(
-                  uri: ImageSendingMessageEx(customMsg).uri,
-                  fit: BoxFit.cover,
-                  decryptKey: ImageSendingMessageEx(customMsg).encryptedKey,
-                  decryptNonce: ImageSendingMessageEx(customMsg).encryptedNonce,
-                ),
-              ),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              crossAxisSpacing: 2,
+              mainAxisSpacing: 2,
+              childAspectRatio: 1,
             ),
           );
-        }
-
-        if (customMsg.customType == CustomMessageType.video) {
-          return Expanded(
-            child: Container(
-              color: ThemeColor.color190,
-              child: RenderVideoMessage(
-                message: messagesList[index],
-                reactionWidget: Container(),
-                receiverPubkey: null,
-                messageUpdateCallback: (newMessage) {
-                  setState(() {
-                    messagesList[index] = newMessage;
-                  });
-                },
-              ),
-            ),
-          );
-        }
-
-        return const SizedBox();
-      },
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        crossAxisSpacing: 2,
-        mainAxisSpacing: 2,
-        childAspectRatio: 1,
-      ),
-    );
+        });
   }
 
   Widget _noDataWidget() {
@@ -278,12 +323,12 @@ class RenderVideoMessageState extends State<RenderVideoMessage> {
       this.snapshotPath = Future.value(snapshotPath);
     } else if (videoURL.isNotEmpty) {
       this.snapshotPath =
-          OXVideoUtils.getVideoThumbnailImage(videoURL: videoURL).then((
-              file) => file?.path ?? '');
+          OXVideoUtils.getVideoThumbnailImage(videoURL: videoURL)
+              .then((file) => file?.path ?? '');
     } else if (fileId.isNotEmpty) {
-      this.snapshotPath = Future.value(OXVideoUtils
-          .getVideoThumbnailImageFromMem(cacheKey: fileId)
-          ?.path ?? '');
+      this.snapshotPath = Future.value(
+          OXVideoUtils.getVideoThumbnailImageFromMem(cacheKey: fileId)?.path ??
+              '');
     }
   }
 
@@ -301,7 +346,8 @@ class RenderVideoMessageState extends State<RenderVideoMessage> {
       sourceFile = await fileManager.getSingleFile(videoURL);
       if (encryptedKey != null) {
         sourceFile = await DecryptedCacheManager.decryptFile(
-            sourceFile, encryptedKey!, nonce: encryptedNonce);
+            sourceFile, encryptedKey!,
+            nonce: encryptedNonce);
       }
     }
 
@@ -309,7 +355,9 @@ class RenderVideoMessageState extends State<RenderVideoMessage> {
     if (path.isEmpty) return;
 
     final snapshotPath = (await OXVideoUtils.getVideoThumbnailImageWithFilePath(
-        videoFilePath: path))?.path ?? '';
+                videoFilePath: path))
+            ?.path ??
+        '';
 
     types.CustomMessage newMessage = widget.message.copyWith();
     VideoMessageEx(newMessage).videoPath = path;
@@ -322,7 +370,7 @@ class RenderVideoMessageState extends State<RenderVideoMessage> {
   Widget build(BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: (){
+      onTap: () {
         CommonVideoPage.show(videoPath);
       },
       child: Stack(
@@ -337,18 +385,19 @@ class RenderVideoMessageState extends State<RenderVideoMessage> {
           if (videoURL.isNotEmpty)
             Positioned.fill(
               child: Center(
-                  child: canOpen ? buildPlayIcon() : buildLoadingWidget()
-              ),
+                  child: canOpen ? buildPlayIcon() : buildLoadingWidget()),
             )
         ],
       ),
     );
   }
 
-  Widget buildPlayIcon() => Icon(Icons.play_circle, size: 60.px,);
+  Widget buildPlayIcon() => Icon(
+        Icons.play_circle,
+        size: 60.px,
+      );
 
-  Widget buildLoadingWidget() =>
-      CircularProgressIndicator(
+  Widget buildLoadingWidget() => CircularProgressIndicator(
         strokeWidth: 5,
         backgroundColor: Colors.white.withOpacity(0.5),
         valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
@@ -356,13 +405,13 @@ class RenderVideoMessageState extends State<RenderVideoMessage> {
       );
 
   Widget snapshotBuilder(String imagePath) {
-    if(imagePath.isEmpty) return const SizedBox();
+    if (imagePath.isEmpty) return const SizedBox();
     return Container(
-        width: MediaQuery.of(context).size.width / 3,
-        child: GalleryImageWidget(
-          uri: imagePath,
-          fit: BoxFit.cover,
-        ),
-      );
+      width: MediaQuery.of(context).size.width / 3,
+      child: GalleryImageWidget(
+        uri: imagePath,
+        fit: BoxFit.cover,
+      ),
+    );
   }
 }
