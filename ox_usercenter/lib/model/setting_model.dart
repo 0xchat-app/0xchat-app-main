@@ -77,6 +77,12 @@ class SettingModel {
       settingItemType: SettingItemType.ice,
     ));
     settingModelList.add(SettingModel(
+        iconName: 'icon_settings_chat.png',
+        title: 'ox_usercenter.str_settings_chat',
+        rightContent: '',
+        settingItemType: SettingItemType.chats
+    ));
+    settingModelList.add(SettingModel(
       iconName: 'icon_settings_language.png',
       title: 'ox_usercenter.language',
       rightContent: Localized.getCurrentLanguage().languageText,
@@ -89,6 +95,12 @@ class SettingModel {
         settingItemType: SettingItemType.theme
     ));
     settingModelList.add(SettingModel(
+        iconName: 'icon_settings_sound.png',
+        title: 'ox_usercenter.sound_feedback',
+        rightContent: PromptToneManager.sharedInstance.currentSoundTheme.symbol,
+        settingItemType: SettingItemType.sound
+    ));
+    settingModelList.add(SettingModel(
         iconName: 'icon_database_import.png',
         title: 'ox_usercenter.str_data_revovery',
         rightContent: '',
@@ -99,12 +111,6 @@ class SettingModel {
         title: 'ox_usercenter.str_dev_log',
         rightContent: '',
         settingItemType: SettingItemType.devLog
-    ));
-    settingModelList.add(SettingModel(
-        iconName: 'icon_settings_sound.png',
-        title: 'ox_usercenter.sound_feedback',
-        rightContent: PromptToneManager.sharedInstance.currentSoundTheme.symbol,
-        settingItemType: SettingItemType.sound
     ));
     return settingModelList;
   }
@@ -123,6 +129,7 @@ enum SettingItemType {
   language,
   theme,
   sound,
+  chats,
   dataRevovery,
   devLog,
   none,

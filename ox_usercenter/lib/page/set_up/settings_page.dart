@@ -19,6 +19,7 @@ import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_theme/ox_theme.dart';
 import 'package:ox_usercenter/model/setting_model.dart';
+import 'package:ox_usercenter/page/set_up/chat_setting_page.dart';
 import 'package:ox_usercenter/page/set_up/database_setting_page.dart';
 import 'package:ox_usercenter/page/set_up/file_server_page.dart';
 import 'package:ox_usercenter/page/set_up/ice_server_page.dart';
@@ -240,6 +241,9 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
                       setState(() {});
                     })).toList();
             BottomSheetDialog.showBottomSheet(context, items);
+            break;
+          case SettingItemType.chats:
+            OXNavigator.pushPage(context, (context) => const ChatSettingPage());
             break;
           case SettingItemType.none:
             // TODO: Handle this case.
