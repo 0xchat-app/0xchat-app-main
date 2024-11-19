@@ -32,6 +32,14 @@ extension UserCenterPageUI on UserCenterPageState{
           },
         ),
         SizedBox(height: 24.px),
+        buildOption(
+          title: 'ox_usercenter.str_font_size',
+          iconName: 'icon_settings_wallet.png',
+          onTap: () async {
+            OXNavigator.pushPage(context, (context) => FontSizePage());
+          },
+        ),
+        SizedBox(height: 24.px),
         Container(
           width: double.infinity,
           decoration: BoxDecoration(
@@ -287,7 +295,6 @@ extension UserCenterPageUI on UserCenterPageState{
         await TookKit.copyKey(context, encodedPubKey);
       },
       child: Container(
-        height: Adapt.px(33),
         margin: EdgeInsets.only(top: Adapt.px(8)),
         padding: EdgeInsets.symmetric(
             horizontal: Adapt.px(12), vertical: Adapt.px(8)),
@@ -299,13 +306,16 @@ extension UserCenterPageUI on UserCenterPageState{
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              newPubKey,
-              style: TextStyle(
-                  fontSize: Adapt.px(12),
-                  fontWeight: FontWeight.w400,
-                  color: ThemeColor.color0,
-                  overflow: TextOverflow.ellipsis),
+            Container(
+              constraints: BoxConstraints(maxWidth: Adapt.screenW - 96.px),
+              child: Text(
+                newPubKey,
+                style: TextStyle(
+                    fontSize: Adapt.px(12),
+                    fontWeight: FontWeight.w400,
+                    color: ThemeColor.color0,
+                    overflow: TextOverflow.ellipsis),
+              ),
             ),
             SizedBox(width: Adapt.px(8)),
             encodedPubKey.isNotEmpty

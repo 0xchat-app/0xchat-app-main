@@ -265,21 +265,26 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
                   color: ThemeColor.color0,
                 ),
                 decoration: InputDecoration(
-                    icon: Container(
-                      child: CommonImage(
-                        iconName: 'icon_search.png',
-                        width: Adapt.px(24),
-                        height: Adapt.px(24),
-                        fit: BoxFit.fill,
-                      ),
+                  isCollapsed: true,
+                  contentPadding: EdgeInsets.symmetric(vertical: 0),
+                  icon: Container(
+                    child: CommonImage(
+                      iconName: 'icon_search.png',
+                      width: Adapt.px(24),
+                      height: Adapt.px(24),
+                      fit: BoxFit.fill,
                     ),
-                    hintText: widget.searchBarHintText ?? 'search'.localized(),
-                    hintStyle: TextStyle(
-                        fontSize: Adapt.px(16),
-                        fontWeight: FontWeight.w400,
-                        height: Adapt.px(22.4) / Adapt.px(16),
-                        color: ThemeColor.color160,),
-                    border: InputBorder.none,),
+                  ),
+                  hintText: widget.searchBarHintText ?? 'search'.localized(),
+                  hintStyle: TextStyle(
+                    fontSize: Adapt.px(16),
+                    fontWeight: FontWeight.w400,
+                    height: Adapt.px(22.4) / Adapt.px(16),
+                    color: ThemeColor.color160,
+                  ),
+                  border: InputBorder.none,
+                ),
+                textAlignVertical: TextAlignVertical.center,
                 onChanged: _handlingSearch,
               ),
             ),
@@ -317,7 +322,7 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
               width: Adapt.px(24),
               height: Adapt.px(24),
               iconName: isSelected ? 'icon_select_follows.png' : 'icon_unSelect_follows.png',
-              package: 'ox_chat',) : Container(),
+              package: 'ox_chat',) : SizedBox(),
       titleColor: isSelected ? ThemeColor.color0 : ThemeColor.color100,
       onTap: () {
         if (widget.groupListAction != GroupListAction.view) {

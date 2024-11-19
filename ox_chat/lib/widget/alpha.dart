@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ox_common/utils/adapt.dart';
 
 typedef void AlphaChanged(String alpha);
 typedef void OnTouchStart();
@@ -150,14 +151,12 @@ class AlphaState extends State<Alpha> {
         child: new Text(alpha, textAlign: TextAlign.center, style: TextStyle(fontSize: 12.0, fontWeight: FontWeight.bold, color:widget.fontColor)),
       ));
     }
-    return Align(
-        alignment: Alignment.centerRight,
-        child: Container(
-          alignment: Alignment.center,
-          color: isTouched ? widget.activeBgColor : widget.bgColor,
-          padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
-          child: Column(mainAxisSize: MainAxisSize.min, children: result),
-        ));
+    return Container(
+      alignment: Alignment.center,
+      color: isTouched ? widget.activeBgColor : widget.bgColor,
+      padding: EdgeInsets.only(top:2.px, bottom: 2.px),
+      child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.center, children: result),
+    );
   }
 
   @override

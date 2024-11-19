@@ -70,7 +70,6 @@ extension ChatSessionListPageUI on ChatSessionListPageState{
       },
       child: Container(
         color: ThemeColor.color200,
-        height: 84.px,
         child: Slidable(
           key: ValueKey("$index"),
           endActionPane: ActionPane(
@@ -430,29 +429,15 @@ extension ChatSessionListPageUI on ChatSessionListPageState{
         return SizedBox();
       }
     }
-    if (read > 0 && read < 10) {
-      return ClipOval(
-        child: Container(
-          alignment: Alignment.center,
-          color: ThemeColor.red1,
-          width: Adapt.px(17),
-          height: Adapt.px(17),
-          child: Text(
-            read.toString(),
-            style: _Style.read(),
-          ),
-        ),
-      );
-    } else if (read >= 10 && read < 100) {
+    if (read > 0 && read < 100) {
+      double paddingValue = read < 10 ? 7.px : 3.px;
       return Container(
         alignment: Alignment.center,
-        width: Adapt.px(22),
-        height: Adapt.px(20),
         decoration: BoxDecoration(
           color: ThemeColor.red1,
-          borderRadius: BorderRadius.all(Radius.circular(Adapt.px(13.5))),
+          shape: BoxShape.circle,
         ),
-        padding: EdgeInsets.symmetric(vertical: Adapt.px(3), horizontal: Adapt.px(3)),
+        padding: EdgeInsets.symmetric(vertical: paddingValue, horizontal: paddingValue),
         child: Text(
           read.toString(),
           style: _Style.read(),

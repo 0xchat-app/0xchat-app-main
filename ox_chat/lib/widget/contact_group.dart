@@ -14,12 +14,12 @@ import 'package:ox_chat/widget/alpha.dart';
 import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/font_size_notifier.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
-double headerHeight = Adapt.px(24);
 double itemHeight = Adapt.px(68.0);
 
 typedef void CursorGroupsChanged(Widget cursor, int noteLength);
@@ -144,8 +144,9 @@ class GroupContactState extends State<GroupContact> {
           groupList.isEmpty
               ? SizedBox()
               : Container(
+                  width: 24.px * textScaleFactorNotifier.value,
+                  constraints: BoxConstraints(maxWidth: 50.px),
                   child: _buildAlphaBar(),
-                  width: 30,
                 ),
           _isTouchTagBar ? _buildCenterModal() : SizedBox(),
         ],
@@ -199,7 +200,7 @@ class GroupContactState extends State<GroupContact> {
     for (int i = 0; i < index; i++) {
       n += noteList[i].childList.length;
     }
-    return n * itemHeight + index * headerHeight;
+    return n * itemHeight + index * (24.px * textScaleFactorNotifier.value);
   }
 
   /// Used to control the disappearance of letters
@@ -263,6 +264,7 @@ class GroupContactState extends State<GroupContact> {
                 visible: item.tag != "☆",
                 child: GroupHeaderWidget(
                   tag: item.tag,
+                  headerHeight: 24.px * textScaleFactorNotifier.value,
                 )),
             sliver: SliverList(
               delegate: new SliverChildBuilderDelegate(
@@ -294,6 +296,7 @@ class GroupContactState extends State<GroupContact> {
   Widget _buildAlphaBar() {
     return Alpha(
       alphas: indexTagList,
+      alphaItemSize: 19 * textScaleFactorNotifier.value,
       fontColor: ThemeColor.gray2,
       fontActiveColor: ThemeColor.white02,
       onAlphaChange: (value) {
@@ -322,8 +325,9 @@ class GroupContactState extends State<GroupContact> {
 
 class GroupHeaderWidget extends StatelessWidget {
   String tag;
+  double headerHeight;
 
-  GroupHeaderWidget({Key? key, this.tag = ''}) : super(key: key);
+  GroupHeaderWidget({Key? key, this.tag = '', this.headerHeight = 24}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

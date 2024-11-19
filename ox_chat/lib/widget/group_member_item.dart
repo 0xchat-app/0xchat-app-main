@@ -48,8 +48,8 @@ class GroupMemberItem extends StatelessWidget {
     Image placeholderImage = Image.asset(
       'assets/images/user_image.png',
       fit: BoxFit.cover,
-      width: Adapt.px(76),
-      height: Adapt.px(76),
+      width: 40.px,
+      height: 40.px,
       package: 'ox_common',
     );
 
@@ -78,6 +78,9 @@ class GroupMemberItem extends StatelessWidget {
     String encodedPubKeyShow = '${encodedPubKey.substring(0, 10)}...${encodedPubKey.substring(pubKeyLength - 10, pubKeyLength)}';
 
     return Container(
+      constraints: BoxConstraints(
+        maxWidth: Adapt.screenW - 100.px
+      ),
       padding: EdgeInsets.only(
         left: Adapt.px(16),
       ),
@@ -99,6 +102,8 @@ class GroupMemberItem extends StatelessWidget {
               fontSize: Adapt.px(14),
               fontWeight: FontWeight.w400,
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),

@@ -13,6 +13,7 @@ import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/font_size_notifier.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/took_kit.dart';
@@ -23,7 +24,6 @@ import 'package:ox_localizable/ox_localizable.dart';
 import 'package:flutter_vibrate/flutter_vibrate.dart';
 
 
-double headerHeight = Adapt.px(24);
 double itemHeight = Adapt.px(68.0);
 
 typedef void CursorContactsChanged(Widget cursor, int noteLength);
@@ -170,8 +170,9 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
           userList.isEmpty
               ? SizedBox()
               : Container(
+                  width: 24.px * textScaleFactorNotifier.value,
+                  constraints: BoxConstraints(maxWidth: 50.px),
                   child: _buildAlphaBar(),
-                  width: 30,
                 ),
           _isTouchTagBar ? _buildCenterModal() : SizedBox(),
         ],
@@ -225,7 +226,7 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
     for (int i = 0; i < index; i++) {
       n += noteList[i].childList.length;
     }
-    return n * itemHeight + index * headerHeight;
+    return n * itemHeight + index * (24.px * textScaleFactorNotifier.value);
   }
 
   /// Used to control the disappearance of letters
@@ -298,6 +299,7 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
               visible: item.tag != "☆",
               child: HeaderWidget(
                 tag: item.tag,
+                headerHeight: 24.px * textScaleFactorNotifier.value,
               ),
             ),
             sliver: SliverList(
@@ -334,6 +336,7 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
   Widget _buildAlphaBar() {
     return Alpha(
       alphas: indexTagList,
+      alphaItemSize: 19 * textScaleFactorNotifier.value,
       fontColor: ThemeColor.gray2,
       fontActiveColor: ThemeColor.white02,
       onAlphaChange: (value) {
@@ -362,8 +365,9 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
 
 class HeaderWidget extends StatelessWidget {
   String tag;
+  double headerHeight;
 
-  HeaderWidget({Key? key, this.tag = ''}) : super(key: key);
+  HeaderWidget({Key? key, this.tag = '', this.headerHeight = 24}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
