@@ -59,6 +59,7 @@ class AppInitializer {
             ErrorUtils.logErrorToFile(details.toString() + '\n' + details.stack.toString());
           }
         };
+        improveErrorWidget();
         getApplicationDocumentsDirectory().then((value) {
           LogUtil.d('[App start] Application Documents Path: $value');
         });
@@ -98,6 +99,20 @@ class AppInitializer {
         rethrow;
       }
     }
+  }
+
+  void improveErrorWidget() {
+    final originErrorWidgetBuilder = ErrorWidget.builder;
+    ErrorWidget.builder = (FlutterErrorDetails details) {
+      if (kDebugMode) {
+        return ConstrainedBox(
+          constraints: BoxConstraints.loose(Size.square(300)),
+          child: originErrorWidgetBuilder(details),
+        );
+      } else {
+        return SizedBox();
+      }
+    };
   }
 }
 
