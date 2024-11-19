@@ -7,7 +7,6 @@ import 'package:ox_common/mixin/common_navigator_observer_mixin.dart';
 import 'package:ox_common/model/msg_notification_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
-import 'package:ox_common/utils/app_initialization_manager.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
@@ -70,7 +69,6 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
   @override
   void initState() {
     super.initState();
-    AppInitializationManager.shared.showInitializationLoading();
     isLogin = OXUserInfoManager.sharedInstance.isLogin;
     _tabbarSH = _bottomNavHeight + _bottomNavMargin;
     OXUserInfoManager.sharedInstance.addObserver(this);
