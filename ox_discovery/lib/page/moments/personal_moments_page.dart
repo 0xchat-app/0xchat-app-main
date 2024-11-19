@@ -74,6 +74,7 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
 
   @override
   Widget build(BuildContext context) {
+    if(_groupedNotes.isEmpty) return _noDataWidget('No moments');
     return OXSmartRefresher(
         controller: _refreshController,
         enablePullDown: false,
@@ -348,6 +349,35 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
       ),
     ];
     MomentBottomSheetDialog.showBottomSheet(context, items);
+  }
+
+  Widget _noDataWidget(String content) {
+    return Padding(
+      padding: EdgeInsets.only(
+        top: 100.px,
+      ),
+      child: Center(
+        child: Column(
+          children: [
+            CommonImage(
+              iconName: 'icon_no_data.png',
+              width: Adapt.px(90),
+              height: Adapt.px(90),
+            ),
+            Text(
+              content,
+              style: TextStyle(
+                fontSize: 16.px,
+                fontWeight: FontWeight.w400,
+                color: ThemeColor.color100,
+              ),
+            ).setPaddingOnly(
+              top: 24.px,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> _changeCover(List<String> filePathList) async {

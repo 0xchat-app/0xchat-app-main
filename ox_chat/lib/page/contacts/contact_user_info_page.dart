@@ -1,17 +1,16 @@
-
-
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ox_common/widgets/common_gradient_tab_bar.dart';
 
-
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 
 import 'package:ox_common/widgets/common_appbar.dart';
+import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 import 'package:ox_module_service/ox_module_service.dart';
 
@@ -21,17 +20,16 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 
 import 'contact_user_option_widget.dart';
 
-
 class ContactUserInfoPage extends StatefulWidget {
   final String pubkey;
   final String? chatId;
 
-  ContactUserInfoPage({Key? key, required this.pubkey, this.chatId}) : super(key: key);
+  ContactUserInfoPage({Key? key, required this.pubkey, this.chatId})
+      : super(key: key);
 
   @override
   State<ContactUserInfoPage> createState() => _ContactUserInfoPageState();
 }
-
 
 enum EInformationType {
   media,
@@ -55,8 +53,8 @@ extension EInformationTypeEx on EInformationType {
   }
 }
 
-class _ContactUserInfoPageState extends State<ContactUserInfoPage> with SingleTickerProviderStateMixin {
-
+class _ContactUserInfoPageState extends State<ContactUserInfoPage>
+    with SingleTickerProviderStateMixin {
   final ScrollController _scrollController = ScrollController();
   late UserDBISAR userDB;
   String myPubkey = '';
@@ -78,19 +76,25 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> with SingleTi
   List<types.CustomMessage> messagesList = [];
 
   ValueNotifier<bool> isScrollBottom = ValueNotifier(false);
+
+  ValueNotifier<bool> isBlockStatus = ValueNotifier(false);
+
   @override
   void initState() {
     super.initState();
     _initData();
-    tabController = TabController(length: EInformationType.values.length, vsync: this);
+    tabController =
+        TabController(length: EInformationType.values.length, vsync: this);
     _scrollController.addListener(() {
-      bool isBottom = _scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 50;
+      bool isBottom = _scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent - 50;
       isScrollBottom.value = isBottom;
     });
   }
 
-  void _initData(){
-    userDB = Account.sharedInstance.userCache[widget.pubkey]?.value ?? UserDBISAR(pubKey: widget.pubkey);
+  void _initData() {
+    userDB = Account.sharedInstance.userCache[widget.pubkey]?.value ??
+        UserDBISAR(pubKey: widget.pubkey);
     setState(() {});
   }
 
@@ -115,7 +119,10 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> with SingleTi
           controller: _scrollController,
           headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
             return <Widget>[
-              ContactUserOptionWidget(pubkey: widget.pubkey, chatId: widget.chatId,),
+              ContactUserOptionWidget(
+                  pubkey: widget.pubkey,
+                  chatId: widget.chatId,
+                  isBlockStatus: isBlockStatus),
               SliverAppBar(
                 toolbarHeight: 38,
                 pinned: true,
@@ -145,7 +152,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> with SingleTi
             controller: tabController,
             children: [
               ContactMediaWidget(
-                isScrollBottom:isScrollBottom,
+                isScrollBottom: isScrollBottom,
                 userDB: userDB,
               ),
               OXModuleService.invoke(
@@ -158,15 +165,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> with SingleTi
                   #isShowBadgeAwards: false
                 },
               ),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 24.px),
-                child: OXModuleService.invoke(
-                  'ox_discovery',
-                  'showPersonMomentsPage',
-                  [context],
-                  {#userDB: userDB},
-                ),
-              ),
+              _showMomentWidget(),
               ContactGroupsWidget(
                 userDB: userDB,
               ),
@@ -174,6 +173,24 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> with SingleTi
           ).setPaddingOnly(top: 8.px),
         ),
       ),
+    );
+  }
+
+  Widget _showMomentWidget() {
+    return ValueListenableBuilder<bool>(
+      valueListenable: isBlockStatus,
+      builder: (context, value, child) {
+        if (value) return const SizedBox();
+        return Container(
+          padding: EdgeInsets.symmetric(horizontal: 24.px),
+          child: OXModuleService.invoke(
+            'ox_discovery',
+            'showPersonMomentsPage',
+            [context],
+            {#userDB: userDB},
+          ),
+        );
+      },
     );
   }
 }

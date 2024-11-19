@@ -56,8 +56,9 @@ class TabModel {
 class ContactUserOptionWidget extends StatefulWidget {
   final String pubkey;
   final String? chatId;
+  final ValueNotifier<bool> isBlockStatus;
 
-  ContactUserOptionWidget({Key? key, required this.pubkey, this.chatId}) : super(key: key);
+  ContactUserOptionWidget({Key? key, required this.pubkey, this.chatId,required this.isBlockStatus}) : super(key: key);
 
   @override
   State<ContactUserOptionWidget> createState() => _ContactUserOptionWidgetState();
@@ -601,45 +602,57 @@ class _ContactUserOptionWidgetState extends State<ContactUserOptionWidget> with 
 
   void _blockOptionFn() async {
     String pubKey = userDB.pubKey ?? '';
-    if (_isInBlockList()) {
+    bool isBlocked = _isInBlockList();
+
+    if (isBlocked) {
       OKEvent event = await Contacts.sharedInstance.removeBlockList([pubKey]);
-      if (!event.status) {
-        CommonToast.instance.show(context, Localized.text('ox_chat.un_block_fail'));
+      if (event.status) {
+        _updateOptionList(addOption: true);
       } else {
-        if (!moreOptionList.contains(EMoreOptionType.userOption)) {
-          moreOptionList.add(EMoreOptionType.userOption);
-          setState(() {});
-        }
+        CommonToast.instance.show(context, Localized.text('ox_chat.un_block_fail'));
       }
     } else {
-      OXCommonHintDialog.show(context,
-          title: Localized.text('ox_chat.block_dialog_title'),
-          content: Localized.text('ox_chat.block_dialog_content'),
-          actionList: [
-            OXCommonHintAction.cancel(onTap: () {
-              OXNavigator.pop(context, false);
-            }),
-            OXCommonHintAction.sure(
-                text: Localized.text('ox_common.confirm'),
-                onTap: () async {
-                  OKEvent event =
-                  await Contacts.sharedInstance.addToBlockList(pubKey);
-                  if (!event.status) {
-                    CommonToast.instance.show(context, Localized.text('ox_chat.block_fail'));
-                  } else {
-                    if (moreOptionList.contains(EMoreOptionType.userOption)) {
-                      moreOptionList.remove(EMoreOptionType.userOption);
-                      setState(() {});
-                    }
-                  }
-                  OXChatBinding.sharedInstance.deleteSession([pubKey]);
-                  OXNavigator.pop(context, true);
-                }),
-          ],
-          isRowAction: true);
+      _showBlockDialog(pubKey);
+    }
+  }
+
+  void _updateOptionList({required bool addOption}) {
+    widget.isBlockStatus.value = !addOption;
+    if (addOption && !moreOptionList.contains(EMoreOptionType.userOption)) {
+      moreOptionList.add(EMoreOptionType.userOption);
+    } else if (!addOption && moreOptionList.contains(EMoreOptionType.userOption)) {
+      moreOptionList.remove(EMoreOptionType.userOption);
     }
     setState(() {});
   }
+
+  void _showBlockDialog(String pubKey) {
+    OXCommonHintDialog.show(
+      context,
+      title: Localized.text('ox_chat.block_dialog_title'),
+      content: Localized.text('ox_chat.block_dialog_content'),
+      actionList: [
+        OXCommonHintAction.cancel(onTap: () {
+          OXNavigator.pop(context, false);
+        }),
+        OXCommonHintAction.sure(
+          text: Localized.text('ox_common.confirm'),
+          onTap: () async {
+            OKEvent event = await Contacts.sharedInstance.addToBlockList(pubKey);
+            if (event.status) {
+              _updateOptionList(addOption: false);
+              OXChatBinding.sharedInstance.deleteSession([pubKey]);
+              OXNavigator.pop(context, true);
+            } else {
+              CommonToast.instance.show(context, Localized.text('ox_chat.block_fail'));
+            }
+          },
+        ),
+      ],
+      isRowAction: true,
+    );
+  }
+
 
   Future<void> _clickKey(String keyContent) async {
     await Clipboard.setData(
