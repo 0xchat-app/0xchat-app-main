@@ -26,7 +26,6 @@ import 'package:ox_common/upload/upload_utils.dart';
 import 'package:ox_common/utils/aes_encrypt_utils.dart';
 import 'package:ox_common/utils/encode_utils.dart';
 import 'package:ox_common/utils/image_picker_utils.dart';
-import 'package:ox_common/utils/list_extension.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -103,7 +102,8 @@ class ChatGeneralHandler {
   final tempMessageSet = <types.Message>{};
 
   int unreadMessageCount;
-  types.Message? unreadFirstMessage;
+  Completer<types.Message?> _unreadFirstMessageCmp = Completer();
+  Future<types.Message?> get unreadFirstMessage => _unreadFirstMessageCmp.future;
   bool isPreviewMode = false;
 
   static types.User _defaultAuthor() {
@@ -214,7 +214,9 @@ class ChatGeneralHandler {
     final messages = await dataController.getLocalMessage(
       limit: unreadMessageCount,
     );
-    unreadFirstMessage = messages.lastOrNull;
+    if (!_unreadFirstMessageCmp.isCompleted) {
+      _unreadFirstMessageCmp.complete(messages.lastOrNull);
+    }
   }
 
   Future initializeImageGallery() async {
