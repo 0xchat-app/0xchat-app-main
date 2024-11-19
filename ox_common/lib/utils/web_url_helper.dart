@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart' hide Element;
 import 'package:html/dom.dart' show Document, Element;
 import 'package:html/parser.dart' as parser show parse;
-import 'package:http/http.dart' as http show head, get;
+import 'package:http/http.dart' as http;
 
 class PreviewDataImage {
   PreviewDataImage({
@@ -77,6 +77,7 @@ class PreviewData {
         'link': link,
         'title': title,
       };
+
   @override
   String toString() {
     return '${super.toString()}, title: $title, link: $link, description: $description';
@@ -285,8 +286,13 @@ class WebURLHelper {
       }
       previewDataUrl = _calculateUrl(url, proxy);
       final uri = Uri.parse(previewDataUrl);
-      
-      final headResponse = await http.head(uri);
+
+      final headResponse = await http.head(uri).timeout(
+        requestTimeout ?? const Duration(seconds: 2),
+        onTimeout: () => http.Response('Request timed out', 408),
+      );;
+      if (headResponse.statusCode != 200) return null;
+
       final contentType = headResponse.headers['content-type'] ?? '';
 
       final imageRegexp = RegExp(regexImageContentType);
@@ -308,13 +314,19 @@ class WebURLHelper {
       if (!isHtmlContent) return null;
 
       final response = await http.get(uri, headers: {
-        'User-Agent': userAgent ?? 'WhatsApp/2',
-      }).timeout(requestTimeout ?? const Duration(seconds: 5));
+        if (userAgent != null && userAgent.isNotEmpty)
+          'User-Agent': userAgent,
+      }).timeout(
+        requestTimeout ?? const Duration(seconds: 5),
+        onTimeout: () => http.Response('Request timed out', 408),
+      );
+
+      if (response.statusCode != 200) return null;
 
       final document = parser.parse(utf8.decode(response.bodyBytes));
 
       if (!_hasUTF8Charset(document)) {
-        return previewData;
+        return null;
       }
 
       final title = isShare ? _getShareTitle(document) : _getTitle(document);
