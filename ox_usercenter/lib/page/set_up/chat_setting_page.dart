@@ -106,10 +106,19 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
                 decoration: BoxDecoration(
                   color: ThemeColor.color180,
                   borderRadius: BorderRadius.only(
-                    topRight: Radius.circular(16.px),
+                    topLeft: Radius.circular(isSender ? 16.px : 0),
+                    topRight: Radius.circular(isSender ? 0 : 16.px),
                     bottomRight: Radius.circular(16.px),
                     bottomLeft: Radius.circular(16.px),
                   ),
+                  gradient: isSender ? LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    colors: [
+                      ThemeColor.gradientMainEnd,
+                      ThemeColor.gradientMainStart
+                    ],
+                  ) : null,
                 ),
                 child: Text(
                   content,
