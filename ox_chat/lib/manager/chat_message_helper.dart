@@ -19,6 +19,7 @@ import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/video_utils.dart';
+import 'package:ox_common/utils/web_url_helper.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
 class OXValue<T> {
@@ -479,6 +480,28 @@ class ChatMessageHelper {
     logger?.print('ChatMessageHelper - createUIMessage: $uiMessage');
 
     return uiMessage;
+  }
+
+  static Future updateMessageWithMessageId({
+    required String messageId,
+    PreviewData? previewData,
+  }) async {
+    final messageDB = await Messages.sharedInstance.loadMessageDBFromDB(messageId);
+    if (messageDB == null) return ;
+
+    if (previewData != null) {
+      try {
+        messageDB.previewData = jsonEncode(previewData.toJson());
+      } catch (e) {
+        ChatLogUtils.error(
+          className: 'ChatMessageHelper',
+          funcName: 'updateMessageWithMessageId',
+          message: 'PreviewData encode error: $e',
+        );
+      }
+    }
+
+    await Messages.saveMessageToDB(messageDB);
   }
 }
 

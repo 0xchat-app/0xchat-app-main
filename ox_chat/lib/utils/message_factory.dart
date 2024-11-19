@@ -55,6 +55,12 @@ class TextMessageFactory implements MessageFactory {
     List<types.ZapsInfo> zapsInfoList = const [],
   }) {
     final text = content;
+    PreviewData? previewDataEntry;
+    if (previewData != null && previewData.isNotEmpty) {
+      try {
+        previewDataEntry = PreviewData.fromJson(jsonDecode(previewData));
+      } catch (_) {}
+    }
     return types.TextMessage(
       author: author,
       createdAt: timestamp,
@@ -66,7 +72,7 @@ class TextMessageFactory implements MessageFactory {
       status: status,
       repliedMessage: repliedMessage,
       repliedMessageId: repliedMessageId,
-      previewData: previewData != null ? PreviewData.fromJson(jsonDecode(previewData)) : null,
+      previewData: previewDataEntry,
       expiration: expiration,
       reactions: reactions,
       zapsInfoList: zapsInfoList,

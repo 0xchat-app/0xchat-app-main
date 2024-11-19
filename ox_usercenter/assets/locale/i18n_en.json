@@ -231,5 +231,6 @@
   "use_socks_proxy_host": "Host",
   "str_add_other_account": "Add Other Account",
   "str_set_new_photo": "Set New Photo",
-  "str_font_size": "Font Size"
+  "str_font_size": "Font Size",
+  "str_settings_chat": "Chat Setting"
 }

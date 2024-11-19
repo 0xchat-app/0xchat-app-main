@@ -6,6 +6,7 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_chat/manager/chat_data_cache.dart';
 import 'package:ox_chat/manager/chat_draft_manager.dart';
 import 'package:ox_chat/manager/chat_message_builder.dart';
+import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/manager/chat_page_config.dart';
 import 'package:ox_chat/utils/chat_voice_helper.dart';
 import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
@@ -251,7 +252,7 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
             messageHasBuilder: (message, index) async {
               if (!isShowScrollToUnreadWidget || index == null) return ;
 
-              final unreadMessage = handler.unreadFirstMessage;
+              final unreadMessage = await handler.unreadFirstMessage;
               if (unreadMessage == null) return ;
 
               if (unreadMessage.id == message.id) {
@@ -292,67 +293,72 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
   }
 
   Widget buildScrollToUnreadWidget() {
-    final message = handler.unreadFirstMessage;
     final unreadCount = handler.unreadMessageCount;
     final unreadCountText = unreadCount > 9999 ? '9999+' : unreadCount.toString();
-    return Visibility(
-      visible: isShowScrollToUnreadWidget && message != null,
-      child: GestureDetector(
-        onTap: () {
-          if (message == null) return ;
-          scrollToMessage(message);
-        },
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Container(
-              width: 48.px,
-              height: 48.px,
-              decoration: BoxDecoration(
-                color: ThemeColor.color160,
-                borderRadius: BorderRadius.circular(24.px),
-              ),
-              alignment: Alignment.center,
-              child: Transform.rotate(
-                angle: pi,
-                child: CommonImage(
-                  iconName: 'icon_arrow_down.png',
-                  size: 24.px,
-                  package: 'ox_chat',
-                ),
-              ),
-            ),
-            Positioned(
-              left: 0,
-              right: 0,
-              top: -9.px,
-              child: Center(
-                child: Container(
-                  height: 18.px,
-                  padding: EdgeInsets.symmetric(horizontal: 5.5.px),
+    return FutureBuilder(
+      future: handler.unreadFirstMessage,
+      builder: (context, snapshot) {
+        final message = snapshot.data;
+        return Visibility(
+          visible: isShowScrollToUnreadWidget && message != null,
+          child: GestureDetector(
+            onTap: () {
+              if (message == null) return ;
+              scrollToMessage(message);
+            },
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Container(
+                  width: 48.px,
+                  height: 48.px,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(9.px),
-                    gradient: LinearGradient(
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                      colors: [
-                        ThemeColor.gradientMainEnd,
-                        ThemeColor.gradientMainStart
-                      ],
-                    ),
+                    color: ThemeColor.color160,
+                    borderRadius: BorderRadius.circular(24.px),
                   ),
-                  child: Text(
-                    unreadCountText,
-                    style: TextStyle(
-                      fontSize: 12.sp,
+                  alignment: Alignment.center,
+                  child: Transform.rotate(
+                    angle: pi,
+                    child: CommonImage(
+                      iconName: 'icon_arrow_down.png',
+                      size: 24.px,
+                      package: 'ox_chat',
                     ),
                   ),
                 ),
-              ),
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  top: -9.px,
+                  child: Center(
+                    child: Container(
+                      height: 18.px,
+                      padding: EdgeInsets.symmetric(horizontal: 5.5.px),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(9.px),
+                        gradient: LinearGradient(
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                          colors: [
+                            ThemeColor.gradientMainEnd,
+                            ThemeColor.gradientMainStart
+                          ],
+                        ),
+                      ),
+                      child: Text(
+                        unreadCountText,
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      }
     );
   }
 
@@ -360,13 +366,23 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
     types.TextMessage message,
     PreviewData previewData,
   ) {
-    final targetMessage = dataController.getMessage(message.id);
+    final messageId = message.remoteId ?? '';
+    if (messageId.isEmpty) return ;
+
+    final targetMessage = dataController.getMessage(messageId);
     if (targetMessage is! types.TextMessage) return ;
 
+    // Update Mem
     final updatedMessage = targetMessage.copyWith(
       previewData: previewData,
     );
     dataController.updateMessage(updatedMessage);
+
+    // Update DB
+    ChatMessageHelper.updateMessageWithMessageId(
+      messageId: messageId,
+      previewData: previewData,
+    );
   }
 
   void scrollToMessage(types.Message? message) async {

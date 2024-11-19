@@ -169,13 +169,12 @@ class _LinkPreviewState extends State<LinkPreview>
     final previewData = widget.previewData;
 
     if (previewData != null && _hasData(previewData)) {
-      final aspectRatio = widget.previewData!.image == null
+      final aspectRatio = previewData.image == null
           ? null
-          : widget.previewData!.image!.width /
-              widget.previewData!.image!.height;
+          : previewData.image!.width /
+          previewData.image!.height;
 
       final width = aspectRatio == 1 ? widget.width : widget.width - 32;
-
       return _containerWidget(
         animate: shouldAnimate,
         child: (aspectRatio == 1 && (previewData.title != null || previewData.description != null))
