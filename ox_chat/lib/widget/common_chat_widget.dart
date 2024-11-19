@@ -6,6 +6,7 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_chat/manager/chat_data_cache.dart';
 import 'package:ox_chat/manager/chat_draft_manager.dart';
 import 'package:ox_chat/manager/chat_message_builder.dart';
+import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/manager/chat_page_config.dart';
 import 'package:ox_chat/utils/chat_voice_helper.dart';
 import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
@@ -360,13 +361,23 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
     types.TextMessage message,
     PreviewData previewData,
   ) {
-    final targetMessage = dataController.getMessage(message.id);
+    final messageId = message.remoteId ?? '';
+    if (messageId.isEmpty) return ;
+
+    final targetMessage = dataController.getMessage(messageId);
     if (targetMessage is! types.TextMessage) return ;
 
+    // Update Mem
     final updatedMessage = targetMessage.copyWith(
       previewData: previewData,
     );
     dataController.updateMessage(updatedMessage);
+
+    // Update DB
+    ChatMessageHelper.updateMessageWithMessageId(
+      messageId: messageId,
+      previewData: previewData,
+    );
   }
 
   void scrollToMessage(types.Message? message) async {
