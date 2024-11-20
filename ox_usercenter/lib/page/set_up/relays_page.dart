@@ -517,6 +517,7 @@ class _RelaysPageState extends State<RelaysPage> {
 enum RelayType {
   general,
   dm,
+  private,
 }
 
 extension RelayTypeExtension on RelayType {
@@ -526,6 +527,8 @@ extension RelayTypeExtension on RelayType {
         return 'DM Inbox Relays';
       case RelayType.general:
         return 'Public Relays';
+      case RelayType.private:
+        return 'Private Relays';
     }
   }
 
@@ -535,6 +538,9 @@ extension RelayTypeExtension on RelayType {
         return 'DM';
       case RelayType.general:
         return 'GENERAL';
+      case RelayType.private:
+        return 'PRIVATE';
+        break;
     }
   }
 
@@ -544,6 +550,8 @@ extension RelayTypeExtension on RelayType {
         return "It is recommended to set up 1-3 DM inbox relays. Your private messages and private group chat messages will be sent to your DM relay. If not set, they will be sent to the public relays by default.";
       case RelayType.general:
         return "0xchat uses these relays to download user profiles, lists, and posts for you";
+      case RelayType.private:
+        return "Amethyst uses these relays to download posts for you.";
     }
   }
 }

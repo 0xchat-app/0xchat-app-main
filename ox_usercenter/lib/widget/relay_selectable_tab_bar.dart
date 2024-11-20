@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -25,11 +26,17 @@ class RelaySelectableTabBar extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  for (int index = 0; index < tabs.length; index++)
-                    _buildTabItem(tabs[index], index),
-                ],
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: SizedBox(
+                  width: 160.px * tabs.length,
+                  child: Row(
+                    children: [
+                      for (int index = 0; index < tabs.length; index++)
+                        _buildTabItem(tabs[index], index),
+                    ],
+                  ),
+                ),
               ),
               if (tabTips != null) _buildTabTips().setPaddingOnly(top: 10.px)
             ],
@@ -39,26 +46,24 @@ class RelaySelectableTabBar extends StatelessWidget {
 
   Widget _buildTabItem(String tab, int index) {
     final selected = controller.currentIndex.value == index;
-    return Expanded(
-      child: GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onTap: () => controller.currentIndex.value = index,
-        child: Container(
-          height: 40.px,
-          margin: EdgeInsets.only(right: index % 2 == 0 ? 12.px : 0),
-          alignment: Alignment.center,
-          padding: EdgeInsets.symmetric(horizontal: 24.px, vertical: 10.px),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(24.px),
-            color: ThemeColor.color180,
-          ),
-          child: Text(
-            tab,
-            style: TextStyle(
-              fontSize: 14.px,
-              fontWeight: FontWeight.w600,
-              color: selected ? ThemeColor.color0 : ThemeColor.color100,
-            ),
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () => controller.currentIndex.value = index,
+      child: Container(
+        height: 40.px,
+        margin: EdgeInsets.only(right: 12.px),
+        alignment: Alignment.center,
+        padding: EdgeInsets.symmetric(horizontal: 24.px, vertical: 10.px),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(24.px),
+          color: ThemeColor.color180,
+        ),
+        child: Text(
+          tab,
+          style: TextStyle(
+            fontSize: 14.px,
+            fontWeight: FontWeight.w600,
+            color: selected ? ThemeColor.color0 : ThemeColor.color100,
           ),
         ),
       ),
