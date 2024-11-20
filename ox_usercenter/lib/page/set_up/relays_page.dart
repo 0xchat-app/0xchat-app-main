@@ -95,6 +95,10 @@ class _RelaysPageState extends State<RelaysPage> {
         return Account.sharedInstance.getMyGeneralRelayList();
       case RelayType.dm:
         return Account.sharedInstance.getMyDMRelayList();
+      case RelayType.inbox:
+        return Account.sharedInstance.getMyInboxRelayList();
+      case RelayType.outbox:
+        return Account.sharedInstance.getMyOutboxRelayList();
       default:
         return [];
     }
@@ -475,6 +479,12 @@ class _RelaysPageState extends State<RelaysPage> {
         case RelayType.dm:
           await Account.sharedInstance.addDMRelay(upcomingRelay);
           break;
+        case RelayType.inbox:
+          await Account.sharedInstance.addInboxRelay(upcomingRelay);
+          break;
+        case RelayType.outbox:
+          await Account.sharedInstance.addOutboxRelay(upcomingRelay);
+          break;
       }
       recommendRelayList.removeWhere((element) => element.url == upcomingRelay);
       setState(() {
@@ -505,6 +515,12 @@ class _RelaysPageState extends State<RelaysPage> {
                   case RelayType.dm:
                     await Account.sharedInstance.removeDMRelay(relayModel.url);
                     break;
+                  case RelayType.inbox:
+                    await Account.sharedInstance.removeInboxRelay(relayModel.url);
+                    break;
+                  case RelayType.outbox:
+                    await Account.sharedInstance.removeOutboxRelay(relayModel.url);
+                    break;
                 }
                 OXNavigator.pop(context);
                 _initDefault();
@@ -517,18 +533,21 @@ class _RelaysPageState extends State<RelaysPage> {
 enum RelayType {
   general,
   dm,
-  private,
+  inbox,
+  outbox,
 }
 
 extension RelayTypeExtension on RelayType {
   String name() {
     switch (this) {
       case RelayType.dm:
-        return 'DM Inbox Relays';
+        return 'DM Relays';
       case RelayType.general:
-        return 'Public Relays';
-      case RelayType.private:
-        return 'Private Relays';
+        return 'App Relays';
+      case RelayType.inbox:
+        return 'Inbox Relays';
+      case RelayType.outbox:
+        return 'Outbox Relays';
     }
   }
 
@@ -538,9 +557,10 @@ extension RelayTypeExtension on RelayType {
         return 'DM';
       case RelayType.general:
         return 'GENERAL';
-      case RelayType.private:
-        return 'PRIVATE';
-        break;
+      case RelayType.inbox:
+        return 'INBOX';
+      case RelayType.outbox:
+        return 'OUTBOX';
     }
   }
 
@@ -550,8 +570,10 @@ extension RelayTypeExtension on RelayType {
         return "It is recommended to set up 1-3 DM inbox relays. Your private messages and private group chat messages will be sent to your DM relay. If not set, they will be sent to the public relays by default.";
       case RelayType.general:
         return "0xchat uses these relays to download user profiles, lists, and posts for you";
-      case RelayType.private:
-        return "Amethyst uses these relays to download posts for you.";
+      case RelayType.inbox:
+        return "These relays are used by other users to send DMs and notes to you";
+      case RelayType.outbox:
+        return "0xchat will always publish to these relays so other users can find your notes";
     }
   }
 }
