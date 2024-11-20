@@ -340,5 +340,6 @@
   "str_online_groups": "Nhóm trực tuyến",
   "str_all_chats_mark_as_read": "Đánh dấu tất cả đã đọc",
   "str_show_in_chat": "Hiển thị trong trò chuyện",
-  "media_message_delete_tips": "Bạn có chắc chắn muốn xóa các tin nhắn phương tiện cục bộ này không?"
+  "media_message_delete_tips": "Bạn có chắc chắn muốn xóa các tin nhắn phương tiện cục bộ này không?",
+  "chat_input_length_over_hint": "Văn bản bạn nhập quá dài để gửi."
 }

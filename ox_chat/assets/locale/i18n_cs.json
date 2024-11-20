@@ -340,5 +340,6 @@
   "str_online_groups": "Online skupiny",
   "str_all_chats_mark_as_read": "Označit vše jako přečtené",
   "str_show_in_chat": "Zobrazit v chatu",
-  "media_message_delete_tips": "Opravdu chcete smazat tyto místní mediální zprávy?"
+  "media_message_delete_tips": "Opravdu chcete smazat tyto místní mediální zprávy?",
+  "chat_input_length_over_hint": "Text, který jste zadali, je příliš dlouhý na odeslání."
 }

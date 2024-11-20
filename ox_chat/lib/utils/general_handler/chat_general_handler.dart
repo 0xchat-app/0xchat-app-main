@@ -957,4 +957,16 @@ extension ChatZapsEx on ChatSessionModelISAR {
     }
     return null;
   }
+
+  bool get isContentEncrypt {
+    switch (chatType) {
+      case ChatType.chatSingle:
+      case ChatType.chatStranger:
+      case ChatType.chatSecret:
+      case ChatType.chatSecretStranger:
+      case ChatType.chatGroup:
+        return true;
+    }
+    return false;
+  }
 }

@@ -341,5 +341,6 @@
   "str_online_groups": "Online Groups",
   "str_show_in_chat": "Show in Chat",
   "media_message_delete_tips": "Are you sure you want to delete this local media messages?",
-  "message": "Message"
+  "message": "Message",
+  "chat_input_length_over_hint": "The text you entered is too long to send."
 }

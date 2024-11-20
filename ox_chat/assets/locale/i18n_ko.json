@@ -340,5 +340,6 @@
   "str_online_groups": "온라인 그룹",
   "str_all_chats_mark_as_read": "모두 읽음으로 표시",
   "str_show_in_chat": "채팅에서 보기",
-  "media_message_delete_tips": "이 로컬 미디어 메시지를 삭제하시겠습니까?"
+  "media_message_delete_tips": "이 로컬 미디어 메시지를 삭제하시겠습니까?",
+  "chat_input_length_over_hint": "입력한 텍스트가 너무 길어서 보낼 수 없습니다."
 }

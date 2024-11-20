@@ -340,5 +340,6 @@
   "str_online_groups": "Grup Daring",
   "str_all_chats_mark_as_read": "Tandai semua sudah dibaca",
   "str_show_in_chat": "Tampilkan di obrolan",
-  "media_message_delete_tips": "Apakah Anda yakin ingin menghapus pesan media lokal ini?"
+  "media_message_delete_tips": "Apakah Anda yakin ingin menghapus pesan media lokal ini?",
+  "chat_input_length_over_hint": "Teks yang Anda masukkan terlalu panjang untuk dikirim."
 }

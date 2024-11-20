@@ -319,7 +319,7 @@ class Chat extends StatefulWidget {
   final Function(types.AudioMessage)? onAudioDataFetched;
 
   /// See [Input.onSendPressed].
-  final Future Function(types.PartialText) onSendPressed;
+  final Future<bool> Function(types.PartialText) onSendPressed;
 
   final List<InputMoreItem> inputMoreItems;
 

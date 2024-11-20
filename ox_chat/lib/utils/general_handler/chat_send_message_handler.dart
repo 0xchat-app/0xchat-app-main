@@ -269,13 +269,18 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     );
   }
 
-  Future sendTextMessage(BuildContext? context, String text) async {
+  Future<bool> sendTextMessage(BuildContext? context, String text) async {
+    if (session.isContentEncrypt && text.length > 30000) {
+      CommonToast.instance.show(context, 'chat_input_length_over_hint'.localized());
+      return false;
+    }
     await _sendMessageHandler(
       content: text,
       messageType: MessageType.text,
       context: context,
     );
     replyHandler.updateReplyMessage(null);
+    return true;
   }
 
   void sendZapsMessage(BuildContext context, String zapper, String invoice, String amount,

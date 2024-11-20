@@ -340,5 +340,6 @@
   "str_online_groups": "オンライングループ",
   "str_all_chats_mark_as_read": "すべて既読にする",
   "str_show_in_chat": "チャットで表示",
-  "media_message_delete_tips": "このローカルメディアメッセージを削除してもよろしいですか？"
+  "media_message_delete_tips": "このローカルメディアメッセージを削除してもよろしいですか？",
+  "chat_input_length_over_hint": "入力したテキストが長すぎて送信できません。"
 }

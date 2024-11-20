@@ -340,5 +340,6 @@
   "str_online_groups": "مجموعات على الإنترنت",
   "str_all_chats_mark_as_read": "تمييز الكل كمقروء",
   "str_show_in_chat": "عرض في الدردشة",
-  "media_message_delete_tips": "هل أنت متأكد أنك تريد حذف هذه الرسائل الإعلامية المحلية؟"
+  "media_message_delete_tips": "هل أنت متأكد أنك تريد حذف هذه الرسائل الإعلامية المحلية؟",
+  "chat_input_length_over_hint": "النص الذي أدخلته طويل جدًا لإرساله."
 }
