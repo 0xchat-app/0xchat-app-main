@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -31,11 +30,8 @@ class RelaysPage extends StatefulWidget {
 
 class _RelaysPageState extends State<RelaysPage> {
   final TextEditingController _relayTextFieldControll = TextEditingController();
-  final Map<RelayType,List<RelayDBISAR>> _relayListMap = {
-    RelayType.general: [],
-    RelayType.dm: []
-  };
-  final Map<RelayType,List<RelayDBISAR>> _recommendRelayListMap = {
+  final Map<RelayType, List<RelayDBISAR>> _relayListMap = {RelayType.general: [], RelayType.dm: []};
+  final Map<RelayType, List<RelayDBISAR>> _recommendRelayListMap = {
     RelayType.general: [],
     RelayType.dm: []
   };
@@ -69,7 +65,7 @@ class _RelaysPageState extends State<RelaysPage> {
     for (var relayType in RelayType.values) {
       _initRelayList(relayType);
     }
-    if(mounted) setState(() {});
+    if (mounted) setState(() {});
   }
 
   void _initRelayList(RelayType relayType) {
@@ -112,9 +108,9 @@ class _RelaysPageState extends State<RelaysPage> {
   }
 
   void didRelayStatusChange(String relay, int status) {
-      if (mounted) {
-        setState(() {});
-      }
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   @override
@@ -288,7 +284,8 @@ class _RelaysPageState extends State<RelaysPage> {
                 _addOnTap(upcomingRelay: relayDB.url);
               }),
           ],
-        ).setPadding(EdgeInsets.only(left: Adapt.px(24), right: Adapt.px(24), bottom: Adapt.px(24))),
+        ).setPadding(
+            EdgeInsets.only(left: Adapt.px(24), right: Adapt.px(24), bottom: Adapt.px(24))),
       ),
     );
   }
@@ -301,9 +298,13 @@ class _RelaysPageState extends State<RelaysPage> {
       children: [
         GestureDetector(
           behavior: HitTestBehavior.translucent,
-          onTap:() {
-            if(!_isEditing){
-              OXNavigator.pushPage(context, (context) => RelayDetailPage(relayURL: _model.url,));
+          onTap: () {
+            if (!_isEditing) {
+              OXNavigator.pushPage(
+                  context,
+                  (context) => RelayDetailPage(
+                        relayURL: _model.url,
+                      ));
             }
           },
           child: Container(
@@ -347,16 +348,15 @@ class _RelaysPageState extends State<RelaysPage> {
   Widget _relayStateImage(RelayDBISAR relayDB) {
     if (_isEditing) {
       return GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onTap: () {
-          _deleteOnTap(relayDB);
-        },
-        child: CommonImage(
-          iconName: 'icon_bar_delete_red.png',
-          width: Adapt.px(24),
-          height: Adapt.px(24),
-        )
-      );
+          behavior: HitTestBehavior.translucent,
+          onTap: () {
+            _deleteOnTap(relayDB);
+          },
+          child: CommonImage(
+            iconName: 'icon_bar_delete_red.png',
+            width: Adapt.px(24),
+            height: Adapt.px(24),
+          ));
     } else {
       if (relayDB.connectStatus == RelayConnectStatus.open) {
         return CommonImage(
@@ -412,20 +412,20 @@ class _RelaysPageState extends State<RelaysPage> {
                   ),
                   suffixIcon: _isShowDelete
                       ? IconButton(
-                    highlightColor: Colors.transparent,
-                    splashColor: Colors.transparent,
-                    onPressed: () {
-                      setState(() {
-                        _relayTextFieldControll.text = '';
-                        _isShowDelete = false;
-                      });
-                    },
-                    icon: CommonImage(
-                      iconName: 'icon_textfield_close.png',
-                      width: Adapt.px(16),
-                      height: Adapt.px(16),
-                    ),
-                  )
+                          highlightColor: Colors.transparent,
+                          splashColor: Colors.transparent,
+                          onPressed: () {
+                            setState(() {
+                              _relayTextFieldControll.text = '';
+                              _isShowDelete = false;
+                            });
+                          },
+                          icon: CommonImage(
+                            iconName: 'icon_textfield_close.png',
+                            width: Adapt.px(16),
+                            height: Adapt.px(16),
+                          ),
+                        )
                       : null,
                   border: const OutlineInputBorder(
                     borderSide: BorderSide.none,
@@ -455,7 +455,7 @@ class _RelaysPageState extends State<RelaysPage> {
 
   void _addOnTap({String? upcomingRelay, bool isUserInput = false}) async {
     upcomingRelay ??= _relayTextFieldControll.text;
-    if(upcomingRelay.endsWith('/')){
+    if (upcomingRelay.endsWith('/')) {
       upcomingRelay = upcomingRelay.substring(0, upcomingRelay.length - 1);
     }
     List<RelayDBISAR> relayList = _relayListMap[_relayType]!;
@@ -468,7 +468,7 @@ class _RelaysPageState extends State<RelaysPage> {
     if (upcomingRelays.contains(upcomingRelay)) {
       CommonToast.instance.show(context, 'This Relay already exists');
     } else {
-      switch(_relayType) {
+      switch (_relayType) {
         case RelayType.general:
           await Account.sharedInstance.addGeneralRelay(upcomingRelay);
           break;
@@ -504,7 +504,7 @@ class _RelaysPageState extends State<RelaysPage> {
           OXCommonHintAction.sure(
               text: Localized.text('ox_common.confirm'),
               onTap: () async {
-                switch(_relayType) {
+                switch (_relayType) {
                   case RelayType.general:
                     await Account.sharedInstance.removeGeneralRelay(relayModel.url);
                     break;
@@ -552,7 +552,7 @@ extension RelayTypeExtension on RelayType {
       case RelayType.dm:
         return 'DM';
       case RelayType.general:
-        return 'GENERAL';
+        return 'APP';
       case RelayType.inbox:
         return 'INBOX';
       case RelayType.outbox:
@@ -563,13 +563,13 @@ extension RelayTypeExtension on RelayType {
   String tips() {
     switch (this) {
       case RelayType.dm:
-        return "It is recommended to set up 1-3 DM inbox relays. Your private messages and private group chat messages will be sent to your DM relay. If not set, they will be sent to the public relays by default.";
+        return "Your private messages and private group chat messages will be sent to your DM relay. It is recommended to set up 1-3 DM inbox relays.";
       case RelayType.general:
-        return "0xchat uses these relays to download user profiles, lists, and posts for you";
+        return "These relays are stored locally and are used to download user profiles, lists, and posts for you";
       case RelayType.inbox:
-        return "These relays are used by other users to send DMs and notes to you";
+        return "These relays are used by other users to send notes, likes, zaps to you. It is recommended to set up 1-3 inbox relays.";
       case RelayType.outbox:
-        return "0xchat will always publish to these relays so other users can find your notes";
+        return "0xchat will send your posts to these relays so other users can find your content. It is recommended to set up 1-3 outbox relays.";
     }
   }
 }
