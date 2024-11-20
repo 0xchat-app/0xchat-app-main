@@ -41,13 +41,11 @@ class _RelaysPageState extends State<RelaysPage> {
   };
   bool _isEditing = false;
   bool _isShowDelete = false;
-  final RelaySelectableController _relaySelectableController = RelaySelectableController();
   RelayType _relayType = RelayType.general;
 
   @override
   void initState() {
     super.initState();
-    _relaySelectableController.currentIndex.addListener(_relaySelectableListener);
     _initDefault();
     Connect.sharedInstance.addConnectStatusListener((relay, status, relayKinds) {
       didRelayStatusChange(relay, status);
@@ -56,16 +54,14 @@ class _RelaysPageState extends State<RelaysPage> {
     Account.sharedInstance.dmRelayListUpdateCallback = _initDefault;
   }
 
-  void _relaySelectableListener() {
-    final currentIndex = _relaySelectableController.currentIndex.value;
+  void _relayTypeChanged(int index) {
     setState(() {
-      _relayType = RelayType.values[currentIndex];
+      _relayType = RelayType.values[index];
     });
   }
 
   @override
   void dispose() {
-    _relaySelectableController.currentIndex.removeListener(_relaySelectableListener);
     super.dispose();
   }
 
@@ -177,7 +173,7 @@ class _RelaysPageState extends State<RelaysPage> {
             RelaySelectableTabBar(
               tabs: RelayType.values.map((e) => e.name()).toList(),
               tabTips: RelayType.values.map((e) => e.tips()).toList(),
-              controller: _relaySelectableController,
+              onChanged: _relayTypeChanged,
             ).setPaddingOnly(top: 12.px),
             Container(
               width: double.infinity,
