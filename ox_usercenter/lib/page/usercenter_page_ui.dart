@@ -299,7 +299,7 @@ extension UserCenterPageUI on UserCenterPageState{
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              constraints: BoxConstraints(maxWidth: Adapt.screenW - 96.px),
+              constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width - 96.px),
               child: Text(
                 newPubKey,
                 style: TextStyle(

@@ -545,7 +545,7 @@ class _ContractListItemState extends State<ContractListItem> {
                         ],
                       ),
                       Container(
-                        width: Adapt.screenW - Adapt.px(120),
+                        width: MediaQuery.of(context).size.width - Adapt.px(120),
                         margin: EdgeInsets.only(left: Adapt.px(16.0)),
                         child: ValueListenableBuilder<UserDBISAR>(
                           valueListenable: Account.sharedInstance

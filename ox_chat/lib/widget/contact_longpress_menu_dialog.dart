@@ -120,7 +120,7 @@ class _ContactLongPressMenuDialogState extends State<ContactLongPressMenuDialog>
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: BoxConstraints(minWidth: 180.px, maxWidth: Adapt.screenW * 0.6),
+      constraints: BoxConstraints(minWidth: 180.px, maxWidth: MediaQuery.of(context).size.width * 0.6),
       alignment: Alignment.bottomRight,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16.px),
