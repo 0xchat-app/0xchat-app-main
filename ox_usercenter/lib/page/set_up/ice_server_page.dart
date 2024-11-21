@@ -118,32 +118,31 @@ class _ICEServerPageState extends State<ICEServerPage> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-      Container(
-      width: double.infinity,
-      height: Adapt.px(52),
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8.px),
-        color: ThemeColor.color180,
-      ),
-      margin: EdgeInsets.only(top: 12.px),
-      padding: EdgeInsets.only(left: 16.px),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            Localized.text('ox_usercenter.str_p2p_tips'),
-            style: TextStyle(
-              color: ThemeColor.color0,
-              fontSize: Adapt.px(16),
-            ),
-          ),
-          _p2pSwitchWidget(),
-        ],
-      ),
-    ), Container(
+        Container(
           width: double.infinity,
-          height: Adapt.px(46),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8.px),
+            color: ThemeColor.color180,
+          ),
+          margin: EdgeInsets.only(top: 12.px),
+          padding: EdgeInsets.symmetric(horizontal: 16.px, vertical: 8.px),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                Localized.text('ox_usercenter.str_p2p_tips'),
+                style: TextStyle(
+                  color: ThemeColor.color0,
+                  fontSize: Adapt.px(16),
+                ),
+              ),
+              _p2pSwitchWidget(),
+            ],
+          ),
+        ),
+        Container(
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(vertical: 8.px),
           alignment: Alignment.centerLeft,
           child: Text(
             Localized.text('ox_usercenter.str_p2p_title'),
@@ -163,7 +162,7 @@ class _ICEServerPageState extends State<ICEServerPage> {
       children: [
         Container(
           width: double.infinity,
-          height: Adapt.px(46),
+          margin: EdgeInsets.symmetric(vertical: 4.px),
           alignment: Alignment.centerLeft,
           child: Text(
             itemTitle ?? "",

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/font_size_notifier.dart';
 import 'package:ox_common/utils/theme_color.dart';
 
 class DonateItemWidget extends StatelessWidget {
@@ -14,7 +15,6 @@ class DonateItemWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: Adapt.px(60),
       width: MediaQuery.of(context).size.width - Adapt.px(24 * 2),
       padding: EdgeInsets.symmetric(horizontal: Adapt.px(16), vertical: Adapt.px(8)),
       decoration: BoxDecoration(
@@ -51,13 +51,20 @@ class DonateItemWidget extends StatelessWidget {
                   flagWidget ?? Container(),
                 ],
               ),
-              const Spacer(),
-              Text(
-                subTitle ?? '',
-                style: TextStyle(
-                  fontSize: Adapt.px(14),
-                  fontWeight: FontWeight.w400,
-                  color: ThemeColor.color100,
+              SizedBox(
+                height: 12.px,
+              ),
+              Container(
+                constraints: BoxConstraints(maxWidth: Adapt.screenW - 136.px, maxHeight: 44.px),
+                child: Text(
+                  subTitle ?? '',
+                  style: TextStyle(
+                    fontSize: Adapt.px(14),
+                    fontWeight: FontWeight.w400,
+                    color: ThemeColor.color100,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],

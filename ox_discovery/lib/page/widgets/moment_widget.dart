@@ -13,6 +13,7 @@ import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/contact_choose_page.dart';
+import 'package:ox_common/utils/font_size_notifier.dart';
 import 'package:ox_discovery/enum/moment_enum.dart';
 import 'package:ox_discovery/page/widgets/moment_article_widget.dart';
 import 'package:ox_discovery/page/widgets/reply_contact_widget.dart';
@@ -255,69 +256,80 @@ class _MomentWidgetState extends State<MomentWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          ValueListenableBuilder<UserDBISAR>(
-            valueListenable: Account.sharedInstance.getUserNotifier(pubKey),
-            builder: (context, value, child) {
-              return Row(
-                children: [
-                  GestureDetector(
-                    onTap: () async {
-                      await OXModuleService.pushPage(
-                          context, 'ox_chat', 'ContactUserInfoPage', {
-                        'pubkey': pubKey,
-                      });
-                    },
-                    child: MomentWidgetsUtils.clipImage(
-                      borderRadius: 40.px,
-                      imageSize: 40.px,
-                      child: OXCachedNetworkImage(
-                        imageUrl: value.picture ?? '',
-                        fit: BoxFit.cover,
-                        placeholder: (context, url) =>
-                            MomentWidgetsUtils.badgePlaceholderImage(),
-                        errorWidget: (context, url, error) =>
-                            MomentWidgetsUtils.badgePlaceholderImage(),
-                        width: 40.px,
-                        height: 40.px,
+          Container(
+            constraints: BoxConstraints(
+              maxWidth: Adapt.screenW - 110.px,
+            ),
+            child: ValueListenableBuilder<UserDBISAR>(
+              valueListenable: Account.sharedInstance.getUserNotifier(pubKey),
+              builder: (context, value, child) {
+                return Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () async {
+                        await OXModuleService.pushPage(
+                            context, 'ox_chat', 'ContactUserInfoPage', {
+                          'pubkey': pubKey,
+                        });
+                      },
+                      child: MomentWidgetsUtils.clipImage(
+                        borderRadius: 40.px,
+                        imageSize: 40.px,
+                        child: OXCachedNetworkImage(
+                          imageUrl: value.picture ?? '',
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) =>
+                              MomentWidgetsUtils.badgePlaceholderImage(),
+                          errorWidget: (context, url, error) =>
+                              MomentWidgetsUtils.badgePlaceholderImage(),
+                          width: 40.px,
+                          height: 40.px,
+                        ),
                       ),
                     ),
-                  ),
-                  Container(
-                    margin: EdgeInsets.only(
-                      left: 10.px,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(
-                              value.name ?? '',
-                              style: TextStyle(
-                                color: ThemeColor.color0,
-                                fontSize: 14.px,
-                                fontWeight: FontWeight.w500,
+                    Container(
+                      margin: EdgeInsets.only(
+                        left: 10.px,
+                      ),
+                      constraints: BoxConstraints(
+                        maxWidth: Adapt.screenW - 170.px,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                value.name ?? '',
+                                style: TextStyle(
+                                  color: ThemeColor.color0,
+                                  fontSize: 14.px,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
-                            ),
-                            _checkIsPrivate(),
-                          ],
-                        ),
-                        Text(
-                          DiscoveryUtils.getUserMomentInfo(
-                              value, model.createAtStr)[0],
-                          style: TextStyle(
-                            color: ThemeColor.color120,
-                            fontSize: 12.px,
-                            fontWeight: FontWeight.w400,
+                              _checkIsPrivate(),
+                            ],
                           ),
-                        ),
-                      ],
+                           Text(
+                              DiscoveryUtils.getUserMomentInfo(
+                                  value, model.createAtStr)[0],
+                              style: TextStyle(
+                                color: ThemeColor.color120,
+                                fontSize: 12.px,
+                                fontWeight: FontWeight.w400,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              );
-            },
+                  ],
+                );
+              },
+            ),
           ),
           GestureDetector(
             onTapDown: (TapDownDetails details) => _showMomentOptionMore(context, details.globalPosition),
@@ -506,7 +518,7 @@ class _MomentWidgetState extends State<MomentWidget> {
         horizontal: 4.px,
       ),
       child: Container(
-        constraints: BoxConstraints(maxWidth: momentMm),
+        constraints: BoxConstraints(maxWidth: momentMm * textScaleFactorNotifier.value),
         child: GradientText(
           Localized.text('ox_discovery.private'),
           style: TextStyle(

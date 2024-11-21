@@ -173,7 +173,7 @@ class _RelaysPageState extends State<RelaysPage> {
             ).setPaddingOnly(top: 12.px),
             Container(
               width: double.infinity,
-              height: Adapt.px(46),
+              padding: EdgeInsets.only(top: 24.px, bottom: 12.px),
               alignment: Alignment.centerLeft,
               child: Text(
                 // Localized.text('ox_usercenter.connect_relay'),
@@ -254,7 +254,7 @@ class _RelaysPageState extends State<RelaysPage> {
             if (relayList.isNotEmpty) ...[
               Container(
                 width: double.infinity,
-                height: Adapt.px(58),
+                padding: EdgeInsets.only(top: 24.px, bottom: 12.px),
                 alignment: Alignment.centerLeft,
                 child: Text(
                   // Localized.text('ox_usercenter.connected_relay'),

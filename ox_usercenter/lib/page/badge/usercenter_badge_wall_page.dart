@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/font_size_notifier.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
@@ -171,7 +172,7 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
         bottom: Adapt.px(44),
       ),
       child: SingleChildScrollView(
-        physics: const NeverScrollableScrollPhysics(),
+        physics: const BouncingScrollPhysics(),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
@@ -195,18 +196,16 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
                   SizedBox(
                     height: Adapt.px(16),
                   ),
-                  SizedBox(
-                    height: (_imageWH + Adapt.px(44)) * ((_defaultBadgeModelList.length / 3).ceil()),
-                    child: GridView.builder(
-                      physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        crossAxisSpacing: Adapt.px(16),
-                        mainAxisExtent: _imageWH + Adapt.px(44),
-                      ),
-                      itemBuilder: _itemBuilder,
-                      itemCount: _defaultBadgeModelList.length,
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      crossAxisSpacing: Adapt.px(16),
+                      mainAxisExtent: _imageWH + Adapt.px(52),
                     ),
+                    itemBuilder: _itemBuilder,
+                    itemCount: _defaultBadgeModelList.length,
                   ),
                 ],
               ),
@@ -253,6 +252,7 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
       },
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Stack(
             children: [
@@ -288,12 +288,14 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
             height: Adapt.px(12),
           ),
           Container(
+            constraints: BoxConstraints(maxWidth: (Adapt.screenW - Adapt.px(48 + 32 + 48)) / 3),
             child: Text(
               _model.badgeName ?? '',
               style: TextStyle(
                 fontSize: Adapt.px(14),
                 color: ThemeColor.color100,
               ),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
@@ -303,16 +305,15 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
 
   Widget _topView(){
     if(!widget.isShowBadgeAwards) return const SizedBox();
+    double badgeWH = 80.px * textScaleFactorNotifier.value > (Adapt.screenW - 74.px)/2 ? (Adapt.screenW - 126.px)/2 : 80.px * textScaleFactorNotifier.value;
     CommonImage defaultProfileBadge = CommonImage(
       iconName: 'icon_badge_default.png',
       fit: BoxFit.cover,
-      width: Adapt.px(80),
-      height: Adapt.px(80),
+      size: badgeWH,
       useTheme: true,
     );
     return Container(
       margin: EdgeInsets.only(bottom: 24.px),
-      height: Adapt.px(140),
       decoration: BoxDecoration(
         color: ThemeColor.color180,
         borderRadius: BorderRadius.circular(Adapt.px(12)),
@@ -320,7 +321,7 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
       padding: EdgeInsets.symmetric(horizontal: Adapt.px(14), vertical: Adapt.px(16)),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
             child: Column(
@@ -334,12 +335,12 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
                   ),
                 ),
                 Container(
-                  width: Adapt.px(80),
-                  height: Adapt.px(80),
                   margin: EdgeInsets.only(top: Adapt.px(8)),
+                  width: badgeWH,
+                  height: badgeWH,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(Adapt.px(80)),
+                    shape: BoxShape.circle,
                     border: Border.all(
                       width: Adapt.px(2),
                       color: ThemeColor.gradientMainStart,
@@ -365,6 +366,7 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
               ],
             ),
           ),
+          SizedBox(width: 12.px),
           Expanded(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -386,8 +388,8 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
                             fit: BoxFit.contain,
                             placeholder: (context, url) => defaultProfileBadge,
                             errorWidget: (context, url, error) => defaultProfileBadge,
-                            width: Adapt.px(80),
-                            height: Adapt.px(80),
+                            width: badgeWH,
+                            height: badgeWH,
                           )
                         : defaultProfileBadge,
                   ),

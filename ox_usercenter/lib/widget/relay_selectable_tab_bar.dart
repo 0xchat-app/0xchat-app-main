@@ -71,7 +71,6 @@ class _RelaySelectableTabBarState extends State<RelaySelectableTabBar>
 
   Widget _buildTabItem(String tab, int index) {
     return Container(
-      height: 40.px,
       alignment: Alignment.center,
       padding: EdgeInsets.symmetric(horizontal: 24.px, vertical: 10.px),
       decoration: BoxDecoration(

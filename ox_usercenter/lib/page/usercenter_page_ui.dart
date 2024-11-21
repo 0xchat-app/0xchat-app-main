@@ -91,7 +91,7 @@ extension UserCenterPageUI on UserCenterPageState{
               _topItemBuild(
                 title: 'zaps'.localized(),
                 iconName: 'icon_settings_zaps.png',
-                isShowDivider: false,
+                isShowDivider: true,
                 onTap: () {
                   if (_isShowZapBadge) {
                     if (!_isShowMomentUnread) {
@@ -104,13 +104,6 @@ extension UserCenterPageUI on UserCenterPageState{
                   claimEcash();
                   OXNavigator.pushPage(context, (context) => const ZapsPage());
                 },
-              ),
-              Visibility(
-                visible: true,
-                child: Divider(
-                  height: Adapt.px(0.5),
-                  color: ThemeColor.color160,
-                ),
               ),
               FutureBuilder<BadgeDBISAR?>(
                 builder: (context, snapshot) {
