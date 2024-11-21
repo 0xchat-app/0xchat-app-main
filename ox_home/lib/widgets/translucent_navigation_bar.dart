@@ -331,11 +331,12 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
       alignment: Alignment.bottomCenter,
       children: [
         Container(
-          width: Adapt.px(70),
+          width: (Adapt.screenW - 40.px) / 3,
           height: widget.height,
           color: Colors.transparent,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(

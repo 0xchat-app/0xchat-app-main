@@ -326,7 +326,6 @@ Widget buildOption({required String title, required String iconName, String righ
     onTap: onTap,
     child: Container(
       width: double.infinity,
-      height: Adapt.px(52),
       decoration: decoration ?? BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         gradient: LinearGradient(
@@ -349,8 +348,7 @@ Widget itemView(String iconName, String title, String rightContent, bool showDiv
     children: [
       Container(
         width: double.infinity,
-        height: Adapt.px(52),
-        padding: EdgeInsets.symmetric(horizontal: 16.px),
+        padding: EdgeInsets.symmetric(horizontal: 16.px, vertical: 10.px),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -361,11 +359,16 @@ Widget itemView(String iconName, String title, String rightContent, bool showDiv
               package: 'ox_usercenter',
             ),
             SizedBox(width: 12.px),
-            Text(
-              Localized.text(title),
-              style: TextStyle(
-                color: ThemeColor.color0,
-                fontSize: Adapt.px(16),
+            Container(
+              constraints: BoxConstraints(maxWidth: Adapt.screenW / (rightContent.isEmpty || badge == null ? 2 : 3)),
+              child: Text(
+                Localized.text(title),
+                style: TextStyle(
+                  color: ThemeColor.color0,
+                  fontSize: Adapt.px(16),
+                ),
+                maxLines: 4,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
             Expanded(
@@ -374,7 +377,7 @@ Widget itemView(String iconName, String title, String rightContent, bool showDiv
                 child: devLogWidget ?? Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    isShowZapBadge ? badge ?? Container() : Container(),
+                    isShowZapBadge ? badge ?? const SizedBox() : const SizedBox(),
                     Text(
                       rightContent,
                       style: TextStyle(
