@@ -92,7 +92,7 @@ class Input extends StatefulWidget {
 class InputState extends State<Input>{
 
   final _itemSpacing = Adapt.px(12);
-  double get inputSuffixIconSize => 24.px;
+  double get inputSuffixIconSize => 24.pxWithTextScale;
 
   InputType inputType = InputType.inputTypeDefault;
   late final _inputFocusNode = FocusNode(
@@ -324,6 +324,7 @@ class InputState extends State<Input>{
           });
         },
         padding: EdgeInsets.symmetric(horizontal: _itemSpacing),
+        size: inputSuffixIconSize,
       );
 
   Widget _buildInputTextField() =>
@@ -351,6 +352,7 @@ class InputState extends State<Input>{
                   .withOpacity(0.5),
             ),
             hintText: Localized.text('ox_chat_ui.chat_input_hint_text'),
+            hintMaxLines: 1,
             // InheritedL10n.of(context).l10n.inputPlaceholder,
           ),
           focusNode: _inputFocusNode,

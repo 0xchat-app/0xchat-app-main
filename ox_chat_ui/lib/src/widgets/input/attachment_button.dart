@@ -13,6 +13,7 @@ class AttachmentButton extends StatelessWidget {
     this.isLoading = false,
     this.onPressed,
     this.padding = EdgeInsets.zero,
+    required this.size,
   });
 
   /// Show a loading indicator instead of the button.
@@ -24,12 +25,14 @@ class AttachmentButton extends StatelessWidget {
   /// Padding around the button.
   final EdgeInsets padding;
 
+  final double size;
+
   @override
   Widget build(BuildContext context) => Container(
         margin: InheritedChatTheme.of(context).theme.attachmentButtonMargin ?? EdgeInsetsDirectional.zero,
         child: CommonIconButton(
           iconName: 'chat_voice_icon.png',
-          size: 24.px,
+          size: size,
           package: 'ox_chat_ui',
           onPressed: onPressed ?? () {},
           padding: padding,
