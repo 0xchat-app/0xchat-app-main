@@ -108,6 +108,7 @@ class AppInitializer {
   void improveErrorWidget() {
     final originErrorWidgetBuilder = ErrorWidget.builder;
     ErrorWidget.builder = (FlutterErrorDetails details) {
+      FlutterError.presentError(details);
       if (kDebugMode) {
         return ConstrainedBox(
           constraints: BoxConstraints.loose(Size.square(300)),
