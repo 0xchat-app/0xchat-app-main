@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_chat/model/option_model.dart';
 import 'package:ox_chat/model/search_chat_model.dart';
@@ -46,64 +47,67 @@ class _GroupCreateSelectorDialogState extends State<GroupCreateSelectorDialog> {
         borderRadius: BorderRadius.circular(12.px),
         color: ThemeColor.color180,
       ),
-      height: (78.5 * (_itemModelList.length + 1)* textScaleFactorNotifier.value + 44 + 8).px ,
-      child: ListView(
-        children: [
-          SizedBox(
-            height: 44.px,
-            child: Center(
-              child: MyText(widget.titleTxT, 18.sp, ThemeColor.color100, fontWeight: FontWeight.w600),
+      child: SingleChildScrollView(
+        physics: BouncingScrollPhysics(),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Container(
+              padding: EdgeInsets.symmetric(vertical: 8.px),
+              child: Center(
+                child: MyText(widget.titleTxT, 18, ThemeColor.color100, fontWeight: FontWeight.w600),
+              ),
             ),
-          ),
-          for (var tempItem in _itemModelList)
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Divider(
-                  color: ThemeColor.color170,
-                  height: Adapt.px(0.5),
-                ),
-                GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  child: Container(
-                    width: double.infinity,
-                    margin: EdgeInsets.symmetric(
-                      horizontal: 16.px, vertical: 16.px,
-                    ),
-                    height: 78.px * textScaleFactorNotifier.value,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            CommonImage(iconName: tempItem.typeIcon, size: 24.px, package: OXChatInterface.moduleName),
-                            SizedBox(width: 8.px),
-                            MyText(tempItem.text, 16.sp, ThemeColor.color0, fontWeight: FontWeight.w400),
-                          ],
-                        ),
-                        SizedBox(height: 2.px),
-                        MyText(tempItem.groupDesc, 14.sp, ThemeColor.color100, fontWeight: FontWeight.w400,/* maxLines: 3, overflow: TextOverflow.ellipsis*/),
-                      ],
-                    ),
+            for (var tempItem in _itemModelList)
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Divider(
+                    color: ThemeColor.color170,
+                    height: Adapt.px(0.5),
                   ),
-                  onTap: () {
-                    OXNavigator.pop(context, tempItem);
-                  },
-                ),
-              ],
+                  GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    child: Container(
+                      width: double.infinity,
+                      margin: EdgeInsets.symmetric(
+                        horizontal: 16.px, vertical: 16.px,
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              CommonImage(iconName: tempItem.typeIcon, size: 24.px, package: OXChatInterface.moduleName),
+                              SizedBox(width: 8.px),
+                              MyText(tempItem.text, 16, ThemeColor.color0, fontWeight: FontWeight.w400),
+                            ],
+                          ),
+                          SizedBox(height: 2.px),
+                          MyText(tempItem.groupDesc, 14, ThemeColor.color100, fontWeight: FontWeight.w400,/* maxLines: 3, overflow: TextOverflow.ellipsis*/),
+                        ],
+                      ),
+                    ),
+                    onTap: () {
+                      OXNavigator.pop(context, tempItem);
+                    },
+                  ),
+                ],
+              ),
+            Container(
+              height: 8.px,
+              color: ThemeColor.color190,
             ),
-          Container(
-            height: 8.px,
-            color: ThemeColor.color190,
-          ),
-          _buildConfirmButton(
-            Localized.text('ox_common.cancel'),
-            onTap: () {
-              OXNavigator.pop(context);
-            },
-          ),
-        ],
+            _buildConfirmButton(
+              Localized.text('ox_common.cancel'),
+              onTap: () {
+                OXNavigator.pop(context);
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
