@@ -71,8 +71,10 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
     tryInitDraft();
     tryInitReply();
     mentionStateInitialize();
-    PromptToneManager.sharedInstance.isCurrencyChatPage = dataController.isInCurrentSession;
-    OXChatBinding.sharedInstance.msgIsReaded = dataController.isInCurrentSession;
+    if (!handler.isPreviewMode) {
+      PromptToneManager.sharedInstance.isCurrencyChatPage = dataController.isInCurrentSession;
+      OXChatBinding.sharedInstance.msgIsReaded = dataController.isInCurrentSession;
+    }
   }
 
   void tryInitDraft() {
