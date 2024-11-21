@@ -95,6 +95,11 @@ dependency_overrides:
     path: packages/base_framework/sqflite
   flutter_inappwebview_ios:
     path: packages/base_framework/flutter_inappwebview_ios
+  flutter_inappwebview_macos:
+    git:
+      url: https://github.com/andychucs/flutter_inappwebview.git
+      ref: master
+      path: flutter_inappwebview_macos
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
