@@ -11,6 +11,7 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_common/utils/platform_utils.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/utils/user_config_tool.dart';
@@ -128,6 +129,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
   }
 
   isHasVibrator() async {
+    if(!PlatformUtils.isMobile) return;
     hasVibrator = (await Vibrate.canVibrate);
   }
 

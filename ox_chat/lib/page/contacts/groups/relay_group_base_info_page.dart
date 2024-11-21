@@ -428,7 +428,7 @@ class GroupItemBuild extends StatelessWidget {
                           child: Container(
                             alignment: Alignment.centerRight,
                             constraints: subTitleMaxLines > 1 ? BoxConstraints(
-                              maxWidth: Adapt.screenW / 2.5 - (isShowMoreIcon ? 24.px : 0),
+                              maxWidth: MediaQuery.of(context).size.width / 2.5 - (isShowMoreIcon ? 24.px : 0),
                               minWidth: 100.px,
                             ) : null,
                             child: MyText(subTitle ?? '', 14.sp, ThemeColor.color100, maxLines: subTitleMaxLines, overflow: TextOverflow.ellipsis),

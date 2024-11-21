@@ -30,6 +30,7 @@ import 'package:ox_common/utils/date_utils.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_common/utils/platform_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/throttle_utils.dart';
 import 'package:ox_common/utils/took_kit.dart';
@@ -75,8 +76,6 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   Map<String, List<String>> _groupMembersCache = {};
   bool _isLogin = false;
   GlobalKey? _latestGlobalKey;
-  double _nameMaxW = Adapt.screenW - (48 + 60 + 36 + 50 + 12).px;
-  double _subTitleMaxW = Adapt.screenW - (48 + 60 + 36 + 30).px;
   bool addAutomaticKeepAlives = true;
   bool addRepaintBoundaries = true;
   bool _hasVibrator = false;
@@ -115,6 +114,7 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   }
 
   isHasVibrator() async {
+    if(!PlatformUtils.isMobile) return;
     _hasVibrator = await Vibrate.canVibrate;
     setState(() {});
   }

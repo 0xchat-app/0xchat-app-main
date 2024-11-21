@@ -239,7 +239,7 @@ class _CommunityQrcodeAddFriendState extends BasePageState<CommunityQrcodeAddFri
               width: Adapt.px(8),
             ),
             Container(
-              constraints: BoxConstraints(maxWidth: Adapt.screenW - 104.px),
+              constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width - 104.px),
               child: MyText(
                 Localized.text('ox_chat.please_enter_user_address'),
                 17,

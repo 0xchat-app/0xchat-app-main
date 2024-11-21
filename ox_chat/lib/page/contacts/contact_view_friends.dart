@@ -8,6 +8,7 @@ import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:flutter_vibrate/flutter_vibrate.dart';
+import 'package:ox_common/utils/platform_utils.dart';
 
 /// Contact - Friends List
 const String systemUserType = "10000";
@@ -54,6 +55,7 @@ class _ContractViewFriendsState extends State<ContractViewFriends>
   }
 
   isHasVibrator() async {
+    if(!PlatformUtils.isMobile) return;
     _hasVibrator = await Vibrate.canVibrate;
     setState(() {});
   }

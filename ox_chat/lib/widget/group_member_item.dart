@@ -4,6 +4,7 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
+import 'package:path/path.dart';
 
 class GroupMemberItem extends StatelessWidget {
 
@@ -22,11 +23,11 @@ class GroupMemberItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _buildUserItem(user);
+    return _buildUserItem(context,user);
   }
 
 
-  Widget _buildUserItem(UserDBISAR user){
+  Widget _buildUserItem(BuildContext context,UserDBISAR user){
 
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
@@ -36,7 +37,7 @@ class GroupMemberItem extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           _buildUserAvatar(user.picture ?? ''),
-          _buildUserInfo(user),
+          _buildUserInfo(context,user),
           const Spacer(),
           action ?? Container(),
         ],
@@ -70,7 +71,7 @@ class GroupMemberItem extends StatelessWidget {
     );
   }
 
-  Widget _buildUserInfo(UserDBISAR user) {
+  Widget _buildUserInfo(BuildContext context,UserDBISAR user) {
     String? nickName = user.nickName;
     String name = (nickName != null && nickName.isNotEmpty) ? nickName : user.name ?? '';
     String encodedPubKey = user.encodedPubkey;
@@ -79,7 +80,7 @@ class GroupMemberItem extends StatelessWidget {
 
     return Container(
       constraints: BoxConstraints(
-        maxWidth: Adapt.screenW - 100.px
+        maxWidth: MediaQuery.of(context).size.width - 100.px
       ),
       padding: EdgeInsets.only(
         left: Adapt.px(16),
