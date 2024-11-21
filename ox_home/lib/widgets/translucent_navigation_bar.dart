@@ -544,7 +544,6 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
         _unreadList[2] = notification.msgNum! > 0 ? 1 : 0;
       }
     }
-    print('Received notification: ${notification.msgNum}');
     return true; //
   }
 
