@@ -1,9 +1,11 @@
 
+
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'dart:io' show Platform;
 
 import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_common/utils/platform_utils.dart';
 
 class Adapt {
   static MediaQueryData? mediaQuery;
@@ -45,6 +47,9 @@ class Adapt {
   }
 
   static double px(number) {
+    if(PlatformUtils.isDesktop) {
+      return double.tryParse(number.toString()) ?? 0.0;
+    }
     if (!(_ratioW is double || _ratioW is int)) {
       Adapt.init(standardW: 375, standardH: 812);
     }
