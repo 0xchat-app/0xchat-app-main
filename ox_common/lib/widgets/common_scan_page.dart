@@ -113,7 +113,7 @@ class CommonScanPageState extends State<CommonScanPage> with SingleTickerProvide
             bottom: Adapt.px(56),
             child: Container(
               margin: EdgeInsets.only(left: Adapt.px(24), right: Adapt.px(24), top: Adapt.px(16)),
-              height: Adapt.px(105),
+              // height: Adapt.px(105),
               width: double.infinity,
               child: Row(
                 children: [
