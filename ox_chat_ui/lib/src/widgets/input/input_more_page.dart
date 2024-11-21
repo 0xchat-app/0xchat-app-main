@@ -38,8 +38,13 @@ class _InputMorePageState extends State<InputMorePage> {
     final padding = EdgeInsets.all(Adapt.px(12));
     final crossAxisCount = 4;
     final crossAxisSpacing = Adapt.px(12);
+
+    final iconSize = 48.px;
+    final iconPadding = 8.px;
+    final itemTitleFont = 12;
     final itemWidth = ((maxAvailableWidth - Adapt.px(12) * 2 - margin.horizontal - padding.horizontal - (crossAxisCount - 1) * crossAxisSpacing) / crossAxisCount).floor();
-    final itemHeight = Adapt.px(73).ceil();
+    final itemHeight = (iconSize + iconPadding + itemTitleFont.spWithTextScale * 1.2).ceil();
+
     final childAspectRatio = itemWidth / itemHeight;
     return Container(
       decoration: BoxDecoration(
@@ -52,7 +57,7 @@ class _InputMorePageState extends State<InputMorePage> {
           crossAxisCount: crossAxisCount, // The number of columns displayed per row
           childAspectRatio: childAspectRatio,
           padding: padding,
-          mainAxisSpacing: Adapt.px(12), // Space between columns
+          mainAxisSpacing: 12.px, // Space between columns
           crossAxisSpacing: crossAxisSpacing, // Line spacing
           children: List.generate(widget.items.length, (index) {
             final item = widget.items[index];
@@ -64,13 +69,13 @@ class _InputMorePageState extends State<InputMorePage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
-                      width: 48.px,
-                      height: 48.px,
+                      width: iconSize,
+                      height: iconSize,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(6),
                         color: ThemeColor.color180,
                       ),
-                      margin: EdgeInsets.only(bottom: Adapt.px(8)),
+                      margin: EdgeInsets.only(bottom: iconPadding),
                       child: Center(
                         child: CommonImage(
                           iconName: item.iconName,
@@ -81,7 +86,11 @@ class _InputMorePageState extends State<InputMorePage> {
                     ),
                     Text(
                       '${item.title()}',
-                      style: TextStyle(fontSize: 12.0),
+                      style: TextStyle(
+                        fontSize: itemTitleFont.sp,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),

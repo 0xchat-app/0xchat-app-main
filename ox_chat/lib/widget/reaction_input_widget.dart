@@ -35,6 +35,8 @@ class ReactionInputWidgetState extends State<ReactionInputWidget> {
   final Key wholeKey = UniqueKey();
   bool recentLoadFinish = false;
 
+  double get emojiSize => 24;
+
   @override
   void initState() {
     super.initState();
@@ -67,12 +69,16 @@ class ReactionInputWidgetState extends State<ReactionInputWidget> {
   }
 
   Widget buildShortcutWidget() {
+    final padding = EdgeInsets.symmetric(
+      vertical: 4.px,
+    );
     return AnimatedOpacity(
       opacity: isExpanded ? 0.0 : 1.0,
       curve: Curves.easeOut,
       duration: expandedDuration,
-      child: SizedBox(
-        height: 32.px,
+      child: Container(
+        padding: padding,
+        height: emojiSize.spWithTextScale + padding.vertical * 2,
         child: Row(
           children: [
             Expanded(
@@ -102,16 +108,16 @@ class ReactionInputWidgetState extends State<ReactionInputWidget> {
         widget.expandedOnChange?.call(isExpanded);
       },
       child: Container(
-        height: 24.px,
-        width: 24.px,
+        height: 24.pxWithTextScale,
+        width: 24.pxWithTextScale,
         decoration: BoxDecoration(
           color: ThemeColor.color160,
-          borderRadius: BorderRadius.circular(12.px),
+          borderRadius: BorderRadius.circular(12.pxWithTextScale),
         ),
         alignment: Alignment.center,
         child: CommonImage(
           iconName: 'icon_more.png',
-          size: 18.px,
+          size: 18.pxWithTextScale,
           package: 'ox_chat',
         ),
       ),
@@ -127,7 +133,7 @@ class ReactionInputWidgetState extends State<ReactionInputWidget> {
       child: Text(
         data.emoji,
         style: TextStyle(
-          fontSize: 24.sp,
+          fontSize: emojiSize.sp,
         ),
       ),
     );

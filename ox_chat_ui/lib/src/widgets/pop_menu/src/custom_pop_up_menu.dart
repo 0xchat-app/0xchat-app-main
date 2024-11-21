@@ -301,7 +301,7 @@ class _MenuLayoutDelegate extends MultiChildLayoutDelegate {
     // 5. Center Up(Long message)
     final bottomMaxY = size.height - 50.px - Adapt.bottomSafeAreaHeightByKeyboard;
     final menuContentHeight = contentSize.height + arrowSize.height + verticalMargin;
-    final isLongMessage = anchorSize.height > menuContentHeight * 2;
+    final isLongMessage = (anchorSize.height > menuContentHeight * 2) || (anchorSize.height > bottomMaxY * 0.6);
     bool? isTop;
     bool isUp;
     if (anchorTopY - menuContentHeight > Adapt.topSafeAreaHeight) {
