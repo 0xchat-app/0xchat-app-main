@@ -10,10 +10,12 @@ import 'package:ox_chat_ui/ox_chat_ui.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/utils/error_utils.dart';
+import 'package:ox_common/utils/font_size_notifier.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/user_config_tool.dart';
+import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_discovery/ox_discovery.dart';
 import 'package:ox_home/ox_home.dart';
 import 'package:ox_localizable/ox_localizable.dart';
@@ -51,6 +53,8 @@ class AppInitializer {
             [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
         SystemChrome.setSystemUIOverlayStyle(ThemeManager.getCurrentThemeStyle().toOverlayStyle());
         ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
+        double fontSize = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.APP_FONT_SIZE, defaultValue: 1.0);
+        textScaleFactorNotifier.value = fontSize;
         FlutterError.onError = (FlutterErrorDetails details) async {
           bool openDevLog = UserConfigTool.getSetting(StorageSettingKey.KEY_OPEN_DEV_LOG.name,
               defaultValue: false);
