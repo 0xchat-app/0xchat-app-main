@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/font_size_notifier.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_module_service/ox_module_service.dart';
@@ -37,39 +38,37 @@ class RelayInfoWidgetState extends State<RelayInfoWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: Adapt.px(24),
-      child: GestureDetector(
-        onTap: () {
-          OXModuleService.invoke('ox_usercenter', 'showRelayPage', [context]);
-        },
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Visibility(
-              visible: widget.showRelayIcon,
-              child: CommonImage(
-                iconName: 'icon_relay_connected_amount.png',
-                size: widget.iconSize ?? 24.px,
-                fit: BoxFit.fill,
-                color: widget.iconColor,
-              ),
+    return GestureDetector(
+      onTap: () {
+        OXModuleService.invoke('ox_usercenter', 'showRelayPage', [context]);
+      },
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Visibility(
+            visible: widget.showRelayIcon,
+            child: CommonImage(
+              iconName: 'icon_relay_connected_amount.png',
+              size: widget.iconSize ?? 24.px,
+              fit: BoxFit.fill,
+              color: widget.iconColor,
             ),
-            Visibility(
-              visible: widget.showRelayIcon,
-              child: SizedBox(width: widget.padding ?? 4.px),
+          ),
+          Visibility(
+            visible: widget.showRelayIcon,
+            child: SizedBox(width: widget.padding ?? 4.px),
+          ),
+          Text(
+            '${Account.sharedInstance.getConnectedRelaysCount()}/${Account.sharedInstance.getAllRelaysCount()}',
+            textScaler: TextScaler.linear(textScaleFactorNotifier.value > 1.5 ? 1.5 : 1),
+            style: TextStyle(
+              fontSize: widget.fontSize ?? 14.sp,
+              color: widget.fontColor ?? ThemeColor.color100,
+              fontWeight: widget.fontWeight,
             ),
-            Text(
-              '${Account.sharedInstance.getConnectedRelaysCount()}/${Account.sharedInstance.getAllRelaysCount()}',
-              style: TextStyle(
-                fontSize: widget.fontSize ?? 14.sp,
-                color: widget.fontColor ?? ThemeColor.color100,
-                fontWeight: widget.fontWeight,
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

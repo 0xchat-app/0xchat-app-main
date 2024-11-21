@@ -119,8 +119,7 @@ class _CommunityQrcodeAddFriendState extends BasePageState<CommunityQrcodeAddFri
 
   Widget _myCardWidget() {
     return Container(
-      margin: EdgeInsets.only(left: Adapt.px(24), right: Adapt.px(24), top: Adapt.px(16)),
-      height: Adapt.px(105),
+      margin: EdgeInsets.symmetric(horizontal: 24.px, vertical: 12.px),
       width: double.infinity,
       // decoration: BoxDecoration(
       //     color: ThemeColor.X1D1D1D,
@@ -218,7 +217,7 @@ class _CommunityQrcodeAddFriendState extends BasePageState<CommunityQrcodeAddFri
           horizontal: Adapt.px(24),
           vertical: Adapt.px(6),
         ),
-        height: Adapt.px(48),
+        padding: EdgeInsets.symmetric(vertical: 12.px),
         decoration: BoxDecoration(
           color: ThemeColor.color190,
           borderRadius: BorderRadius.all(Radius.circular(Adapt.px(16))),
@@ -239,10 +238,15 @@ class _CommunityQrcodeAddFriendState extends BasePageState<CommunityQrcodeAddFri
             SizedBox(
               width: Adapt.px(8),
             ),
-            MyText(
-              Localized.text('ox_chat.please_enter_user_address'),
-              17,
-              ThemeColor.color160,
+            Container(
+              constraints: BoxConstraints(maxWidth: Adapt.screenW - 104.px),
+              child: MyText(
+                Localized.text('ox_chat.please_enter_user_address'),
+                17,
+                ThemeColor.color160,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
         ),

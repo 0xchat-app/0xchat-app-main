@@ -6,6 +6,7 @@ import 'package:ox_common/business_interface/ox_chat/interface.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/font_size_notifier.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
@@ -45,11 +46,11 @@ class _GroupCreateSelectorDialogState extends State<GroupCreateSelectorDialog> {
         borderRadius: BorderRadius.circular(12.px),
         color: ThemeColor.color180,
       ),
-      height: (78.5 * (_itemModelList.length + 1) + 41 + 8).px,
+      height: (78.5 * (_itemModelList.length + 1)* textScaleFactorNotifier.value + 44 + 8).px ,
       child: ListView(
         children: [
           SizedBox(
-            height: 41.px,
+            height: 44.px,
             child: Center(
               child: MyText(widget.titleTxT, 18.sp, ThemeColor.color100, fontWeight: FontWeight.w600),
             ),
@@ -65,12 +66,11 @@ class _GroupCreateSelectorDialogState extends State<GroupCreateSelectorDialog> {
                 GestureDetector(
                   behavior: HitTestBehavior.translucent,
                   child: Container(
-                    alignment: Alignment.center,
                     width: double.infinity,
-                    height: 78.px,
                     margin: EdgeInsets.symmetric(
-                      horizontal: 16.px,
+                      horizontal: 16.px, vertical: 16.px,
                     ),
+                    height: 78.px * textScaleFactorNotifier.value,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -83,7 +83,7 @@ class _GroupCreateSelectorDialogState extends State<GroupCreateSelectorDialog> {
                           ],
                         ),
                         SizedBox(height: 2.px),
-                        MyText(tempItem.groupDesc, 14.sp, ThemeColor.color100, fontWeight: FontWeight.w400),
+                        MyText(tempItem.groupDesc, 14.sp, ThemeColor.color100, fontWeight: FontWeight.w400,/* maxLines: 3, overflow: TextOverflow.ellipsis*/),
                       ],
                     ),
                   ),
