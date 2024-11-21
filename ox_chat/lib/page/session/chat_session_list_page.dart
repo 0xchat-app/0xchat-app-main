@@ -75,8 +75,6 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   Map<String, List<String>> _groupMembersCache = {};
   bool _isLogin = false;
   GlobalKey? _latestGlobalKey;
-  double _nameMaxW = Adapt.screenW - (48 + 60 + 36 + 50 + 12).px;
-  double _subTitleMaxW = Adapt.screenW - (48 + 60 + 36 + 30).px;
   bool addAutomaticKeepAlives = true;
   bool addRepaintBoundaries = true;
   bool _hasVibrator = false;
