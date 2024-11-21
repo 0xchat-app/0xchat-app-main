@@ -1,5 +1,8 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/font_size_notifier.dart';
 import 'package:ox_common/utils/theme_color.dart';
 
 class TextScaleSlider extends StatefulWidget {
@@ -12,7 +15,6 @@ class TextScaleSlider extends StatefulWidget {
 }
 
 class _TextScaleSliderState extends State<TextScaleSlider> {
-  double _currentValue = 1;
 
   @override
   Widget build(BuildContext context) {
@@ -23,15 +25,14 @@ class _TextScaleSliderState extends State<TextScaleSlider> {
         color: ThemeColor.color180,
       ),
       child: Slider(
-        value: _currentValue,
-        min: 1,
+        value: textScaleFactorNotifier.value,
+        min: 0.6,
         max: 2,
         divisions: 10,
         activeColor: ThemeColor.gradientMainStart,
         inactiveColor: ThemeColor.color0.withOpacity(0.5),
         onChanged: (value) {
           setState(() {
-            _currentValue = value;
             widget.onChanged?.call(value);
           });
         },

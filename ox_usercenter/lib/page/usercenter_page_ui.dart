@@ -31,14 +31,6 @@ extension UserCenterPageUI on UserCenterPageState{
             OXWalletInterface.openWalletHomePage();
           },
         ),
-        // SizedBox(height: 24.px),
-        // buildOption(
-        //   title: 'ox_usercenter.str_font_size',
-        //   iconName: 'icon_settings_wallet.png',
-        //   onTap: () async {
-            // OXNavigator.pushPage(context, (context) => FontSizePage());
-        //   },
-        // ),
         SizedBox(height: 24.px),
         Container(
           width: double.infinity,

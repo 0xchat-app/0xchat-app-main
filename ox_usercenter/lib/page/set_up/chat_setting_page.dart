@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/font_size_notifier.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
@@ -59,7 +60,7 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
           child: TextScaleSlider(
             onChanged: (value) {
               setState(() {
-                _textScale = value;
+                _textScale = textScaleFactorNotifier.value = value;
               });
             },
           ),
