@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/font_size_notifier.dart';
+import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
@@ -59,6 +61,7 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
           right: 0.px,
           child: TextScaleSlider(
             onChanged: (value) {
+              OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.APP_FONT_SIZE, value);
               setState(() {
                 _textScale = textScaleFactorNotifier.value = value;
               });
