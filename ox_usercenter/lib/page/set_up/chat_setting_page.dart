@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
+import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/font_size_notifier.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
@@ -18,7 +19,7 @@ class ChatSettingPage extends StatefulWidget {
 }
 
 class _ChatSettingPageState extends State<ChatSettingPage> {
-  double _textScale = 1;
+  double _textScale = textScaleFactorNotifier.value;
 
   @override
   Widget build(BuildContext context) {
@@ -27,8 +28,19 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
       appBar: CommonAppBar(
         useLargeTitle: false,
         centerTitle: true,
-        title: Localized.text('ox_usercenter.str_settings_chat'),
+        titleWidget: Text(
+          Localized.text('ox_usercenter.str_settings_chat'),
+          textScaler: const TextScaler.linear(1),
+          style: TextStyle(
+            color: ThemeColor.color0,
+            fontSize: 16.sp,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
         backgroundColor: ThemeColor.color190,
+        actions: [
+          _buildDoneButton()
+        ],
       ),
       body: _buildBody().setPadding(
         EdgeInsets.symmetric(horizontal: 24.px, vertical: 12.px),
@@ -61,9 +73,8 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
           right: 0.px,
           child: TextScaleSlider(
             onChanged: (value) {
-              OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.APP_FONT_SIZE, value);
               setState(() {
-                _textScale = textScaleFactorNotifier.value = value;
+                _textScale = value;
               });
             },
           ),
@@ -138,6 +149,37 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
           ),
         )
       ],
+    );
+  }
+
+  Widget _buildDoneButton() {
+    return Center(
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        child: ShaderMask(
+          shaderCallback: (Rect bounds) {
+            return LinearGradient(
+              colors: [
+                ThemeColor.gradientMainEnd,
+                ThemeColor.gradientMainStart,
+              ],
+            ).createShader(Offset.zero & bounds.size);
+          },
+          child: Text(
+            Localized.text('ox_common.complete'),
+            textScaler: const TextScaler.linear(1),
+            style: TextStyle(
+              fontSize: 15.px,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        onTap: (){
+          textScaleFactorNotifier.value = _textScale;
+          OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.APP_FONT_SIZE, _textScale);
+          OXNavigator.pop(context);
+        },
+      ).setPaddingOnly(right: 24.px),
     );
   }
 }
