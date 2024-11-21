@@ -529,8 +529,8 @@ class _RelaysPageState extends State<RelaysPage> {
 enum RelayType {
   general,
   dm,
-  inbox,
   outbox,
+  inbox,
 }
 
 extension RelayTypeExtension on RelayType {
@@ -567,9 +567,9 @@ extension RelayTypeExtension on RelayType {
       case RelayType.general:
         return "These relays are stored locally and are used to download user profiles, lists, and posts for you";
       case RelayType.inbox:
-        return "These relays are used by other users to send notes, likes, zaps to you. It is recommended to set up 1-3 inbox relays.";
+        return "These relays are used by other users to send notes, likes, zaps to you. It is recommended to set up 2-4 inbox relays.";
       case RelayType.outbox:
-        return "0xchat will send your posts to these relays so other users can find your content. It is recommended to set up 1-3 outbox relays.";
+        return "0xchat will send your posts to these relays so other users can find your content. It is recommended to set up 2-4 outbox relays.";
     }
   }
 }
