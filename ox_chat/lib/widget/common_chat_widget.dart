@@ -295,6 +295,11 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
   Widget buildScrollToUnreadWidget() {
     final unreadCount = handler.unreadMessageCount;
     final unreadCountText = unreadCount > 9999 ? '9999+' : unreadCount.toString();
+    final fontSize = 12;
+    final numPadding = EdgeInsets.symmetric(
+      horizontal: 5.5.px,
+      vertical: 1.px,
+    );
     return FutureBuilder(
       future: handler.unreadFirstMessage,
       builder: (context, snapshot) {
@@ -329,13 +334,12 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
                 Positioned(
                   left: 0,
                   right: 0,
-                  top: -9.px,
+                  top: -fontSize.spWithTextScale / 2,
                   child: Center(
                     child: Container(
-                      height: 18.px,
-                      padding: EdgeInsets.symmetric(horizontal: 5.5.px),
+                      padding: numPadding,
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(9.px),
+                        borderRadius: BorderRadius.circular(100.px),
                         gradient: LinearGradient(
                           begin: Alignment.centerLeft,
                           end: Alignment.centerRight,
@@ -348,7 +352,7 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
                       child: Text(
                         unreadCountText,
                         style: TextStyle(
-                          fontSize: 12.sp,
+                          fontSize: fontSize.sp,
                         ),
                       ),
                     ),
