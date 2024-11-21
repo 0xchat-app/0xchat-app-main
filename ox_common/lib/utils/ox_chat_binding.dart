@@ -670,7 +670,6 @@ class OXChatBinding {
   }
 
   void noticePromptToneCallBack(MessageDBISAR message, int type) async {
-    print('noticePromptToneCallBack');
     for (OXChatObserver observer in _observers) {
       observer.didPromptToneCallBack(message, type);
     }
