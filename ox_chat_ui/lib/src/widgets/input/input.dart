@@ -47,6 +47,7 @@ class Input extends StatefulWidget {
     this.inputBottomView,
     this.onFocusNodeInitialized,
     this.onInsertedContent,
+    this.customInputViewChanged,
   });
 
   final String? chatId;
@@ -81,6 +82,8 @@ class Input extends StatefulWidget {
 
   ///Send a inserted content
   final void Function(KeyboardInsertedContent insertedContent)? onInsertedContent;
+
+  final void Function(InputType inputType)? customInputViewChanged;
 
   final Widget? inputBottomView;
 
@@ -133,8 +136,7 @@ class InputState extends State<Input>{
   }
 
   void dissMissMoreView(){
-      inputType = InputType.inputTypeDefault;
-      setState(() {});
+    changeInputType(InputType.inputTypeDefault);
   }
 
   @override
@@ -178,9 +180,7 @@ class InputState extends State<Input>{
         }
 
         // Prevents inexplicable 'moreview' not put away bug
-        setState(() {
-          inputType = InputType.inputTypeText;
-        });
+        changeInputType(InputType.inputTypeText);
       } else {
         // _inputFocusNode.unfocus();
       }
@@ -246,6 +246,7 @@ class InputState extends State<Input>{
           height: height,
           child: contentWidget,
           onEnd: () {
+            widget.customInputViewChanged?.call(inputType);
             _inputFocusNode.unfocus();
           },
         );
@@ -256,6 +257,7 @@ class InputState extends State<Input>{
         height: height, // Dynamic height adjustment
         child:Container(),
         onEnd: () {
+          widget.customInputViewChanged?.call(inputType);
           if(inputType == InputType.inputTypeText){
             _inputFocusNode.requestFocus();
           }
@@ -319,9 +321,7 @@ class InputState extends State<Input>{
         isLoading: widget.isAttachmentUploading ?? false,
         // onPressed: widget.onAttachmentPressed,
         onPressed: (){
-          setState(() {
-            inputType = InputType.inputTypeVoice;
-          });
+          changeInputType(InputType.inputTypeVoice);
         },
         padding: EdgeInsets.symmetric(horizontal: _itemSpacing),
         size: inputSuffixIconSize,
@@ -362,10 +362,7 @@ class InputState extends State<Input>{
           onChanged: widget.options.onTextChanged,
           onTap: (){
             widget.options.onTextFieldTap;
-
-            setState(() {
-              inputType = InputType.inputTypeText;
-            });
+            changeInputType(InputType.inputTypeText);
           },
           style: InheritedChatTheme.of(context)
               .theme
@@ -391,6 +388,7 @@ class InputState extends State<Input>{
       SendButton(
         onPressed: _handleSendPressed,
         padding: EdgeInsets.symmetric(horizontal: _itemSpacing),
+        size: inputSuffixIconSize,
       );
 
   Widget _buildChatTimeButton() {
@@ -410,12 +408,7 @@ class InputState extends State<Input>{
   Widget _buildEmojiButton() =>
       CommonIconButton(
         onPressed: () {
-          setState(() {
-            inputType = InputType.inputTypeEmoji;
-            if (_inputFocusNode.hasFocus) {
-              _inputFocusNode.unfocus();
-            }
-          });
+          changeInputType(InputType.inputTypeEmoji);
         },
         iconName: 'chat_emoti_icon.png',
         size: inputSuffixIconSize,
@@ -426,10 +419,7 @@ class InputState extends State<Input>{
   Widget _buildMoreButton() =>
       CommonIconButton(
         onPressed: () {
-          setState(() {
-            inputType = InputType.inputTypeMore;
-            _inputFocusNode.unfocus();
-          });
+          changeInputType(InputType.inputTypeMore);
         },
         iconName: 'chat_more_icon.png',
         size: inputSuffixIconSize,
@@ -538,6 +528,17 @@ class InputState extends State<Input>{
       ),
         ),
     );
+  }
+
+  void changeInputType(InputType type) {
+    if (inputType == type) return;
+
+    setState(() {
+      inputType = type;
+      if (type != InputType.inputTypeText && _inputFocusNode.hasFocus) {
+        _inputFocusNode.unfocus();
+      }
+    });
   }
 }
 

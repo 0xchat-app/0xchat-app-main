@@ -12,6 +12,7 @@ class SendButton extends StatelessWidget {
     super.key,
     required this.onPressed,
     this.padding = EdgeInsets.zero,
+    required this.size,
   });
 
   /// Callback for send button tap event.
@@ -20,11 +21,13 @@ class SendButton extends StatelessWidget {
   /// Padding around the button.
   final EdgeInsets padding;
 
+  final double size;
+
   @override
   Widget build(BuildContext context) => Container(
         child: CommonIconButton(
           iconName: 'chat_send.png',
-          size: 24.px,
+          size: size,
           package: 'ox_chat_ui',
           color: InheritedChatTheme.of(context).theme.inputTextColor,
           onPressed: onPressed,

@@ -690,6 +690,9 @@ class ChatState extends State<Chat> {
             inputBottomView: widget.inputBottomView,
             onFocusNodeInitialized: widget.onFocusNodeInitialized,
             onInsertedContent: widget.onInsertedContent,
+            customInputViewChanged: (_) {
+              setState(() {});
+            },
           ),
         ),
       ],
