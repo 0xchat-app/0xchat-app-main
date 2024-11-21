@@ -27,7 +27,7 @@ class _TextScaleSliderState extends State<TextScaleSlider> {
       child: Slider(
         value: textScaleFactorNotifier.value,
         min: 0.6,
-        max: 2,
+        max: 1.6,
         divisions: 10,
         activeColor: ThemeColor.gradientMainStart,
         inactiveColor: ThemeColor.color0.withOpacity(0.5),
