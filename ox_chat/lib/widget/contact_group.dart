@@ -28,6 +28,7 @@ class GroupContact extends StatefulWidget {
   final List<GroupUIModel> data;
   final bool shrinkWrap;
   ScrollPhysics? physics;
+  final Widget? appBar;
   final Widget? topWidget;
   final bool supportLongPress;
   final bool hasVibrator;
@@ -37,6 +38,7 @@ class GroupContact extends StatefulWidget {
     required this.data,
     this.shrinkWrap = false,
     this.physics,
+    this.appBar,
     this.topWidget,
     this.supportLongPress = false,
     this.hasVibrator = false,
@@ -247,6 +249,10 @@ class GroupContactState extends State<GroupContact> {
 
   List<Widget> _buildSlivers(BuildContext context) {
     List<Widget> slivers = [];
+    Widget? tempAppBar = widget.appBar;
+    if (tempAppBar != null) {
+      slivers.add(tempAppBar);
+    }
     if (widget.topWidget != null) {
       slivers.add(
         SliverToBoxAdapter(

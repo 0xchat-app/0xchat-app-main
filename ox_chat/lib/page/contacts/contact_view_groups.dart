@@ -16,9 +16,10 @@ import 'package:flutter_vibrate/flutter_vibrate.dart';
 class ContactViewGroups extends StatefulWidget {
   final bool shrinkWrap;
   final ScrollPhysics? physics;
+  final Widget? appBar;
   final Widget? topWidget;
   final ScrollToTopStatus? scrollToTopStatus;
-  ContactViewGroups({Key? key, this.shrinkWrap = false, this.physics, this.topWidget, this.scrollToTopStatus}): super(key: key);
+  ContactViewGroups({Key? key, this.shrinkWrap = false, this.physics, this.appBar, this.topWidget, this.scrollToTopStatus}): super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -73,6 +74,7 @@ class _ContactViewGroupsState extends State<ContactViewGroups> with SingleTicker
         data: groups,
         shrinkWrap: widget.shrinkWrap,
         physics: widget.physics,
+        appBar: widget.appBar,
         topWidget: widget.topWidget,
         supportLongPress: true,
         hasVibrator: hasVibrator,

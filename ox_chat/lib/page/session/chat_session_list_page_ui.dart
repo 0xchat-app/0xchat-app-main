@@ -30,7 +30,6 @@ extension ChatSessionListPageUI on ChatSessionListPageState{
           ),
         ),
         title: '',
-        isClose: true,
         centerTitle: false,
         canBack: false,
         actions: [

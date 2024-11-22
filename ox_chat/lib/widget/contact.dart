@@ -35,6 +35,7 @@ class ContactWidget extends StatefulWidget {
   String hostName = ''; //The current domain
   final bool shrinkWrap;
   ScrollPhysics? physics;
+  final Widget? appBar;
   final Widget? topWidget;
   final Color? bgColor;
   final bool supportLongPress;
@@ -49,6 +50,7 @@ class ContactWidget extends StatefulWidget {
     this.shrinkWrap = false,
     this.physics,
     this.topWidget,
+    this.appBar,
     this.bgColor,
     this.supportLongPress = false,
     this.hasVibrator = false,
@@ -282,6 +284,10 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
 
   List<Widget> _buildSlivers(BuildContext context) {
     List<Widget> slivers = [];
+    Widget? tempAppBar = widget.appBar;
+    if (tempAppBar != null) {
+      slivers.add(tempAppBar);
+    }
     if (widget.topWidget != null) {
       slivers.add(
         SliverToBoxAdapter(
