@@ -126,7 +126,7 @@ class _ContractsPageState extends ContactBasePageState<ContractsPage>
       snap: true,
       pinned: false,
       backgroundColor: ThemeColor.color200,
-      expandedHeight: 116.0, // 56 + 60
+      expandedHeight: 126.px,
       flexibleSpace: FlexibleSpaceBar(
         collapseMode: CollapseMode.none,
         background: Column(

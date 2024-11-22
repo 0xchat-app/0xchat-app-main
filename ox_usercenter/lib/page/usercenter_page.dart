@@ -4,9 +4,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cashu_dart/cashu_dart.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:ox_common/business_interface/ox_chat/interface.dart';
 import 'package:ox_common/business_interface/ox_wallet/interface.dart';
 import 'package:ox_common/log_util.dart';
+import 'package:ox_common/mixin/common_navigator_observer_mixin.dart';
 import 'package:ox_common/mixin/common_state_view_mixin.dart';
 import 'package:ox_common/model/msg_notification_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -47,11 +49,8 @@ class UserCenterPage extends StatefulWidget {
 }
 
 class UserCenterPageState extends State<UserCenterPage>
-    with
-        TickerProviderStateMixin,
-        OXUserInfoObserver,
-        WidgetsBindingObserver,
-        CommonStateViewMixin, OXChatObserver, OXMomentObserver {
+    with TickerProviderStateMixin, OXUserInfoObserver, WidgetsBindingObserver,
+        CommonStateViewMixin, OXChatObserver, OXMomentObserver, NavigatorObserverMixin {
   late ScrollController _nestedScrollController;
   int selectedIndex = 0;
 
@@ -66,6 +65,9 @@ class UserCenterPageState extends State<UserCenterPage>
   bool _isVerifiedDNS = false;
   bool _isShowZapBadge = false;
   bool _isShowMomentUnread = false;
+  final ScrollController _appBarScrollController = ScrollController();
+  double _appBarHeight = 66.px;
+  bool _sliverPinned = false;
 
   @override
   void initState() {
@@ -81,6 +83,11 @@ class UserCenterPageState extends State<UserCenterPage>
     CachedNetworkImage.logLevel = CacheManagerLogLevel.debug;
     _nestedScrollController = ScrollController()
       ..addListener(() {
+        if (_sliverPinned) {
+          setState(() {
+            _sliverPinned = false;
+          });
+        }
         if (_nestedScrollController.offset > _topHeight) {
           _scrollY = _nestedScrollController.offset - _topHeight;
         } else {
@@ -98,6 +105,12 @@ class UserCenterPageState extends State<UserCenterPage>
     _verifiedDNS();
   }
 
+  void _showSliverAppBar() {
+    setState(() {
+      _sliverPinned = true;
+    });
+  }
+
   @override
   void didZapRecordsCallBack(ZapRecordsDBISAR zapRecordsDB,{Function? onValue}) {
     super.didZapRecordsCallBack(zapRecordsDB);
@@ -113,6 +126,11 @@ class UserCenterPageState extends State<UserCenterPage>
     OXMomentManager.sharedInstance.removeObserver(this);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  @override
+  Future<void> didPopNext() async {
+    _showSliverAppBar();
   }
 
   @override
@@ -173,67 +191,14 @@ class UserCenterPageState extends State<UserCenterPage>
 
   @override
   Widget build(BuildContext context) {
-    bool isLogin = OXUserInfoManager.sharedInstance.isLogin;
     return Scaffold(
       backgroundColor: ThemeColor.color200,
-      appBar: CommonAppBar(
-        backgroundColor: ThemeColor.color200,
-        title: '',
-        useLargeTitle: false,
-        centerTitle: false,
-        canBack: false,
-        leading: OXButton(
-          color: Colors.transparent,
-          highlightColor: Colors.transparent,
-          child: CommonImage(
-            iconName: 'icon_qrcode.png',
-            size: 24.px,
-            package: 'ox_usercenter',
-            color: ThemeColor.color0,
-          ),
-          onPressed: () {
-            OXModuleService.invoke('ox_chat', 'showMyIdCardDialog', [context]);
-          },
-        ),
-        actions: <Widget>[
-          if (isLogin)
-            Container(
-              margin: EdgeInsets.only(right: Adapt.px(5)),
-              color: Colors.transparent,
-              child: OXButton(
-                highlightColor: Colors.transparent,
-                color: Colors.transparent,
-                minWidth: Adapt.px(44),
-                height: Adapt.px(44),
-                child: Text(
-                  Localized.text('ox_common.edit'),
-                  style: TextStyle(
-                    fontSize: Adapt.px(16),
-                    fontWeight: FontWeight.w600,
-                    color: ThemeColor.color0,
-                  ),
-                ),
-                onPressed: () {
-                  OXNavigator.presentPage(
-                    context,
-                    fullscreenDialog: true,
-                        (_) => const ProfileSetUpPage(),
-                  ).then((value) {
-                    setState(() {});
-                  });
-                },
-              ),
-            ),
-        ],
-      ),
       body: commonStateViewWidget(
         context,
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: Adapt.px(24)),
-          child: SingleChildScrollView(
-            controller: _nestedScrollController,
-            child: _body(),
-          ),
+        CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          controller: _nestedScrollController,
+          slivers: _body(),
         ),
       ),
     );
