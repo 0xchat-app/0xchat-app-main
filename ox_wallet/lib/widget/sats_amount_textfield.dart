@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/font_size_notifier.dart';
 import 'package:ox_common/utils/theme_color.dart';
 
 class SatsAmountTextField extends StatefulWidget {
@@ -95,6 +96,7 @@ class _SatsAmountTextFieldState extends State<SatsAmountTextField> {
       text: TextSpan(text: value, style: textStyle),
       maxLines: 1,
       textDirection: TextDirection.ltr,
+      textScaler: TextScaler.linear(textScaleFactorNotifier.value),
     );
 
     textPainter.layout(minWidth: 0, maxWidth: maxWidth);
