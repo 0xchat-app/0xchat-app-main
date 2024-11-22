@@ -10,7 +10,7 @@ import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/common_loading.dart';
-import 'package:ox_login/utils/general_relay_hint_dialog.dart';
+import 'package:ox_common/utils/app_relay_hint_dialog.dart';
 // component
 import '../component/common_input.dart';
 import '../component/input_wrap.dart';
@@ -168,6 +168,6 @@ class _AccountKeyLoginPageState extends State<AccountKeyLoginPage> {
     OXUserInfoManager.sharedInstance.loginSuccess(userDB);
     await OXLoading.dismiss();
     OXNavigator.popToRoot(context);
-    GeneralRelayHintDialog.show(context);
+    AppRelayHintDialog.show(context);
   }
 }
