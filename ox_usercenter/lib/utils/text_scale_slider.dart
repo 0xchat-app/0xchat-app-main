@@ -42,7 +42,7 @@ class _TextScaleSliderState extends State<TextScaleSlider> {
         children: [
           Positioned(
             child: _buildLabel(
-              'Message text scale',
+              'Text Size',
               color: ThemeColor.color0,
             ),
             left: 24.px,
@@ -51,7 +51,7 @@ class _TextScaleSliderState extends State<TextScaleSlider> {
           if (_currentValue == 1.0)
             Positioned(
               child: _buildLabel(
-                'Normal',
+                'Default',
                 color: ThemeColor.color0,
               ),
               right: 24.px,

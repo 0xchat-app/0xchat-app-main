@@ -54,16 +54,16 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
         Column(
           children: [
             _buildChatWidget(
-              name: 'Elon Musk',
-              content: 'Good morning!\r\nDo you know what time it is？',
-              picture: 'icon_chat_settings_left.png',
+              name: 'Jack',
+              content: 'Hello, 0xChat.\nHow can I set the text size?',
+              picture: 'icon_chat_settings_right.png',
               isSender: false,
             ),
             SizedBox(height: 16.px),
             _buildChatWidget(
-              name: 'Nika',
-              content: 'It’s Morning in Tokyo',
-              picture: 'icon_chat_settings_right.png',
+              name: '0xchat',
+              content: 'Hello, Jack.\nGo to "Me - Text Size", and drag the slider below to set the text size.',
+              picture: 'icon_chat_settings_left.png',
             ),
           ],
         ),
@@ -100,7 +100,7 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
           height: 40.px,
           package: 'ox_usercenter',
         ),
-        SizedBox(width: 16.px),
+        SizedBox(width: 10.px),
         Expanded(
           child: Column(
             crossAxisAlignment:
@@ -166,10 +166,10 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
             ).createShader(Offset.zero & bounds.size);
           },
           child: Text(
-            Localized.text('ox_common.complete'),
+            Localized.text('ox_usercenter.str_settings_chat_set'),
             textScaler: const TextScaler.linear(1),
             style: TextStyle(
-              fontSize: 15.px,
+              fontSize: 16.sp,
               fontWeight: FontWeight.w600,
             ),
           ),
