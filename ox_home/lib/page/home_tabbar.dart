@@ -153,7 +153,8 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
               return false;
             }
             _previousScrollOffset = currentOffset;
-            if (currentOffset <= 0  ) {
+            if (currentOffset <= 0) {
+              tabBarGlobalKey.currentState?.updateOffset(0);
               return false;
             }
             if (delta >= 0) {
