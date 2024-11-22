@@ -12,7 +12,7 @@ class GeneralRelayHintDialog {
       final ctx = OXNavigator.navigatorKey.currentContext!;
       await OXCommonHintDialog.show(
         context,
-        content: 'General Relay is not yet set. Would you like to set it up?',
+        content: 'The App Relay is not configured yet. Would you like to set it up now?',
         actionList: [
           OXCommonHintAction(
             text: () => Localized.text('ox_chat.str_go_to_settings'),
