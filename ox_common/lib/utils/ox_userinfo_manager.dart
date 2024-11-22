@@ -11,7 +11,6 @@ import 'package:ox_common/log_util.dart';
 import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/utils/ox_server_manager.dart';
 import 'package:ox_common/utils/user_config_tool.dart';
-import 'package:ox_common/utils/app_initialization_manager.dart';
 import 'package:ox_common/utils/cashu_helper.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_moment_manager.dart';
@@ -72,7 +71,6 @@ class OXUserInfoManager {
     if(pubkey.isEmpty) return;
     await logout(needObserver: false);
     await ThreadPoolManager.sharedInstance.initialize();
-    AppInitializationManager.shared.shouldShowInitializationLoading = true;
     String dbpath = pubkey + ".db2";
     bool exists = await databaseExists(dbpath);
     if (exists) {
@@ -137,7 +135,6 @@ class OXUserInfoManager {
         }
       }
     }
-    AppInitializationManager.shared.shouldShowInitializationLoading = false;
   }
 
   void addObserver(OXUserInfoObserver observer) => _observers.add(observer);
@@ -317,7 +314,6 @@ class OXUserInfoManager {
       _ContactType.relayGroups: false,
     };
     OXChatBinding.sharedInstance.clearSession();
-    AppInitializationManager.shared.reset();
     if (needObserver) {
       for (OXUserInfoObserver observer in _observers) {
         observer.didLogout();

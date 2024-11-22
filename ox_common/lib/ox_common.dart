@@ -5,7 +5,6 @@ import 'package:chatcore/chat-core.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
-import 'package:ox_common/utils/app_initialization_manager.dart';
 import 'package:ox_common/utils/chat_prompt_tone.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_webview.dart';
@@ -48,7 +47,6 @@ class OXCommon extends OXFlutterModule {
   Future<void> setup() async {
     await super.setup();
     PromptToneManager.sharedInstance.setup();
-    AppInitializationManager.shared.setup();
     OXUserInfoManager.sharedInstance.initDataActions.add(() async {
       PromptToneManager.sharedInstance.initSoundTheme();
     });

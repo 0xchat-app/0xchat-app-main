@@ -4,6 +4,8 @@ import 'dart:ui';
 import 'dart:io' show Platform;
 
 import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_common/utils/platform_utils.dart';
+import 'package:ox_common/utils/font_size_notifier.dart';
 
 class Adapt {
   static MediaQueryData? mediaQuery;
@@ -45,6 +47,9 @@ class Adapt {
   }
 
   static double px(number) {
+    if(PlatformUtils.isDesktop) {
+      return double.tryParse(number.toString()) ?? 0.0;
+    }
     if (!(_ratioW is double || _ratioW is int)) {
       Adapt.init(standardW: 375, standardH: 812);
     }
@@ -104,4 +109,7 @@ extension AdaptEx on num {
   double get px => Adapt.px(this);
   double get py => Adapt.py(this);
   double get sp => Adapt.sp(this);
+
+  double get pxWithTextScale => textScaleFactorNotifier.value * px;
+  double get spWithTextScale => textScaleFactorNotifier.value * sp;
 }
