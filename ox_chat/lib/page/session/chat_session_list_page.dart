@@ -232,6 +232,9 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
               //     ),
               //   ),
               // ),
+              SliverToBoxAdapter(
+                child: _topSearch(),
+              ),
               _isLogin && _msgDatas.length > 0
                   ? SliverList(
                 delegate: SliverChildBuilderDelegate(
