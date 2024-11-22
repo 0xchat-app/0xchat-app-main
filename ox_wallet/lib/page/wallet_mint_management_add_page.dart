@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashu_dart/cashu_dart.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/file_utils.dart';
@@ -146,7 +147,7 @@ class _WalletMintManagementAddPageState extends State<WalletMintManagementAddPag
       return;
     }
     OXLoading.show();
-    final response = await EcashService.redeemEcash(_controller.text);
+    final response = await await Cashu.importCashuToken(_controller.text);
     OXLoading.dismiss();
     if(!response.isSuccess){
       _showToast(response.errorMsg);
