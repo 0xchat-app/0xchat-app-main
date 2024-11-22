@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
+import 'package:ox_common/widgets/common_platform_widget.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:ox_chat/page/contacts/contact_add_friend.dart';
 import 'package:ox_chat/page/contacts/my_idcard_dialog.dart';
@@ -127,26 +128,30 @@ class _CommunityQrcodeAddFriendState extends BasePageState<CommunityQrcodeAddFri
       //   ),
       child: Row(
         children: [
-          Expanded(child: GestureDetector(
-            child: Container(
-              color: Colors.transparent,
-              child: Column(
-                children: [
-                  SizedBox(height: Adapt.px(20),),
-                  _itemView('icon_scan_qr.png'),
-                  SizedBox(height: Adapt.px(7),),
-                  MyText(
-                    Localized.text('ox_common.scan_qr_code'),
-                    12,
-                    ThemeColor.white02,
+          PlatformWidget(
+              mobileBuilder: Expanded(
+                  child: GestureDetector(
+                  child: Container(
+                    color: Colors.transparent,
+                    child: Column(
+                      children: [
+                        SizedBox(height: Adapt.px(20),),
+                        _itemView('icon_scan_qr.png'),
+                        SizedBox(height: Adapt.px(7),),
+                        MyText(
+                          Localized.text('ox_common.scan_qr_code'),
+                          12,
+                          ThemeColor.white02,
+                        ),
+                      ],
+                    ),
                   ),
-                ],
+                onTap: (){
+                  _gotoScan();
+                },
               ),
             ),
-            onTap: (){
-              _gotoScan();
-            },
-          )),
+          ),
 
           Expanded(child: GestureDetector(
             child: Container(
