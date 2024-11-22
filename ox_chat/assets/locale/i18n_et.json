@@ -340,5 +340,5 @@
   "str_online_groups": "Veebigrupid",
   "str_all_chats_mark_as_read": "Märgi kõik loetuks",
   "str_show_in_chat": "Näita vestluses",
-  "media_message_delete_tips": "Kas olete kindel, et soovite kustutada need kohalikud meediasõnumid?"
+  "chat_input_length_over_hint": "Sisestatud tekst on saatmiseks liiga pikk."
 }

@@ -134,6 +134,7 @@ class CommunityMenuOptionModel {
     var result = await showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
+      isScrollControlled: true,
       builder: (BuildContext context) {
         return GroupCreateSelectorDialog(titleTxT: 'str_group_create_hint'.localized());
       },

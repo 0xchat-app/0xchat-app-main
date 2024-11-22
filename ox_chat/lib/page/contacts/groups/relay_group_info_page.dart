@@ -166,15 +166,11 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Container(
-                    height: Adapt.px(20),
-                    child: Text(
-                      Localized.text('ox_chat.view_all_members').replaceAll(r'${count}', '${groupMember.length}'),
-                      style: TextStyle(
-                        fontSize: Adapt.px(14),
-                        color: ThemeColor.color100,
-                      ),
-                    ),
+                  MyText(
+                    Localized.text('ox_chat.view_all_members').replaceAll(r'${count}', '${groupMember.length}'),
+                    14.px,
+                    ThemeColor.color100,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   CommonImage(
                     iconName: 'icon_more.png',
@@ -294,6 +290,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
             title: Localized.text('ox_chat.str_group_relay'),
             subTitle: groupDBInfo?.relay ?? '--',
             onTap: null,
+            subTitleMaxLines: 2,
             isShowMoreIcon: false,
             isShowDivider: _hasAddPermission,
           ),
@@ -324,15 +321,11 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
           color: ThemeColor.color180,
         ),
         margin: EdgeInsets.only(top: 16.px),
-        child: Column(
-          children: [
-            GroupItemBuild(
-              title: Localized.text('ox_chat.str_group_notes'),
-              onTap: _gotoGroupNotesFn,
-              isShowMoreIcon: true,
-              isShowDivider: false,
-            ),
-          ],
+        child: GroupItemBuild(
+          title: Localized.text('ox_chat.str_group_notes'),
+          onTap: _gotoGroupNotesFn,
+          isShowMoreIcon: true,
+          isShowDivider: false,
         ),
     );
   }

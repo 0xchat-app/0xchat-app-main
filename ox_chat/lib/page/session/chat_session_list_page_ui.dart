@@ -7,6 +7,110 @@ part of 'chat_session_list_page.dart';
 ///CreateTime: 2024/10/22 18:21
 extension ChatSessionListPageUI on ChatSessionListPageState{
 
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+      centerTitle: false,
+      backgroundColor: ThemeColor.color200,
+      elevation: 0,
+      titleSpacing: 0.0,
+      title: Container(
+        margin: EdgeInsets.only(left: Adapt.px(24)),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: 103.px,
+              height: 24.px,
+              child: CommonImage(
+                iconName: '0xchat_title_icon.png',
+                useTheme: true,
+              ),
+            ),
+            SizedBox(width: 4.px),
+            if (_isLogin)
+              RelayInfoWidget(
+                  iconSize: 16.px,
+                  iconColor: ThemeColor.color0,
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w600,
+                  fontColor: ThemeColor.color0,
+                  padding: 2.px),
+          ],
+        ),
+      ),
+      actions: <Widget>[
+        GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          child: CommonImage(
+            iconName: 'icon_home_add.png',
+            size: 24.px,
+            useTheme: true,
+            package: 'ox_chat',
+          ),
+          onTap: () {
+            if (_isLogin) {
+              OXNavigator.presentPage(
+                  context, (context) => ChatNewMessagePage());
+            } else {
+              OXModuleService.pushPage(context, "ox_login", "LoginPage", {});
+            }
+          },
+        ),
+        SizedBox(
+          width: Adapt.px(24),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTitleView() {
+    return CommonAppBarNoPreferredSize(
+      backgroundColor: ThemeColor.color200,
+      leading: Container(
+        margin: EdgeInsets.only(left: Adapt.px(24)),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: 103.px,
+              height: 24.px,
+              child: CommonImage(
+                iconName: '0xchat_title_icon.png',
+                useTheme: true,
+              ),
+            ),
+            SizedBox(width: 4.px),
+            if (_isLogin) RelayInfoWidget(iconSize: 16.px, iconColor: ThemeColor.color0, fontSize: 12.sp, fontWeight: FontWeight.w600, fontColor: ThemeColor.color0, padding: 2.px),
+          ],
+        ),
+      ),
+      title: '',
+      centerTitle: false,
+      canBack: false,
+      actions: [
+        GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          child: CommonImage(
+            iconName: 'icon_home_add.png',
+            size: 24.px,
+            useTheme: true,
+            package: 'ox_chat',
+          ),
+          onTap: () {
+            if (_isLogin) {
+              OXNavigator.presentPage(context, (context) => ChatNewMessagePage());
+            } else {
+              OXModuleService.pushPage(context, "ox_login", "LoginPage", {});
+            }
+          },
+        ),
+        SizedBox(
+          width: Adapt.px(24),
+        ),
+      ],
+    );
+  }
+
   Widget _buildListViewItem(context, int index) {
     if(index >= _msgDatas.length) return SizedBox();
     ChatSessionModelISAR item = _msgDatas[index];
@@ -19,7 +123,6 @@ extension ChatSessionListPageUI on ChatSessionListPageState{
       },
       child: Container(
         color: ThemeColor.color200,
-        height: 84.px,
         child: Slidable(
           key: ValueKey("$index"),
           endActionPane: ActionPane(
@@ -159,7 +262,7 @@ extension ChatSessionListPageUI on ChatSessionListPageState{
                                     Padding(
                                       padding: EdgeInsets.only(top: 6.px),
                                       child: Container(
-                                        constraints: BoxConstraints(maxWidth: _subTitleMaxW),
+                                        constraints: BoxConstraints(maxWidth: Adapt.screenW / 2),
                                         child: _buildItemSubtitle(item),
                                       ),
                                     ),
@@ -294,7 +397,7 @@ extension ChatSessionListPageUI on ChatSessionListPageState{
         ],
       )
           : nameView,
-      constraints: BoxConstraints(maxWidth: _nameMaxW),
+      constraints: BoxConstraints(maxWidth: Adapt.screenW / 2.2),
     );
   }
 
@@ -379,29 +482,15 @@ extension ChatSessionListPageUI on ChatSessionListPageState{
         return SizedBox();
       }
     }
-    if (read > 0 && read < 10) {
-      return ClipOval(
-        child: Container(
-          alignment: Alignment.center,
-          color: ThemeColor.red1,
-          width: Adapt.px(17),
-          height: Adapt.px(17),
-          child: Text(
-            read.toString(),
-            style: _Style.read(),
-          ),
-        ),
-      );
-    } else if (read >= 10 && read < 100) {
+    if (read > 0 && read < 100) {
+      double paddingValue = read < 10 ? 7.px : 3.px;
       return Container(
         alignment: Alignment.center,
-        width: Adapt.px(22),
-        height: Adapt.px(20),
         decoration: BoxDecoration(
           color: ThemeColor.red1,
-          borderRadius: BorderRadius.all(Radius.circular(Adapt.px(13.5))),
+          shape: BoxShape.circle,
         ),
-        padding: EdgeInsets.symmetric(vertical: Adapt.px(3), horizontal: Adapt.px(3)),
+        padding: EdgeInsets.symmetric(vertical: paddingValue, horizontal: paddingValue),
         child: Text(
           read.toString(),
           style: _Style.read(),

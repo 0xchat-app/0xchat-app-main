@@ -8,6 +8,7 @@ import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:flutter_vibrate/flutter_vibrate.dart';
+import 'package:ox_common/utils/platform_utils.dart';
 
 /// Contact - Friends List
 const String systemUserType = "10000";
@@ -18,9 +19,10 @@ class ContractViewFriends extends StatefulWidget {
   final bool shrinkWrap;
   final ScrollPhysics? physics;
   final Widget? topWidget;
+  final Widget? appBar;
   final ScrollToTopStatus? scrollToTopStatus;
   final Color? bgColor;
-  ContractViewFriends({Key? key, this.shrinkWrap = false, this.physics, this.topWidget, this.scrollToTopStatus, this.bgColor}): super(key: key);
+  ContractViewFriends({Key? key, this.shrinkWrap = false, this.physics, this.appBar, this.topWidget, this.scrollToTopStatus, this.bgColor}): super(key: key);
 
   @override
   _ContractViewFriendsState createState() => _ContractViewFriendsState();
@@ -54,6 +56,7 @@ class _ContractViewFriendsState extends State<ContractViewFriends>
   }
 
   isHasVibrator() async {
+    if(!PlatformUtils.isMobile) return;
     _hasVibrator = await Vibrate.canVibrate;
     setState(() {});
   }
@@ -69,6 +72,7 @@ class _ContractViewFriendsState extends State<ContractViewFriends>
           shrinkWrap: widget.shrinkWrap,
           physics: widget.physics,
           topWidget: widget.topWidget,
+          appBar: widget.appBar,
           bgColor: widget.bgColor,
           supportLongPress: true,
           hasVibrator: _hasVibrator,

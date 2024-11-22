@@ -72,8 +72,7 @@ class ZapsRecordPage extends StatelessWidget {
       }
     }
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: Adapt.px(16)),
-      height: Adapt.px(52),
+      padding: EdgeInsets.symmetric(horizontal: 12.px, vertical: 12.px),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -92,12 +91,13 @@ class ZapsRecordPage extends StatelessWidget {
               child: textWidget ??
                   Text(
                     text,
-                    maxLines: 1,
+                    maxLines: 3,
                     style: TextStyle(
                       fontSize: Adapt.px(16),
                       fontWeight: FontWeight.w400,
                       color: ThemeColor.color10,
                     ),
+                    overflow: TextOverflow.ellipsis,
                   ),
             ),
           ),

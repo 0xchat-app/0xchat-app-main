@@ -340,5 +340,6 @@
   "str_online_groups": "กลุ่มออนไลน์",
   "str_all_chats_mark_as_read": "ทำเครื่องหมายว่าอ่านทั้งหมดแล้ว",
   "str_show_in_chat": "แสดงในแชท",
-  "media_message_delete_tips": "คุณแน่ใจหรือว่าต้องการลบข้อความสื่อท้องถิ่นนี้?"
+  "media_message_delete_tips": "คุณแน่ใจหรือว่าต้องการลบข้อความสื่อท้องถิ่นนี้?",
+  "chat_input_length_over_hint": "ข้อความที่คุณป้อนยาวเกินไปที่จะส่งได้"
 }

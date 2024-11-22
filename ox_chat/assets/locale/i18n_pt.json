@@ -339,5 +339,6 @@
   "str_online_groups": "Grupos Online",
   "str_all_chats_mark_as_read": "Marcar tudo como lido",
   "str_show_in_chat": "Mostrar no chat",
-  "media_message_delete_tips": "Tem certeza de que deseja excluir essas mensagens de mídia local?"
+  "media_message_delete_tips": "Tem certeza de que deseja excluir essas mensagens de mídia local?",
+  "chat_input_length_over_hint": "O texto inserido é muito longo para ser enviado."
 }

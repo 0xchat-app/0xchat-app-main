@@ -340,5 +340,6 @@
   "str_online_groups": "Onlayn Qruplar",
   "str_all_chats_mark_as_read": "Hamısını oxundu kimi işarələ",
   "str_show_in_chat": "Çatda göstər",
-  "media_message_delete_tips": "Bu yerli medya mesajlarını silmək istədiyinizə əminsinizmi?"
+  "media_message_delete_tips": "Bu yerli medya mesajlarını silmək istədiyinizə əminsinizmi?",
+  "chat_input_length_over_hint": "Daxil etdiyiniz mətn göndərmək üçün çox uzundur."
 }

@@ -85,9 +85,8 @@ class _WalletMintManagementPageState extends State<WalletMintManagementPage> {
 
   Widget _buildItem(StepItemModel item){
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.px),
+      padding: EdgeInsets.symmetric(horizontal: 16.px,vertical: 10.px),
       child: StepIndicatorItem(
-        height: 52.px,
         title: item.title,
         content: item.contentBuilder != null
             ? item.contentBuilder?.call()

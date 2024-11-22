@@ -467,7 +467,6 @@ extension ChatMessageBuilderCustomEx on ChatMessageBuilder {
     return Opacity(
       opacity: opacity,
       child: Container(
-        height: 86.px,
         // width: 240.px,
         constraints: BoxConstraints(minWidth: 240.px),
         padding: EdgeInsets.symmetric(
@@ -479,65 +478,60 @@ extension ChatMessageBuilderCustomEx on ChatMessageBuilder {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Expanded(
-              child: Row(
-                children: [
-                  CommonImage(
-                    iconName: 'icon_cashu_logo.png',
-                    package: 'ox_chat',
-                    size: Adapt.px(32),
-                  ).setPadding(EdgeInsets.only(right: Adapt.px(10))),
-                  Expanded(child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        description,
-                        style: TextStyle(
-                          color: ThemeColor.white,
-                          fontSize: 12.sp,
-                          fontWeight: FontWeight.w600,
-                          height: 1.4,
-                        ),
+            Row(
+              children: [
+                CommonImage(
+                  iconName: 'icon_cashu_logo.png',
+                  package: 'ox_chat',
+                  size: Adapt.px(32),
+                ).setPadding(EdgeInsets.only(right: Adapt.px(10))),
+                Expanded(child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      description,
+                      style: TextStyle(
+                        color: ThemeColor.white,
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w600,
+                        height: 1.4,
                       ),
-                      Visibility(
-                        visible: subTitle.isNotEmpty,
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(
-                            subTitle,
-                            maxLines: 2,
-                            style: TextStyle(
-                              color: ThemeColor.white,
-                              fontSize: 12.sp,
-                              height: 1.4,
-                            ),
+                    ),
+                    Visibility(
+                      visible: subTitle.isNotEmpty,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          subTitle,
+                          maxLines: 2,
+                          style: TextStyle(
+                            color: ThemeColor.white,
+                            fontSize: 12.sp,
+                            height: 1.4,
                           ),
                         ),
                       ),
-                    ],
-                  ))
-                ],
-              ),
-            ),
+                    ),
+                  ],
+                ))
+              ],
+            ).setPadding(EdgeInsets.symmetric(vertical: 12.5.px)),
             Container(
               color: ThemeColor.white.withOpacity(0.5),
               height: 0.5,
             ),
-            Container(
-              height: Adapt.px(25),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('ecash_token_name'.localized(),
-                    style: TextStyle(color: ThemeColor.white, fontSize: 12),),
-                  CommonImage(iconName: 'icon_zaps_0xchat.png',
-                    package: 'ox_chat',
-                    size: Adapt.px(16),
-                  )
-                ],
-              ),
-            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('ecash_token_name'.localized(),
+                  style: TextStyle(color: ThemeColor.white, fontSize: 12.sp),),
+                CommonImage(iconName: 'icon_zaps_0xchat.png',
+                  package: 'ox_chat',
+                  size: 16.px,
+                )
+              ],
+            ).setPadding(EdgeInsets.symmetric(vertical: 4.px)),
           ],
         ),
       ),

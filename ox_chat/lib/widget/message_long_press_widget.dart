@@ -49,8 +49,8 @@ class MessageLongPressWidget extends StatefulWidget {
 class _Layout {
   static get horizontalPadding => 8.px;
   static get verticalPadding => 16.px;
-  static get menuItemWidth => 61.px;
-  static get menuIconSize => 24.px;
+  static get menuItemWidth => 61.pxWithTextScale;
+  static get menuIconSize => 24.pxWithTextScale;
 }
 
 class MessageLongPressWidgetState extends State<MessageLongPressWidget> {
@@ -115,7 +115,7 @@ class MessageLongPressWidgetState extends State<MessageLongPressWidget> {
         ),
         constraints: BoxConstraints(
           maxWidth: maxWidth,
-          maxHeight: 277.px,
+          maxHeight: 300.px,
           minHeight: 131.px,
         ),
         color: ThemeColor.color180,
@@ -157,6 +157,7 @@ class MessageLongPressWidgetState extends State<MessageLongPressWidget> {
 
   Widget buildMenuItemGrid() {
     return Wrap(
+      runSpacing: 16.px,
       children: menuList
           .map((item) => buildMenuItem(item))
           .toList()
@@ -189,6 +190,8 @@ class MessageLongPressWidgetState extends State<MessageLongPressWidget> {
                 color: ThemeColor.color0,
                 fontSize: 12.sp,
               ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ).setPaddingOnly(top: 6.px),
           ],
         ),

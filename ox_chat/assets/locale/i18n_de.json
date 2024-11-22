@@ -340,5 +340,6 @@
   "str_online_groups": "Online-Gruppen",
   "str_all_chats_mark_as_read": "Alles als gelesen markieren",
   "str_show_in_chat": "Im Chat anzeigen",
-  "media_message_delete_tips": "Sind Sie sicher, dass Sie diese lokalen Mediennachrichten löschen möchten?"
+  "media_message_delete_tips": "Sind Sie sicher, dass Sie diese lokalen Mediennachrichten löschen möchten?",
+  "chat_input_length_over_hint": "Der eingegebene Text ist zu lang zum Senden."
 }

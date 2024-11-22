@@ -17,7 +17,7 @@ class EcashManager extends ChangeNotifier {
   final ecashAccessKey = StorageSettingKey.KEY_WALLET_ACCESS.name;
   final ecashSafeTipsSeenKey = StorageSettingKey.KEY_ECASH_SAFE_TIPS_SEEN.name;
 
-  late List<IMint> _mintList;
+  List<IMint> _mintList = [];
 
   IMint? _defaultIMint;
 
@@ -40,10 +40,18 @@ class EcashManager extends ChangeNotifier {
   bool get isWalletSafeTipsSeen => _isWalletSafeTipsSeen;
   
   setup() async {
-    _mintList = List.of(await Cashu.mintList());
-    _initDefaultMint();
-    _isWalletAvailable = await _getEcashAccessSignForLocal();
-    _isWalletSafeTipsSeen = await _getEcashSafeTipsSeen();
+    Future.wait([
+      Cashu.mintList().then((value) {
+        _mintList = List.of(value);
+        _initDefaultMint();
+      }),
+      _getEcashAccessSignForLocal().then((value) {
+        _isWalletAvailable = value;
+      }),
+      _getEcashSafeTipsSeen().then((value) {
+        _isWalletSafeTipsSeen = value;
+      }),
+    ]);
   }
 
   Future<void> _initDefaultMint() async {

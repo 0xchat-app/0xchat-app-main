@@ -230,5 +230,9 @@
   "use_socks_proxy_onion_host": "Use .onion hosts",
   "use_socks_proxy_host": "Host",
   "str_add_other_account": "Add Other Account",
-  "str_set_new_photo": "Set New Photo"
+  "str_set_new_photo": "Set New Photo",
+  "str_font_size": "Text Size",
+  "str_settings_chat": "Text Size",
+  "str_settings_chat_set": "Set"
+
 }

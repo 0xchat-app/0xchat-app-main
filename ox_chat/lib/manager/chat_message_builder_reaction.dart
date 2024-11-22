@@ -67,11 +67,13 @@ extension ChatMessageBuilderReactionEx on ChatMessageBuilder {
     return GestureDetector(
       onTap: () => onTap?.call(reaction),
       child: Container(
-        height: 18.px,
-        padding: EdgeInsets.symmetric(horizontal: 6.px),
+        padding: EdgeInsets.symmetric(
+          horizontal: 6.px,
+          vertical: 2.px,
+        ),
         decoration: BoxDecoration(
           color: ThemeColor.darkColor.withOpacity(0.2),
-          borderRadius: BorderRadius.circular(9.px),
+          borderRadius: BorderRadius.circular(100.px),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -100,11 +102,13 @@ extension ChatMessageBuilderReactionEx on ChatMessageBuilder {
   static Widget _buildZapsItem(types.ZapsInfo zapsInfo) {
     final text = '${zapsInfo.author.getUserShowName()} zaps ${zapsInfo.amount} ${zapsInfo.unit}';
     return Container(
-      height: 18.px,
-      padding: EdgeInsets.symmetric(horizontal: 6.px),
+      padding: EdgeInsets.symmetric(
+        horizontal: 6.px,
+        vertical: 2.px,
+      ),
       decoration: BoxDecoration(
         color: ThemeColor.darkColor.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(9.px),
+        borderRadius: BorderRadius.circular(100.px),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

@@ -229,5 +229,7 @@
   "use_socks_proxy_onion_host": "使用.onion地址",
   "use_socks_proxy_host": "主机",
   "str_add_other_account": "添加其他账号",
-  "str_set_new_photo": "设置新头像"
+  "str_set_new_photo": "设置新头像",
+  "str_font_size": "字体大小",
+  "str_settings_chat": "聊天设置"
 }

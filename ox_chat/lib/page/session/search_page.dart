@@ -508,8 +508,8 @@ class SearchPageState extends State<SearchPage> {
     return Column(
       children: [
         Container(
+          padding: EdgeInsets.symmetric(vertical: 4.px),
           width: double.infinity,
-          height: Adapt.px(28),
           alignment: Alignment.center,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -520,6 +520,7 @@ class SearchPageState extends State<SearchPage> {
                   fontWeight: FontWeight.w600,
                   fontSize: Adapt.px(14),
                   color: Colors.white,
+                  height: 20.px,
                 ),
               ),
               GestureDetector(

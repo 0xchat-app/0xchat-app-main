@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
+import 'package:ox_common/widgets/common_platform_widget.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:ox_chat/page/contacts/contact_add_friend.dart';
 import 'package:ox_chat/page/contacts/my_idcard_dialog.dart';
@@ -119,8 +120,7 @@ class _CommunityQrcodeAddFriendState extends BasePageState<CommunityQrcodeAddFri
 
   Widget _myCardWidget() {
     return Container(
-      margin: EdgeInsets.only(left: Adapt.px(24), right: Adapt.px(24), top: Adapt.px(16)),
-      height: Adapt.px(105),
+      margin: EdgeInsets.symmetric(horizontal: 24.px, vertical: 12.px),
       width: double.infinity,
       // decoration: BoxDecoration(
       //     color: ThemeColor.X1D1D1D,
@@ -128,26 +128,30 @@ class _CommunityQrcodeAddFriendState extends BasePageState<CommunityQrcodeAddFri
       //   ),
       child: Row(
         children: [
-          Expanded(child: GestureDetector(
-            child: Container(
-              color: Colors.transparent,
-              child: Column(
-                children: [
-                  SizedBox(height: Adapt.px(20),),
-                  _itemView('icon_scan_qr.png'),
-                  SizedBox(height: Adapt.px(7),),
-                  MyText(
-                    Localized.text('ox_common.scan_qr_code'),
-                    12,
-                    ThemeColor.white02,
+          PlatformWidget(
+              mobileBuilder: Expanded(
+                  child: GestureDetector(
+                  child: Container(
+                    color: Colors.transparent,
+                    child: Column(
+                      children: [
+                        SizedBox(height: Adapt.px(20),),
+                        _itemView('icon_scan_qr.png'),
+                        SizedBox(height: Adapt.px(7),),
+                        MyText(
+                          Localized.text('ox_common.scan_qr_code'),
+                          12,
+                          ThemeColor.white02,
+                        ),
+                      ],
+                    ),
                   ),
-                ],
+                onTap: (){
+                  _gotoScan();
+                },
               ),
             ),
-            onTap: (){
-              _gotoScan();
-            },
-          )),
+          ),
 
           Expanded(child: GestureDetector(
             child: Container(
@@ -218,7 +222,7 @@ class _CommunityQrcodeAddFriendState extends BasePageState<CommunityQrcodeAddFri
           horizontal: Adapt.px(24),
           vertical: Adapt.px(6),
         ),
-        height: Adapt.px(48),
+        padding: EdgeInsets.symmetric(vertical: 12.px),
         decoration: BoxDecoration(
           color: ThemeColor.color190,
           borderRadius: BorderRadius.all(Radius.circular(Adapt.px(16))),
@@ -239,10 +243,15 @@ class _CommunityQrcodeAddFriendState extends BasePageState<CommunityQrcodeAddFri
             SizedBox(
               width: Adapt.px(8),
             ),
-            MyText(
-              Localized.text('ox_chat.please_enter_user_address'),
-              17,
-              ThemeColor.color160,
+            Container(
+              constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width - 104.px),
+              child: MyText(
+                Localized.text('ox_chat.please_enter_user_address'),
+                17,
+                ThemeColor.color160,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
         ),

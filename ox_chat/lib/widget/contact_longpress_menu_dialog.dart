@@ -10,6 +10,7 @@ import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/font_size_notifier.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -29,7 +30,8 @@ import 'package:nostr_core_dart/nostr.dart';
 ///CreateTime: 2024/10/25 15:04
 class ContactLongPressMenuDialog extends StatefulWidget{
   final ChatSessionModelISAR communityItem;
-  ContactLongPressMenuDialog({required this.communityItem});
+  final List<CLongPressOptionType> menulist;
+  ContactLongPressMenuDialog({required this.communityItem, required this.menulist});
 
   static showDialog({
     required BuildContext context,
@@ -38,6 +40,7 @@ class ContactLongPressMenuDialog extends StatefulWidget{
     bool isPushWithReplace = false,
     bool isLongPressShow = false,
   }) {
+    List<CLongPressOptionType> menulist = CLongPressOptionTypeEx.getOptionModelList(communityItem);
     showGeneralDialog(
       context: context,
       barrierDismissible: true,
@@ -78,14 +81,14 @@ class ContactLongPressMenuDialog extends StatefulWidget{
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Container(
-                        height: Adapt.screenH * 0.6,
+                        height: Adapt.screenH * (textScaleFactorNotifier.value > 1 && menulist.length > 2 ? 0.44 : 0.6),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(16.px),
                           child: pageWidget,
                         ),
                       ),
                       SizedBox(height: 8.px),
-                      ContactLongPressMenuDialog(communityItem: communityItem),
+                      ContactLongPressMenuDialog(communityItem: communityItem, menulist: menulist),
                     ],
                   ),
                 ),
@@ -107,19 +110,17 @@ class ContactLongPressMenuDialog extends StatefulWidget{
 }
 
 class _ContactLongPressMenuDialogState extends State<ContactLongPressMenuDialog>{
-  late List<CLongPressOptionType> _menulist = [];
 
   @override
   void initState() {
     super.initState();
-    _menulist = CLongPressOptionTypeEx.getOptionModelList(widget.communityItem);
   }
 
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 180.px,
+      constraints: BoxConstraints(minWidth: 180.px, maxWidth: MediaQuery.of(context).size.width * 0.6),
       alignment: Alignment.bottomRight,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16.px),
@@ -128,10 +129,10 @@ class _ContactLongPressMenuDialogState extends State<ContactLongPressMenuDialog>
       child: ListView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        itemCount: _menulist.length,
+        itemCount: widget.menulist.length,
         padding: EdgeInsets.zero,
         itemBuilder: (context, index) {
-          CLongPressOptionType optionType = _menulist[index];
+          CLongPressOptionType optionType = widget.menulist[index];
           String showItemName = CLongPressOptionTypeEx.getOptionName(widget.communityItem, optionType);
           return GestureDetector(
             behavior: HitTestBehavior.translucent,
@@ -139,8 +140,7 @@ class _ContactLongPressMenuDialogState extends State<ContactLongPressMenuDialog>
               CLongPressOptionTypeEx.optionsOnTap(context, optionType, widget.communityItem);
             },
             child: Container(
-              height: 40.px,
-              padding: EdgeInsets.symmetric(horizontal: 16.px),
+              padding: EdgeInsets.symmetric(horizontal: 16.px, vertical: 10.px),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,

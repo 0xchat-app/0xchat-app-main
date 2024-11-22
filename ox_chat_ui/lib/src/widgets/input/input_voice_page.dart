@@ -233,7 +233,11 @@ class _InputVoicePageState extends State<InputVoicePage> with SingleTickerProvid
             child: Align(
               alignment: Alignment.center,
               child: Padding(
-                padding: EdgeInsets.only(top: Adapt.px(150)),
+                padding: EdgeInsets.only(
+                  top: 150.px,
+                  left: 15.px,
+                  right: 15.px,
+                ),
                 child: Text(
                   Localized.text('ox_chat_ui.record_hint').replaceAll(r'${durationInSeconds}', '${durationInSeconds}'),
                   style: TextStyle(

@@ -14,6 +14,7 @@ import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_theme/ox_theme.dart';
 import 'package:ox_usercenter/utils/widget_tool.dart';
 import 'package:ox_usercenter/widget/clear_account_selector_dialog.dart';
+import 'package:ox_common/utils/app_relay_hint_dialog.dart';
 
 ///Title: switch_account_page
 ///Description: TODO(Fill in by oneself)
@@ -133,6 +134,7 @@ class _SwitchAccountPageState extends State<SwitchAccountPage> with OXUserInfoOb
           await OXLoading.show();
           await OXUserInfoManager.sharedInstance.switchAccount(pubKey);
           await OXLoading.dismiss();
+          AppRelayHintDialog.show(context);
           // _selectedIndex = index;
           setState(() {});
         }

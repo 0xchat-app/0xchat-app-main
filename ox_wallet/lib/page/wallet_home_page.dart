@@ -177,7 +177,7 @@ class _WalletHomePageState extends State<WalletHomePage> with CommonStateViewMix
           Text(
             "${WalletUtils.formatAmountNumber(EcashService.totalBalance())} sats",
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(fontSize: 32.sp, fontWeight: FontWeight.w600,height: 45.px / 32.px),
+            style: TextStyle(fontSize: 32.sp, fontWeight: FontWeight.w600,),
           ),
         ],
       ),

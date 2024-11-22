@@ -11,6 +11,7 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_common/utils/platform_utils.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/utils/user_config_tool.dart';
@@ -128,6 +129,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
   }
 
   isHasVibrator() async {
+    if(!PlatformUtils.isMobile) return;
     hasVibrator = (await Vibrate.canVibrate);
   }
 
@@ -329,11 +331,12 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
       alignment: Alignment.bottomCenter,
       children: [
         Container(
-          width: Adapt.px(70),
+          width: (Adapt.screenW - 40.px) / 3,
           height: widget.height,
           color: Colors.transparent,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
@@ -541,7 +544,6 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
         _unreadList[2] = notification.msgNum! > 0 ? 1 : 0;
       }
     }
-    print('Received notification: ${notification.msgNum}');
     return true; //
   }
 

@@ -410,7 +410,14 @@ extension EcashV2MessageEx on types.CustomMessage {
   }
 
   static List<String> getReceiverPubkeysWithMetadata(Map? metadata) {
-    return metadata?[CustomMessageEx.metaContentKey]?[EcashV2MessageEx.metaReceiverPubkeysKey] ?? [];
+    List<String> result = <String>[];
+    final pubkeys = metadata?[CustomMessageEx.metaContentKey]?[EcashV2MessageEx.metaReceiverPubkeysKey];
+    if (pubkeys is List) {
+      try {
+        result = pubkeys.cast<String>();
+      } catch (_) {}
+    }
+    return result;
   }
 
   static String getValidityDateWithMetadata(Map? metadata) {

@@ -54,7 +54,6 @@ class RelayGroupBaseInfoPage extends StatefulWidget {
 class _RelayGroupBaseInfoPageState extends State<RelayGroupBaseInfoPage> {
   late RelayGroupDBISAR? _groupDBInfo;
   bool _hasEditMetadataPermission = false;
-  String _avatarAliyunUrl = '';
 
   @override
   void initState() {
@@ -64,7 +63,6 @@ class _RelayGroupBaseInfoPageState extends State<RelayGroupBaseInfoPage> {
 
   void _loadData(){
     _groupDBInfo = RelayGroup.sharedInstance.groups[widget.groupId]?.value;
-    _avatarAliyunUrl = _groupDBInfo?.picture ?? '';
     UserDBISAR? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
     if (userDB != null && _groupDBInfo != null && _groupDBInfo!.admins.length > 0) {
       List<GroupActionKind>? userPermissions;
@@ -132,7 +130,7 @@ class _RelayGroupBaseInfoPageState extends State<RelayGroupBaseInfoPage> {
                   title: 'str_group_ID'.localized(),
                   subTitle: _groupDBInfo?.identifier ?? '',
                   isShowMoreIcon: false,
-                  subTitleMaxLines: 5,
+                  subTitleMaxLines: 7,
                   onTap: () {
                     String tempGroupId = _groupDBInfo?.identifier ?? '';
                     if (tempGroupId.isNotEmpty) TookKit.copyKey(context, tempGroupId);
@@ -141,7 +139,8 @@ class _RelayGroupBaseInfoPageState extends State<RelayGroupBaseInfoPage> {
                 GroupItemBuild(
                   title: 'group_name'.localized(),
                   subTitle: _groupDBInfo?.name ?? '',
-                  isShowMoreIcon: _hasEditMetadataPermission,
+                  isShowMoreIcon: false,
+                  subTitleMaxLines: 2,
                   onTap: _hasEditMetadataPermission ? _changeGroupNameFn : null,
                 ),
                 GroupItemBuild(
@@ -187,22 +186,9 @@ class _RelayGroupBaseInfoPageState extends State<RelayGroupBaseInfoPage> {
   }
 
   Widget _buildHeader() {
-    Widget placeholderImage = CommonImage(
-      iconName: 'icon_group_default.png',
-      fit: BoxFit.fill,
+    return OXRelayGroupAvatar(
+      relayGroup: _groupDBInfo,
       size: 56.px,
-    );
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(56.px),
-      child: OXCachedNetworkImage(
-        errorWidget: (context, url, error) => placeholderImage,
-        placeholder: (context, url) => placeholderImage,
-        fit: BoxFit.fill,
-        imageUrl: _avatarAliyunUrl,
-        width: 56.px,
-        height: 56.px,
-      ),
     );
   }
 
@@ -279,7 +265,7 @@ class _RelayGroupBaseInfoPageState extends State<RelayGroupBaseInfoPage> {
         }
         if (mounted) {
           setState(() {
-            _avatarAliyunUrl = result.url;
+            // _avatarAliyunUrl = result.url;
           });
         }
       } else {
@@ -301,7 +287,6 @@ class RelayGroupBaseInfoView extends StatelessWidget {
     RelayGroupDBISAR? relayGroup = RelayGroup.sharedInstance.groups[groupId]?.value;
     return Container(
       width: double.infinity,
-      height: 80.px,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16.px),
         color: ThemeColor.color180,
@@ -429,6 +414,7 @@ class GroupItemBuild extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     actionWidget ?? SizedBox(),
                     subTitle != null
@@ -439,14 +425,15 @@ class GroupItemBuild extends StatelessWidget {
                         if (subTitleIcon != null)
                           CommonImage(iconName: subTitleIcon ?? '', size: 24.px, package: OXChatInterface.moduleName),
                         Flexible(
-                            child: Container(
-                              alignment: Alignment.centerRight,
-                              constraints: subTitleMaxLines > 1 ? BoxConstraints(
-                                maxWidth: Adapt.screenW - 180.px,
-                                minWidth: 100.px,
-                              ) : null,
-                              child: MyText(subTitle ?? '', 14.sp, ThemeColor.color100, maxLines: subTitleMaxLines),
-                            ))
+                          child: Container(
+                            alignment: Alignment.centerRight,
+                            constraints: subTitleMaxLines > 1 ? BoxConstraints(
+                              maxWidth: MediaQuery.of(context).size.width / 2.5 - (isShowMoreIcon ? 24.px : 0),
+                              minWidth: 100.px,
+                            ) : null,
+                            child: MyText(subTitle ?? '', 14.sp, ThemeColor.color100, maxLines: subTitleMaxLines, overflow: TextOverflow.ellipsis),
+                          ),
+                        )
                       ],
                     )
                         : SizedBox(),
