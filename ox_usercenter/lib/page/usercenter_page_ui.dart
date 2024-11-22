@@ -2,6 +2,60 @@ part of 'usercenter_page.dart';
 
 extension UserCenterPageUI on UserCenterPageState{
 
+  PreferredSizeWidget _appBarPreferredSizeWidget () {
+    bool isLogin = OXUserInfoManager.sharedInstance.isLogin;
+    return CommonAppBar(
+      backgroundColor: ThemeColor.color200,
+      title: '',
+      useLargeTitle: false,
+      centerTitle: false,
+      canBack: false,
+      leading: OXButton(
+        color: Colors.transparent,
+        highlightColor: Colors.transparent,
+        child: CommonImage(
+          iconName: 'icon_qrcode.png',
+          size: 24.px,
+          package: 'ox_usercenter',
+          color: ThemeColor.color0,
+        ),
+        onPressed: () {
+          OXModuleService.invoke('ox_chat', 'showMyIdCardDialog', [context]);
+        },
+      ),
+      actions: <Widget>[
+        if (isLogin)
+          Container(
+            margin: EdgeInsets.only(right: Adapt.px(5)),
+            color: Colors.transparent,
+            child: OXButton(
+              highlightColor: Colors.transparent,
+              color: Colors.transparent,
+              minWidth: Adapt.px(44),
+              height: Adapt.px(44),
+              child: Text(
+                Localized.text('ox_common.edit'),
+                style: TextStyle(
+                  fontSize: Adapt.px(16),
+                  fontWeight: FontWeight.w600,
+                  color: ThemeColor.color0,
+                ),
+              ),
+              onPressed: () {
+                OXNavigator.presentPage(
+                  context,
+                  fullscreenDialog: true,
+                      (_) => const ProfileSetUpPage(),
+                ).then((value) {
+                  setState(() {});
+                });
+              },
+            ),
+          ),
+      ],
+    );
+  }
+
   SliverAppBar _getAppBar() {
     return SliverAppBar(
       floating: true,
@@ -85,7 +139,7 @@ extension UserCenterPageUI on UserCenterPageState{
 
   List<Widget> _body() {
     return [
-      _getAppBar(),
+      // _getAppBar(),
       SliverToBoxAdapter(
         child: Container(
           margin: EdgeInsets.symmetric(horizontal: Adapt.px(24)),

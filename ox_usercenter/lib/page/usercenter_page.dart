@@ -193,6 +193,7 @@ class UserCenterPageState extends State<UserCenterPage>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ThemeColor.color200,
+      appBar: _appBarPreferredSizeWidget(),
       body: commonStateViewWidget(
         context,
         CustomScrollView(

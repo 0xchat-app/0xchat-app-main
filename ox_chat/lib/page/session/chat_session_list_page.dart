@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:chatcore/chat-core.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:ox_chat/model/community_menu_option_model.dart';
@@ -204,6 +205,7 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
       },
       child: Scaffold(
         backgroundColor: ThemeColor.color200,
+        appBar: _buildAppBar(),
         body: OXSmartRefresher(
           controller: _refreshController,
           enablePullDown: true,
@@ -214,22 +216,22 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
             physics: BouncingScrollPhysics(),
             controller: _controller,
             slivers: [
-              SliverAppBar(
-                floating: true,
-                snap: true,
-                backgroundColor: ThemeColor.color200,
-                expandedHeight: 56.px + 60.px,
-                flexibleSpace: FlexibleSpaceBar(
-                  collapseMode: CollapseMode.none,
-                  background:  Column(
-                    children: [
-                      SizedBox(height: MediaQuery.of(context).padding.top),
-                      _buildTitleView(),
-                      _topSearch(),
-                    ],
-                  ),
-                ),
-              ),
+              // SliverAppBar(
+              //   floating: true,
+              //   snap: true,
+              //   backgroundColor: ThemeColor.color200,
+              //   expandedHeight: 56.px + 60.px,
+              //   flexibleSpace: FlexibleSpaceBar(
+              //     collapseMode: CollapseMode.none,
+              //     background:  Column(
+              //       children: [
+              //         SizedBox(height: MediaQuery.of(context).padding.top),
+              //         _buildTitleView(),
+              //         _topSearch(),
+              //       ],
+              //     ),
+              //   ),
+              // ),
               _isLogin && _msgDatas.length > 0
                   ? SliverList(
                 delegate: SliverChildBuilderDelegate(

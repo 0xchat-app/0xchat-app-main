@@ -90,25 +90,26 @@ class _ContractsPageState extends ContactBasePageState<ContractsPage>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ThemeColor.color200,
+      appBar: _commonAppBar(),
       body: PageView(
-        physics: const NeverScrollableScrollPhysics(),
+        physics: const BouncingScrollPhysics(),
         controller: _pageController,
-        // onPageChanged: (index) {
-        //   _selectedType = ContactsItemType.values.elementAt(index);
-        //   setState(() {});
-        // },
+        onPageChanged: (index) {
+          _selectedType = ContactsItemType.values.elementAt(index);
+          setState(() {});
+        },
         children: [
           ContractViewFriends(
             physics: BouncingScrollPhysics(),
             shrinkWrap: false,
-            appBar: _commonAppBar(),
             scrollToTopStatus: _contactScrollStatus,
+            topWidget: _topSearch(),
           ),
           ContactViewGroups(
             physics: BouncingScrollPhysics(),
             shrinkWrap: false,
-            appBar: _commonAppBar(),
             scrollToTopStatus: _groupScrollStatus,
+            topWidget: _topSearch(),
           ),
           // ContactViewChannels(
           //   physics: BouncingScrollPhysics(),
@@ -120,77 +121,130 @@ class _ContractsPageState extends ContactBasePageState<ContractsPage>
     );
   }
 
-  Widget _commonAppBar() {
-    return SliverAppBar(
-      floating: true,
-      snap: true,
-      pinned: false,
+  PreferredSizeWidget _commonAppBar() {
+    return AppBar(
       backgroundColor: ThemeColor.color200,
-      expandedHeight: 126.px,
-      flexibleSpace: FlexibleSpaceBar(
-        collapseMode: CollapseMode.none,
-        background: Column(
-          children: [
-            SizedBox(height: MediaQuery.of(context).padding.top),
-            CommonAppBarNoPreferredSize(
-              canBack: false,
-              backgroundColor: Colors.transparent,
-              leading: Padding(
-                padding: const EdgeInsets.only(left: 24.0),
-                child: CommonCategoryTitleView(
-                  bgColor: Colors.transparent,
-                  selectedGradientColors: [
-                    ThemeColor.gradientMainStart,
-                    ThemeColor.gradientMainEnd
-                  ],
-                  unselectedGradientColors: [
-                    ThemeColor.color120,
-                    ThemeColor.color120
-                  ],
-                  selectedFontSize: Adapt.sp(20),
-                  unSelectedFontSize: Adapt.sp(20),
-                  items: tabItems,
-                  onTap: (int value) {
-                    setState(() {
-                      _selectedType = ContactsItemType.values.elementAt(value);
-                    });
-                    _pageController.animateToPage(
-                      value,
-                      duration: const Duration(milliseconds: 2),
-                      curve: Curves.linear,
-                    );
-                  },
-                  selectedIndex: _selectedType.index,
-                ),
-              ),
-              title: '',
-              actions: <Widget>[
-                  Container(
-                    margin: EdgeInsets.only(right: Adapt.px(16)),
-                    color: Colors.transparent,
-                    child: OXButton(
-                      highlightColor: Colors.transparent,
-                      color: Colors.transparent,
-                      minWidth: Adapt.px(44),
-                      height: Adapt.px(44),
-                      child: CommonImage(
-                        iconName: "add_icon.png",
-                        width: Adapt.px(18),
-                        height: Adapt.px(18),
-                        package: 'ox_chat',
-                      ),
-                      onPressed: () {
-                        _gotoAddFriend();
-                      },
-                    ),
-                  ),
-                ],
-            ),
-            _topSearch(),
+      elevation: 0,
+      titleSpacing: 0.0,
+      centerTitle: false,
+      title: Padding(
+        padding: EdgeInsets.only(left: 24.0),
+        child: CommonCategoryTitleView(
+          bgColor: Colors.transparent,
+          selectedGradientColors: [
+            ThemeColor.gradientMainStart,
+            ThemeColor.gradientMainEnd
           ],
+          unselectedGradientColors: [ThemeColor.color120, ThemeColor.color120],
+          selectedFontSize: Adapt.sp(20),
+          unSelectedFontSize: Adapt.sp(20),
+          items: tabItems,
+          onTap: (int value) {
+            setState(() {
+              _selectedType = ContactsItemType.values.elementAt(value);
+            });
+            _pageController.animateToPage(
+              value,
+              duration: const Duration(milliseconds: 2),
+              curve: Curves.linear,
+            );
+          },
+          selectedIndex: _selectedType.index,
         ),
       ),
+      actions: <Widget>[
+        Container(
+          margin: EdgeInsets.only(right: Adapt.px(16), top: Adapt.px(0)),
+          color: Colors.transparent,
+          child: OXButton(
+            highlightColor: Colors.transparent,
+            color: Colors.transparent,
+            minWidth: Adapt.px(44),
+            height: Adapt.px(44),
+            child: CommonImage(
+              iconName: "add_icon.png",
+              width: Adapt.px(18),
+              height: Adapt.px(18),
+              package: 'ox_chat',
+            ),
+            onPressed: () {
+              _gotoAddFriend();
+            },
+          ),
+        ),
+      ],
     );
+
+    // return SliverAppBar(
+    //   floating: true,
+    //   snap: true,
+    //   pinned: false,
+    //   backgroundColor: ThemeColor.color200,
+    //   expandedHeight: 126.px,
+    //   flexibleSpace: FlexibleSpaceBar(
+    //     collapseMode: CollapseMode.none,
+    //     background: Column(
+    //       children: [
+    //         SizedBox(height: MediaQuery.of(context).padding.top),
+    //         CommonAppBarNoPreferredSize(
+    //           canBack: false,
+    //           backgroundColor: Colors.transparent,
+    //           leading: Padding(
+    //             padding: const EdgeInsets.only(left: 24.0),
+    //             child: CommonCategoryTitleView(
+    //               bgColor: Colors.transparent,
+    //               selectedGradientColors: [
+    //                 ThemeColor.gradientMainStart,
+    //                 ThemeColor.gradientMainEnd
+    //               ],
+    //               unselectedGradientColors: [
+    //                 ThemeColor.color120,
+    //                 ThemeColor.color120
+    //               ],
+    //               selectedFontSize: Adapt.sp(20),
+    //               unSelectedFontSize: Adapt.sp(20),
+    //               items: tabItems,
+    //               onTap: (int value) {
+    //                 setState(() {
+    //                   _selectedType = ContactsItemType.values.elementAt(value);
+    //                 });
+    //                 _pageController.animateToPage(
+    //                   value,
+    //                   duration: const Duration(milliseconds: 2),
+    //                   curve: Curves.linear,
+    //                 );
+    //               },
+    //               selectedIndex: _selectedType.index,
+    //             ),
+    //           ),
+    //           title: '',
+    //           actions: <Widget>[
+    //               Container(
+    //                 margin: EdgeInsets.only(right: Adapt.px(16)),
+    //                 color: Colors.transparent,
+    //                 child: OXButton(
+    //                   highlightColor: Colors.transparent,
+    //                   color: Colors.transparent,
+    //                   minWidth: Adapt.px(44),
+    //                   height: Adapt.px(44),
+    //                   child: CommonImage(
+    //                     iconName: "add_icon.png",
+    //                     width: Adapt.px(18),
+    //                     height: Adapt.px(18),
+    //                     package: 'ox_chat',
+    //                   ),
+    //                   onPressed: () {
+    //                     _gotoAddFriend();
+    //                   },
+    //                 ),
+    //               ),
+    //             ],
+    //         ),
+    //         _topSearch(),
+    //       ],
+    //     ),
+    //   ),
+    // );
   }
 
   Widget _inkWellWidget(
