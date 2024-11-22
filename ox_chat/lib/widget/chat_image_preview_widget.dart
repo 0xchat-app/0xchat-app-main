@@ -38,6 +38,8 @@ class ChatImagePreviewWidgetState extends State<ChatImagePreviewWidget> {
   ImageStream? imageStream;
   Size imageSize = Size.zero;
 
+  bool isLoadImageFinish = false;
+
   double get minWidth => 100.px;
   double get minHeight => 100.px;
   double get maxHeight => 300.px;
@@ -123,12 +125,22 @@ class ChatImagePreviewWidgetState extends State<ChatImagePreviewWidget> {
         minHeight: minHeight,
         maxHeight: maxHeight,
       ),
-      color: ThemeColor.gray01,
+      color: isLoadImageFinish == true ? null : Colors.grey.withOpacity(0.7),
       child: AspectRatio(
         aspectRatio: imageSize.aspectRatio > 0 ? imageSize.aspectRatio : 0.7,
         child: imageProvider != null ? Image(
           fit: BoxFit.cover,
           image: imageProvider!,
+          frameBuilder: (BuildContext context, Widget child, int? frame, bool wasSynchronouslyLoaded,) {
+            if (!isLoadImageFinish && frame != null) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                setState(() {
+                  isLoadImageFinish = true;
+                });
+              });
+            }
+            return child;
+          },
           errorBuilder: (context, error, stackTrace,) {
             ChatLogUtils.error(
               className: 'ImagePreviewWidget',
@@ -160,7 +172,6 @@ class ChatImagePreviewWidgetState extends State<ChatImagePreviewWidget> {
 
   Widget buildProgressMask(double progress) {
     return Container(
-      color: Colors.grey.withOpacity(0.7),
       alignment: Alignment.center,
       child: CircularProgressIndicator(
         value: progress,
