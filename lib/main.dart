@@ -11,6 +11,7 @@ import 'package:ox_calling/manager/call_manager.dart';
 import 'package:ox_common/scheme/scheme_helper.dart';
 import 'package:ox_common/utils/chat_prompt_tone.dart';
 import 'package:ox_common/utils/error_utils.dart';
+import 'package:ox_common/utils/font_size_notifier.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_module_service/ox_module_service.dart';
@@ -35,7 +36,14 @@ const MethodChannel navigatorChannel = const MethodChannel('NativeNavigator');
 void main() async {
   runZonedGuarded(() async {
     await AppInitializer.shared.initialize();
-    runApp(MainApp(window.defaultRouteName));
+    runApp(
+      ValueListenableBuilder<double>(
+      valueListenable: textScaleFactorNotifier,
+      builder: (context, scaleFactor, child) {
+        return MainApp(window.defaultRouteName, scaleFactor: scaleFactor);
+      },
+    ),
+    );
   }, (error, stackTrace) async {
     try {
       bool openDevLog = UserConfigTool.getSetting(StorageSettingKey.KEY_OPEN_DEV_LOG.name, defaultValue: false);
@@ -55,8 +63,9 @@ void main() async {
 
 class MainApp extends StatefulWidget {
   final String routeName;
+  final double scaleFactor;
 
-  MainApp(this.routeName);
+  MainApp(this.routeName, {required this.scaleFactor});
 
   @override
   State<StatefulWidget> createState() {
@@ -177,7 +186,7 @@ class MainState extends State<MainApp>
             context,
             MediaQuery(
               ///Text size does not change with system Settings
-              data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+              data: MediaQuery.of(context).copyWith(textScaleFactor: widget.scaleFactor),
               child: child!,
             ),
           );
