@@ -3,6 +3,7 @@
 import '../const/common_constant.dart';
 import '../log_util.dart';
 import '../ox_common.dart';
+import '../utils/platform_utils.dart';
 
 typedef SchemeHandler = Function(String uri, String action, Map<String, String> queryParameters);
 
@@ -16,6 +17,7 @@ class SchemeHelper {
   }
 
   static tryHandlerForOpenAppScheme() async {
+    if(!PlatformUtils.isMobile) return;
     String url = await OXCommon.channelPreferences.invokeMethod(
       'getAppOpenURL',
     );

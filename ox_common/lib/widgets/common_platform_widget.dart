@@ -2,26 +2,27 @@ import 'package:flutter/cupertino.dart';
 import '../utils/platform_utils.dart';
 
 class PlatformWidget extends StatelessWidget {
-  final Widget Function(BuildContext context)? mobileBuilder;
-  final Widget Function(BuildContext context)? desktopBuilder;
-  final Widget Function(BuildContext context)? webBuilder;
+  final Widget? mobileBuilder;
+  final Widget? desktopBuilder;
+  final Widget? webBuilder;
 
   const PlatformWidget({
     Key? key,
-    required this.mobileBuilder,
-    required this.desktopBuilder,
+    this.mobileBuilder,
+    this.desktopBuilder,
     this.webBuilder,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    if (PlatformUtils.isMobile(context)) {
-      return mobileBuilder(context);
-    } else if (PlatformUtils.isDesktop(context)) {
-      return desktopBuilder(context);
-    } else if (PlatformUtils.isWeb() && webBuilder != null) {
-      return webBuilder(context);
+    Widget emptySizedBox = const SizedBox();
+    if (PlatformUtils.isMobile) {
+      return mobileBuilder ?? emptySizedBox;
+    } else if (PlatformUtils.isDesktop) {
+      return desktopBuilder ?? emptySizedBox;
+    } else if (PlatformUtils.isWeb && webBuilder != null) {
+      return webBuilder ?? emptySizedBox;
     }
-    return const SizedBox();
+    return emptySizedBox;
   }
 }
