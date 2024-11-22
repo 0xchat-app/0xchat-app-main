@@ -18,7 +18,7 @@ class TextScaleSlider extends StatefulWidget {
 
 class _TextScaleSliderState extends State<TextScaleSlider> {
 
-  double _currentValue = textScaleFactorNotifier.value;
+  double _currentValue = 0;
   final double min = 0.9;
   final double max = 1.6;
   final double step = 0.1;
@@ -28,6 +28,7 @@ class _TextScaleSliderState extends State<TextScaleSlider> {
   void initState() {
     super.initState();
     _isHasVibrator();
+    _initCurrentValue();
   }
 
   @override
@@ -80,11 +81,13 @@ class _TextScaleSliderState extends State<TextScaleSlider> {
               activeColor: ThemeColor.gradientMainStart,
               inactiveColor: ThemeColor.color0.withOpacity(0.5),
               onChanged: (value) {
-                if (_hasVibrator && OXUserInfoManager.sharedInstance.canVibrate) {
+                double newValue = double.parse(_roundToStep(value).toStringAsFixed(1));
+                if(newValue == _currentValue) return;
+                if (_hasVibrator && OXUserInfoManager.sharedInstance.canVibrate && newValue != _currentValue) {
                   TookKit.vibrateEffect();
                 }
                 setState(() {
-                  _currentValue = _roundToStep(value);
+                  _currentValue = newValue;
                   widget.onChanged?.call(value);
                 });
               },
@@ -104,6 +107,17 @@ class _TextScaleSliderState extends State<TextScaleSlider> {
         fontSize: 14.px,
       ),
     );
+  }
+
+  _initCurrentValue() {
+    //Error prevention
+    if (textScaleFactorNotifier.value < min) {
+      _currentValue = min;
+    } else if (textScaleFactorNotifier.value > max) {
+      _currentValue = max;
+    } else {
+      _currentValue = textScaleFactorNotifier.value;
+    }
   }
 
   int _getDivisions() {
