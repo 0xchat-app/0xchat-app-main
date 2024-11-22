@@ -1,7 +1,14 @@
 #!/bin/bash
 set -e
 
-test -f oxchat_app_main.dmg && rm oxchat_app_main.dmg
+if ! command -v create-dmg &> /dev/null; then
+  echo "create-dmg not found. Installing..."
+  if ! command -v brew &> /dev/null; then
+    echo "Homebrew not found. Please install Homebrew first."
+    exit 1
+  fi
+  sudo brew install create-dmg
+fi
 
 APP_NAME="oxchat_app_main"
 APP_PATH="build/macos/Build/Products/Release/oxchat_app_main.app"
