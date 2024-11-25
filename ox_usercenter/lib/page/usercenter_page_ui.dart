@@ -141,163 +141,171 @@ extension UserCenterPageUI on UserCenterPageState{
     return [
       // _getAppBar(),
       SliverToBoxAdapter(
-        child: Container(
-          margin: EdgeInsets.symmetric(horizontal: Adapt.px(24)),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Container(
-                color: ThemeColor.color200,
-                child: Column(
-                  children: <Widget>[
-                    buildHeadImage(),
-                    SizedBox(
-                      height: Adapt.px(16),
-                    ),
-                    buildHeadName(),
-                    buildHeadDesc(),
-                    buildHeadPubKey(),
-                  ],
-                ),
-              ),
-              SizedBox(height: 24.px),
-              const SwitchAccountPage(),
-              SizedBox(height: 24.px),
-              buildOption(
-                title: 'ox_usercenter.wallet',
-                iconName: 'icon_settings_wallet.png',
-                onTap: () async {
-                  claimEcash();
-                  OXWalletInterface.openWalletHomePage();
-                },
-              ),
-              SizedBox(height: 24.px),
-              Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(Adapt.px(16)),
-                  color: ThemeColor.color180,
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    // GestureDetector(
-                    //   behavior: HitTestBehavior.translucent,
-                    //   onTap: () {
-                    //     _isShowMomentUnread = false;
-                    //     if (!_isShowZapBadge) {
-                    //       MsgNotification(noticeNum: 0).dispatch(context);
-                    //     }
-                    //     OXModuleService.pushPage(
-                    //       context,
-                    //       'ox_discovery',
-                    //       'discoveryPageWidget',
-                    //       {'typeInt': 1},
-                    //     );
-                    //   },
-                    //   child: itemView(
-                    //     'icon_moment.png',
-                    //     'ox_discovery.moment',
-                    //     '',
-                    //     true,
-                    //     isShowZapBadge: true,
-                    //     badge: Visibility(
-                    //       visible: _isShowMomentUnread,
-                    //       child: _buildUnreadWidget(),
-                    //     ),
-                    //   ),
-                    // ),
-                    GestureDetector(
-                      behavior: HitTestBehavior.translucent,
-                      onTap: () => OXNavigator.pushPage(
-                          context, (context) => const RelaysPage()),
-                      child: itemView(
-                        'icon_settings_relays.png',
-                        'ox_usercenter.relays',
-                        '',
-                        true,
-                        devLogWidget: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            OXChatInterface.showRelayInfoWidget(
-                                showRelayIcon: false),
-                            CommonImage(
-                              iconName: 'icon_arrow_more.png',
-                              width: Adapt.px(24),
-                              height: Adapt.px(24),
-                            ),
-                          ],
+        child: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: PlatformUtils.windowSize.width,
+            ),
+            child: Container(
+              margin: EdgeInsets.symmetric(horizontal: Adapt.px(24)),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Container(
+                    color: ThemeColor.color200,
+                    child: Column(
+                      children: <Widget>[
+                        buildHeadImage(),
+                        SizedBox(
+                          height: Adapt.px(16),
                         ),
-                      ),
+                        buildHeadName(),
+                        buildHeadDesc(),
+                        buildHeadPubKey(),
+                      ],
                     ),
-                    _topItemBuild(
-                      title: 'zaps'.localized(),
-                      iconName: 'icon_settings_zaps.png',
-                      isShowDivider: true,
-                      onTap: () {
-                        if (_isShowZapBadge) {
-                          if (!_isShowMomentUnread) {
-                            MsgNotification(noticeNum: 0).dispatch(context);
-                          }
-                          UserConfigTool.saveSetting(
-                                  StorageSettingKey.KEY_ZAP_BADGE.name, false)
-                              .then((value) {
-                            _updateState();
-                          });
-                        }
-                        claimEcash();
-                        OXNavigator.pushPage(
-                            context, (context) => const ZapsPage());
-                      },
+                  ),
+                  SizedBox(height: 24.px),
+                  const SwitchAccountPage(),
+                  SizedBox(height: 24.px),
+                  buildOption(
+                    title: 'ox_usercenter.wallet',
+                    iconName: 'icon_settings_wallet.png',
+                    onTap: () async {
+                      claimEcash();
+                      OXWalletInterface.openWalletHomePage();
+                    },
+                  ),
+                  SizedBox(height: 24.px),
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(Adapt.px(16)),
+                      color: ThemeColor.color180,
                     ),
-                    FutureBuilder<BadgeDBISAR?>(
-                      builder: (context, snapshot) {
-                        return _topItemBuild(
-                            iconName: 'icon_settings_badges.png',
-                            title: Localized.text('ox_usercenter.badges'),
-                            badgeImgUrl: snapshot.data?.thumb,
-                            isShowDivider: true,
-                            onTap: () {
-                              OXNavigator.pushPage(
-                                context,
-                                (context) => UsercenterBadgeWallPage(
-                                    userDB: OXUserInfoManager
-                                        .sharedInstance.currentUserInfo),
-                              ).then((value) {
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        // GestureDetector(
+                        //   behavior: HitTestBehavior.translucent,
+                        //   onTap: () {
+                        //     _isShowMomentUnread = false;
+                        //     if (!_isShowZapBadge) {
+                        //       MsgNotification(noticeNum: 0).dispatch(context);
+                        //     }
+                        //     OXModuleService.pushPage(
+                        //       context,
+                        //       'ox_discovery',
+                        //       'discoveryPageWidget',
+                        //       {'typeInt': 1},
+                        //     );
+                        //   },
+                        //   child: itemView(
+                        //     'icon_moment.png',
+                        //     'ox_discovery.moment',
+                        //     '',
+                        //     true,
+                        //     isShowZapBadge: true,
+                        //     badge: Visibility(
+                        //       visible: _isShowMomentUnread,
+                        //       child: _buildUnreadWidget(),
+                        //     ),
+                        //   ),
+                        // ),
+                        GestureDetector(
+                          behavior: HitTestBehavior.translucent,
+                          onTap: () => OXNavigator.pushPage(
+                              context, (context) => const RelaysPage()),
+                          child: itemView(
+                            'icon_settings_relays.png',
+                            'ox_usercenter.relays',
+                            '',
+                            true,
+                            devLogWidget: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                OXChatInterface.showRelayInfoWidget(
+                                    showRelayIcon: false),
+                                CommonImage(
+                                  iconName: 'icon_arrow_more.png',
+                                  width: Adapt.px(24),
+                                  height: Adapt.px(24),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        _topItemBuild(
+                          title: 'zaps'.localized(),
+                          iconName: 'icon_settings_zaps.png',
+                          isShowDivider: true,
+                          onTap: () {
+                            if (_isShowZapBadge) {
+                              if (!_isShowMomentUnread) {
+                                MsgNotification(noticeNum: 0).dispatch(context);
+                              }
+                              UserConfigTool.saveSetting(
+                                      StorageSettingKey.KEY_ZAP_BADGE.name,
+                                      false)
+                                  .then((value) {
                                 _updateState();
                               });
-                            });
-                      },
-                      future: _getUserSelectedBadgeInfo(),
+                            }
+                            claimEcash();
+                            OXNavigator.pushPage(
+                                context, (context) => const ZapsPage());
+                          },
+                        ),
+                        FutureBuilder<BadgeDBISAR?>(
+                          builder: (context, snapshot) {
+                            return _topItemBuild(
+                                iconName: 'icon_settings_badges.png',
+                                title: Localized.text('ox_usercenter.badges'),
+                                badgeImgUrl: snapshot.data?.thumb,
+                                isShowDivider: true,
+                                onTap: () {
+                                  OXNavigator.pushPage(
+                                    context,
+                                    (context) => UsercenterBadgeWallPage(
+                                        userDB: OXUserInfoManager
+                                            .sharedInstance.currentUserInfo),
+                                  ).then((value) {
+                                    _updateState();
+                                  });
+                                });
+                          },
+                          future: _getUserSelectedBadgeInfo(),
+                        ),
+                        _topItemBuild(
+                          title: 'donate'.localized(),
+                          iconName: 'icon_settings_donate.png',
+                          isShowDivider: false,
+                          onTap: () => OXNavigator.pushPage(
+                              context, (context) => const DonatePage()),
+                        ),
+                      ],
                     ),
-                    _topItemBuild(
-                      title: 'donate'.localized(),
-                      iconName: 'icon_settings_donate.png',
-                      isShowDivider: false,
-                      onTap: () => OXNavigator.pushPage(
-                          context, (context) => const DonatePage()),
-                    ),
-                  ],
-                ),
+                  ),
+                  SizedBox(height: Adapt.px(24)),
+                  const SettingsPage(),
+                  // SizedBox(height: Adapt.px(24)),
+                  // Container(
+                  //   width: double.infinity,
+                  //   decoration: BoxDecoration(
+                  //     borderRadius: BorderRadius.circular(Adapt.px(16)),
+                  //     color: ThemeColor.color180,
+                  //   ),
+                  //   child: Column(
+                  //     mainAxisAlignment: MainAxisAlignment.start,
+                  //     children: [
+                  //
+                  //     ],
+                  //   ),
+                  // ),
+                  SizedBox(height: 130.px),
+                ],
               ),
-              SizedBox(height: Adapt.px(24)),
-              const SettingsPage(),
-              // SizedBox(height: Adapt.px(24)),
-              // Container(
-              //   width: double.infinity,
-              //   decoration: BoxDecoration(
-              //     borderRadius: BorderRadius.circular(Adapt.px(16)),
-              //     color: ThemeColor.color180,
-              //   ),
-              //   child: Column(
-              //     mainAxisAlignment: MainAxisAlignment.start,
-              //     children: [
-              //
-              //     ],
-              //   ),
-              // ),
-              SizedBox(height: 130.px),
-            ],
+            ),
           ),
         ),
       ),

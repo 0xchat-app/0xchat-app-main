@@ -14,6 +14,7 @@ import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/utils/custom_uri_helper.dart';
+import 'package:ox_common/utils/platform_utils.dart';
 import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/widgets/common_action_dialog.dart';
 import 'package:ox_common/widgets/common_platform_widget.dart';
@@ -332,42 +333,28 @@ class _ContactUserOptionWidgetState extends State<ContactUserOptionWidget> with 
 
   Widget _tabContainerView() {
     return Container(
+      constraints: BoxConstraints(
+        maxWidth:  PlatformUtils.windowSize.width,
+      ),
       margin: EdgeInsets.only(top: 16.px),
-      child: PlatformWidget(
-        mobileBuilder: GridView.builder(
-          shrinkWrap: true,
-          padding: const EdgeInsets.only(top: 0),
-          physics: NeverScrollableScrollPhysics(),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 5,
-            crossAxisSpacing: 4.px,
-            childAspectRatio: 1.1,
-          ),
-          itemBuilder: (BuildContext context, int index) {
-            TabModel model = modelList[index];
-            return _tabWidget(
-                onTapDown: model.onTapDown,
-                content: model.content,
-                onTap: model.onTap,
-                iconName: model.iconName);
-          },
-          itemCount: modelList.length,
+      child: GridView.builder(
+        shrinkWrap: true,
+        padding: const EdgeInsets.only(top: 0),
+        physics: NeverScrollableScrollPhysics(),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 5,
+          crossAxisSpacing: 4.px,
+          childAspectRatio: 1.1,
         ),
-        desktopBuilder: Row(
-          children: modelList.map((model){
-            return Container(
-              margin: EdgeInsets.only(right: 4.px),
-              width: 80.px,
-              height: 80.px,
-              child: _tabWidget(
-                  onTapDown: model.onTapDown,
-                  content: model.content,
-                  onTap: model.onTap,
-                  iconName: model.iconName,
-              ),
-            );
-          }).toList(),
-        ),
+        itemBuilder: (BuildContext context, int index) {
+          TabModel model = modelList[index];
+          return _tabWidget(
+              onTapDown: model.onTapDown,
+              content: model.content,
+              onTap: model.onTap,
+              iconName: model.iconName);
+        },
+        itemCount: modelList.length,
       ),
     );
   }
@@ -451,7 +438,10 @@ class _ContactUserOptionWidgetState extends State<ContactUserOptionWidget> with 
         }
       },
       child: Container(
-        width: double.infinity,
+        constraints: BoxConstraints(
+          maxWidth: PlatformUtils.windowSize.width,
+        ),
+        // width: double.infinity,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(Adapt.px(16)),
           color: ThemeColor.color180,
@@ -477,7 +467,7 @@ class _ContactUserOptionWidgetState extends State<ContactUserOptionWidget> with 
                   ),
                 ),
                 Container(
-                  width: MediaQuery.of(context).size.width - 110.px,
+                  width: 300.px,
                   child: Text(
                     content,
                     style: TextStyle(

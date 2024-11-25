@@ -2,6 +2,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:ox_common/utils/platform_utils.dart';
 import 'package:ox_common/widgets/common_gradient_tab_bar.dart';
 
 import 'package:ox_common/utils/adapt.dart';
@@ -115,62 +116,70 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
       ),
       body: DefaultTabController(
         length: EInformationType.values.length, // Tab 的数量
-        child: NestedScrollView(
-          controller: _scrollController,
-          headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-            return <Widget>[
-              ContactUserOptionWidget(
-                  pubkey: widget.pubkey,
-                  chatId: widget.chatId,
-                  isBlockStatus: isBlockStatus),
-              SliverAppBar(
-                toolbarHeight: 38,
-                pinned: true,
-                floating: false,
-                snap: false,
-                primary: false,
-                backgroundColor: ThemeColor.color200,
-                automaticallyImplyLeading: false,
-                bottom: PreferredSize(
-                  preferredSize: Size.fromHeight(0),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: CommonGradientTabBar(
-                      data: EInformationType.values
-                          .map((type) => type.text)
-                          .toList(),
-                      controller: tabController,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: PlatformUtils.windowSize.width,
+            ),
+            // padding: const EdgeInsets.all(8.0),
+            child: NestedScrollView(
+              controller: _scrollController,
+              headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+                return <Widget>[
+                  ContactUserOptionWidget(
+                      pubkey: widget.pubkey,
+                      chatId: widget.chatId,
+                      isBlockStatus: isBlockStatus),
+                  SliverAppBar(
+                    toolbarHeight: 38,
+                    pinned: true,
+                    floating: false,
+                    snap: false,
+                    primary: false,
+                    backgroundColor: ThemeColor.color200,
+                    automaticallyImplyLeading: false,
+                    bottom: PreferredSize(
+                      preferredSize: Size.fromHeight(0),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: CommonGradientTabBar(
+                          data: EInformationType.values
+                              .map((type) => type.text)
+                              .toList(),
+                          controller: tabController,
+                        ),
+                      ).setPadding(
+                        EdgeInsets.symmetric(horizontal: 24.px),
+                      ),
                     ),
-                  ).setPadding(
-                    EdgeInsets.symmetric(horizontal: 24.px),
                   ),
-                ),
-              ),
-            ];
-          },
-          body: TabBarView(
-            controller: tabController,
-            children: [
-              ContactMediaWidget(
-                isScrollBottom: isScrollBottom,
-                userDB: userDB,
-              ),
-              OXModuleService.invoke(
-                'ox_usercenter',
-                'showUserCenterBadgeWallPage',
-                [context],
-                {
-                  #userDB: userDB,
-                  #isShowTabBar: false,
-                  #isShowBadgeAwards: false
-                },
-              ),
-              _showMomentWidget(),
-              ContactGroupsWidget(
-                userDB: userDB,
-              ),
-            ],
-          ).setPaddingOnly(top: 8.px),
+                ];
+              },
+              body: TabBarView(
+                controller: tabController,
+                children: [
+                  ContactMediaWidget(
+                    isScrollBottom: isScrollBottom,
+                    userDB: userDB,
+                  ),
+                  OXModuleService.invoke(
+                    'ox_usercenter',
+                    'showUserCenterBadgeWallPage',
+                    [context],
+                    {
+                      #userDB: userDB,
+                      #isShowTabBar: false,
+                      #isShowBadgeAwards: false
+                    },
+                  ),
+                  _showMomentWidget(),
+                  ContactGroupsWidget(
+                    userDB: userDB,
+                  ),
+                ],
+              ).setPaddingOnly(top: 8.px),
+            ),
+          ),
         ),
       ),
     );
