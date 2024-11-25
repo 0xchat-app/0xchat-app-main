@@ -181,32 +181,32 @@ extension UserCenterPageUI on UserCenterPageState{
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    GestureDetector(
-                      behavior: HitTestBehavior.translucent,
-                      onTap: () {
-                        _isShowMomentUnread = false;
-                        if (!_isShowZapBadge) {
-                          MsgNotification(noticeNum: 0).dispatch(context);
-                        }
-                        OXModuleService.pushPage(
-                          context,
-                          'ox_discovery',
-                          'discoveryPageWidget',
-                          {'typeInt': 1},
-                        );
-                      },
-                      child: itemView(
-                        'icon_moment.png',
-                        'ox_discovery.moment',
-                        '',
-                        true,
-                        isShowZapBadge: true,
-                        badge: Visibility(
-                          visible: _isShowMomentUnread,
-                          child: _buildUnreadWidget(),
-                        ),
-                      ),
-                    ),
+                    // GestureDetector(
+                    //   behavior: HitTestBehavior.translucent,
+                    //   onTap: () {
+                    //     _isShowMomentUnread = false;
+                    //     if (!_isShowZapBadge) {
+                    //       MsgNotification(noticeNum: 0).dispatch(context);
+                    //     }
+                    //     OXModuleService.pushPage(
+                    //       context,
+                    //       'ox_discovery',
+                    //       'discoveryPageWidget',
+                    //       {'typeInt': 1},
+                    //     );
+                    //   },
+                    //   child: itemView(
+                    //     'icon_moment.png',
+                    //     'ox_discovery.moment',
+                    //     '',
+                    //     true,
+                    //     isShowZapBadge: true,
+                    //     badge: Visibility(
+                    //       visible: _isShowMomentUnread,
+                    //       child: _buildUnreadWidget(),
+                    //     ),
+                    //   ),
+                    // ),
                     GestureDetector(
                       behavior: HitTestBehavior.translucent,
                       onTap: () => OXNavigator.pushPage(

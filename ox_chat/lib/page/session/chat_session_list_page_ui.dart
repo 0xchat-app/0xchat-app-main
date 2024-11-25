@@ -42,6 +42,27 @@ extension ChatSessionListPageUI on ChatSessionListPageState{
         GestureDetector(
           behavior: HitTestBehavior.translucent,
           child: CommonImage(
+            iconName: 'moments_icon.png',
+            size: 24.px,
+            color: ThemeColor.color100,
+            package: 'ox_chat',
+          ).setPaddingOnly(right: 16.px),
+          onTap: () {
+            if (_isLogin) {
+                OXModuleService.pushPage(
+                  context,
+                  'ox_discovery',
+                  'discoveryPageWidget',
+                  {'typeInt': 1},
+                );
+            } else {
+              OXModuleService.pushPage(context, "ox_login", "LoginPage", {});
+            }
+          },
+        ),
+        GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          child: CommonImage(
             iconName: 'icon_home_add.png',
             size: 24.px,
             useTheme: true,
