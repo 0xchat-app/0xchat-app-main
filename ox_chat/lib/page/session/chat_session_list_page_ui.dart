@@ -215,7 +215,6 @@ extension ChatSessionListPageUI on ChatSessionListPageState{
       onLongPress: () async {
         await Future.delayed(Duration(milliseconds: 100));
         _scaleList[index].value = false;
-        await Future.delayed(Duration(milliseconds: 100));
         _itemLongPressFn(item, index);
       },
       child: ValueListenableBuilder<bool>(
