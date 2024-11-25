@@ -1,5 +1,9 @@
 import 'dart:io';
+import 'dart:ui';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:bitsdojo_window/bitsdojo_window.dart';
+
 
 enum DeviceType { mobile, desktop, web }
 
@@ -23,4 +27,18 @@ class PlatformUtils {
   static bool get isDesktop => getDeviceType() == DeviceType.desktop;
 
   static bool get isWeb => kIsWeb;
+
+  static Size windowSize = Size(600,600);
+
+  static void initWindowSize (){
+    doWhenWindowReady(() {
+      final win = appWindow;
+      final initialSize = PlatformUtils.windowSize;
+      win.minSize = initialSize;
+      win.size = initialSize;
+      win.alignment = Alignment.center;
+      win.title = 'oxchat';
+      win.show();
+    });
+  }
 }
