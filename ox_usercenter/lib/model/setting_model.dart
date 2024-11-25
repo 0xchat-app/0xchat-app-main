@@ -77,12 +77,6 @@ class SettingModel {
       settingItemType: SettingItemType.ice,
     ));
     settingModelList.add(SettingModel(
-        iconName: 'icon_settings_chat.png',
-        title: 'ox_usercenter.str_settings_chat',
-        rightContent: '',
-        settingItemType: SettingItemType.chats
-    ));
-    settingModelList.add(SettingModel(
       iconName: 'icon_settings_language.png',
       title: 'ox_usercenter.language',
       rightContent: Localized.getCurrentLanguage().languageText,
@@ -93,6 +87,12 @@ class SettingModel {
         title: 'ox_usercenter.theme',
         rightContent: ThemeManager.getCurrentThemeStyle().value(),
         settingItemType: SettingItemType.theme
+    ));
+    settingModelList.add(SettingModel(
+        iconName: 'icon_settings_chat.png',
+        title: 'ox_usercenter.str_settings_chat',
+        rightContent: '',
+        settingItemType: SettingItemType.chats
     ));
     settingModelList.add(SettingModel(
         iconName: 'icon_settings_sound.png',
