@@ -430,13 +430,12 @@ class _ContractListItemState extends State<ContractListItem> {
   }
 
   void _itemLongPress() async {
+    if (widget.hasVibrator && OXUserInfoManager.sharedInstance.canVibrate) {
+      TookKit.vibrateEffect();
+    }
     await Future.delayed(Duration(milliseconds: 100));
     valueNotifier.value = false;
-    await Future.delayed(Duration(milliseconds: 100));
     if (widget.supportLongPress && widget.item.pubKey.isNotEmpty) {
-      if (widget.hasVibrator && OXUserInfoManager.sharedInstance.canVibrate) {
-        TookKit.vibrateEffect();
-      }
       UserDBISAR? userDB = Contacts.sharedInstance.allContacts[widget.item.pubKey] as UserDBISAR;
       ChatMessagePage.open(
         context: context,

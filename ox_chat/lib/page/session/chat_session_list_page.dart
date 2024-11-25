@@ -35,6 +35,7 @@ import 'package:ox_common/utils/platform_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/throttle_utils.dart';
 import 'package:ox_common/utils/took_kit.dart';
+import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/widgets/base_page_state.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
@@ -504,9 +505,6 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   }
 
   void _itemLongPressFn(ChatSessionModelISAR item, int index) {
-    if (_hasVibrator && OXUserInfoManager.sharedInstance.canVibrate) {
-      TookKit.vibrateEffect();
-    }
     if (item.chatId == CommonConstant.NOTICE_CHAT_ID) return;
     ChatMessagePage.open(
       context: context,
