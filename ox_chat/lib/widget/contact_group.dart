@@ -377,14 +377,13 @@ class _GroupContactListItemState extends State<GroupContactListItem> {
   ValueNotifier<bool> valueNotifier = ValueNotifier(false);
 
   void _itemLongPress() async {
+    if (widget.hasVibrator && OXUserInfoManager.sharedInstance.canVibrate) {
+      FeedbackType type = FeedbackType.impact;
+      Vibrate.feedback(type);
+    }
     await Future.delayed(Duration(milliseconds: 100));
     valueNotifier.value = false;
-    await Future.delayed(Duration(milliseconds: 100));
     if (widget.supportLongPress && widget.item.groupId.isNotEmpty) {
-      if (widget.hasVibrator && OXUserInfoManager.sharedInstance.canVibrate) {
-        FeedbackType type = FeedbackType.impact;
-        Vibrate.feedback(type);
-      }
       ChatMessagePage.open(
         context: context,
         communityItem: ChatSessionModelISAR(

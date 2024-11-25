@@ -504,9 +504,6 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   }
 
   void _itemLongPressFn(ChatSessionModelISAR item, int index) {
-    if (_hasVibrator && OXUserInfoManager.sharedInstance.canVibrate) {
-      TookKit.vibrateEffect();
-    }
     if (item.chatId == CommonConstant.NOTICE_CHAT_ID) return;
     ChatMessagePage.open(
       context: context,
