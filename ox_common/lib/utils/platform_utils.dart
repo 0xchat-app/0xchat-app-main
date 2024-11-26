@@ -28,14 +28,17 @@ class PlatformUtils {
 
   static bool get isWeb => kIsWeb;
 
-  static Size windowSize = Size(430,850);
+  static Size minWindowSize = Size(430,850);
+
+  static Size initialWindowSize = Size(500,850);
+
+  static double listWidth = minWindowSize.width * 1.5;
 
   static void initWindowSize (){
     doWhenWindowReady(() {
       final win = appWindow;
-      final initialSize = PlatformUtils.windowSize;
-      win.minSize = initialSize;
-      win.size = initialSize;
+      win.minSize = minWindowSize;
+      win.size = initialWindowSize;
       win.alignment = Alignment.center;
       win.title = 'oxchat';
       win.show();
