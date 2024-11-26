@@ -30,7 +30,7 @@ class PlatformUtils {
 
   static Size minWindowSize = Size(430,850);
 
-  static Size initialWindowSize = Size(500,850);
+  static Size initialWindowSize = Size(850,850);
 
   static double listWidth = minWindowSize.width * 1.5;
 
