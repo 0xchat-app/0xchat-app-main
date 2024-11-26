@@ -12,6 +12,7 @@ import 'package:ox_common/scheme/scheme_helper.dart';
 import 'package:ox_common/utils/chat_prompt_tone.dart';
 import 'package:ox_common/utils/error_utils.dart';
 import 'package:ox_common/utils/font_size_notifier.dart';
+import 'package:ox_common/utils/platform_utils.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_module_service/ox_module_service.dart';
@@ -97,6 +98,13 @@ class MainState extends State<MainApp>
       printMemoryUsage();
     });
     showErrorDialogIfNeeded();
+    if(PlatformUtils.isDesktop){
+      PlatformUtils.initWindowSize();
+      Size windowSize = PlatformUtils.windowSize;
+      int width = int.parse(windowSize.width.toString());
+      int height = int.parse(windowSize.height.toString());
+      Adapt.init(standardW: width, standardH: height);
+    }
   }
 
   void showErrorDialogIfNeeded() async {
