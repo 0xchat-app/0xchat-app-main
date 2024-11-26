@@ -105,8 +105,7 @@ class _SessionLongPressMenuDialogState extends State<SessionLongPressMenuDialog>
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 180.px,
-      height: _menulist.length * 40.px, //Adapt.screenH * 0.2,
+      constraints: BoxConstraints(minWidth: 180.px, maxWidth: MediaQuery.of(context).size.width * 0.6),
       alignment: Alignment.bottomRight,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16.px),
@@ -126,7 +125,6 @@ class _SessionLongPressMenuDialogState extends State<SessionLongPressMenuDialog>
               SessionMenuOptionModel.optionsOnTap(context, model.optionEnum, widget.communityItem, isMute: isMute);
             },
             child: Container(
-              height: 40.px,
               padding: EdgeInsets.symmetric(horizontal: 16.px, vertical: 10.px),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
