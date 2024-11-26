@@ -34,16 +34,19 @@ class _InputMorePageState extends State<InputMorePage> {
   @override
   Widget build(BuildContext context) {
     final maxAvailableWidth = MediaQuery.of(context).size.width - MediaQuery.of(context).padding.horizontal;
-    final margin = EdgeInsets.only(top: Adapt.px(12));
-    final padding = EdgeInsets.all(Adapt.px(12));
+    final margin = EdgeInsets.only(top: 4.px);
+    final padding = EdgeInsets.symmetric(
+      horizontal: 14.px,
+      vertical: 20.px,
+    );
     final crossAxisCount = 4;
-    final crossAxisSpacing = Adapt.px(12);
+    final crossAxisSpacing = 22.px;
 
     final iconSize = 48.px;
-    final iconPadding = 8.px;
+    final iconPadding = EdgeInsets.only(bottom: 8.px);
     final itemTitleFont = 12;
-    final itemWidth = ((maxAvailableWidth - Adapt.px(12) * 2 - margin.horizontal - padding.horizontal - (crossAxisCount - 1) * crossAxisSpacing) / crossAxisCount).floor();
-    final itemHeight = (iconSize + iconPadding + itemTitleFont.spWithTextScale * 1.2).ceil();
+    final itemWidth = ((maxAvailableWidth - Adapt.px(12) * 2 - margin.horizontal * 2 - padding.horizontal * 2 - (crossAxisCount - 1) * crossAxisSpacing) / crossAxisCount).floor();
+    final itemHeight = (iconSize + iconPadding.top + iconPadding.bottom + itemTitleFont.spWithTextScale * 1.2).ceil();
 
     final childAspectRatio = itemWidth / itemHeight;
     return Container(
@@ -57,8 +60,8 @@ class _InputMorePageState extends State<InputMorePage> {
           crossAxisCount: crossAxisCount, // The number of columns displayed per row
           childAspectRatio: childAspectRatio,
           padding: padding,
-          mainAxisSpacing: 12.px, // Space between columns
-          crossAxisSpacing: crossAxisSpacing, // Line spacing
+          mainAxisSpacing: 12.px, // Line spacing
+          crossAxisSpacing: crossAxisSpacing, // Space between columns
           children: List.generate(widget.items.length, (index) {
             final item = widget.items[index];
             return GestureDetector(
@@ -75,7 +78,7 @@ class _InputMorePageState extends State<InputMorePage> {
                         borderRadius: BorderRadius.circular(6),
                         color: ThemeColor.color180,
                       ),
-                      margin: EdgeInsets.only(bottom: iconPadding),
+                      margin: iconPadding,
                       child: Center(
                         child: CommonImage(
                           iconName: item.iconName,

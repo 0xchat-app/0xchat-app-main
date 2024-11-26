@@ -674,11 +674,13 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
                 OXNavigator.pop(context);
                 await OXLoading.show();
                 Map<String, MultipleUserModel> currentUserMap = await UserConfigTool.getAllUser();
-                if (currentUserMap.length > 1) {
+                if (currentUserMap.isNotEmpty) {
                   String tempPubKey = mCurrentUserInfo?.pubKey ?? '';
                   if (tempPubKey.isNotEmpty) {
-                    currentUserMap.removeWhere((key, value) => key == tempPubKey);
+                    await UserConfigTool.deleteUser(currentUserMap, tempPubKey);
                   }
+                }
+                if (currentUserMap.isNotEmpty) {
                   MultipleUserModel tempModel = currentUserMap.values.first;
                   await OXUserInfoManager.sharedInstance.switchAccount(tempModel.pubKey);
                 } else {
