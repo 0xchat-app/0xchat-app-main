@@ -100,9 +100,6 @@ class MainState extends State<MainApp>
     showErrorDialogIfNeeded();
     if(PlatformUtils.isDesktop){
       PlatformUtils.initWindowSize();
-      Size windowSize = PlatformUtils.windowSize;
-      // int width = int.parse(windowSize.width.toString());
-      // int height = int.parse(windowSize.height.toString());
       Adapt.init(standardW: 650, standardH: 800);
     }
   }
