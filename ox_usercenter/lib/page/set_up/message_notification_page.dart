@@ -52,7 +52,7 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
 
   void _loadData() async {
     if (Platform.isAndroid) {
-      String? distributor = await UnifiedPush.getDistributor();
+      String? distributor = await UPFunctions.getDistributor();
       _pushName = distributor != null ? getShowTitle(distributor) : _pushName;
     }
     _allNoticeModel = await getObjectList();
@@ -207,7 +207,7 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () async {
-        _pushName = await UnifiedPush.registerAppWithDialog(context) ?? 'Push Picker';
+        _pushName = await UPFunctions.registerAppWithDialog(context) ?? 'Push Picker';
         setState(() {});
       },
       child: Container(
