@@ -301,7 +301,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
       _showLoginPage(context);
       return;
     }
-
+    if (draftIndex == index) return;
     setState(() {
       selectedIndex = index;
       if (OXUserInfoManager.sharedInstance.isLogin) {
@@ -454,6 +454,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
   void didSwitchUser(UserDBISAR? userInfo) {
     setState(() {
       if (_tabBarList.isNotEmpty) {
+        _tabBarItemOnTap(_tabBarList.elementAt(1));
         for (var element in _tabBarList) {
           element.unreadMsgCount = 0;
         }
