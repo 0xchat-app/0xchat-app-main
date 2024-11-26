@@ -246,7 +246,7 @@ class MediaVideoWidgetState extends State<MediaVideoWidget> {
       receiverPubkey: null,
       messageUpdateCallback: (types.Message newMessage) {
         message = newMessage as types.CustomMessage;
-        setState(() {});
+        if(mounted) setState(() {});
       },
     );
   }
