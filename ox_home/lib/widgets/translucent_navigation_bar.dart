@@ -206,7 +206,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
               horizontal: widget.horizontalPadding ?? 20.px,
             ),
             height: widget.height,
-            width: double.infinity,
+            // width: double.infinity,
             decoration: BoxDecoration(
               color: Colors.transparent,
               borderRadius: BorderRadius.circular(widget.height),
@@ -261,7 +261,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
         ],
       ),
       height: widget.height,
-      width: double.infinity,
+      width: PlatformUtils.listWidth,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
@@ -331,7 +331,6 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
       alignment: Alignment.bottomCenter,
       children: [
         Container(
-          width: (Adapt.screenW - 40.px) / 3,
           height: widget.height,
           color: Colors.transparent,
           child: Column(
@@ -704,13 +703,13 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
 
     switch (index) {
       case 0:
-        dialogOffset = 20.px;
+        dialogOffset = position.dx - 80;
         break;
       case 1:
-        dialogOffset = position.dx + (navBarItemWidth / 2) - (180.px / 2) - 20.px;
+        dialogOffset = position.dx - 80;
         break;
       case 2:
-        dialogOffset = screenWidth - 180.px - 20.px ;
+        dialogOffset = position.dx - 80;
         break;
       default:
         dialogOffset = position.dx;

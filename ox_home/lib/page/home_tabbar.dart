@@ -94,11 +94,17 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
   Widget build(BuildContext context) {
     return Scaffold(
       extendBody: true,
-      bottomNavigationBar: TranslucentNavigationBar(
-        key: tabBarGlobalKey,
-        onTap: (changeIndex, currentSelect) => _tabClick(changeIndex, currentSelect),
-        handleDoubleTap: (changeIndex, currentSelect) => _handleDoubleTap(changeIndex, currentSelect),
-        height: _bottomNavHeight,
+      bottomNavigationBar: Align(
+        alignment: Alignment.bottomCenter,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth:  PlatformUtils.listWidth),
+          child: TranslucentNavigationBar(
+            key: tabBarGlobalKey,
+            onTap: (changeIndex, currentSelect) => _tabClick(changeIndex, currentSelect),
+            handleDoubleTap: (changeIndex, currentSelect) => _handleDoubleTap(changeIndex, currentSelect),
+            height: _bottomNavHeight,
+          ),
+        ),
       ),
       body: PageView(
         physics: const NeverScrollableScrollPhysics(),

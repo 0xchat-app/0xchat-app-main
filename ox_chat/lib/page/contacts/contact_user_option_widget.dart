@@ -334,7 +334,7 @@ class _ContactUserOptionWidgetState extends State<ContactUserOptionWidget> with 
   Widget _tabContainerView() {
     return Container(
       constraints: BoxConstraints(
-        maxWidth:  PlatformUtils.windowSize.width,
+        maxWidth:  PlatformUtils.listWidth,
       ),
       margin: EdgeInsets.only(top: 16.px),
       child: GridView.builder(
@@ -439,7 +439,7 @@ class _ContactUserOptionWidgetState extends State<ContactUserOptionWidget> with 
       },
       child: Container(
         constraints: BoxConstraints(
-          maxWidth: PlatformUtils.windowSize.width,
+          maxWidth: PlatformUtils.listWidth,
         ),
         // width: double.infinity,
         decoration: BoxDecoration(
