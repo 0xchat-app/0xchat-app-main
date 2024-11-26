@@ -97,3 +97,6 @@
 -keep class net.sqlcipher.** { *; }
 #secp256k1
 -keep class fr.acinq.secp256k1.** { *; }
+
+-keep class org.unifiedpush.** { *; }
+-keep class io.flutter.** { *; }
