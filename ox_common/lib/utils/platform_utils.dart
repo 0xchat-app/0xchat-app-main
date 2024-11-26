@@ -28,7 +28,7 @@ class PlatformUtils {
 
   static bool get isWeb => kIsWeb;
 
-  static Size windowSize = Size(600,600);
+  static Size windowSize = Size(650,800);
 
   static void initWindowSize (){
     doWhenWindowReady(() {
