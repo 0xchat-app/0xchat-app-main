@@ -74,11 +74,13 @@ class LocalNotificationManager {
   }
 
   Future<void> onNewEndpoint(String endpoint, String instance) async {
+    LogUtil.e('Jeff: ---onNewEndpoint---instance =$instance； endpoint =$endpoint');
     await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageSettingKey.KEY_PUSH_TOKEN.name, endpoint);
     OXUserInfoManager.sharedInstance.setNotification();
   }
 
   void onMessage(Uint8List message, String instance) async {
+    LogUtil.e('Jeff: ---onMessage---instance =$instance； message =${message.toString()}');
     int notificationID = message.hashCode;
     String showTitle = '';
     String showContent = '';
