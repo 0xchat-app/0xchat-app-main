@@ -443,6 +443,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     setState(() {
       isLogin = false;
       if (_tabBarList.isNotEmpty) {
+        _tabBarItemOnTap(_tabBarList.elementAt(1));
         for (var element in _tabBarList) {
           element.unreadMsgCount = 0;
         }
