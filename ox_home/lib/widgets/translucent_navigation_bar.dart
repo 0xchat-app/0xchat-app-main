@@ -558,6 +558,8 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     List<TabbarMenuModel> menuList = _getMenuList(index);
     if (menuList.isEmpty) return;
     double leftPosition = _calculateDialogPosition(context, index, position);
+    double screenHeight = MediaQuery.of(context).size.height;
+
     showGeneralDialog(
       context: context,
       barrierDismissible: true,
@@ -576,12 +578,12 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
                 ),
               ),
               Positioned(
-                bottom: Adapt.screenH - position.dy + 4.px + (index == 2 ? 46.px : 0),
+                bottom: screenHeight - position.dy + 4.px + (index == 2 ? 46.px : 0),
                 left: leftPosition,
                 child: Container(
                   width: 180.px,
                   height: menuList.length * 44.px,
-                  constraints: BoxConstraints(maxHeight: Adapt.screenH/2),
+                  constraints: BoxConstraints(maxHeight: screenHeight/2),
                   decoration: BoxDecoration(
                     color: ThemeColor.color180,
                     borderRadius: BorderRadius.only(
@@ -615,12 +617,12 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
               Visibility(
                 visible: index == 2,
                 child: Positioned(
-                  bottom: Adapt.screenH - position.dy + 4.px,
+                  bottom: screenHeight - position.dy + 4.px,
                   left: _calculateDialogPosition(context, index, position),
                   child: Container(
                     width: 180.px,
                     height: 46.px,
-                    constraints: BoxConstraints(maxHeight: Adapt.screenH/2),
+                    constraints: BoxConstraints(maxHeight: screenHeight/2),
                     decoration: BoxDecoration(
                       color: ThemeColor.color180,
                       borderRadius: BorderRadius.only(
