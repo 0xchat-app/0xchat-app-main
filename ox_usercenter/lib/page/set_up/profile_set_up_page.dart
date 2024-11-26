@@ -677,7 +677,7 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
                 if (currentUserMap.length > 1) {
                   String tempPubKey = mCurrentUserInfo?.pubKey ?? '';
                   if (tempPubKey.isNotEmpty) {
-                    currentUserMap.removeWhere((key, value) => key == tempPubKey);
+                    await UserConfigTool.deleteUser(currentUserMap, tempPubKey);
                   }
                   MultipleUserModel tempModel = currentUserMap.values.first;
                   await OXUserInfoManager.sharedInstance.switchAccount(tempModel.pubKey);
