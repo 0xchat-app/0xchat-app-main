@@ -4,6 +4,7 @@ import 'package:ox_common/business_interface/ox_usercenter/zaps_detail_model.dar
 import 'package:ox_common/model/wallet_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/platform_utils.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/user_config_tool.dart';
@@ -118,66 +119,74 @@ class _ZapsPageState extends State<ZapsPage> {
   Widget _body() {
     List<ZapsRecordDetail> zapsRecordDetails = _zapsRecord?.list ?? [];
     // String totalZaps = _totalZaps(_zapsRecord?.totalZaps ?? 0);
-    return SingleChildScrollView(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          _buildItem(
-            label: Localized.text('ox_usercenter.zaps'),
-            itemBody: Container(
-              width: double.infinity,
-              height: Adapt.px(104 + 0.5),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(Adapt.px(16)),
-                color: ThemeColor.color180,
+    return Align(
+      alignment: Alignment.topCenter,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: PlatformUtils.listWidth,
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              _buildItem(
+                label: Localized.text('ox_usercenter.zaps'),
+                itemBody: Container(
+                  width: double.infinity,
+                  height: Adapt.px(104 + 0.5),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(Adapt.px(16)),
+                    color: ThemeColor.color180,
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      _buildItemBody(
+                          title:
+                              Localized.text('ox_usercenter.show_wallet_selector'),
+                          isShowDivider: true,
+                          trailing: _buildWalletSelector(),
+                          isShowArrow: false),
+                      _buildItemBody(
+                          title:
+                              Localized.text('ox_usercenter.select_default_wallet'),
+                          flag: _selectedWalletName,
+                          onTap: () => _walletSelectorDialog()),
+                    ],
+                  ),
+                ),
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  _buildItemBody(
-                      title:
-                          Localized.text('ox_usercenter.show_wallet_selector'),
-                      isShowDivider: true,
-                      trailing: _buildWalletSelector(),
-                      isShowArrow: false),
-                  _buildItemBody(
-                      title:
-                          Localized.text('ox_usercenter.select_default_wallet'),
-                      flag: _selectedWalletName,
-                      onTap: () => _walletSelectorDialog()),
-                ],
+              _buildItem(
+                label: 'Default zap amount in sats',
+                itemBody: _buildInputView(
+                  hitText: '$_defaultZapAmount',
+                  controller: _zapAmountTextEditingController,
+                  focusNode: _focusNode,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: false),
+                ),
               ),
-            ),
-          ),
-          _buildItem(
-            label: 'Default zap amount in sats',
-            itemBody: _buildInputView(
-              hitText: '$_defaultZapAmount',
-              controller: _zapAmountTextEditingController,
-              focusNode: _focusNode,
-              keyboardType: const TextInputType.numberWithOptions(decimal: false),
-            ),
-          ),
 
-          _buildItem(
-            label: 'Default zap message',
-            itemBody: _buildInputView(
-              hitText: _defaultDescription,
-              controller: _zapDescriptionController,
-              focusNode: _descriptionFocusNote,
-            ),
-          ),
-          // _buildItem(label: 'Cumulative Zaps', itemBody: _zapAmountView(hitText: totalZaps,enable: false)),
-          zapsRecordDetails.isNotEmpty
-              ? _buildItem(
-                  label: Localized.text('ox_usercenter.zaps_record'),
-                  itemBody: _buildZapsRecord())
-              : Container(),
-        ],
-      ).setPadding(EdgeInsets.symmetric(
-        horizontal: Adapt.px(24),
-        vertical: Adapt.px(12),
-      )),
+              _buildItem(
+                label: 'Default zap message',
+                itemBody: _buildInputView(
+                  hitText: _defaultDescription,
+                  controller: _zapDescriptionController,
+                  focusNode: _descriptionFocusNote,
+                ),
+              ),
+              // _buildItem(label: 'Cumulative Zaps', itemBody: _zapAmountView(hitText: totalZaps,enable: false)),
+              zapsRecordDetails.isNotEmpty
+                  ? _buildItem(
+                      label: Localized.text('ox_usercenter.zaps_record'),
+                      itemBody: _buildZapsRecord())
+                  : Container(),
+            ],
+          ).setPadding(EdgeInsets.symmetric(
+            horizontal: Adapt.px(24),
+            vertical: Adapt.px(12),
+          )),
+        ),
+      ),
     );
   }
 

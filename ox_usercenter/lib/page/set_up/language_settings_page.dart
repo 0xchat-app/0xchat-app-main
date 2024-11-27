@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/platform_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
@@ -51,7 +52,16 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> with Single
         title: Localized.text('ox_usercenter.language'),
         backgroundColor: ThemeColor.color190,
       ),
-      body: _buildBody().setPadding(EdgeInsets.symmetric(horizontal: Adapt.px(24),vertical: Adapt.px(12))),
+      body: Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: PlatformUtils.listWidth,
+            ),
+              child: _buildBody().setPadding(EdgeInsets.symmetric(horizontal: Adapt.px(24),vertical: Adapt.px(12)),
+              ),
+          ),
+      ),
     );
   }
 

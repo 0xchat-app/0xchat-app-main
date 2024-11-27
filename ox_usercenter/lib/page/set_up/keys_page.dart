@@ -3,6 +3,7 @@ import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/platform_utils.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/took_kit.dart';
@@ -68,24 +69,31 @@ class _KeysPageState extends State<KeysPage>{
   }
 
   Widget _body(){
-    return Container(
-      margin: EdgeInsets.all(Adapt.px(24)),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          _itemView(
-            KeyType.PublicKey,
-            Localized.text('ox_login.public_key'),
-            _pubTextEditingController,
-            false,
+    return Center(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: PlatformUtils.listWidth,
+        ),
+        child: Container(
+          margin: EdgeInsets.all(Adapt.px(24)),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              _itemView(
+                KeyType.PublicKey,
+                Localized.text('ox_login.public_key'),
+                _pubTextEditingController,
+                false,
+              ),
+              _itemView(
+                KeyType.PrivateKey,
+                Localized.text('ox_login.private_key'),
+                _privTextEditingController,
+                true,
+              ),
+            ],
           ),
-          _itemView(
-            KeyType.PrivateKey,
-            Localized.text('ox_login.private_key'),
-            _privTextEditingController,
-            true,
-          ),
-        ],
+        ),
       ),
     );
   }
