@@ -12,7 +12,9 @@ class InputFacePage extends StatefulWidget {
 
 class _InputFacePageState extends State<InputFacePage> {
   @override
-  Widget build(BuildContext context) => Container(
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    return  Container(
       decoration: BoxDecoration(
         color: ThemeColor.color190,
         borderRadius: BorderRadius.circular(12),
@@ -20,7 +22,7 @@ class _InputFacePageState extends State<InputFacePage> {
       child:EmojiPicker(
         textEditingController: widget.textController,
         config: Config(
-          columns: 7,
+          columns: (screenWidth / 50).floor(),
           emojiSizeMax: 30, // Issue: https://github.com/flutter/flutter/issues/28894
           verticalSpacing: 0,
           horizontalSpacing: 0,
