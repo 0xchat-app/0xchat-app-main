@@ -374,6 +374,7 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
         id: e.id,
         url: e.uri,
         decryptedKey: e.decryptSecret,
+        decryptedNonce: e.decryptNonce,
       )).toList(),
       initialPage: initialPage,
     );
