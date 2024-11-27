@@ -30,7 +30,7 @@ import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/custom_uri_helper.dart';
-import 'package:ox_common/utils/video_utils.dart';
+import 'package:ox_common/utils/video_data_manager.dart';
 import 'package:ox_common/widgets/common_action_dialog.dart';
 import 'package:ox_common/widgets/common_file_cache_manager.dart';
 import 'package:ox_common/widgets/common_image_gallery.dart';

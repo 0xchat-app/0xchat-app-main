@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
-import 'package:ox_common/utils/video_utils.dart';
+import 'package:ox_common/utils/video_data_manager.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_video_page.dart';
@@ -30,10 +30,11 @@ class _VideoMomentWidgetState extends State<VideoMomentWidget> {
   }
 
   Future<void> _initializeThumbnail() async {
-    final String? thumbPath = (await OXVideoUtils.getVideoThumbnailImage(videoURL: widget.videoUrl))?.path;
+    final media = await VideoDataManager.shared.fetchVideoMedia(videoURL:  widget.videoUrl);
+    final String? thumbPath = media?.thumbPath;
     if (mounted) {
       setState(() {
-        if (thumbPath != null) {
+        if (thumbPath != null && thumbPath.isNotEmpty) {
           _thumbnailFile = File(thumbPath);
         }
       });

@@ -18,7 +18,6 @@ import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
-import 'package:ox_common/utils/video_utils.dart';
 import 'package:ox_common/utils/web_url_helper.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
@@ -255,10 +254,6 @@ class ChatMessageHelper {
         final meta = CustomMessageEx.videoMetaData(
           fileId: '',
           url: url,
-          snapshotPath: (await OXVideoUtils.getVideoThumbnailImage(
-            videoURL: url,
-            onlyFromCache: true,
-          ))?.path ?? '',
           encryptedKey: decryptSecret,
           encryptedNonce: decryptNonce,
         );
