@@ -97,7 +97,7 @@ class DecryptedCacheManager extends CacheManager {
       {String? nonce, AESMode mode = AESMode.gcm, Function(List<int>)? bytesCallback}) async {
     String fileName = path.basename(file.path);
     final decryptedFile = await DecryptedCacheManager(decryptKey, '').store.fileSystem.createFile(fileName);
-    AesEncryptUtils.decryptFile(
+    AesEncryptUtils.decryptFileInIsolate(
       file,
       decryptedFile,
       decryptKey,

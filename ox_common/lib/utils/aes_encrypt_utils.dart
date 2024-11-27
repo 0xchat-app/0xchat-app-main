@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:chatcore/chat-core.dart';
 import 'package:encrypt/encrypt.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'dart:convert';
@@ -11,16 +12,22 @@ class AesEncryptUtils {
     return "nostr@chat*yuele";
   }
 
-  static Uint8List secureRandom(){
+  static Uint8List secureRandom() {
     return Key.fromSecureRandom(32).bytes;
   }
 
-  static Uint8List secureRandomNonce(){
+  static Uint8List secureRandomNonce() {
     return IV.fromLength(16).bytes;
   }
 
-  static void encryptFile(File sourceFile, File encryptedFile, String key,
-      {String? nonce, AESMode mode = AESMode.gcm}) {
+  static Future<void> encryptFileInIsolate(File sourceFile, File encryptedFile, String key,
+      {String? nonce, AESMode mode = AESMode.gcm}) async {
+    await ThreadPoolManager.sharedInstance.runAlgorithmTask(
+        () => _encryptFile(sourceFile, encryptedFile, key, nonce: nonce, mode: mode));
+  }
+
+  static Future<void> _encryptFile(File sourceFile, File encryptedFile, String key,
+      {String? nonce, AESMode mode = AESMode.gcm}) async {
     final sourceBytes = sourceFile.readAsBytesSync();
     final uint8list = hexToBytes(key);
     final encrypter = Encrypter(AES(Key(uint8list), mode: mode));
@@ -29,9 +36,16 @@ class AesEncryptUtils {
     encryptedFile.writeAsBytesSync(encryptedBytes.bytes);
   }
 
-  static void decryptFile(File encryptedFile, File decryptedFile, String key,
-      {String? nonce, AESMode mode = AESMode.gcm, Function(List<int>)? bytesCallback}) {
-    if(nonce == null || nonce.isEmpty) mode = AESMode.sic;
+  static Future<void> decryptFileInIsolate(File encryptedFile, File decryptedFile, String key,
+      {String? nonce, AESMode mode = AESMode.gcm, Function(List<int>)? bytesCallback}) async {
+    await ThreadPoolManager.sharedInstance.runAlgorithmTask(() => _decryptFile(
+        encryptedFile, decryptedFile, key,
+        nonce: nonce, mode: mode, bytesCallback: bytesCallback));
+  }
+
+  static Future<void> _decryptFile(File encryptedFile, File decryptedFile, String key,
+      {String? nonce, AESMode mode = AESMode.gcm, Function(List<int>)? bytesCallback}) async {
+    if (nonce == null || nonce.isEmpty) mode = AESMode.sic;
     final encryptedBytes = encryptedFile.readAsBytesSync();
     final uint8list = hexToBytes(key);
     final decrypter = Encrypter(AES(Key(uint8list), mode: mode));
