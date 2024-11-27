@@ -546,8 +546,8 @@ class _CommonImageGalleryState extends State<CommonImageGallery>
       final imageFile = File(imageUri);
       if (decryptKey != null) {
         final completer = Completer();
-        await DecryptedCacheManager.decryptFile(imageFile, decryptKey, nonce: decryptNonce, bytesCallback: (imageData) async {
-          result = await ImageGallerySaver.saveImage(Uint8List.fromList(imageData));
+        await DecryptedCacheManager.decryptFile(imageFile, decryptKey, nonce: decryptNonce,).then((decryptFile) async {
+          result = await ImageGallerySaver.saveImage(decryptFile.readAsBytesSync());
           completer.complete();
         });
         await completer.future;

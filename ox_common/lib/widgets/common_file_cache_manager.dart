@@ -65,10 +65,15 @@ class DecryptedCacheManager extends CacheManager {
             return fileInfo;
           }
           final validTill = const Duration(days: 30);
-          File decryptedFile = await decryptFile(fileInfo.file, decryptKey, nonce: decryptNonce, bytesCallback: (bytes) {
-            final fileBytes = Uint8List.fromList(bytes);
-            super.putFile(url, fileBytes, key: key, maxAge: validTill);
-          });
+          File decryptedFile = await decryptFile(
+            fileInfo.file,
+            decryptKey,
+            nonce: decryptNonce,
+          );
+
+          final fileBytes = decryptedFile.readAsBytesSync();
+          super.putFile(url, fileBytes, key: key, maxAge: validTill);
+
           return FileInfo(
             decryptedFile,
             FileSource.Cache,
@@ -94,16 +99,15 @@ class DecryptedCacheManager extends CacheManager {
   }
 
   static Future<File> decryptFile(io.File file, String decryptKey,
-      {String? nonce, AESMode mode = AESMode.gcm, Function(List<int>)? bytesCallback}) async {
+      {File? decryptedFile, String? nonce, AESMode mode = AESMode.gcm}) async {
     String fileName = path.basename(file.path);
-    final decryptedFile = await DecryptedCacheManager(decryptKey, '').store.fileSystem.createFile(fileName);
-    AesEncryptUtils.decryptFileInIsolate(
+    decryptedFile ??= await DecryptedCacheManager(decryptKey, nonce ?? '').store.fileSystem.createFile(fileName);
+    await AesEncryptUtils.decryptFileInIsolate(
       file,
       decryptedFile,
       decryptKey,
       nonce: nonce,
       mode: mode,
-      bytesCallback: bytesCallback,
     );
     return decryptedFile;
   }

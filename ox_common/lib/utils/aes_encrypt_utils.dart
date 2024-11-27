@@ -37,14 +37,14 @@ class AesEncryptUtils {
   }
 
   static Future<void> decryptFileInIsolate(File encryptedFile, File decryptedFile, String key,
-      {String? nonce, AESMode mode = AESMode.gcm, Function(List<int>)? bytesCallback}) async {
+      {String? nonce, AESMode mode = AESMode.gcm,}) async {
     await ThreadPoolManager.sharedInstance.runAlgorithmTask(() => _decryptFile(
         encryptedFile, decryptedFile, key,
-        nonce: nonce, mode: mode, bytesCallback: bytesCallback));
+        nonce: nonce, mode: mode,));
   }
 
   static Future<void> _decryptFile(File encryptedFile, File decryptedFile, String key,
-      {String? nonce, AESMode mode = AESMode.gcm, Function(List<int>)? bytesCallback}) async {
+      {String? nonce, AESMode mode = AESMode.gcm,}) async {
     if (nonce == null || nonce.isEmpty) mode = AESMode.sic;
     final encryptedBytes = encryptedFile.readAsBytesSync();
     final uint8list = hexToBytes(key);
@@ -52,7 +52,6 @@ class AesEncryptUtils {
     final encrypted = Encrypted(encryptedBytes);
     final iv = (nonce != null && nonce.isNotEmpty) ? IV.fromUtf8(nonce) : IV.allZerosOfLength(16);
     final decryptedBytes = decrypter.decryptBytes(encrypted, iv: iv);
-    bytesCallback?.call(decryptedBytes);
     decryptedFile.writeAsBytesSync(decryptedBytes);
   }
 

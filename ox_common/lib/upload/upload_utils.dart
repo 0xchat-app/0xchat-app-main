@@ -49,7 +49,7 @@ class UploadUtils {
         directoryPath = temporaryDirectory.path;
       }
       encryptedFile = FileUtils.createFolderAndFile(directoryPath + "/encrytedfile", filename);
-      AesEncryptUtils.encryptFileInIsolate(file, encryptedFile, encryptedKey,
+      await AesEncryptUtils.encryptFileInIsolate(file, encryptedFile, encryptedKey,
           nonce: encryptedNonce, mode: AESMode.gcm);
       uploadFile = encryptedFile;
     }
