@@ -502,9 +502,11 @@ class CustomVideoProgressIndicator extends StatelessWidget {
           return Container();
         }
         Duration position = snapshot.data ?? Duration.zero;
-        double progress =
-            position.inMilliseconds / controller.value.duration.inMilliseconds;
-
+        final totalDuration = controller.value.duration.inMilliseconds;
+        double progress = 0;
+        if (totalDuration != 0) {
+          progress = position.inMilliseconds / controller.value.duration.inMilliseconds;
+        }
         return LayoutBuilder(
           builder: (context, constraints) {
             return GestureDetector(

@@ -113,6 +113,9 @@ class UploadUtils {
         fileExtension: file.path.getFileExtension(),
       );
     }
+    if (encryptedFile != null && encryptedFile.existsSync()) {
+      encryptedFile.delete();
+    }
 
     return UploadResult.success(url, encryptedKey, encryptedNonce);
   }
