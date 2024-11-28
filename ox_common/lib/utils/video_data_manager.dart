@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:chatcore/chat-core.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/encode_utils.dart';
 import 'package:ox_common/utils/image_picker_utils.dart';
@@ -18,7 +19,7 @@ class VideoDataManager {
 
   _VideoThumbnailHandler _thumbnailHandler = _VideoThumbnailHandler();
 
-  final int _maxConcurrentTasks = 3;
+  final int _maxConcurrentTasks = 10;
   final List<_Task<Media?>> _taskQueue = [];
   int _currentTasks = 0;
 
@@ -27,42 +28,20 @@ class VideoDataManager {
     String? encryptedKey,
     String? encryptedNonce,
   }) async {
+    final taskKey = _taskKeyWithVideoURL(videoURL);
     final task = _Task<Media?>(
-      taskKey: videoURL,
+      taskKey: taskKey,
       task: () async {
         Media media = Media()..galleryMode = GalleryMode.video;
-        final fileManager = OXFileCacheManager.get(
+        final cacheManager = OXFileCacheManager.get(
           encryptKey: encryptedKey,
           encryptNonce: encryptedNonce,
         );
 
-        final cacheFile = await fileManager.getFileFromCache(videoURL);
-        if (cacheFile != null) {
-          media.path = cacheFile.file.path;
-        } else{
-          final cacheManager = OXFileCacheManager.get(
-            encryptKey: encryptedKey,
-            encryptNonce: encryptedNonce,
-          );
-
-          final tempFile = (await cacheManager.downloadFile(videoURL)).file;
-          if (encryptedKey != null) {
-            await DecryptedCacheManager.decryptFile(
-              tempFile,
-              encryptedKey,
-              decryptedFile: tempFile,
-              nonce: encryptedNonce,
-            );
-          }
-
-          final cacheFile = await cacheManager.putFile(
-            videoURL,
-            tempFile.readAsBytesSync(),
-            fileExtension: tempFile.path.getFileExtension(),
-          );
-
-          media.path = cacheFile.path;
-        }
+        try {
+          final file = await cacheManager.getSingleFile(videoURL);
+          media.path = file.path;
+        } catch (_) {}
 
         final videoFile = File(media.path ?? '');
         if (!videoFile.existsSync()) {
@@ -144,15 +123,23 @@ class VideoDataManager {
     } catch (e) { return; }
   }
 
-  void cancelTask(String taskKey) {
+  void cancelTask(String videoURL) {
+    final taskKey = _taskKeyWithVideoURL(videoURL);
     final list = [..._taskQueue];
     final task = list.where((e) => e.taskKey == taskKey).firstOrNull;
-    task?.isCancel = true;
+    if (task == null) return;
+
+    task.isCancel = true;
+    if (task.isExecuting && !task.completer.isCompleted) {
+      _executeNextTask();
+    }
   }
+
+  String _taskKeyWithVideoURL(String videoURL) => videoURL;
 }
 
 class _VideoThumbnailHandler {
-  final int _maxConcurrentTasks = 1;
+  final int _maxConcurrentTasks = 5;
   final List<_Task<File?>> _taskQueue = [];
   int _currentTasks = 0;
 
@@ -161,8 +148,9 @@ class _VideoThumbnailHandler {
     required String videoFilePath,
   }) async {
     final thumbnailURL = _thumbnailSnapshotURL(videoURL);
+    final taskKey = _taskKeyWithVideoURL(videoURL);
     final task = _Task(
-      taskKey: thumbnailURL,
+      taskKey: taskKey,
       task: () async {
         final cacheManager = OXFileCacheManager.get();
 
@@ -179,13 +167,13 @@ class _VideoThumbnailHandler {
         );
         tempFile.createSync(recursive: true);
 
-        final thumbnailFilePath = await VideoThumbnail.thumbnailFile(
+        final thumbnailFilePath = await ThreadPoolManager.sharedInstance.runAlgorithmTask(() => VideoThumbnail.thumbnailFile(
           video: videoFilePath,
           thumbnailPath: tempFile.path,
           imageFormat: ImageFormat.JPEG,
           maxWidth: (Adapt.screenW * Adapt.devicePixelRatio).toInt(),
           quality: 100,
-        );
+        ));
 
         if (thumbnailFilePath == null) return null;
 
@@ -228,13 +216,13 @@ class _VideoThumbnailHandler {
         );
         tempFile.createSync(recursive: true);
 
-        final thumbnailFilePath = await VideoThumbnail.thumbnailFile(
+        final thumbnailFilePath = await ThreadPoolManager.sharedInstance.runAlgorithmTask(() => VideoThumbnail.thumbnailFile(
           video: videoFilePath,
           thumbnailPath: tempFile.path,
           imageFormat: ImageFormat.JPEG,
           maxWidth: (Adapt.screenW * Adapt.devicePixelRatio).toInt(),
           quality: 100,
-        );
+        ));
 
         if (thumbnailFilePath == null) return null;
 
@@ -306,11 +294,14 @@ class _VideoThumbnailHandler {
     } catch (e) { return; }
   }
 
-  void cancelTask(String taskKey) {
+  void cancelTask(String videoURL) {
+    final taskKey = _taskKeyWithVideoURL(videoURL);
     final list = [..._taskQueue];
     final task = list.where((e) => e.taskKey == taskKey).firstOrNull;
     task?.isCancel = true;
   }
+
+  String _taskKeyWithVideoURL(String videoURL) => _thumbnailSnapshotURL(videoURL);
 
   static String _thumbnailSnapshotURL(String videoURL) {
     if (UplodAliyun.isAliOSSUrl(videoURL)) {
