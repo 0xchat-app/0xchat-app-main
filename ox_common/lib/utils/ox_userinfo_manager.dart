@@ -332,7 +332,7 @@ class OXUserInfoManager {
     String jsonString = UserConfigTool.getSetting(StorageSettingKey.KEY_NOTIFICATION_LIST.name, defaultValue: '{}');
     final Map<String, dynamic> jsonMap = json.decode(jsonString);
     ///4、 44 private chat;  1059 secret chat & audio video call; 42  channel message; 9735 zap; 9、10 relay group; 1、6 reply&repost; 7 like
-    List<int> kinds = [4, 44, 1059, 9, 10];
+    List<int> kinds = [4, 44, 1059, 42, 9735, 9, 10, 1, 6, 7];
     for (var entry in jsonMap.entries) {
       var value = entry.value;
       if (value is Map<String, dynamic>) {
@@ -345,18 +345,18 @@ class OXUserInfoManager {
           kinds.remove(44);
           kinds.remove(1059);
         }
-        if (value['id'] == CommonConstant.NOTIFICATION_CHANNELS && value['isSelected']) {
-          kinds.add(42);
+        if (value['id'] == CommonConstant.NOTIFICATION_CHANNELS && !value['isSelected']) {
+          kinds.remove(42);
         }
-        if (value['id'] == CommonConstant.NOTIFICATION_ZAPS && value['isSelected']) {
-          kinds.add(9735);
+        if (value['id'] == CommonConstant.NOTIFICATION_ZAPS && !value['isSelected']) {
+          kinds.remove(9735);
         }
-        if (value['id'] == CommonConstant.NOTIFICATION_REACTIONS && value['isSelected']) {
-          kinds.add(7);
+        if (value['id'] == CommonConstant.NOTIFICATION_REACTIONS && !value['isSelected']) {
+          kinds.remove(7);
         }
-        if (value['id'] == CommonConstant.NOTIFICATION_REPLIES && value['isSelected']) {
-          kinds.add(1);
-          kinds.add(6);
+        if (value['id'] == CommonConstant.NOTIFICATION_REPLIES && !value['isSelected']) {
+          kinds.remove(1);
+          kinds.remove(6);
         }
         if (value['id'] == CommonConstant.NOTIFICATION_GROUPS && !value['isSelected']) {
           kinds.remove(9);
