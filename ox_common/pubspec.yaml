@@ -78,6 +78,7 @@ dependencies:
   minio:
     path: ./minio
   bitsdojo_window: ^0.1.6
+  screenshot: ^2.5.0
 
 
   chatcore:

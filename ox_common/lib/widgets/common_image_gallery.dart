@@ -1,26 +1,29 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:math' as math;
 import 'dart:math';
-import 'dart:async';
 
+import 'package:dio/dio.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/scan_utils.dart';
 import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/widgets/common_file_cache_manager.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:screenshot/screenshot.dart';
+
 import '../utils/theme_color.dart';
 import 'common_loading.dart';
 import 'common_toast.dart';
-import 'package:dio/dio.dart';
-import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
 
 typedef DoubleClickAnimationListener = void Function();
 
@@ -141,6 +144,8 @@ class _CommonImageGalleryState extends State<CommonImageGallery>
   final StreamController<double> rebuildDetail =
       StreamController<double>.broadcast();
 
+  ScreenshotController _screenshotController = ScreenshotController();
+
   bool isScrollComplete = true;
 
   Offset _offset = Offset.zero;
@@ -148,6 +153,7 @@ class _CommonImageGalleryState extends State<CommonImageGallery>
   @override
   void initState() {
     super.initState();
+    print('Jeff: --_CommonImageGalleryState--initState----');
     _pageController = ExtendedPageController(
       initialPage: widget.initialPage!,
       pageSpacing: 50,
@@ -184,97 +190,100 @@ class _CommonImageGalleryState extends State<CommonImageGallery>
       color: Colors.transparent,
       child: Stack(
         children: [
-          GestureDetector(
-            onLongPress: _showBottomMenu,
-            onTap: () {
-              if (isScrollComplete) {
-                OXNavigator.pop(context);
-              }
-            },
-            child: ExtendedImageSlidePage(
-              key: slidePagekey,
-              slideAxis: SlideAxis.both,
-              slideType: SlideType.onlyImage,
-              slidePageBackgroundHandler: (Offset offset, Size pageSize) =>
-                  _slidePageBackgroundHandler(offset, pageSize),
-              slideOffsetHandler: (
-                Offset offset, {
-                ExtendedImageSlidePageState? state,
-              }) =>
-                  _slideOffsetHandler(offset, state: state),
-              slideScaleHandler: (
-                Offset offset, {
-                ExtendedImageSlidePageState? state,
-              }) {
-                return 1.0;
+          Screenshot(
+            controller: _screenshotController,
+            child: GestureDetector(
+              onLongPress: _showBottomMenu,
+              onTap: () {
+                if (isScrollComplete) {
+                  OXNavigator.pop(context);
+                }
               },
-              slideEndHandler: (
-                Offset offset, {
-                ExtendedImageSlidePageState? state,
-                ScaleEndDetails? details,
-              }) =>
-                  _slideEndHandler(offset, state: state, details: details),
-              resetPageDuration: const Duration(milliseconds: 1),
-              onSlidingPage: (ExtendedImageSlidePageState state) {},
-              child: ExtendedImageGesturePageView.builder(
-                controller: _pageController,
-                itemCount: widget.imageList.length,
-                scrollDirection: Axis.horizontal,
-                physics: widget.imageList.length == 1
-                    ? NeverScrollableScrollPhysics()
-                    : SmoothPageScrollPhysics(),
-                canScrollPage: (GestureDetails? gestureDetails) {
-                  return true;
+              child: ExtendedImageSlidePage(
+                key: slidePagekey,
+                slideAxis: SlideAxis.both,
+                slideType: SlideType.onlyImage,
+                slidePageBackgroundHandler: (Offset offset, Size pageSize) =>
+                    _slidePageBackgroundHandler(offset, pageSize),
+                slideOffsetHandler: (
+                  Offset offset, {
+                  ExtendedImageSlidePageState? state,
+                }) =>
+                    _slideOffsetHandler(offset, state: state),
+                slideScaleHandler: (
+                  Offset offset, {
+                  ExtendedImageSlidePageState? state,
+                }) {
+                  return 1.0;
                 },
-                itemBuilder: (BuildContext context, int index) {
-                  final entry = widget.imageList[index];
-                  return HeroWidget(
-                    child: ExtendedImage(
-                      image: OXCachedImageProviderEx.create(
-                        entry.url,
-                        decryptedKey: entry.decryptedKey,
+                slideEndHandler: (
+                  Offset offset, {
+                  ExtendedImageSlidePageState? state,
+                  ScaleEndDetails? details,
+                }) =>
+                    _slideEndHandler(offset, state: state, details: details),
+                resetPageDuration: const Duration(milliseconds: 1),
+                onSlidingPage: (ExtendedImageSlidePageState state) {},
+                child: ExtendedImageGesturePageView.builder(
+                  controller: _pageController,
+                  itemCount: widget.imageList.length,
+                  scrollDirection: Axis.horizontal,
+                  physics: widget.imageList.length == 1
+                      ? NeverScrollableScrollPhysics()
+                      : SmoothPageScrollPhysics(),
+                  canScrollPage: (GestureDetails? gestureDetails) {
+                    return true;
+                  },
+                  itemBuilder: (BuildContext context, int index) {
+                    final entry = widget.imageList[index];
+                    return HeroWidget(
+                      child: ExtendedImage(
+                        image: OXCachedImageProviderEx.create(
+                          entry.url,
+                          decryptedKey: entry.decryptedKey,
+                        ),
+                        loadStateChanged: (ExtendedImageState state) {
+                          switch (state.extendedImageLoadState) {
+                            case LoadState.loading:
+                              return Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            case LoadState.completed:
+                              return null; // Use the completed image
+                            case LoadState.failed:
+                              return Center(
+                                child: Text('Load failed'),
+                              );
+                          }
+                        },
+                        enableSlideOutPage: true,
+                        onDoubleTap: (ExtendedImageGestureState state) =>
+                            _onDoubleTap(state),
+                        mode: ExtendedImageMode.gesture,
+                        initGestureConfigHandler: (state) {
+                          return GestureConfig(
+                            minScale: 0.9,
+                            animationMinScale: 0.7,
+                            maxScale: 3.0,
+                            animationMaxScale: 3.5,
+                            speed: 1.0,
+                            inertialSpeed: 100.0,
+                            initialScale: 1.0,
+                            inPageView: false,
+                            initialAlignment: InitialAlignment.center,
+                          );
+                        },
                       ),
-                      loadStateChanged: (ExtendedImageState state) {
-                        switch (state.extendedImageLoadState) {
-                          case LoadState.loading:
-                            return Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          case LoadState.completed:
-                            return null; // Use the completed image
-                          case LoadState.failed:
-                            return Center(
-                              child: Text('Load failed'),
-                            );
-                        }
-                      },
-                      enableSlideOutPage: true,
-                      onDoubleTap: (ExtendedImageGestureState state) =>
-                          _onDoubleTap(state),
-                      mode: ExtendedImageMode.gesture,
-                      initGestureConfigHandler: (state) {
-                        return GestureConfig(
-                          minScale: 0.9,
-                          animationMinScale: 0.7,
-                          maxScale: 3.0,
-                          animationMaxScale: 3.5,
-                          speed: 1.0,
-                          inertialSpeed: 100.0,
-                          initialScale: 1.0,
-                          inPageView: false,
-                          initialAlignment: InitialAlignment.center,
-                        );
-                      },
-                    ),
-                    tag: widget.imageList[index].id,
-                    slideType: SlideType.onlyImage,
-                    slidePagekey: slidePagekey,
-                  );
-                  // );
-                },
-                onPageChanged: (int index) {
-                  print('page changed to $index');
-                },
+                      tag: widget.imageList[index].id,
+                      slideType: SlideType.onlyImage,
+                      slidePagekey: slidePagekey,
+                    );
+                    // );
+                  },
+                  onPageChanged: (int index) {
+                    print('page changed to $index');
+                  },
+                ),
               ),
             ),
           ),
@@ -334,6 +343,25 @@ class _CommonImageGalleryState extends State<CommonImageGallery>
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: <Widget>[
+                      new GestureDetector(
+                        onTap: _identifyQRCode,
+                        child: Container(
+                          height: Adapt.px(48),
+                          padding: EdgeInsets.all(Adapt.px(8)),
+                          alignment: FractionalOffset.center,
+                          decoration: new BoxDecoration(
+                            color: ThemeColor.color180,
+                          ),
+                          child: Text(
+                            Localized.text('ox_chat.scan_qr_code'),
+                            style: new TextStyle(color: ThemeColor.gray02, fontSize: Adapt.px(16), fontWeight: FontWeight.normal),
+                          ),
+                        ),
+                      ),
+                      Divider(
+                        height: Adapt.px(0.5),
+                        color: ThemeColor.color160,
+                      ),
                       new GestureDetector(
                         onTap: () async {
                           await _widgetShotAndSave();
@@ -538,6 +566,40 @@ class _CommonImageGalleryState extends State<CommonImageGallery>
     }
   }
 
+  Future<void> _identifyQRCode() async {
+    final image = await _screenshotController.capture();
+    if(image == null)return;
+    OXLoading.show();
+    final directory = await getApplicationDocumentsDirectory();
+    final imagePath = '${directory.path}/screenshot.png';
+    final imageFile = File(imagePath);
+    await imageFile.writeAsBytes(image);
+
+    try {
+      String qrcode = await OXCommon.scanPath(imageFile.path);
+      _deleteImage(imageFile.path);
+      OXLoading.dismiss();
+      OXNavigator.pop(context);
+      ScanUtils.analysis(context, qrcode);
+    } catch (e) {
+      OXLoading.dismiss();
+      CommonToast.instance.show(context, "str_invalid_qr_code".commonLocalized());
+    }
+  }
+
+  void _deleteImage(String imagePath) {
+    final file = File(imagePath);
+    if (file.existsSync()) {
+      file.delete().then((_) {
+        print('File Deleted');
+      }).catchError((error) {
+        print('Error: $error');
+      });
+    } else {
+      print('File not found');
+    }
+  }
+
   void _nextPage() {
     _pageController.nextPage(
       duration: Duration(milliseconds: 300),
@@ -645,4 +707,18 @@ class _HeroWidgetState extends State<HeroWidget> {
       child: widget.child,
     );
   }
+}
+
+
+class ImageGalleryOptions {
+  const ImageGalleryOptions({
+    this.maxScale,
+    this.minScale,
+  });
+
+  /// See [PhotoViewGalleryPageOptions.maxScale].
+  final dynamic maxScale;
+
+  /// See [PhotoViewGalleryPageOptions.minScale].
+  final dynamic minScale;
 }
