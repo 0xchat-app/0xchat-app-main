@@ -47,6 +47,12 @@ class ChatVideoMessageState extends State<ChatVideoMessage> {
     prepareData();
     tryInitializeVideoMedia();
   }
+  
+  @override
+  void dispose() {
+    VideoDataManager.shared.cancelTask(videoURL);
+    super.dispose();
+  }
 
   @override
   void didUpdateWidget(covariant ChatVideoMessage oldWidget) {

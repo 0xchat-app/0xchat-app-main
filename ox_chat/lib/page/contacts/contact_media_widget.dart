@@ -163,6 +163,7 @@ class ContactMediaWidgetState extends State<ContactMediaWidget>
                     reactionWidget: Container(),
                     receiverPubkey: null,
                     messageUpdateCallback: (newMessage) {
+                      if (!mounted) return;
                       setState(() {
                         messagesList[index] = newMessage;
                       });
@@ -287,6 +288,12 @@ class RenderVideoMessageState extends State<RenderVideoMessage> {
     super.initState();
     prepareData();
     tryInitializeVideoFile();
+  }
+
+  @override
+  void dispose() {
+    VideoDataManager.shared.cancelTask(videoURL);
+    super.dispose();
   }
 
   @override
