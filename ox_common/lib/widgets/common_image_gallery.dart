@@ -241,6 +241,7 @@ class _CommonImageGalleryState extends State<CommonImageGallery>
                         image: OXCachedImageProviderEx.create(
                           entry.url,
                           decryptedKey: entry.decryptedKey,
+                          decryptedNonce: entry.decryptedNonce,
                         ),
                         loadStateChanged: (ExtendedImageState state) {
                           switch (state.extendedImageLoadState) {
