@@ -7,6 +7,7 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/num_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/web_url_helper.dart';
+import 'package:ox_common/widgets/common_image_gallery.dart';
 import 'package:photo_view/photo_view.dart' show PhotoViewComputedScale;
 import 'package:scroll_to_index/scroll_to_index.dart';
 
@@ -20,7 +21,6 @@ import '../models/message_spacer.dart';
 import '../models/unread_header_data.dart';
 import '../util.dart';
 import 'chat_list.dart';
-import 'image_gallery.dart';
 import 'input/input.dart';
 import 'input/input_more_page.dart';
 import 'message/message.dart';

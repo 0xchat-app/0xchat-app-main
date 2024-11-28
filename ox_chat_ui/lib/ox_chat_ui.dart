@@ -13,7 +13,6 @@ export 'src/ox_chat_ui.dart';
 export 'src/util.dart' show formatBytes, isConsistsOfEmojis;
 export 'src/widgets/chat.dart';
 export 'src/widgets/chat_list.dart';
-export 'src/widgets/image_gallery.dart';
 export 'src/widgets/input/attachment_button.dart';
 export 'src/widgets/input/input.dart';
 export 'src/widgets/input/input_more_page.dart';
