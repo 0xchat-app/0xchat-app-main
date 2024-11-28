@@ -93,8 +93,6 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
 
   List<TranslucentNavigationBarItem> _tabBarList = [];
 
-  bool hasVibrator = false;
-
   bool get isDark => ThemeManager.getCurrentThemeStyle() == ThemeStyle.dark;
 
   // State machine
@@ -128,11 +126,6 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     }
   }
 
-  isHasVibrator() async {
-    if(!PlatformUtils.isMobile) return;
-    hasVibrator = (await Vibrate.canVibrate);
-  }
-
   @override
   void initState() {
     super.initState();
@@ -144,8 +137,6 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     _animation = Tween<double>(begin: 0.0, end: 72 + 24.px).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeInOut));
     prepareMessageTimer();
     dataInit();
-    isHasVibrator();
-
   }
 
   @override
@@ -285,16 +276,14 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
 
   void _tabbarItemOnLongPress(TranslucentNavigationBarItem item){
     int index = _tabBarList.indexOf(item);
-    if (hasVibrator == true && OXUserInfoManager.sharedInstance.canVibrate) {
-      TookKit.vibrateEffect();
-    }
+    TookKit.vibrateEffect();
     _showPopupDialog(context, index);
   }
 
   void _tabBarItemOnTap(TranslucentNavigationBarItem item) {
     int draftIndex = selectedIndex;
     int index = _tabBarList.indexOf(item);
-    if (selectedIndex != index && hasVibrator == true && OXUserInfoManager.sharedInstance.canVibrate) {
+    if (selectedIndex != index) {
       TookKit.vibrateEffect();
     }
     if (!OXUserInfoManager.sharedInstance.isLogin && (index == 2)) {

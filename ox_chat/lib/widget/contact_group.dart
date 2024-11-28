@@ -17,6 +17,7 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/font_size_notifier.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
@@ -31,7 +32,6 @@ class GroupContact extends StatefulWidget {
   final Widget? appBar;
   final Widget? topWidget;
   final bool supportLongPress;
-  final bool hasVibrator;
 
   GroupContact({
     Key? key,
@@ -41,7 +41,6 @@ class GroupContact extends StatefulWidget {
     this.appBar,
     this.topWidget,
     this.supportLongPress = false,
-    this.hasVibrator = false,
   }) : super(key: key);
 
   @override
@@ -278,7 +277,6 @@ class GroupContactState extends State<GroupContact> {
                     GroupContactListItem(
                       item: item.childList[i],
                       supportLongPress: widget.supportLongPress,
-                      hasVibrator: widget.hasVibrator,
                     ),
                 childCount: item.childList.length,
                 // addAutomaticKeepAlives: addAutomaticKeepAlives,
@@ -358,13 +356,11 @@ class GroupContactListItem extends StatefulWidget {
   late GroupUIModel item;
   final onCheckChanged;
   final bool supportLongPress;
-  final bool hasVibrator;
 
   GroupContactListItem({
     required this.item,
     this.onCheckChanged,
     this.supportLongPress = false,
-    this.hasVibrator = false,
   });
 
   @override
@@ -377,10 +373,7 @@ class _GroupContactListItemState extends State<GroupContactListItem> {
   ValueNotifier<bool> valueNotifier = ValueNotifier(false);
 
   void _itemLongPress() async {
-    if (widget.hasVibrator && OXUserInfoManager.sharedInstance.canVibrate) {
-      FeedbackType type = FeedbackType.impact;
-      Vibrate.feedback(type);
-    }
+    TookKit.vibrateEffect();
     await Future.delayed(Duration(milliseconds: 100));
     valueNotifier.value = false;
     if (widget.supportLongPress && widget.item.groupId.isNotEmpty) {

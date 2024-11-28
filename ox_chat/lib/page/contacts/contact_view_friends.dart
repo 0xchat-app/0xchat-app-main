@@ -34,7 +34,6 @@ class _ContractViewFriendsState extends State<ContractViewFriends>
   List<UserDBISAR> userList = [];
 
   GlobalKey<ContactWidgetState> contractWidgetKey = new GlobalKey<ContactWidgetState>();
-  bool _hasVibrator = false;
 
   @override
   void initState() {
@@ -43,7 +42,6 @@ class _ContractViewFriendsState extends State<ContractViewFriends>
     OXChatBinding.sharedInstance.addObserver(this);
     _getDefaultData();
     _onRefresh();
-    isHasVibrator();
     widget.scrollToTopStatus?.isScrolledToTop.addListener(_scrollToTop);
   }
 
@@ -53,12 +51,6 @@ class _ContractViewFriendsState extends State<ContractViewFriends>
     OXChatBinding.sharedInstance.removeObserver(this);
     super.dispose();
     widget.scrollToTopStatus?.isScrolledToTop.removeListener(_scrollToTop);
-  }
-
-  isHasVibrator() async {
-    if(!PlatformUtils.isMobile) return;
-    _hasVibrator = await Vibrate.canVibrate;
-    setState(() {});
   }
 
   @override
@@ -75,7 +67,6 @@ class _ContractViewFriendsState extends State<ContractViewFriends>
           appBar: widget.appBar,
           bgColor: widget.bgColor,
           supportLongPress: true,
-          hasVibrator: _hasVibrator,
         ),
     );
   }

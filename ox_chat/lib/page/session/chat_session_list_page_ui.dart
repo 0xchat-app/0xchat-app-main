@@ -234,9 +234,7 @@ extension ChatSessionListPageUI on ChatSessionListPageState{
         _scaleList[index].value = true;
       },
       onLongPress: () async {
-        if (_hasVibrator && OXUserInfoManager.sharedInstance.canVibrate) {
-          TookKit.vibrateEffect();
-        }
+        TookKit.vibrateEffect();
         await Future.delayed(Duration(milliseconds: 100));
         _scaleList[index].value = false;
         _itemLongPressFn(item, index);

@@ -39,7 +39,6 @@ class ContactWidget extends StatefulWidget {
   final Widget? topWidget;
   final Color? bgColor;
   final bool supportLongPress;
-  final bool hasVibrator;
 
   ContactWidget({
     Key? key,
@@ -53,7 +52,6 @@ class ContactWidget extends StatefulWidget {
     this.appBar,
     this.bgColor,
     this.supportLongPress = false,
-    this.hasVibrator = false,
   }) : super(key: key);
 
   @override
@@ -317,7 +315,6 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
                     onCheckChanged: _onCheckChangedListener,
                     hostName: widget.hostName,
                     supportLongPress: widget.supportLongPress,
-                    hasVibrator: widget.hasVibrator,
                   );
                 },
                 childCount: item.childList.length,
@@ -401,7 +398,6 @@ class ContractListItem extends StatefulWidget {
 
   String hostName = ''; //The current domain
   final bool supportLongPress;
-  final bool hasVibrator;
 
   ContractListItem({
     required this.item,
@@ -409,7 +405,6 @@ class ContractListItem extends StatefulWidget {
     this.onCheckChanged,
     this.hostName = 'ox.com',
     this.supportLongPress = false,
-    this.hasVibrator = false,
   });
 
   @override
@@ -430,9 +425,7 @@ class _ContractListItemState extends State<ContractListItem> {
   }
 
   void _itemLongPress() async {
-    if (widget.hasVibrator && OXUserInfoManager.sharedInstance.canVibrate) {
-      TookKit.vibrateEffect();
-    }
+    TookKit.vibrateEffect();
     await Future.delayed(Duration(milliseconds: 100));
     valueNotifier.value = false;
     if (widget.supportLongPress && widget.item.pubKey.isNotEmpty) {

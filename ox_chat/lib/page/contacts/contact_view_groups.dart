@@ -43,7 +43,6 @@ class _ContactViewGroupsState extends State<ContactViewGroups> with SingleTicker
     OXChatBinding.sharedInstance.addObserver(this);
     WidgetsBinding.instance.addObserver(this);
     _onRefresh();
-    isHasVibrator();
     widget.scrollToTopStatus?.isScrolledToTop.addListener(_scrollToTop);
   }
 
@@ -55,13 +54,6 @@ class _ContactViewGroupsState extends State<ContactViewGroups> with SingleTicker
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
     widget.scrollToTopStatus?.isScrolledToTop.removeListener(_scrollToTop);
-  }
-
-  isHasVibrator() async {
-    if(PlatformUtils.isMobile){
-      hasVibrator = await Vibrate.canVibrate;
-      setState(() {});
-    }
   }
 
   @override
@@ -80,7 +72,6 @@ class _ContactViewGroupsState extends State<ContactViewGroups> with SingleTicker
         appBar: widget.appBar,
         topWidget: widget.topWidget,
         supportLongPress: true,
-        hasVibrator: hasVibrator,
       ),
     );
   }
