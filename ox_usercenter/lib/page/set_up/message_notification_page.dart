@@ -75,7 +75,7 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
     if (!containsChannels) {
       _allNoticeModel[CommonConstant.NOTIFICATION_CHANNELS.toString()] = NoticeModel(
         id: CommonConstant.NOTIFICATION_CHANNELS,
-        isSelected: true,
+        isSelected: false,
       );
     }
     bool containsZaps = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_ZAPS.toString());
@@ -103,14 +103,14 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
     if (!containsLike) {
       _allNoticeModel[CommonConstant.NOTIFICATION_REACTIONS.toString()] = NoticeModel(
         id: CommonConstant.NOTIFICATION_REACTIONS,
-        isSelected: true,
+        isSelected: false,
       );
     }
     bool containsReply = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_REPLIES.toString());
     if (!containsReply) {
       _allNoticeModel[CommonConstant.NOTIFICATION_REPLIES.toString()] = NoticeModel(
         id: CommonConstant.NOTIFICATION_REPLIES,
-        isSelected: true,
+        isSelected: false,
       );
     }
     bool containsGroups = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_GROUPS.toString());
