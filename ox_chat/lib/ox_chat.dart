@@ -321,7 +321,7 @@ class OXChat extends OXFlutterModule {
 
     // Decrypt
     final decryptedFile = File('${dir.path}/Tmp/tmp-${uri.pathSegments.lastOrNull}');
-    AesEncryptUtils.decryptFile(encryptedFile, decryptedFile, key);
+    AesEncryptUtils.decryptFileInIsolate(encryptedFile, decryptedFile, key);
 
     if (Platform.isAndroid){
       String fileContent = await loadFileByAndroid(decryptedFile);

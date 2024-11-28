@@ -13,10 +13,7 @@ class InputFacePage extends StatefulWidget {
 class _InputFacePageState extends State<InputFacePage> {
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery
-        .of(context)
-        .size
-        .width;
+    final screenWidth = MediaQuery.of(context).size.width;
     return Container(
       decoration: BoxDecoration(
         color: ThemeColor.color190,
