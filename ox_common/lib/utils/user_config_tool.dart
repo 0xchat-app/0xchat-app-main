@@ -69,12 +69,12 @@ class UserConfigTool{
       Map<String, Map<String, dynamic>> notificationMap = {};
       notificationMap[CommonConstant.NOTIFICATION_PUSH_NOTIFICATIONS.toString()] = { 'id': CommonConstant.NOTIFICATION_PUSH_NOTIFICATIONS, 'isSelected': true};
       notificationMap[CommonConstant.NOTIFICATION_PRIVATE_MESSAGES.toString()] = { 'id': CommonConstant.NOTIFICATION_PRIVATE_MESSAGES, 'isSelected': true};
-      notificationMap[CommonConstant.NOTIFICATION_CHANNELS.toString()] = { 'id': CommonConstant.NOTIFICATION_CHANNELS, 'isSelected': true};
-      notificationMap[CommonConstant.NOTIFICATION_ZAPS.toString()] = { 'id': CommonConstant.NOTIFICATION_ZAPS, 'isSelected': true};
+      notificationMap[CommonConstant.NOTIFICATION_CHANNELS.toString()] = { 'id': CommonConstant.NOTIFICATION_CHANNELS, 'isSelected': false};
+      notificationMap[CommonConstant.NOTIFICATION_ZAPS.toString()] = { 'id': CommonConstant.NOTIFICATION_ZAPS, 'isSelected': false};
       notificationMap[CommonConstant.NOTIFICATION_SOUND.toString()] = { 'id': CommonConstant.NOTIFICATION_SOUND, 'isSelected': true};
       notificationMap[CommonConstant.NOTIFICATION_VIBRATE.toString()] = { 'id': CommonConstant.NOTIFICATION_VIBRATE, 'isSelected': true};
-      notificationMap[CommonConstant.NOTIFICATION_REACTIONS.toString()] = { 'id': CommonConstant.NOTIFICATION_REACTIONS, 'isSelected': true};
-      notificationMap[CommonConstant.NOTIFICATION_REPLIES.toString()] = { 'id': CommonConstant.NOTIFICATION_REPLIES, 'isSelected': true};
+      notificationMap[CommonConstant.NOTIFICATION_REACTIONS.toString()] = { 'id': CommonConstant.NOTIFICATION_REACTIONS, 'isSelected': false};
+      notificationMap[CommonConstant.NOTIFICATION_REPLIES.toString()] = { 'id': CommonConstant.NOTIFICATION_REPLIES, 'isSelected': false};
       notificationMap[CommonConstant.NOTIFICATION_GROUPS.toString()] = { 'id': CommonConstant.NOTIFICATION_GROUPS, 'isSelected': true};
       OXUserInfoManager.sharedInstance.settingsMap[StorageSettingKey.KEY_NOTIFICATION_LIST.name] = json.encode(notificationMap);
     }
