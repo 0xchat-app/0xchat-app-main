@@ -78,13 +78,7 @@ extension ChatMessageBuilderReactionEx on ChatMessageBuilder {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              reaction.content,
-              style: TextStyle(
-                fontSize: 14.sp,
-                height: 1.4,
-              ),
-            ),
+            _builderReactionContent(reaction.content),
             SizedBox(width: 4.px,),
             Text(
               reactionNames.join(', ') + reactionNamesSuffix,
@@ -95,6 +89,32 @@ extension ChatMessageBuilderReactionEx on ChatMessageBuilder {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  static Widget _builderReactionContent(String content) {
+    final size = 14;
+    final sizeFactor = 1.4;
+    if (content.isRemoteURL) {
+      return SizedBox(
+        width: size.spWithTextScale * sizeFactor,
+        height: size.spWithTextScale * sizeFactor,
+        child: Center(
+          child: OXCachedNetworkImage(
+            imageUrl: content,
+            width: size.spWithTextScale,
+            height: size.spWithTextScale,
+            fit: BoxFit.contain,
+          ),
+        ),
+      );
+    }
+    return Text(
+      content,
+      style: TextStyle(
+        fontSize: size.sp,
+        height: sizeFactor,
       ),
     );
   }

@@ -344,7 +344,8 @@ class ChatMessageHelper {
       final note = await Moment.sharedInstance.loadNoteWithNoteId(reactionId, reload: false);
       if (note == null || note.content.isEmpty) continue ;
 
-      final content = note.content;
+      final emojiURL = note.emojiURL ?? '';
+      final content = emojiURL.isNotEmpty ? emojiURL : note.content;
       final reaction = reactionModelMap.putIfAbsent(
           content, () => types.Reaction(content: content));
       final reactionAuthorSet = reactionAuthorMap.putIfAbsent(
