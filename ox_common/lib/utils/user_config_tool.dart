@@ -70,7 +70,7 @@ class UserConfigTool{
       notificationMap[CommonConstant.NOTIFICATION_PUSH_NOTIFICATIONS.toString()] = { 'id': CommonConstant.NOTIFICATION_PUSH_NOTIFICATIONS, 'isSelected': true};
       notificationMap[CommonConstant.NOTIFICATION_PRIVATE_MESSAGES.toString()] = { 'id': CommonConstant.NOTIFICATION_PRIVATE_MESSAGES, 'isSelected': true};
       notificationMap[CommonConstant.NOTIFICATION_CHANNELS.toString()] = { 'id': CommonConstant.NOTIFICATION_CHANNELS, 'isSelected': false};
-      notificationMap[CommonConstant.NOTIFICATION_ZAPS.toString()] = { 'id': CommonConstant.NOTIFICATION_ZAPS, 'isSelected': false};
+      notificationMap[CommonConstant.NOTIFICATION_ZAPS.toString()] = { 'id': CommonConstant.NOTIFICATION_ZAPS, 'isSelected': true};
       notificationMap[CommonConstant.NOTIFICATION_SOUND.toString()] = { 'id': CommonConstant.NOTIFICATION_SOUND, 'isSelected': true};
       notificationMap[CommonConstant.NOTIFICATION_VIBRATE.toString()] = { 'id': CommonConstant.NOTIFICATION_VIBRATE, 'isSelected': true};
       notificationMap[CommonConstant.NOTIFICATION_REACTIONS.toString()] = { 'id': CommonConstant.NOTIFICATION_REACTIONS, 'isSelected': false};
