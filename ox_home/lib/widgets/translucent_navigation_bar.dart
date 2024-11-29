@@ -315,35 +315,42 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     }
   }
 
-  Widget _tabbarItemWidget(TranslucentNavigationBarItem item, GlobalKey tabbarKey) {
-    return Stack(
+  Widget _tabbarItemWidget(
+      TranslucentNavigationBarItem item, GlobalKey tabbarKey) {
+    return Container(
       key: tabbarKey,
-      alignment: Alignment.bottomCenter,
-      children: [
-        Container(
-          height: widget.height,
-          color: Colors.transparent,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: EdgeInsets.only(
-                  bottom: Adapt.px(2),
+      padding: EdgeInsets.symmetric(horizontal: 15.px),
+      child: Stack(
+        alignment: Alignment.bottomCenter,
+        children: [
+          Container(
+            height: widget.height,
+            color: Colors.transparent,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: EdgeInsets.only(
+                    bottom: Adapt.px(2),
+                  ),
+                  width: Adapt.px(24),
+                  child: Stack(
+                    children: [_getMyTabBarIcon(item)],
+                  ),
                 ),
-                width: Adapt.px(24),
-                child: Stack(
-                  children: [_getMyTabBarIcon(item)],
-                ),
-              ),
-              _getTabBarTitle(item),
-            ],
+                _getTabBarTitle(item),
+              ],
+            ),
           ),
-        ),
-        Positioned(bottom: Adapt.px(6),child: _promptWidget(item),),
-      ],
-    ).setPadding(EdgeInsets.symmetric(horizontal: 15.px));
+          Positioned(
+            bottom: Adapt.px(6),
+            child: _promptWidget(item),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _promptWidget(TranslucentNavigationBarItem item) {
@@ -697,13 +704,13 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
 
     switch (index) {
       case 0:
-        dialogOffset = position.dx - 80;
+        dialogOffset = position.dx - 40;
         break;
       case 1:
-        dialogOffset = position.dx - 80;
+        dialogOffset = position.dx - 40;
         break;
       case 2:
-        dialogOffset = position.dx - 80;
+        dialogOffset = position.dx - 86;
         break;
       default:
         dialogOffset = position.dx;
