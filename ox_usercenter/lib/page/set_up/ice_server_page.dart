@@ -4,6 +4,7 @@ import 'package:ox_common/model/ice_server_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_server_manager.dart';
+import 'package:ox_common/utils/platform_utils.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
@@ -97,18 +98,25 @@ class _ICEServerPageState extends State<ICEServerPage> {
         FocusScope.of(context).requestFocus(FocusNode());
       },
       child: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            _buildP2pStatusWidget(),
-            _buildItem(Localized.text('ox_usercenter.connect_ice_server'), _buildICEServerTextField()),
-            SizedBox(
-              height: Adapt.px(12),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: PlatformUtils.listWidth,
             ),
-            _buildAddButton(),
-            _connectICEServerList.isNotEmpty ? _buildItem(Localized.text('ox_usercenter.connected_ice_server'), _buildICEServerList(_connectICEServerList,)) : Container(),
-            _recommendICEServerList.isNotEmpty ? _buildItem(Localized.text('ox_usercenter.recommend_ice_server'), _buildICEServerList(_recommendICEServerList,type: ICEServerType.recommend)) : Container(),
-          ],
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                _buildP2pStatusWidget(),
+                _buildItem(Localized.text('ox_usercenter.connect_ice_server'), _buildICEServerTextField()),
+                SizedBox(
+                  height: Adapt.px(12),
+                ),
+                _buildAddButton(),
+                _connectICEServerList.isNotEmpty ? _buildItem(Localized.text('ox_usercenter.connected_ice_server'), _buildICEServerList(_connectICEServerList,)) : Container(),
+                _recommendICEServerList.isNotEmpty ? _buildItem(Localized.text('ox_usercenter.recommend_ice_server'), _buildICEServerList(_recommendICEServerList,type: ICEServerType.recommend)) : Container(),
+              ],
+            ),
+          ),
         ),
       ),
     );

@@ -119,7 +119,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
         child: Center(
           child: ConstrainedBox(
             constraints: BoxConstraints(
-              maxWidth: PlatformUtils.windowSize.width,
+              maxWidth: PlatformUtils.listWidth,
             ),
             // padding: const EdgeInsets.all(8.0),
             child: NestedScrollView(

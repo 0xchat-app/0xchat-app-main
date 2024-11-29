@@ -9,6 +9,7 @@ import 'package:ox_common/mixin/common_state_view_mixin.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_common/utils/platform_utils.dart';
 import 'package:ox_common/widgets/common_pull_refresher.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:flutter_vibrate/flutter_vibrate.dart';
@@ -42,7 +43,6 @@ class _ContactViewGroupsState extends State<ContactViewGroups> with SingleTicker
     OXChatBinding.sharedInstance.addObserver(this);
     WidgetsBinding.instance.addObserver(this);
     _onRefresh();
-    isHasVibrator();
     widget.scrollToTopStatus?.isScrolledToTop.addListener(_scrollToTop);
   }
 
@@ -54,11 +54,6 @@ class _ContactViewGroupsState extends State<ContactViewGroups> with SingleTicker
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
     widget.scrollToTopStatus?.isScrolledToTop.removeListener(_scrollToTop);
-  }
-
-  isHasVibrator() async {
-    hasVibrator = await Vibrate.canVibrate;
-    setState(() {});
   }
 
   @override
@@ -77,7 +72,6 @@ class _ContactViewGroupsState extends State<ContactViewGroups> with SingleTicker
         appBar: widget.appBar,
         topWidget: widget.topWidget,
         supportLongPress: true,
-        hasVibrator: hasVibrator,
       ),
     );
   }

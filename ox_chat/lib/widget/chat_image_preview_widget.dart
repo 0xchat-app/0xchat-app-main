@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/string_utils.dart';
-import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 
 class ChatImagePreviewWidget extends StatefulWidget {

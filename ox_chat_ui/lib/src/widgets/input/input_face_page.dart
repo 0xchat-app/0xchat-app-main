@@ -12,16 +12,19 @@ class InputFacePage extends StatefulWidget {
 
 class _InputFacePageState extends State<InputFacePage> {
   @override
-  Widget build(BuildContext context) => Container(
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    return Container(
       decoration: BoxDecoration(
         color: ThemeColor.color190,
         borderRadius: BorderRadius.circular(12),
       ),
-      child:EmojiPicker(
+      child: EmojiPicker(
         textEditingController: widget.textController,
         config: Config(
-          columns: 7,
-          emojiSizeMax: 30, // Issue: https://github.com/flutter/flutter/issues/28894
+          columns: (screenWidth / 60).floor(),
+          emojiSizeMax: 30,
+          // Issue: https://github.com/flutter/flutter/issues/28894
           verticalSpacing: 0,
           horizontalSpacing: 0,
           gridPadding: EdgeInsets.zero,
@@ -36,23 +39,26 @@ class _InputFacePageState extends State<InputFacePage> {
           enableSkinTones: true,
           showRecentsTab: false,
           recentsLimit: 28,
-          checkPlatformCompatibility:false,
+          checkPlatformCompatibility: false,
           noRecents: const Text(
             'No Recents',
             style: TextStyle(fontSize: 20, color: Colors.black26),
             textAlign: TextAlign.center,
-          ), // Needs to be const Widget
-          loadingIndicator: const SizedBox.shrink(), // Needs to be const Widget
+          ),
+          // Needs to be const Widget
+          loadingIndicator: const SizedBox.shrink(),
+          // Needs to be const Widget
           tabIndicatorAnimDuration: kTabScrollDuration,
           categoryIcons: const CategoryIcons(),
           buttonMode: ButtonMode.MATERIAL,
         ),
-          onEmojiSelected: (Category? ca, Emoji emoje){
+        onEmojiSelected: (Category? ca, Emoji emoje) {
 
-          },
-        onBackspacePressed: (){
+        },
+        onBackspacePressed: () {
 
         },
       ),
     );
+  }
 }

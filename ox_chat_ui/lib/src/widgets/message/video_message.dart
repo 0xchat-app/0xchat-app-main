@@ -1,10 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_common/utils/adapt.dart';
-import 'package:ox_common/utils/video_utils.dart';
+import 'package:ox_common/utils/video_data_manager.dart';
 
-import '../../conditional/conditional.dart';
-import '../../util.dart';
 import '../state/inherited_chat_theme.dart';
 import '../state/inherited_user.dart';
 
@@ -43,12 +43,14 @@ class _VideoMessageState extends State<VideoMessage> {
   @override
   void initState() {
     super.initState();
-    OXVideoUtils.getVideoThumbnailImage(videoURL: widget.message.videoURL).then((snapshotImageFile) {
+    VideoDataManager.shared.fetchVideoMedia(videoURL: widget.message.videoURL).then((media) {
+      final thumbPath = media?.thumbPath ?? '';
+
       if (!mounted) return ;
-      if (snapshotImageFile != null) {
-        _image = Image.file(snapshotImageFile).image;
-        addImageSizeListener();
-      }
+      if (thumbPath.isEmpty) return ;
+
+      _image = Image.file(File(thumbPath)).image;
+      addImageSizeListener();
     });
 
     _size = Size(widget.message.width ?? 0, widget.message.height ?? 0);

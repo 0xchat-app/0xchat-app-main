@@ -80,7 +80,6 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   GlobalKey? _latestGlobalKey;
   bool addAutomaticKeepAlives = true;
   bool addRepaintBoundaries = true;
-  bool _hasVibrator = false;
 
   @override
   void initState() {
@@ -95,7 +94,6 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     OXUserInfoManager.sharedInstance.addObserver(this);
     Localized.addLocaleChangedCallback(onLocaleChange); //fetchNewestNotice
     _merge();
-    isHasVibrator();
     SchemeHelper.tryHandlerForOpenAppScheme();
   }
 
@@ -113,12 +111,6 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
       notifier.dispose();
     }
     super.dispose();
-  }
-
-  isHasVibrator() async {
-    if(!PlatformUtils.isMobile) return;
-    _hasVibrator = await Vibrate.canVibrate;
-    setState(() {});
   }
 
   @override

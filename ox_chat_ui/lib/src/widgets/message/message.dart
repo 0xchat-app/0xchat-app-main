@@ -6,6 +6,7 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_vibrate/flutter_vibrate.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/utils/web_url_helper.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
@@ -684,7 +685,7 @@ class _SwipeToReplyState extends State<_SwipeToReply>
       // Feedback
       if (!hasFeedback && swipeDistance >= triggerOffset) {
         hasFeedback = true;
-        Vibrate.feedback(FeedbackType.impact);
+        TookKit.vibrateEffect();
       }
     });
   }

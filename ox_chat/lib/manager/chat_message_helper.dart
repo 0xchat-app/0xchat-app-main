@@ -18,7 +18,6 @@ import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
-import 'package:ox_common/utils/video_utils.dart';
 import 'package:ox_common/utils/web_url_helper.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
@@ -255,10 +254,6 @@ class ChatMessageHelper {
         final meta = CustomMessageEx.videoMetaData(
           fileId: '',
           url: url,
-          snapshotPath: (await OXVideoUtils.getVideoThumbnailImage(
-            videoURL: url,
-            onlyFromCache: true,
-          ))?.path ?? '',
           encryptedKey: decryptSecret,
           encryptedNonce: decryptNonce,
         );
@@ -349,7 +344,8 @@ class ChatMessageHelper {
       final note = await Moment.sharedInstance.loadNoteWithNoteId(reactionId, reload: false);
       if (note == null || note.content.isEmpty) continue ;
 
-      final content = note.content;
+      final emojiURL = note.emojiURL ?? '';
+      final content = emojiURL.isNotEmpty ? emojiURL : note.content;
       final reaction = reactionModelMap.putIfAbsent(
           content, () => types.Reaction(content: content));
       final reactionAuthorSet = reactionAuthorMap.putIfAbsent(
@@ -485,6 +481,7 @@ class ChatMessageHelper {
   static Future updateMessageWithMessageId({
     required String messageId,
     PreviewData? previewData,
+    types.Status? status,
   }) async {
     final messageDB = await Messages.sharedInstance.loadMessageDBFromDB(messageId);
     if (messageDB == null) return ;
@@ -499,6 +496,10 @@ class ChatMessageHelper {
           message: 'PreviewData encode error: $e',
         );
       }
+    }
+
+    if (status != null) {
+      messageDB.status = status.toDBStatus;
     }
 
     await Messages.saveMessageToDB(messageDB);
@@ -679,6 +680,22 @@ extension MessageUIToDBEx on types.Message {
   }
 }
 
+extension MessageUIStatusEx on types.Status {
+  int get toDBStatus {
+    switch (this) {
+      case types.Status.delivered:
+      case types.Status.warning:
+      case types.Status.seen:
+      case types.Status.sent:
+        return 1;
+      case types.Status.error:
+        return 2;
+      case types.Status.sending:
+        return 0;
+    }
+  }
+}
+
 extension UserDBToUIEx on UserDBISAR {
   types.User toMessageModel() {
     types.User _user = types.User(
@@ -689,7 +706,6 @@ extension UserDBToUIEx on UserDBISAR {
     return _user;
   }
 }
-
 
 extension UIMessageEx on types.Message {
   bool get isEncrypted => decryptKey != null;

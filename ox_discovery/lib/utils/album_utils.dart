@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:ox_common/upload/file_type.dart';
 import 'package:ox_common/upload/upload_utils.dart';
-import 'package:ox_common/utils/video_utils.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:path/path.dart' as Path;
 import 'package:ox_common/utils/image_picker_utils.dart';
@@ -23,15 +22,19 @@ class AlbumUtils {
       showGif: false,
       compressSize: 1024,
     );
+    if(res.isEmpty) return;
 
-    List<File> fileList = [];
-    await Future.forEach(res, (element) async {
-      final entity = element;
-      final file = File(entity.path ?? '');
-      fileList.add(file);
-    });
-    if(fileList.isEmpty) return;
-    messageSendHandler(context, fileList, callback);
+    if (isVideo) {
+      dealWithVideo(context, res, callback);
+    } else {
+      List<File> fileList = [];
+      await Future.forEach(res, (element) async {
+        final entity = element;
+        final file = File(entity.path ?? '');
+        fileList.add(file);
+      });
+      dealWithPicture(context, fileList, callback);
+    }
   }
 
   static Future<void> openCamera(
@@ -59,14 +62,10 @@ class AlbumUtils {
     callback?.call(imageList);
   }
 
-  static Future dealWithVideo(BuildContext context, List<File> images,
+  static Future dealWithVideo(BuildContext context, List<Media> mediaList,
       Function(List<String>)? callback) async {
-    for (final result in images) {
-      final thumbnailFile = await OXVideoUtils.getVideoThumbnailImageWithFilePath(
-        videoFilePath: result.path,
-      );
-      
-      callback?.call([result.path.toString(), thumbnailFile?.path ?? '']);
+    for (final media in mediaList) {
+      callback?.call([media.path ?? '', media.thumbPath ?? '']);
     }
   }
 

@@ -91,6 +91,8 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     BuildContext? context,
     required String? content,
     required MessageType? messageType,
+    String? decryptSecret,
+    String? decryptNonce,
     types.Message? resendMessage,
     ChatSendingType sendingType = ChatSendingType.remote,
     String? replaceMessageId,
@@ -113,6 +115,8 @@ extension ChatMessageSendEx on ChatGeneralHandler {
         createTime: tempCreateTime,
         chatId: session.chatId,
         replyId: messageType == MessageType.text ? replyHandler.replyMessage?.remoteId : null,
+        decryptSecret: decryptSecret,
+        decryptNonce: decryptNonce,
       );
     }
     if (message == null) return;
@@ -243,22 +247,24 @@ extension ChatMessageSendEx on ChatGeneralHandler {
   }
 
   void resendMessage(BuildContext context, types.Message message) {
-    final resendMsg = message.copyWith(
-      createdAt: DateTime.now().millisecondsSinceEpoch,
-      status: types.Status.sending,
-    );
-
-    if (resendMsg.isImageSendingMessage) {
+    if (message.isImageSendingMessage) {
       sendImageMessage(
         context: context,
-        resendMessage: resendMsg as types.CustomMessage,
+        resendMessage: message.copyWith(
+          createdAt: DateTime.now().millisecondsSinceEpoch,
+          status: null,
+        ) as types.CustomMessage,
       );
       return;
-    } else if (resendMsg.isVideoSendingMessage) {
+    } else if (message.isVideoSendingMessage) {
       sendVideoMessage(
         context: context,
-        resendMessage: resendMsg as types.CustomMessage,
+        resendMessage: message.copyWith(
+          createdAt: DateTime.now().millisecondsSinceEpoch,
+          status: null,
+        ) as types.CustomMessage,
       );
+      return;
     }
 
     _sendMessageHandler(
@@ -412,6 +418,8 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       messageType: MessageType.template,
       resendMessage: resendMessage,
       sendingType: ChatSendingType.store,
+      decryptSecret: encryptedKey,
+      decryptNonce: encryptedNonce,
       sendActionFinishHandler: (sendMessage) {
         UploadManager.shared.uploadFile(
           fileType: FileType.image,
@@ -423,7 +431,17 @@ extension ChatMessageSendEx on ChatGeneralHandler {
           autoStoreImage: false,
           completeCallback: (uploadResult, isFromCache) async {
             var imageURL = uploadResult.url;
-            if (!uploadResult.isSuccess || imageURL.isEmpty) return;
+            if (!uploadResult.isSuccess || imageURL.isEmpty) {
+              final status = types.Status.error;
+              dataController.updateMessage(sendMessage.copyWith(
+                status: status,
+              ));
+              ChatMessageHelper.updateMessageWithMessageId(
+                messageId: sendMessage.id,
+                status: status,
+              );
+              return;
+            }
 
             imageURL = generateUrlWithInfo(
               originalUrl: imageURL,
@@ -473,7 +491,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
         width: imageWidth,
         height: imageHeight,
         encryptedKey: encryptedKey,
-          encryptedNonce: encryptedNonce,
+        encryptedNonce: encryptedNonce,
       ));
 
       _sendMessageHandler(
@@ -481,6 +499,8 @@ extension ChatMessageSendEx on ChatGeneralHandler {
         messageType: MessageType.template,
         replaceMessageId: replaceMessageId,
         resendMessage: resendMessage,
+        decryptSecret: encryptedKey,
+        decryptNonce: encryptedNonce,
       );
     } catch (_) {
       return;
@@ -542,7 +562,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       if (thumbPath.isNotEmpty) {
         thumbnailImageFile = File(thumbPath);
       } else {
-        thumbnailImageFile = await OXVideoUtils.getVideoThumbnailImageWithFilePath(
+        thumbnailImageFile = await VideoDataManager.shared.fetchVideoThumbnailWithLocalFile(
           videoFilePath: videoFile.path,
           cacheKey: fileId,
         );
@@ -608,6 +628,8 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       imageWidth = VideoMessageEx(resendMessage).width;
       imageHeight = VideoMessageEx(resendMessage).height;
       fileId = VideoMessageEx(resendMessage).fileId;
+      encryptedKey = VideoMessageEx(resendMessage).encryptedKey;
+      encryptedNonce = VideoMessageEx(resendMessage).encryptedNonce;
     }
 
     if (videoURL != null && videoURL.isRemoteURL) {
@@ -635,16 +657,20 @@ extension ChatMessageSendEx on ChatGeneralHandler {
         url: videoURL ?? '',
         width: imageWidth,
         height: imageHeight,
+        encryptedKey: encryptedKey,
+        encryptedNonce: encryptedNonce,
       ));
     } catch (_) {}
     if (content.isEmpty) return;
 
-    UploadManager.shared.prepareUploadStream(fileId, null);
+    UploadManager.shared.prepareUploadStream(fileId, otherUser?.pubKey);
     await _sendMessageHandler(
       context: context,
       content: content,
       messageType: MessageType.template,
       sendingType: ChatSendingType.store,
+      decryptSecret: encryptedKey,
+      decryptNonce: encryptedNonce,
       sendActionFinishHandler: (sendMessage) {
         UploadManager.shared.uploadFile(
           fileType: FileType.video,
@@ -655,7 +681,17 @@ extension ChatMessageSendEx on ChatGeneralHandler {
           encryptedNonce: encryptedNonce,
           completeCallback: (uploadResult, isFromCache) async {
             var videoURL = uploadResult.url;
-            if (!uploadResult.isSuccess || videoURL.isEmpty) return;
+            if (!uploadResult.isSuccess || videoURL.isEmpty) {
+              final status = types.Status.error;
+              dataController.updateMessage(sendMessage.copyWith(
+                status: status,
+              ));
+              ChatMessageHelper.updateMessageWithMessageId(
+                messageId: sendMessage.id,
+                status: status,
+              );
+              return;
+            }
 
             videoURL = generateUrlWithInfo(
               originalUrl: videoURL,
@@ -664,10 +700,9 @@ extension ChatMessageSendEx on ChatGeneralHandler {
             );
 
             if (snapshotPath != null && snapshotPath.isNotEmpty && !isFromCache) {
-              final snapshotFile = File(snapshotPath);
-              OXVideoUtils.putFileToCacheWithURL(
-                videoURL,
-                snapshotFile,
+              VideoDataManager.shared.putThumbnailToCacheWithURL(
+                videoURL: videoURL,
+                thumbnailPath: snapshotPath,
               );
             }
 
@@ -729,6 +764,8 @@ extension ChatMessageSendEx on ChatGeneralHandler {
         messageType: MessageType.template,
         replaceMessageId: replaceMessageId,
         resendMessage: resendMessage,
+        decryptSecret: encryptedKey,
+        decryptNonce: encryptedNonce,
       );
     } catch (_) {}
   }

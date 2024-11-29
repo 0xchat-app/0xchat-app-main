@@ -167,11 +167,16 @@ class _SwitchAccountPageState extends State<SwitchAccountPage> with OXUserInfoOb
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      abbrText(
-                        showName,
-                        16.px,
-                        ThemeColor.color0,
-                        fontWeight: FontWeight.w500,
+                      Container(
+                        constraints: BoxConstraints(maxWidth: Adapt.screenW - 136.px),
+                        child: abbrText(
+                          showName,
+                          16.px,
+                          ThemeColor.color0,
+                          fontWeight: FontWeight.w500,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                       showDns.isNotEmpty
                           ? SizedBox(height: 4.px)

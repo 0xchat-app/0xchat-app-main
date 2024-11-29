@@ -10,6 +10,7 @@ import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/widgets/common_image_gallery.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:photo_view/photo_view.dart' show PhotoViewComputedScale;

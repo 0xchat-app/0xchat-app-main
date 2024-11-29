@@ -10,6 +10,7 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_common/utils/platform_utils.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/widgets/base_page_state.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
@@ -93,11 +94,17 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
   Widget build(BuildContext context) {
     return Scaffold(
       extendBody: true,
-      bottomNavigationBar: TranslucentNavigationBar(
-        key: tabBarGlobalKey,
-        onTap: (changeIndex, currentSelect) => _tabClick(changeIndex, currentSelect),
-        handleDoubleTap: (changeIndex, currentSelect) => _handleDoubleTap(changeIndex, currentSelect),
-        height: _bottomNavHeight,
+      bottomNavigationBar: Align(
+        alignment: Alignment.bottomCenter,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth:  PlatformUtils.listWidth),
+          child: TranslucentNavigationBar(
+            key: tabBarGlobalKey,
+            onTap: (changeIndex, currentSelect) => _tabClick(changeIndex, currentSelect),
+            handleDoubleTap: (changeIndex, currentSelect) => _handleDoubleTap(changeIndex, currentSelect),
+            height: _bottomNavHeight,
+          ),
+        ),
       ),
       body: PageView(
         physics: const NeverScrollableScrollPhysics(),

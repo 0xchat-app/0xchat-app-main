@@ -3,6 +3,7 @@ import 'package:ox_common/model/file_storage_server_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_server_manager.dart';
+import 'package:ox_common/utils/platform_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
@@ -67,7 +68,16 @@ class _FileServerPageState extends State<FileServerPage> with OXServerObserver {
           )
         ],
       ),
-      body: _buildBody().setPadding(EdgeInsets.symmetric(horizontal: Adapt.px(24), vertical: Adapt.px(12))),
+      body: Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: PlatformUtils.listWidth,
+          ),
+              child: _buildBody().setPadding(EdgeInsets.symmetric(horizontal: Adapt.px(24), vertical: Adapt.px(12))
+              ),
+          ),
+      ),
     );
   }
 

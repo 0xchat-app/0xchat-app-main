@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:ox_chat/model/option_model.dart';
-import 'package:ox_chat/model/search_chat_model.dart';
 import 'package:ox_chat/page/contacts/contact_user_info_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_chat/widget/alpha.dart';
@@ -44,11 +43,12 @@ class ContactGroupListPage extends StatefulWidget {
 class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T> {
 
   List<UserDBISAR> userList = [];
+  List<UserDBISAR> _filteredUserList = [];
   List<UserDBISAR> _selectedUserList = [];
   ValueNotifier<bool> _isClear = ValueNotifier(false);
   TextEditingController _controller = TextEditingController();
   Map<String, List<UserDBISAR>> _groupedUserList = {};
-  Map<String, List<UserDBISAR>> _filteredUserList = {};
+  Map<String, List<UserDBISAR>> _filteredGroupedUserList = {};
 
   List<UserDBISAR> get selectedUserList=> _selectedUserList;
 
@@ -95,7 +95,8 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
     });
 
     _groupedUserList.removeWhere((key, value) => value.isEmpty);
-    _filteredUserList = _groupedUserList;
+    _filteredGroupedUserList = _groupedUserList;
+    _filteredUserList = userList;
   }
 
 
@@ -128,9 +129,9 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
         Expanded(
           child: widget.groupListAction != GroupListAction.view
               ? ListView.builder(
-                  itemCount: _filteredUserList.keys.length,
+                  itemCount: _filteredGroupedUserList.keys.length,
                   itemBuilder: (BuildContext context, int index) {
-                    String key = _filteredUserList.keys.elementAt(index);
+                    String key = _filteredGroupedUserList.keys.elementAt(index);
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -142,15 +143,15 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
                               fontSize: Adapt.px(16),
                               fontWeight: FontWeight.w600),
                         ),margin: EdgeInsets.only(bottom: Adapt.px(4)),),
-                        ..._filteredUserList[key]!.map((user) => _buildUserItem(user)),
+                        ..._filteredGroupedUserList[key]!.map((user) => _buildUserItem(user)),
                       ],
                     );
                   },
                 )
               : ListView.builder(
-                  itemCount: userList.length,
+                  itemCount: _filteredUserList.length,
                   itemBuilder: (BuildContext context, int index) {
-                    return _buildUserItem(userList[index]);
+                    return _buildUserItem(_filteredUserList[index]);
                   },
                 ),
         ),
@@ -295,7 +296,8 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
                         onTap: () {
                           _controller.clear();
                           setState(() {
-                            _filteredUserList = _groupedUserList;
+                            _filteredGroupedUserList = _groupedUserList;
+                            _filteredUserList = userList;
                           });
                         },
                         child: CommonImage(
@@ -344,6 +346,12 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
       _searchUser(searchQuery);
       return;
     }
+
+    if (widget.groupListAction == GroupListAction.view) {
+      _handlingViewActionSearch(searchQuery);
+      return;
+    }
+
     setState(() {
       Map<String, List<UserDBISAR>> searchResult = {};
       _groupedUserList.forEach((key, value) {
@@ -361,7 +369,7 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
         searchResult[key] = tempList;
       });
       searchResult.removeWhere((key, value) => value.isEmpty);
-      _filteredUserList = searchResult;
+      _filteredGroupedUserList = searchResult;
     });
   }
 
@@ -373,12 +381,31 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
       tag = tag.substring(0,1).toUpperCase();
     }
 
-    _filteredUserList = {
+    _filteredGroupedUserList = {
       tag :  [user]
     };
     setState(() {});
   }
 
+  void _handlingViewActionSearch(String searchQuery) {
+    List<UserDBISAR> searchResult = userList.where((item) {
+      if (item.name!.toLowerCase().contains(searchQuery.toLowerCase())) {
+        return true;
+      }
+
+      if (item.encodedPubkey
+          .toLowerCase()
+          .contains(searchQuery.toLowerCase())) {
+        return true;
+      }
+
+      return false;
+    }).toList();
+
+    setState(() {
+      _filteredUserList = searchResult;
+    });
+  }
 
   buildViewPressed() {}
 

@@ -5,6 +5,7 @@ import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/platform_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
@@ -313,41 +314,48 @@ class _DonatePageState extends State<DonatePage> {
       children: [
         Expanded(
           child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                CommonImage(
-                  iconName: 'logo_icon.png',
-                  width: Adapt.px(180),
-                  height: Adapt.px(180),
-                  useTheme: true,
+            child: Center(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: PlatformUtils.listWidth,
                 ),
-                Text(
-                  Localized.text('ox_usercenter.donate_tips'),
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: Adapt.px(16),
-                    fontWeight: FontWeight.w400,
-                    color: ThemeColor.color0,
-                  ),
+                child:Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    CommonImage(
+                      iconName: 'logo_icon.png',
+                      width: Adapt.px(180),
+                      height: Adapt.px(180),
+                      useTheme: true,
+                    ),
+                    Text(
+                      Localized.text('ox_usercenter.donate_tips'),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: Adapt.px(16),
+                        fontWeight: FontWeight.w400,
+                        color: ThemeColor.color0,
+                      ),
+                    ),
+                    SizedBox(
+                      height: Adapt.px(24),
+                    ),
+                    DonateSelectedList(
+                      title: Localized.text('ox_usercenter.donate_title'),
+                      customStasInputBox: Platform.isAndroid ? _buildCustomSatsItem() : null,
+                      item: _buildDonateItem(),
+                      currentIndex: _selectIndex,
+                      onSelected: (index) {
+                        FocusScope.of(context).requestFocus(FocusNode());
+                        _customStasTextController.text = donateItems[index].sats.toString();
+                        setState(() {
+                          _selectIndex = index;
+                        });
+                      },
+                    ),
+                  ],
                 ),
-                SizedBox(
-                  height: Adapt.px(24),
-                ),
-                DonateSelectedList(
-                  title: Localized.text('ox_usercenter.donate_title'),
-                  customStasInputBox: Platform.isAndroid ? _buildCustomSatsItem() : null,
-                  item: _buildDonateItem(),
-                  currentIndex: _selectIndex,
-                  onSelected: (index) {
-                    FocusScope.of(context).requestFocus(FocusNode());
-                    _customStasTextController.text = donateItems[index].sats.toString();
-                    setState(() {
-                      _selectIndex = index;
-                    });
-                  },
-                ),
-              ],
+              ),
             ),
           ),
         ),

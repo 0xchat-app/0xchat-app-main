@@ -143,7 +143,8 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
           }
         } else if (kind == 39000) {
           final groupId = map['channelId'];
-          final relays = map['relays'];
+          List<String> relays = map['relays'];
+          if (relays.isEmpty) return;
           RelayGroupDBISAR? relayGroupDB = await RelayGroup.sharedInstance.searchGroupsMetadataWithGroupID(groupId, relays[0]);
           if (relayGroupDB != null) {
             List<GroupUIModel> result = [GroupUIModel.relayGroupdbToUIModel(relayGroupDB)];

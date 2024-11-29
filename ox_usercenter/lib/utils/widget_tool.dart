@@ -10,11 +10,13 @@ import 'package:ox_localizable/ox_localizable.dart';
 ///Copyright: Copyright (c) 2021
 ///@author George
 ///CreateTime: 2023/1/9 9:26 PM
-Widget abbrText(String content, double fontSize, Color txtColor, {TextAlign? textAlign, double? height, FontWeight fontWeight = FontWeight.w400}) {
+Widget abbrText(String content, double fontSize, Color txtColor, {TextAlign? textAlign, double? height, FontWeight fontWeight = FontWeight.w400, int? maxLines, TextOverflow? overflow}) {
   return Text(
     content,
     textAlign: textAlign,
     softWrap: true,
+    maxLines: maxLines,
+    overflow: overflow,
     style: TextStyle(fontSize: fontSize.sp, color: txtColor, fontWeight: fontWeight, height: height),
   );
 }

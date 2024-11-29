@@ -551,7 +551,7 @@ extension ChatMessageBuilderCustomEx on ChatMessageBuilder {
     var height = ImageSendingMessageEx(message).height;
     final encryptedKey = ImageSendingMessageEx(message).encryptedKey;
     final encryptedNonce = ImageSendingMessageEx(message).encryptedNonce;
-    final stream = fileId.isEmpty || url.isNotEmpty
+    final stream = fileId.isEmpty || url.isNotEmpty || message.status == types.Status.error
         ? null
         : UploadManager.shared.getUploadProgress(fileId, receiverPubkey);
 

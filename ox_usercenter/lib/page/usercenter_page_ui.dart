@@ -144,7 +144,7 @@ extension UserCenterPageUI on UserCenterPageState{
         child: Center(
           child: ConstrainedBox(
             constraints: BoxConstraints(
-              maxWidth: PlatformUtils.windowSize.width,
+              maxWidth: PlatformUtils.listWidth,
             ),
             child: Container(
               margin: EdgeInsets.symmetric(horizontal: Adapt.px(24)),

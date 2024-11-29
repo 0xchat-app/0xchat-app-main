@@ -93,8 +93,6 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
 
   List<TranslucentNavigationBarItem> _tabBarList = [];
 
-  bool hasVibrator = false;
-
   bool get isDark => ThemeManager.getCurrentThemeStyle() == ThemeStyle.dark;
 
   // State machine
@@ -128,11 +126,6 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     }
   }
 
-  isHasVibrator() async {
-    if(!PlatformUtils.isMobile) return;
-    hasVibrator = (await Vibrate.canVibrate);
-  }
-
   @override
   void initState() {
     super.initState();
@@ -144,8 +137,6 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     _animation = Tween<double>(begin: 0.0, end: 72 + 24.px).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeInOut));
     prepareMessageTimer();
     dataInit();
-    isHasVibrator();
-
   }
 
   @override
@@ -206,7 +197,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
               horizontal: widget.horizontalPadding ?? 20.px,
             ),
             height: widget.height,
-            width: double.infinity,
+            // width: double.infinity,
             decoration: BoxDecoration(
               color: Colors.transparent,
               borderRadius: BorderRadius.circular(widget.height),
@@ -261,9 +252,9 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
         ],
       ),
       height: widget.height,
-      width: double.infinity,
+      width: PlatformUtils.listWidth,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           for (final item in _tabBarList)
             GestureDetector(
@@ -276,6 +267,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
               onDoubleTap: _tabBarList.indexOf(item) == selectedIndex ? () {
                 widget.handleDoubleTap?.call(_tabBarList.indexOf(item),selectedIndex);
               } : null,
+              behavior: HitTestBehavior.translucent,
               child: _tabbarItemWidget(item, _navItemKeyList[_tabBarList.indexOf(item)]),
             ),
         ],
@@ -285,23 +277,21 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
 
   void _tabbarItemOnLongPress(TranslucentNavigationBarItem item){
     int index = _tabBarList.indexOf(item);
-    if (hasVibrator == true && OXUserInfoManager.sharedInstance.canVibrate) {
-      TookKit.vibrateEffect();
-    }
+    TookKit.vibrateEffect();
     _showPopupDialog(context, index);
   }
 
   void _tabBarItemOnTap(TranslucentNavigationBarItem item) {
     int draftIndex = selectedIndex;
     int index = _tabBarList.indexOf(item);
-    if (selectedIndex != index && hasVibrator == true && OXUserInfoManager.sharedInstance.canVibrate) {
+    if (selectedIndex != index) {
       TookKit.vibrateEffect();
     }
     if (!OXUserInfoManager.sharedInstance.isLogin && (index == 2)) {
       _showLoginPage(context);
       return;
     }
-
+    if (draftIndex == index) return;
     setState(() {
       selectedIndex = index;
       if (OXUserInfoManager.sharedInstance.isLogin) {
@@ -325,35 +315,41 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     }
   }
 
-  Widget _tabbarItemWidget(TranslucentNavigationBarItem item, GlobalKey tabbarKey) {
-    return Stack(
+  Widget _tabbarItemWidget(
+      TranslucentNavigationBarItem item, GlobalKey tabbarKey) {
+    return Container(
       key: tabbarKey,
-      alignment: Alignment.bottomCenter,
-      children: [
-        Container(
-          width: (Adapt.screenW - 40.px) / 3,
-          height: widget.height,
-          color: Colors.transparent,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: EdgeInsets.only(
-                  bottom: Adapt.px(2),
+      padding: EdgeInsets.symmetric(horizontal: 15.px),
+      child: Stack(
+        alignment: Alignment.bottomCenter,
+        children: [
+          Container(
+            height: widget.height,
+            color: Colors.transparent,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: EdgeInsets.only(
+                    bottom: Adapt.px(2),
+                  ),
+                  width: Adapt.px(24),
+                  child: Stack(
+                    children: [_getMyTabBarIcon(item)],
+                  ),
                 ),
-                width: Adapt.px(24),
-                child: Stack(
-                  children: [_getMyTabBarIcon(item)],
-                ),
-              ),
-              _getTabBarTitle(item),
-            ],
+                _getTabBarTitle(item),
+              ],
+            ),
           ),
-        ),
-        Positioned(bottom: Adapt.px(6),child: _promptWidget(item),),
-      ],
+          Positioned(
+            bottom: Adapt.px(6),
+            child: _promptWidget(item),
+          ),
+        ],
+      ),
     );
   }
 
@@ -443,6 +439,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     setState(() {
       isLogin = false;
       if (_tabBarList.isNotEmpty) {
+        _tabBarItemOnTap(_tabBarList.elementAt(1));
         for (var element in _tabBarList) {
           element.unreadMsgCount = 0;
         }
@@ -454,6 +451,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
   void didSwitchUser(UserDBISAR? userInfo) {
     setState(() {
       if (_tabBarList.isNotEmpty) {
+        _tabBarItemOnTap(_tabBarList.elementAt(1));
         for (var element in _tabBarList) {
           element.unreadMsgCount = 0;
         }
@@ -557,6 +555,8 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     List<TabbarMenuModel> menuList = _getMenuList(index);
     if (menuList.isEmpty) return;
     double leftPosition = _calculateDialogPosition(context, index, position);
+    double screenHeight = MediaQuery.of(context).size.height;
+
     showGeneralDialog(
       context: context,
       barrierDismissible: true,
@@ -575,12 +575,12 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
                 ),
               ),
               Positioned(
-                bottom: Adapt.screenH - position.dy + 4.px + (index == 2 ? 46.px : 0),
+                bottom: screenHeight - position.dy + 4.px + (index == 2 ? 46.px : 0),
                 left: leftPosition,
                 child: Container(
                   width: 180.px,
                   height: menuList.length * 44.px,
-                  constraints: BoxConstraints(maxHeight: Adapt.screenH/2),
+                  constraints: BoxConstraints(maxHeight: screenHeight/2),
                   decoration: BoxDecoration(
                     color: ThemeColor.color180,
                     borderRadius: BorderRadius.only(
@@ -614,12 +614,12 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
               Visibility(
                 visible: index == 2,
                 child: Positioned(
-                  bottom: Adapt.screenH - position.dy + 4.px,
+                  bottom: screenHeight - position.dy + 4.px,
                   left: _calculateDialogPosition(context, index, position),
                   child: Container(
                     width: 180.px,
                     height: 46.px,
-                    constraints: BoxConstraints(maxHeight: Adapt.screenH/2),
+                    constraints: BoxConstraints(maxHeight: screenHeight/2),
                     decoration: BoxDecoration(
                       color: ThemeColor.color180,
                       borderRadius: BorderRadius.only(
@@ -704,13 +704,13 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
 
     switch (index) {
       case 0:
-        dialogOffset = 20.px;
+        dialogOffset = position.dx - 40;
         break;
       case 1:
-        dialogOffset = position.dx + (navBarItemWidth / 2) - (180.px / 2) - 20.px;
+        dialogOffset = position.dx - 40;
         break;
       case 2:
-        dialogOffset = screenWidth - 180.px - 20.px ;
+        dialogOffset = position.dx - 86;
         break;
       default:
         dialogOffset = position.dx;

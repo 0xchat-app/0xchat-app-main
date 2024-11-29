@@ -7,9 +7,8 @@ import 'package:ox_common/mixin/common_state_view_mixin.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:ox_common/utils/theme_color.dart';
-import 'package:ox_common/utils/video_utils.dart';
+import 'package:ox_common/utils/video_data_manager.dart';
 import 'package:ox_common/utils/widget_tool.dart';
-import 'package:ox_common/widgets/common_file_cache_manager.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_image_gallery.dart';
 import 'package:ox_common/widgets/gallery/gallery_image_widget.dart';
@@ -124,9 +123,6 @@ class ContactMediaWidgetState extends State<ContactMediaWidget>
             itemBuilder: (context, index) {
               types.CustomMessage customMsg = messagesList[index];
               if (customMsg.customType == CustomMessageType.imageSending) {
-                if (ImageSendingMessageEx(customMsg).url.isEmpty) {
-                  return const SizedBox();
-                }
                 return GestureDetector(
                   onTap: () {
                     CommonImageGallery.show(
@@ -164,6 +160,7 @@ class ContactMediaWidgetState extends State<ContactMediaWidget>
                     reactionWidget: Container(),
                     receiverPubkey: null,
                     messageUpdateCallback: (newMessage) {
+                      if (!mounted) return;
                       setState(() {
                         messagesList[index] = newMessage;
                       });
@@ -246,7 +243,7 @@ class MediaVideoWidgetState extends State<MediaVideoWidget> {
       receiverPubkey: null,
       messageUpdateCallback: (types.Message newMessage) {
         message = newMessage as types.CustomMessage;
-        setState(() {});
+        if(mounted) setState(() {});
       },
     );
   }
@@ -270,22 +267,30 @@ class RenderVideoMessage extends StatefulWidget {
 }
 
 class RenderVideoMessageState extends State<RenderVideoMessage> {
-  String videoURL = '';
-  String videoPath = '';
-  late Future<String> snapshotPath;
+
+  String get fileId => VideoMessageEx(widget.message).fileId;
+  String get videoURL => VideoMessageEx(widget.message).url;
+  String get videoPath => VideoMessageEx(widget.message).videoPath;
+  String get snapshotPath => VideoMessageEx(widget.message).snapshotPath;
+  String? get encryptedKey => VideoMessageEx(widget.message).encryptedKey;
+  String? get encryptedNonce => VideoMessageEx(widget.message).encryptedNonce;
+  bool get canOpen => VideoMessageEx(widget.message).canOpen;
+
   int? width;
   int? height;
-  String? encryptedKey;
-  String? encryptedNonce;
   Stream<double>? stream;
-
-  bool canOpen = false;
 
   @override
   void initState() {
     super.initState();
     prepareData();
     tryInitializeVideoFile();
+  }
+
+  @override
+  void dispose() {
+    VideoDataManager.shared.cancelTask(videoURL);
+    super.dispose();
   }
 
   @override
@@ -296,12 +301,6 @@ class RenderVideoMessageState extends State<RenderVideoMessage> {
 
   void prepareData() {
     final message = widget.message;
-    final fileId = VideoMessageEx(message).fileId;
-    videoURL = VideoMessageEx(message).url;
-    videoPath = VideoMessageEx(message).videoPath;
-    encryptedKey = VideoMessageEx(message).encryptedKey;
-    encryptedNonce = VideoMessageEx(message).encryptedNonce;
-    canOpen = VideoMessageEx(message).canOpen;
 
     width = VideoMessageEx(message).width;
     height = VideoMessageEx(message).height;
@@ -315,53 +314,23 @@ class RenderVideoMessageState extends State<RenderVideoMessage> {
         final query = uri.queryParameters;
         width ??= int.tryParse(query['width'] ?? query['w'] ?? '');
         height ??= int.tryParse(query['height'] ?? query['h'] ?? '');
-      } catch (_) {}
-    }
-
-    final snapshotPath = VideoMessageEx(message).snapshotPath;
-    if (snapshotPath.isNotEmpty) {
-      this.snapshotPath = Future.value(snapshotPath);
-    } else if (videoURL.isNotEmpty) {
-      this.snapshotPath =
-          OXVideoUtils.getVideoThumbnailImage(videoURL: videoURL)
-              .then((file) => file?.path ?? '');
-    } else if (fileId.isNotEmpty) {
-      this.snapshotPath = Future.value(
-          OXVideoUtils.getVideoThumbnailImageFromMem(cacheKey: fileId)?.path ??
-              '');
+      } catch (_) { }
     }
   }
 
   void tryInitializeVideoFile() async {
-    if (videoPath.isNotEmpty) return;
     if (videoURL.isEmpty) return;
 
-    File sourceFile;
-    final fileManager = OXFileCacheManager.get(
-        encryptKey: encryptedKey, encryptNonce: encryptedNonce);
-    final cacheFile = await fileManager.getFileFromCache(videoURL);
-    if (cacheFile != null) {
-      sourceFile = cacheFile.file;
-    } else {
-      sourceFile = await fileManager.getSingleFile(videoURL);
-      if (encryptedKey != null) {
-        sourceFile = await DecryptedCacheManager.decryptFile(
-            sourceFile, encryptedKey!,
-            nonce: encryptedNonce);
-      }
-    }
-
-    final path = sourceFile.path;
-    if (path.isEmpty) return;
-
-    final snapshotPath = (await OXVideoUtils.getVideoThumbnailImageWithFilePath(
-                videoFilePath: path))
-            ?.path ??
-        '';
+    final media = await VideoDataManager.shared.fetchVideoMedia(
+      videoURL: videoURL,
+      encryptedKey: encryptedKey,
+      encryptedNonce: encryptedNonce,
+    );
+    if (media == null) return;
 
     types.CustomMessage newMessage = widget.message.copyWith();
-    VideoMessageEx(newMessage).videoPath = path;
-    VideoMessageEx(newMessage).snapshotPath = snapshotPath;
+    VideoMessageEx(newMessage).videoPath = media.path ?? '';
+    VideoMessageEx(newMessage).snapshotPath = media.thumbPath ?? '';
 
     widget.messageUpdateCallback?.call(newMessage);
   }
@@ -374,13 +343,10 @@ class RenderVideoMessageState extends State<RenderVideoMessage> {
         CommonVideoPage.show(videoPath);
       },
       child: Stack(
+        fit: StackFit.expand,
         children: [
-          FutureBuilder(
-            future: snapshotPath,
-            builder: (context, snapshot) {
-              final snapshotPath = snapshot.data ?? '';
-              return snapshotBuilder(snapshotPath);
-            },
+          Positioned.fill(
+            child: snapshotBuilder(snapshotPath),
           ),
           if (videoURL.isNotEmpty)
             Positioned.fill(
@@ -406,12 +372,9 @@ class RenderVideoMessageState extends State<RenderVideoMessage> {
 
   Widget snapshotBuilder(String imagePath) {
     if (imagePath.isEmpty) return const SizedBox();
-    return Container(
-      width: MediaQuery.of(context).size.width / 3,
-      child: GalleryImageWidget(
-        uri: imagePath,
-        fit: BoxFit.cover,
-      ),
+    return GalleryImageWidget(
+      uri: imagePath,
+      fit: BoxFit.cover,
     );
   }
 }

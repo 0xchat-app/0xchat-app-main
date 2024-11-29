@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_chat/utils/chat_session_utils.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
@@ -22,6 +23,7 @@ class SessionLongPressMenuDialog extends StatefulWidget{
     bool isPushWithReplace = false,
     bool isLongPressShow = false,
   }) {
+    double screenHeight = MediaQuery.of(context).size.height;
     showGeneralDialog(
       context: context,
       barrierDismissible: true,
@@ -54,15 +56,14 @@ class SessionLongPressMenuDialog extends StatefulWidget{
                 child: Container(
                   margin: EdgeInsets.only(
                       left: 20.px,
-                      top: Adapt.screenH * 0.1,
+                      top: screenHeight * 0.15,
                       right: 20.px,
                       bottom: 44.px),
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
+                    // mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Container(
-                        height: Adapt.screenH * 0.6,
+                      Expanded(
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(16.px),
                           child: pageWidget,
@@ -105,8 +106,7 @@ class _SessionLongPressMenuDialogState extends State<SessionLongPressMenuDialog>
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 180.px,
-      height: _menulist.length * 40.px, //Adapt.screenH * 0.2,
+      constraints: BoxConstraints(minWidth: 180.px, maxWidth: MediaQuery.of(context).size.width * 0.6),
       alignment: Alignment.bottomRight,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16.px),
@@ -126,7 +126,6 @@ class _SessionLongPressMenuDialogState extends State<SessionLongPressMenuDialog>
               SessionMenuOptionModel.optionsOnTap(context, model.optionEnum, widget.communityItem, isMute: isMute);
             },
             child: Container(
-              height: 40.px,
               padding: EdgeInsets.symmetric(horizontal: 16.px, vertical: 10.px),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,

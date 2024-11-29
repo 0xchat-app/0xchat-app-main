@@ -7,6 +7,7 @@ import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/platform_utils.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/user_config_tool.dart';
@@ -74,7 +75,7 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
     if (!containsChannels) {
       _allNoticeModel[CommonConstant.NOTIFICATION_CHANNELS.toString()] = NoticeModel(
         id: CommonConstant.NOTIFICATION_CHANNELS,
-        isSelected: true,
+        isSelected: false,
       );
     }
     bool containsZaps = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_ZAPS.toString());
@@ -102,14 +103,14 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
     if (!containsLike) {
       _allNoticeModel[CommonConstant.NOTIFICATION_REACTIONS.toString()] = NoticeModel(
         id: CommonConstant.NOTIFICATION_REACTIONS,
-        isSelected: true,
+        isSelected: false,
       );
     }
     bool containsReply = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_REPLIES.toString());
     if (!containsReply) {
       _allNoticeModel[CommonConstant.NOTIFICATION_REPLIES.toString()] = NoticeModel(
         id: CommonConstant.NOTIFICATION_REPLIES,
-        isSelected: true,
+        isSelected: false,
       );
     }
     bool containsGroups = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_GROUPS.toString());
@@ -146,28 +147,35 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
 
   Widget _body() {
     return SingleChildScrollView(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            height: Adapt.px(12),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: PlatformUtils.listWidth,
           ),
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(Adapt.px(16)),
-              color: ThemeColor.color180,
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  height: Adapt.px(12),
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(Adapt.px(16)),
+                    color: ThemeColor.color180,
+                  ),
+                  child: _messageNoticeModel != null ? _itemContent(_messageNoticeModel!, height: Adapt.px(80)) : const SizedBox(),
+                ),
+                SizedBox(height: Adapt.px(12)),
+                Platform.isAndroid ? _itemPushAppPicker() : const SizedBox(),
+                Platform.isAndroid ? SizedBox(height: Adapt.px(12)) : const SizedBox(),
+                _buildCardItem(_feedbackList),
+                SizedBox(height: Adapt.px(12)),
+                _buildCardItem(_noticeModelList),
+                SizedBox(height: Adapt.px(44)),
+              ],
             ),
-            child: _messageNoticeModel != null ? _itemContent(_messageNoticeModel!, height: Adapt.px(80)) : const SizedBox(),
           ),
-          SizedBox(height: Adapt.px(12)),
-          Platform.isAndroid ? _itemPushAppPicker() : const SizedBox(),
-          Platform.isAndroid ? SizedBox(height: Adapt.px(12)) : const SizedBox(),
-          _buildCardItem(_feedbackList),
-          SizedBox(height: Adapt.px(12)),
-          _buildCardItem(_noticeModelList),
-          SizedBox(height: Adapt.px(44)),
-        ],
       ),
     );
   }
