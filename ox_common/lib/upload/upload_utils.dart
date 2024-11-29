@@ -49,7 +49,7 @@ class UploadUtils {
         directoryPath = temporaryDirectory.path;
       }
       encryptedFile = FileUtils.createFolderAndFile(directoryPath + "/encrytedfile", filename);
-      AesEncryptUtils.encryptFile(file, encryptedFile, encryptedKey,
+      await AesEncryptUtils.encryptFileInIsolate(file, encryptedFile, encryptedKey,
           nonce: encryptedNonce, mode: AESMode.gcm);
       uploadFile = encryptedFile;
     }
@@ -112,6 +112,9 @@ class UploadUtils {
         file.readAsBytesSync(),
         fileExtension: file.path.getFileExtension(),
       );
+    }
+    if (encryptedFile != null && encryptedFile.existsSync()) {
+      encryptedFile.delete();
     }
 
     return UploadResult.success(url, encryptedKey, encryptedNonce);

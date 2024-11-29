@@ -254,52 +254,38 @@ class OXCImagePickerHelper {
         let newIndex = index + 1
         
         if asset.mediaType == .video {
+            let resources = PHAssetResource.assetResources(for: asset)
             
-            let options = PHVideoRequestOptions()
-            options.version = .current
-            options.deliveryMode = .automatic
-            options.isNetworkAccessAllowed = true
-            
-            let manager = PHImageManager.default()
-            manager.requestAVAsset(forVideo: asset, options: options) { asset, audioMix, info in
-                
-                guard let urlAsset = asset as? AVURLAsset else {
-                    return
-                }
-                
-                guard let outputDirURL = getCacheDirectory() else {
-                    return
-                }
-                
-                guard let exportSession = AVAssetExportSession(asset: urlAsset, presetName: AVAssetExportPresetMediumQuality) else {
-                    return
-                }
-                
-                let destinationURL = outputDirURL.appendingPathComponent("\(UUID().uuid).mov")
-                
-                exportSession.outputURL = destinationURL
-                exportSession.outputFileType = .mov
-                exportSession.timeRange = CMTimeRange(start: .zero, duration: .positiveInfinity)
-                
-                exportSession.exportAsynchronously(completionHandler: {
-                    if exportSession.status == .failed {
-                        print("video export failed: \(exportSession.error?.localizedDescription ?? "")")
-                        return
-                    }
-                    
-                    let snapshotPath = destinationURL.deletingLastPathComponent().appendingPathComponent("\(UUID().uuid).jpeg")
-                    let img = self.getImage(from: destinationURL.relativePath)
-                    try? img?.jpegData(compressionQuality: 1.0)?.write(to: snapshotPath)
-                    
-                    var newArr = resultArr
-                    newArr.append([
-                        "thumbPath": snapshotPath.relativePath,
-                        "path": destinationURL.relativePath
-                    ])
-                    self.saveImageView(newIndex, imagePHAsset: modelList, resultArr: newArr, compressSize: compressSize, result: result)
-                })
+            guard let videoResource = resources.first(where: { $0.type == .video }) else {
+                return
             }
             
+            guard let outputDirURL = getCacheDirectory() else {
+                return
+            }
+            
+            let destinationURL = outputDirURL.appendingPathComponent("\(UUID().uuidString)-\(videoResource.originalFilename)")
+            
+            let manager = PHAssetResourceManager.default()
+            let options = PHAssetResourceRequestOptions()
+            
+            manager.writeData(for: videoResource, toFile: destinationURL, options: options) { error in
+                if let error = error {
+                    print("video export failed: \(error.localizedDescription)")
+                    return
+                }
+                
+                let snapshotPath = destinationURL.deletingLastPathComponent().appendingPathComponent("\(UUID().uuidString).jpeg")
+                let img = self.getImage(from: destinationURL.relativePath)
+                try? img?.jpegData(compressionQuality: 1.0)?.write(to: snapshotPath)
+                
+                var newArr = resultArr
+                newArr.append([
+                    "thumbPath": snapshotPath.relativePath,
+                    "path": destinationURL.relativePath
+                ])
+                self.saveImageView(newIndex, imagePHAsset: modelList, resultArr: newArr, compressSize: compressSize, result: result)
+            }
         } else if asset.mediaType == .image {
             
             let option = PHImageRequestOptions()

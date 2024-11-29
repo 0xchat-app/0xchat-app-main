@@ -25,7 +25,8 @@ extension PushMsgTypeEx on PushMsgType {
 
 FlutterLocalNotificationsPlugin? flutterLocalNotificationsPlugin;
 
-AndroidNotificationChannel? channel;
+AndroidNotificationChannel? messageChannel;
+AndroidNotificationChannel? callChannel;
 
 void openAppByClick() {
   LogUtil.e('Push: background -openAppByClick--');
@@ -51,19 +52,35 @@ class LocalNotificationManager {
     const InitializationSettings initializationSettings =
         InitializationSettings(android: initializationSettingsAndroid);
     await flutterLocalNotificationsPlugin?.initialize(initializationSettings);
-    initAndroidNotificationChannel();
+    initAndroidNotificationMsgChannel();
+    initAndroidNotificationCallChannel();
 
     await flutterLocalNotificationsPlugin
         ?.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(channel!);
+        ?.createNotificationChannel(messageChannel!);
+    await flutterLocalNotificationsPlugin
+        ?.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(callChannel!);
   }
 
-  void initAndroidNotificationChannel() {
-    channel = AndroidNotificationChannel(
+  void initAndroidNotificationMsgChannel() {
+    messageChannel = AndroidNotificationChannel(
       '10000',
       'Chat Notification',
       description: 'This Channel is 0xchat App Chat push notification',
       importance: Importance.high,
+    );
+  }
+
+  void initAndroidNotificationCallChannel() {
+    callChannel = const AndroidNotificationChannel(
+      '10001',
+      'Call Notifications',
+      description: 'This channel is used for call invitations',
+      importance: Importance.max,
+      sound: RawResourceAndroidNotificationSound('classiccalling'),
+      playSound: true,
+      enableVibration: true,
     );
   }
 
@@ -74,6 +91,7 @@ class LocalNotificationManager {
   }
 
   Future<void> onNewEndpoint(String endpoint, String instance) async {
+    LogUtil.e('Jeff: ---onNewEndpoint---instance =$instance； endpoint =$endpoint');
     await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageSettingKey.KEY_PUSH_TOKEN.name, endpoint);
     OXUserInfoManager.sharedInstance.setNotification();
   }
@@ -95,27 +113,35 @@ class LocalNotificationManager {
       showContent = 'You’ve received a message ';
       print(e.toString());
     }
-    showLocalNotification(notificationID, showTitle, showContent);
+
     if (msgType == PushMsgType.call.text) {
-      PromptToneManager.sharedInstance.playCalling();
-      Future.delayed(const Duration(seconds: 10), () {
-        PromptToneManager.sharedInstance.stopPlay();
-      });
+      showLocalNotification(notificationID, showTitle, showContent, isCall: true);
+    } else {
+      showLocalNotification(notificationID, showTitle, showContent);
     }
   }
 
-  void showLocalNotification(int notificationID, String showTitle, String showContent) async {
+  void showLocalNotification(int notificationID, String showTitle, String showContent, {bool isCall = false}) async {
     if (flutterLocalNotificationsPlugin == null) await LocalNotificationManager.instance.initFlutterLocalNotificationsPlugin();
-    if (channel == null) LocalNotificationManager.instance.initAndroidNotificationChannel();
+    if (messageChannel == null) LocalNotificationManager.instance.initAndroidNotificationMsgChannel();
+    if (callChannel == null) LocalNotificationManager.instance.initAndroidNotificationCallChannel();
     flutterLocalNotificationsPlugin?.show(
       notificationID,
       showTitle,
       showContent,
       NotificationDetails(
-        android: AndroidNotificationDetails(
-          channel?.id ?? '',
-          channel?.name ?? '',
-          channelDescription: '',
+        android: isCall ? AndroidNotificationDetails(
+          callChannel?.id ?? '',
+          callChannel?.name ?? '',
+          channelDescription: callChannel?.description ?? '',
+          importance: Importance.max,
+          priority: Priority.high,
+          sound: const RawResourceAndroidNotificationSound('classiccalling'),
+          fullScreenIntent: true,
+        ) : AndroidNotificationDetails(
+          messageChannel?.id ?? '',
+          messageChannel?.name ?? '',
+          channelDescription: messageChannel?.description ?? '',
           icon: '@mipmap/ic_notification',
         ),
       ),

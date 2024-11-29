@@ -3,7 +3,6 @@ import 'dart:io' as io;
 import 'package:encrypt/encrypt.dart';
 import 'package:file/file.dart';
 import 'package:file/local.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:ox_common/utils/aes_encrypt_utils.dart';
 import 'package:ox_common/utils/string_utils.dart';
@@ -43,9 +42,32 @@ class DecryptedCacheManager extends CacheManager {
   final String decryptKey;
   final String decryptNonce;
 
-  DecryptedCacheManager(this.decryptKey, this.decryptNonce)
-      : super(Config(key, repo: JsonCacheInfoRepository(databaseName: key)));
+  DecryptedCacheManager(this.decryptKey, this.decryptNonce) : super(
+    Config(
+      key,
+      maxNrOfCacheObjects: 10000,
+      stalePeriod: Duration(days: 1000),
+      repo: JsonCacheInfoRepository(databaseName: key),
+    ),
+  );
 
+  @override
+  Future<File> getSingleFile(String url, {
+    String? key,
+    Map<String, String>? headers,
+  }) async {
+    key ??= url;
+    final fileInfo = await _fetchAndDecryptFile(url, key, headers);
+    return fileInfo.file;
+  }
+
+  @override
+  Future<FileInfo> downloadFile(String url, {String? key, Map<String, String>? authHeaders, bool force = false}) {
+    final tempKey = '${url}_temp';
+    return super.downloadFile(url, key: tempKey, authHeaders: authHeaders, force: force);
+  }
+
+  // This method is work for Image Widget.
   @override
   Stream<FileResponse> getFileStream(String url,
       {String? key, Map<String, String>? headers, bool withProgress = false}) {
@@ -53,33 +75,57 @@ class DecryptedCacheManager extends CacheManager {
     if (uri == null) {
       return Stream.empty();
     }
-
     if (!url.isRemoteURL) {
       return _localFileStream(uri);
     } else {
-      return super
-          .getFileStream(url, key: key, headers: headers, withProgress: withProgress)
-          .asyncMap((fileInfo) async {
-        if (fileInfo is FileInfo) {
-          if (fileInfo.source == FileSource.Cache) {
-            return fileInfo;
-          }
-          final validTill = const Duration(days: 30);
-          File decryptedFile = await decryptFile(fileInfo.file, decryptKey, nonce: decryptNonce, bytesCallback: (bytes) {
-            final fileBytes = Uint8List.fromList(bytes);
-            super.putFile(url, fileBytes, key: key, maxAge: validTill);
-          });
-          return FileInfo(
-            decryptedFile,
-            FileSource.Cache,
-            DateTime.now().add(validTill),
-            uri.path,
-          );
-        } else {
-          return fileInfo;
-        }
-      });
+      return Stream.fromFuture(_fetchAndDecryptFile(url, key, headers)).map((fileInfo) => fileInfo);
     }
+  }
+
+  Future<FileInfo> _fetchAndDecryptFile(String url, String? key, Map<String, String>? headers) async {
+    key ??= url;
+
+    // Try fetching from cache
+    final cacheFile = await getFileFromCache(key);
+    if (cacheFile != null && cacheFile.file.existsSync()) {
+      return cacheFile;
+    }
+
+    // If not in cache, download and decrypt
+    final tempKey = '${url}_temp';
+    final downloadResponse = await super.downloadFile(url, key: tempKey, authHeaders: headers);
+
+    final encryptFile = downloadResponse.file;
+    final fileExtension = encryptFile.path.getFileExtension();
+    final decryptedTempFile = await store.fileSystem.createFile(encryptFile.basename + '_temp');
+
+    await decryptFile(
+      encryptFile,
+      decryptKey,
+      decryptedFile: decryptedTempFile,
+      nonce: decryptNonce,
+    );
+
+    final validTill = const Duration(days: 30);
+    final newCacheFile = await super.putFile(
+      url,
+      decryptedTempFile.readAsBytesSync(),
+      key: key,
+      maxAge: validTill,
+      fileExtension: fileExtension,
+    );
+
+    // Cleanup temporary files
+    super.removeFile(tempKey);
+    encryptFile.delete();
+    decryptedTempFile.delete();
+
+    return FileInfo(
+      newCacheFile,
+      FileSource.Cache,
+      DateTime.now().add(validTill),
+      Uri.parse(url).path,
+    );
   }
 
   Stream<FileResponse> _localFileStream(Uri uri) async* {
@@ -94,16 +140,15 @@ class DecryptedCacheManager extends CacheManager {
   }
 
   static Future<File> decryptFile(io.File file, String decryptKey,
-      {String? nonce, AESMode mode = AESMode.gcm, Function(List<int>)? bytesCallback}) async {
+      {File? decryptedFile, String? nonce, AESMode mode = AESMode.gcm}) async {
     String fileName = path.basename(file.path);
-    final decryptedFile = await DecryptedCacheManager(decryptKey, '').store.fileSystem.createFile(fileName);
-    AesEncryptUtils.decryptFile(
+    decryptedFile ??= await DecryptedCacheManager(decryptKey, nonce ?? '').store.fileSystem.createFile(fileName);
+    await AesEncryptUtils.decryptFileInIsolate(
       file,
       decryptedFile,
       decryptKey,
       nonce: nonce,
       mode: mode,
-      bytesCallback: bytesCallback,
     );
     return decryptedFile;
   }
