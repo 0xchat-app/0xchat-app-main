@@ -22,7 +22,7 @@ class _InputFacePageState extends State<InputFacePage> {
       child: EmojiPicker(
         textEditingController: widget.textController,
         config: Config(
-          columns: (screenWidth / 50).floor(),
+          columns: (screenWidth / 60).floor(),
           emojiSizeMax: 30,
           // Issue: https://github.com/flutter/flutter/issues/28894
           verticalSpacing: 0,

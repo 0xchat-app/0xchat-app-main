@@ -254,7 +254,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
       height: widget.height,
       width: PlatformUtils.listWidth,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           for (final item in _tabBarList)
             GestureDetector(
@@ -267,6 +267,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
               onDoubleTap: _tabBarList.indexOf(item) == selectedIndex ? () {
                 widget.handleDoubleTap?.call(_tabBarList.indexOf(item),selectedIndex);
               } : null,
+              behavior: HitTestBehavior.translucent,
               child: _tabbarItemWidget(item, _navItemKeyList[_tabBarList.indexOf(item)]),
             ),
         ],
