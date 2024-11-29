@@ -343,7 +343,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
         ),
         Positioned(bottom: Adapt.px(6),child: _promptWidget(item),),
       ],
-    );
+    ).setPadding(EdgeInsets.symmetric(horizontal: 15.px));
   }
 
   Widget _promptWidget(TranslucentNavigationBarItem item) {
