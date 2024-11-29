@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 // ox_common
 import 'package:ox_common/log_util.dart';
+import 'package:ox_common/utils/app_relay_hint_dialog.dart';
 import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -300,6 +301,7 @@ class _LoginPageState extends State<LoginPage> {
     OXUserInfoManager.sharedInstance.loginSuccess(userDB, isAmber: true);
     await OXLoading.dismiss();
     OXNavigator.popToRoot(context);
+    AppRelayHintDialog.show(context);
   }
 
   void _serviceWebView() {
