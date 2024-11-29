@@ -64,6 +64,13 @@ subprojects {
                 }
             }
         }
+        configurations.all {
+            resolutionStrategy {
+                force "com.google.crypto.tink:tink:1.13.0"
+                exclude group: "com.google.crypto.tink", module: "tink-android"
+            }
+        }
+
     }
 }
 subprojects {
