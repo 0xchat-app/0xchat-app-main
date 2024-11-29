@@ -123,9 +123,6 @@ class ContactMediaWidgetState extends State<ContactMediaWidget>
             itemBuilder: (context, index) {
               types.CustomMessage customMsg = messagesList[index];
               if (customMsg.customType == CustomMessageType.imageSending) {
-                if (ImageSendingMessageEx(customMsg).url.isEmpty) {
-                  return const SizedBox();
-                }
                 return GestureDetector(
                   onTap: () {
                     CommonImageGallery.show(
@@ -346,8 +343,11 @@ class RenderVideoMessageState extends State<RenderVideoMessage> {
         CommonVideoPage.show(videoPath);
       },
       child: Stack(
+        fit: StackFit.expand,
         children: [
-          snapshotBuilder(snapshotPath),
+          Positioned.fill(
+            child: snapshotBuilder(snapshotPath),
+          ),
           if (videoURL.isNotEmpty)
             Positioned.fill(
               child: Center(
@@ -372,12 +372,9 @@ class RenderVideoMessageState extends State<RenderVideoMessage> {
 
   Widget snapshotBuilder(String imagePath) {
     if (imagePath.isEmpty) return const SizedBox();
-    return Container(
-      width: MediaQuery.of(context).size.width / 3,
-      child: GalleryImageWidget(
-        uri: imagePath,
-        fit: BoxFit.cover,
-      ),
+    return GalleryImageWidget(
+      uri: imagePath,
+      fit: BoxFit.cover,
     );
   }
 }
