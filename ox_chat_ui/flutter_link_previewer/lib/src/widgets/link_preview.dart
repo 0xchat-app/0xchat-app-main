@@ -342,12 +342,14 @@ class _LinkPreviewState extends State<LinkPreview>
             maxHeight: width,
           ),
           width: width,
-          child: widget.imageBuilder != null
-              ? widget.imageBuilder!(imageUrl)
-              : OXCachedNetworkImage(
-                  imageUrl:imageUrl,
-                  fit: BoxFit.contain,
-                ),
+          child: IntrinsicHeight(
+            child: widget.imageBuilder != null
+                ? widget.imageBuilder!(imageUrl)
+                : OXCachedNetworkImage(
+              imageUrl:imageUrl,
+              fit: BoxFit.contain,
+            ),
+          ),
         ),
       );
 
