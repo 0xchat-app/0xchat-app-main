@@ -247,22 +247,24 @@ extension ChatMessageSendEx on ChatGeneralHandler {
   }
 
   void resendMessage(BuildContext context, types.Message message) {
-    final resendMsg = message.copyWith(
-      createdAt: DateTime.now().millisecondsSinceEpoch,
-      status: types.Status.sending,
-    );
-
-    if (resendMsg.isImageSendingMessage) {
+    if (message.isImageSendingMessage) {
       sendImageMessage(
         context: context,
-        resendMessage: resendMsg as types.CustomMessage,
+        resendMessage: message.copyWith(
+          createdAt: DateTime.now().millisecondsSinceEpoch,
+          status: null,
+        ) as types.CustomMessage,
       );
       return;
-    } else if (resendMsg.isVideoSendingMessage) {
+    } else if (message.isVideoSendingMessage) {
       sendVideoMessage(
         context: context,
-        resendMessage: resendMsg as types.CustomMessage,
+        resendMessage: message.copyWith(
+          createdAt: DateTime.now().millisecondsSinceEpoch,
+          status: null,
+        ) as types.CustomMessage,
       );
+      return;
     }
 
     _sendMessageHandler(
@@ -429,7 +431,17 @@ extension ChatMessageSendEx on ChatGeneralHandler {
           autoStoreImage: false,
           completeCallback: (uploadResult, isFromCache) async {
             var imageURL = uploadResult.url;
-            if (!uploadResult.isSuccess || imageURL.isEmpty) return;
+            if (!uploadResult.isSuccess || imageURL.isEmpty) {
+              final status = types.Status.error;
+              dataController.updateMessage(sendMessage.copyWith(
+                status: status,
+              ));
+              ChatMessageHelper.updateMessageWithMessageId(
+                messageId: sendMessage.id,
+                status: status,
+              );
+              return;
+            }
 
             imageURL = generateUrlWithInfo(
               originalUrl: imageURL,
@@ -616,6 +628,8 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       imageWidth = VideoMessageEx(resendMessage).width;
       imageHeight = VideoMessageEx(resendMessage).height;
       fileId = VideoMessageEx(resendMessage).fileId;
+      encryptedKey = VideoMessageEx(resendMessage).encryptedKey;
+      encryptedNonce = VideoMessageEx(resendMessage).encryptedNonce;
     }
 
     if (videoURL != null && videoURL.isRemoteURL) {
@@ -667,7 +681,17 @@ extension ChatMessageSendEx on ChatGeneralHandler {
           encryptedNonce: encryptedNonce,
           completeCallback: (uploadResult, isFromCache) async {
             var videoURL = uploadResult.url;
-            if (!uploadResult.isSuccess || videoURL.isEmpty) return;
+            if (!uploadResult.isSuccess || videoURL.isEmpty) {
+              final status = types.Status.error;
+              dataController.updateMessage(sendMessage.copyWith(
+                status: status,
+              ));
+              ChatMessageHelper.updateMessageWithMessageId(
+                messageId: sendMessage.id,
+                status: status,
+              );
+              return;
+            }
 
             videoURL = generateUrlWithInfo(
               originalUrl: videoURL,

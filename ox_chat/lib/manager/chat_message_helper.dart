@@ -481,6 +481,7 @@ class ChatMessageHelper {
   static Future updateMessageWithMessageId({
     required String messageId,
     PreviewData? previewData,
+    types.Status? status,
   }) async {
     final messageDB = await Messages.sharedInstance.loadMessageDBFromDB(messageId);
     if (messageDB == null) return ;
@@ -495,6 +496,10 @@ class ChatMessageHelper {
           message: 'PreviewData encode error: $e',
         );
       }
+    }
+
+    if (status != null) {
+      messageDB.status = status.toDBStatus;
     }
 
     await Messages.saveMessageToDB(messageDB);
@@ -675,6 +680,22 @@ extension MessageUIToDBEx on types.Message {
   }
 }
 
+extension MessageUIStatusEx on types.Status {
+  int get toDBStatus {
+    switch (this) {
+      case types.Status.delivered:
+      case types.Status.warning:
+      case types.Status.seen:
+      case types.Status.sent:
+        return 1;
+      case types.Status.error:
+        return 2;
+      case types.Status.sending:
+        return 0;
+    }
+  }
+}
+
 extension UserDBToUIEx on UserDBISAR {
   types.User toMessageModel() {
     types.User _user = types.User(
@@ -685,7 +706,6 @@ extension UserDBToUIEx on UserDBISAR {
     return _user;
   }
 }
-
 
 extension UIMessageEx on types.Message {
   bool get isEncrypted => decryptKey != null;

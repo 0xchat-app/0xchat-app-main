@@ -65,7 +65,7 @@ class ChatVideoMessageState extends State<ChatVideoMessage> {
 
     width = VideoMessageEx(message).width;
     height = VideoMessageEx(message).height;
-    stream = fileId.isEmpty || videoURL.isNotEmpty
+    stream = fileId.isEmpty || videoURL.isNotEmpty || widget.message.status == types.Status.error
         ? null
         : UploadManager.shared.getUploadProgress(fileId, widget.receiverPubkey);
 
@@ -101,10 +101,12 @@ class ChatVideoMessageState extends State<ChatVideoMessage> {
     return Stack(
       children: [
         snapshotBuilder(snapshotPath),
-        if (videoURL.isNotEmpty)
+        if (videoURL.isNotEmpty || widget.message.status == types.Status.error)
           Positioned.fill(
             child: Center(
-              child: canOpen ? buildPlayIcon() : buildLoadingWidget()
+              child: canOpen || widget.message.status == types.Status.error
+                  ? buildPlayIcon()
+                  : buildLoadingWidget()
             ),
           )
       ],
