@@ -342,5 +342,7 @@
   "str_show_in_chat": "定位到聊天位置",
   "media_message_delete_tips": "您确定要删除此本地图片消息吗？",
   "message": "消息",
-  "chat_input_length_over_hint": "您输入的文字过长，无法发送。"
+  "chat_input_length_over_hint": "您输入的文字过长，无法发送。",
+  "str_move_to_tabbar": "移至底部导航栏",
+  "str_move_to_top": "移至顶部"
 }

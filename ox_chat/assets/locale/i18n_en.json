@@ -342,5 +342,7 @@
   "str_show_in_chat": "Show in Chat",
   "media_message_delete_tips": "Are you sure you want to delete this local media messages?",
   "message": "Message",
-  "chat_input_length_over_hint": "The text you entered is too long to send."
+  "chat_input_length_over_hint": "The text you entered is too long to send.",
+  "str_move_to_tabbar": "Move to TabBar",
+  "str_move_to_top": "Move to Top"
 }

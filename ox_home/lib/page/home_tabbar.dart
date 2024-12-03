@@ -9,24 +9,17 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
+import 'package:ox_common/utils/ox_moment_manager.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/platform_utils.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/widgets/base_page_state.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
+import 'package:ox_home/model/home_tabbar_type.dart';
+import 'package:ox_home/model/tab_view_info.dart';
 import 'package:ox_home/widgets/translucent_navigation_bar.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
-
-class TabViewInfo {
-  final String moduleName;
-  final String modulePage;
-
-  TabViewInfo({
-    required this.moduleName,
-    required this.modulePage,
-  });
-}
 
 class HomeTabBarPage extends StatefulWidget {
   const HomeTabBarPage({
@@ -37,9 +30,9 @@ class HomeTabBarPage extends StatefulWidget {
   State<HomeTabBarPage> createState() => _HomeTabBarPageState();
 }
 
-class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver, OXChatObserver, TickerProviderStateMixin, WidgetsBindingObserver, NavigatorObserverMixin {
+class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver, OXChatObserver, OXMomentObserver, TickerProviderStateMixin, WidgetsBindingObserver, NavigatorObserverMixin {
   bool isLogin = false;
-  final PageController _pageController = PageController(initialPage: 1);
+  late PageController _pageController;
 
   GlobalKey<BasePageState> homeGlobalKey = GlobalKey();
   GlobalKey<ContactBasePageState> contactGlobalKey = GlobalKey();
@@ -50,22 +43,9 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
   final double _bottomNavHeight = 72.0;
   final double _bottomNavMargin = 24.0.px;
   double _tabbarSH = 0;
-  bool _isCompleted = false;
+  late List<HomeTabBarType> _typeList;
 
-  List<TabViewInfo> tabViewInfo = [
-    TabViewInfo(
-      moduleName: 'ox_chat',
-      modulePage: 'contractsPageWidget',
-    ),
-    TabViewInfo(
-      moduleName: 'ox_chat',
-      modulePage: 'chatSessionListPageWidget',
-    ),
-    TabViewInfo(
-      moduleName: 'ox_usercenter',
-      modulePage: 'userCenterPageWidget',
-    ),
-  ];
+  late List<TabViewInfo> tabViewInfo;
 
   @override
   void initState() {
@@ -74,18 +54,26 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
     _tabbarSH = _bottomNavHeight + _bottomNavMargin;
     OXUserInfoManager.sharedInstance.addObserver(this);
     OXChatBinding.sharedInstance.addObserver(this);
+    OXMomentManager.sharedInstance.addObserver(this);
     WidgetsBinding.instance.addObserver(this);
+
+    if (OXUserInfoManager.sharedInstance.momentPosition == 1) {
+      _typeList = [HomeTabBarType.home, HomeTabBarType.contact, HomeTabBarType.discover, HomeTabBarType.me];
+      _pageController = PageController(initialPage: 0);
+    } else {
+      _typeList = [HomeTabBarType.contact, HomeTabBarType.home, HomeTabBarType.me];
+      _pageController = PageController(initialPage: 1);
+    }
+    tabViewInfo = TabViewInfo.getTabViewData(_typeList);
     Localized.addLocaleChangedCallback(onLocaleChange);
     signerCheck();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _isCompleted = true;
-    });
   }
 
   @override
   void dispose() {
     OXUserInfoManager.sharedInstance.removeObserver(this);
     OXChatBinding.sharedInstance.removeObserver(this);
+    OXMomentManager.sharedInstance.removeObserver(this);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -196,7 +184,7 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
       child: NotificationListener<MsgNotification>(
         onNotification: (msgNotification) {
           if (tabBarGlobalKey.currentState == null) return false;
-          return tabBarGlobalKey.currentState!.updateNotificationListener(msgNotification, _isCompleted);
+          return tabBarGlobalKey.currentState!.updateNotificationListener(msgNotification);
         },
         child: page,
       ),
@@ -230,23 +218,63 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
     // TODO: implement didSwitchUser
   }
 
+  @override
+  void didMoveToTabBarCallBack() {
+    _typeList = [HomeTabBarType.home, HomeTabBarType.contact, HomeTabBarType.discover, HomeTabBarType.me];
+    setState(() {
+      tabViewInfo = TabViewInfo.getTabViewData(_typeList);
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _toPage(0, animated: false);
+    });
+  }
+
+  @override
+  void didMoveToTopCallBack() {
+    _typeList = [HomeTabBarType.contact, HomeTabBarType.home, HomeTabBarType.me];
+    setState(() {
+      tabViewInfo = TabViewInfo.getTabViewData(_typeList);
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _toPage(1, animated: false);
+    });
+  }
+
+  @override
+  void didDeleteMomentsCallBack() {
+    _typeList = [HomeTabBarType.contact, HomeTabBarType.home, HomeTabBarType.me];
+    setState(() {
+      tabViewInfo = TabViewInfo.getTabViewData(_typeList);
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _toPage(1, animated: false);
+    });
+  }
+
   void _handleDoubleTap(value,int currentSelect){
 
   }
 
-  void _tabClick(int value, int currentSelect) {
-    if(value == 0 && currentSelect == 0) {
+  void _tabClick(int changeIndex, int currentSelect) {
+    if(_typeList.elementAt(changeIndex) == HomeTabBarType.contact && _typeList.elementAt(currentSelect) == HomeTabBarType.contact) {
       contactGlobalKey.currentState?.updateContactTabClickAction(1, false);
     }
-    if(value == 1 && currentSelect == 1) {
+    if(_typeList.elementAt(changeIndex) == HomeTabBarType.home && _typeList.elementAt(currentSelect) == HomeTabBarType.home) {
       homeGlobalKey.currentState?.updateHomeTabClickAction(1, false);
     }
+    _toPage(changeIndex);
+  }
 
-    _pageController.animateToPage(
-      value,
-      duration: const Duration(milliseconds: 1),
-      curve: Curves.linear,
-    );
+  void _toPage(int index, {bool animated = true}){
+    if (animated) {
+      _pageController.animateToPage(
+        index,
+        duration: const Duration(milliseconds: 1),
+        curve: Curves.linear,
+      );
+    } else {
+      _pageController.jumpToPage(index);
+    }
   }
 
   void signerCheck() async {
