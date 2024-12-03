@@ -48,7 +48,8 @@ extension EDiscoveryPageTypeEx on EDiscoveryPageType {
 
 class DiscoveryPage extends StatefulWidget {
   final int typeInt;
-  const DiscoveryPage({Key? key, required this.typeInt}) : super(key: key);
+  final bool showBackBtn;
+  const DiscoveryPage({Key? key, required this.typeInt, this.showBackBtn = false}) : super(key: key);
 
   @override
   State<DiscoveryPage> createState() => DiscoveryPageState();
@@ -125,6 +126,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
         backgroundColor: ThemeColor.color200,
         elevation: 0,
         titleSpacing: 0.0,
+        canBack: widget.showBackBtn,
         actions: _actionWidget(),
         titleWidget: GestureDetector(
           behavior: HitTestBehavior.translucent,
