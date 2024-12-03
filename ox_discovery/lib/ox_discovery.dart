@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_discovery/page/discovery_page.dart';
+import 'package:ox_discovery/page/moments/create_moments_page.dart';
 import 'package:ox_discovery/page/moments/group_moments_page.dart';
 import 'package:ox_discovery/page/moments/moments_page.dart';
 import 'package:ox_discovery/page/moments/personal_moments_page.dart';
@@ -53,6 +54,9 @@ class OXDiscovery extends OXFlutterModule {
       case 'discoveryPageWidget':
         return OXNavigator.pushPage(context,
                 (context) => DiscoveryPage(typeInt: params?['typeInt']));
+      case 'CreateMomentsPage':
+        return OXNavigator.presentPage(context,
+                (context) => const CreateMomentsPage());
     }
     return null;
   }
