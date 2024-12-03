@@ -8,6 +8,7 @@ class StorageKeyTool {
   static const String KEY_PUBKEY_LIST = "KEY_PUBKEY_LIST";
   static const String KEY_IS_LOGIN_AMBER = "KEY_IS_LOGIN_AMBER";
   static const String APP_FONT_SIZE = "APP_FONT_SIZE";
+  static const String APP_MOMENT_POSITION = "APP_MOMENT_POSITION";  //0: top; 1: tabbar; 2: delete.
 
   static const String APP_DOMAIN_NAME = "APP_DOMAIN_NAME"; //当前domain
 

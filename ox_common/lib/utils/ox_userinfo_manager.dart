@@ -66,6 +66,8 @@ class OXUserInfoManager {
   bool canVibrate = true;
   bool canSound = true;
   bool signatureVerifyFailed = false;
+  //0: top; 1: tabbar; 2: delete.
+  int momentPosition= 0;
 
   Future initDB(String pubkey) async {
     if(pubkey.isEmpty) return;
@@ -95,6 +97,7 @@ class OXUserInfoManager {
   }
 
   Future initLocalData() async {
+    momentPosition = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.APP_MOMENT_POSITION, defaultValue: 0);
     ///account auto-login
     final String? localPubKey = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_PUBKEY);
     if (localPubKey != null) {
