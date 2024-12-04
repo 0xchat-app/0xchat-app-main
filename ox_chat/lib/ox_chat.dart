@@ -352,9 +352,13 @@ class OXChat extends OXFlutterModule {
 
   void shareLinkWithScheme(String scheme, String action, Map<String, String> queryParameters) {
     final text = queryParameters['text'] ?? '';
-    if (text.isEmpty) return ;
+    final type = queryParameters['type'] ?? '';
+    final path = queryParameters['path'] ?? '';
+    if (text.isEmpty && path.isEmpty) return ;
     OXNavigator.pushPage(null, (context) => ChatChooseSharePage(
       msg: text,
+      type: type,
+      path: path,
     ));
   }
 
