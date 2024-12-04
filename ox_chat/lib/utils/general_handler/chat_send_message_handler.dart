@@ -50,6 +50,29 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     );
   }
 
+  static void staticSendImageMessageWithFile({
+    required String receiverPubkey,
+    required String imageFilePath,
+    int chatType = ChatType.chatSingle,
+    String secretSessionId = '',
+    ChatSessionModelISAR? session,
+  }) {
+    final sender = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
+    if (sender.isEmpty) return;
+
+    session ??= _getSessionModel(
+      receiverPubkey,
+      chatType,
+      secretSessionId,
+    );
+    if (session == null) return;
+
+    ChatGeneralHandler(session: session).sendImageMessageWithFile(
+      null,
+      [File(imageFilePath)],
+    );
+  }
+
   static Future sendSystemMessageHandler(
     String receiverPubkey,
     String text, {
@@ -306,7 +329,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     } catch (_) {}
   }
 
-  Future sendImageMessageWithFile(BuildContext context, List<File> images) async {
+  Future sendImageMessageWithFile(BuildContext? context, List<File> images) async {
     for (final imageFile in images) {
       final fileId = await EncodeUtils.generatePartialFileMd5(imageFile);
       final bytes = await imageFile.readAsBytes();
