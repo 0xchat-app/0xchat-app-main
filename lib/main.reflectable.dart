@@ -3,15 +3,18 @@
 
 import 'dart:core';
 import 'dart:async' as prefix35;
-import 'package:cashu_dart/core/nuts/nut_00.dart' as prefix44;
+import 'package:cashu_dart/core/nuts/nut_00.dart' as prefix47;
 import 'package:cashu_dart/core/nuts/token/proof.dart' as prefix21;
 import 'package:cashu_dart/model/history_entry.dart' as prefix22;
+import 'package:cashu_dart/model/history_entry_isar.dart' as prefix44;
 import 'package:cashu_dart/model/invoice.dart' as prefix23;
 import 'package:cashu_dart/model/keyset_info.dart' as prefix24;
 import 'package:cashu_dart/model/lightning_invoice.dart' as prefix25;
 import 'package:cashu_dart/model/mint_info.dart' as prefix26;
+import 'package:cashu_dart/model/mint_info_isar.dart' as prefix45;
 import 'package:cashu_dart/model/mint_model.dart' as prefix27;
 import 'package:cashu_dart/model/unblinding_data.dart' as prefix28;
+import 'package:cashu_dart/model/unblinding_data_isar.dart' as prefix46;
 import 'package:cashu_dart/utils/database/db.dart' as prefix20;
 import 'package:cashu_dart/utils/database/db_object.dart' as prefix33;
 import 'package:chatcore/src/account/model/badgeAwardDB.dart' as prefix4;
@@ -16192,7 +16195,7 @@ final _data = <r.Reflectable, r.ReflectorData>{
         Map,
         num,
         int,
-        prefix22.IHistoryType,
+        prefix44.IHistoryType,
         double,
         const m.TypeValue<List<String>>().type,
         List,
@@ -16206,10 +16209,10 @@ final _data = <r.Reflectable, r.ReflectorData>{
         List,
         const m.TypeValue<Map<String, Map<dynamic, dynamic>>>().type,
         Map,
-        const m.TypeValue<List<prefix26.NutsSupportInfo>>().type,
+        const m.TypeValue<List<prefix45.NutsSupportInfo>>().type,
         List,
-        prefix26.NutsSupportInfo,
-        prefix28.ProofBlindingAction,
+        prefix45.NutsSupportInfo,
+        prefix46.ProofBlindingAction,
         const m.TypeValue<Map<dynamic, dynamic>>().type,
         Map,
         const m.TypeValue<Map<String, dynamic>>().type,
@@ -16222,7 +16225,7 @@ final _data = <r.Reflectable, r.ReflectorData>{
         const m.TypeValue<Map<String, String>>().type,
         Map,
         Type,
-        prefix44.BlindedSignature,
+        prefix47.BlindedSignature,
         const m.TypeValue<Map<dynamic, dynamic>>().type,
         Map,
         Object,
