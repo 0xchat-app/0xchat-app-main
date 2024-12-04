@@ -12,8 +12,8 @@ class OXWalletInterface {
 
   static const moduleName = 'ox_wallet';
 
-  static IMint? getDefaultMint() {
-    return OXModuleService.invoke<IMint?>(
+  static IMintIsar? getDefaultMint() {
+    return OXModuleService.invoke<IMintIsar?>(
       moduleName,
       'getDefaultMint',
       [],
@@ -31,8 +31,8 @@ class OXWalletInterface {
   }
 
   static Widget buildMintIndicatorItem({
-    required IMint? mint,
-    required ValueChanged<IMint>? selectedMintChange,
+    required IMintIsar? mint,
+    required ValueChanged<IMintIsar>? selectedMintChange,
   }) {
     return OXModuleService.invoke<Widget>(
       moduleName,
@@ -74,7 +74,7 @@ class OXWalletInterface {
     );
   }
 
-  static bool checkAndShowDialog(BuildContext context, CashuResponse response, IMint mint) {
+  static bool checkAndShowDialog(BuildContext context, CashuResponse response, IMintIsar mint) {
     if (response.code == ResponseCode.tokenAlreadySpentError) {
       OXCommonHintDialog.show(
         context,

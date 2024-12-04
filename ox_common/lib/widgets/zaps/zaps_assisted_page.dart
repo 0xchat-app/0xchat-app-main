@@ -48,7 +48,7 @@ class _ZapsAssistedPageState extends State<ZapsAssistedPage> {
   String get zapDescription => _descriptionController.text.orDefault(_defaultZapDescription);
   int get zapAmount => int.tryParse(zapAmountStr) ?? 0;
 
-  IMint? mint;
+  IMintIsar? mint;
   bool _isDefaultEcashWallet = false;
   String _defaultWalletName = '';
   String _defaultZapDescription = '';

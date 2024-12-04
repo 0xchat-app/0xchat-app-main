@@ -178,7 +178,7 @@ class ZapsActionHandler {
     ZapType? zapType,
     String? receiver,
     String? groupId,
-    IMint? mint,
+    IMintIsar? mint,
     bool showLoading = false,
   }) async {
     final recipient = userDB.pubKey;
@@ -261,7 +261,7 @@ class ZapsActionHandler {
   }
 
   Future<bool> handleZapWithEcash({
-    required IMint mint,
+    required IMintIsar mint,
     required Map zapsInfo,
     required BuildContext context,
     bool showLoading = false,
@@ -359,7 +359,7 @@ class ZapsActionHandler {
   }
 
   String preprocessHandleZapWithEcash(
-    IMint? mint,
+    IMintIsar? mint,
     int sats,
   ) {
     final isWalletAvailable = OXWalletInterface.isWalletAvailable() ?? false;
