@@ -17,11 +17,16 @@ import androidx.annotation.Nullable;
 import com.oxchat.nostr.channel.AppPreferences;
 import com.oxchat.nostr.util.Constant;
 import com.oxchat.nostr.util.SharedPreUtils;
+import com.oxchat.nostr.util.Tools;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Objects;
 
 import io.flutter.embedding.android.FlutterFragmentActivity;
 import io.flutter.embedding.engine.FlutterEngine;
@@ -110,25 +115,64 @@ public class MainActivity extends FlutterFragmentActivity {
     void handleIntent(Intent intent) {
         String action = intent.getAction();
         String type = intent.getType();
-        if (Intent.ACTION_SEND.equals(action) && "text/plain".equals(type)) {
-            // Process received text (may contain URLs)
-            String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
-            if (sharedText != null && !sharedText.isEmpty()) {
-                //use url in here
-                try {
-                    android.content.SharedPreferences sp = this.getSharedPreferences(SharedPreUtils.SP_NAME, Context.MODE_PRIVATE);
-                    if (sp != null) {
-                        String schemeUrl = Constant.APP_SCHEME + Constant.APP_SCHEME_SHARE + URLEncoder.encode(sharedText, "UTF-8");
-                        SharedPreferences.Editor e = sp.edit();
-                        e.putString(SharedPreUtils.PARAM_JUMP_INFO, schemeUrl);
-                        e.apply();
-                        intent.removeExtra(Intent.EXTRA_TEXT);
+        if (type != null) {
+            if (Intent.ACTION_SEND.equals(action)) {
+                if (type.startsWith("text/")) {//Process text types (may include image url)
+                    // Process received text (may contain URLs)
+                    String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
+                    if (sharedText != null && !sharedText.isEmpty()) {
+                        //use url in here
+                        try {
+                            SharedPreUtils sp = new SharedPreUtils(this);
+                            String schemeUrl = Constant.APP_SCHEME + Constant.APP_SCHEME_SHARE + URLEncoder.encode(sharedText, "UTF-8") + Constant.APP_SCHEME_SHARE_TYPE + "text";
+                            SharedPreferences.Editor e = sp.getSharedPreferences().edit();
+                            e.putString(SharedPreUtils.PARAM_JUMP_INFO, schemeUrl);
+                            e.apply();
+                            intent.removeExtra(Intent.EXTRA_TEXT);
+                            //may include image url
+                        } catch (Exception e) {
+                            Log.e("JSONException", Objects.requireNonNull(e.getMessage()));
+                        }
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
+                } else if (type.startsWith("image/")) {
+                    Uri uri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+                    if (uri != null) handleSharedImage(uri);
+                    intent.removeExtra(Intent.EXTRA_STREAM);
+                } else if (type.startsWith("application/")) {
+                    Uri uri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+                    if (uri != null) handleSharedFile(uri);
+                    intent.removeExtra(Intent.EXTRA_STREAM);
                 }
             }
         }
+    }
 
+    private void handleSharedImage(Uri uri) {//share mobile local image to 0xchat
+        try {
+            File file = Tools.copyToCache(this, uri, "shared_image_" + System.currentTimeMillis() + ".jpg");
+            SharedPreUtils sp = new SharedPreUtils(this);
+            String schemeUrl = Constant.APP_SCHEME + Constant.APP_SCHEME_SHARE + Constant.APP_SCHEME_SHARE_TYPE + "image" + Constant.APP_SCHEME_SHARE_PATH + file.getAbsolutePath()
+                    + Constant.APP_SCHEME_SHARE_NAME + file.getName();
+            SharedPreferences.Editor e = sp.getSharedPreferences().edit();
+            e.putString(SharedPreUtils.PARAM_JUMP_INFO, schemeUrl);
+            e.apply();
+        } catch (Exception e) {
+            Log.e("io", Objects.requireNonNull(e.getMessage()));
+        }
+    }
+
+    private void handleSharedFile(Uri uri) {//share mobile local file to 0xchat
+        try {
+            String fileName = Tools.getFileName(this, uri);
+            File file = Tools.copyToCache(this, uri, fileName);
+            SharedPreUtils sp = new SharedPreUtils(this);
+            String schemeUrl = Constant.APP_SCHEME + Constant.APP_SCHEME_SHARE + Constant.APP_SCHEME_SHARE_TYPE + "file" + Constant.APP_SCHEME_SHARE_PATH + file.getAbsolutePath()
+                    + Constant.APP_SCHEME_SHARE_NAME + fileName;
+            SharedPreferences.Editor e = sp.getSharedPreferences().edit();
+            e.putString(SharedPreUtils.PARAM_JUMP_INFO, schemeUrl);
+            e.apply();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
