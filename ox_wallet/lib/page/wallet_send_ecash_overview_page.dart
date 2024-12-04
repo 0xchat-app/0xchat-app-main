@@ -26,7 +26,7 @@ import 'package:ox_localizable/ox_localizable.dart';
 class WalletSendEcashOverviewPage extends StatefulWidget {
   final int amount;
   final String? memo;
-  final IMint mint;
+  final IMintIsar mint;
   final SendP2PKOption? p2pkOption;
   const WalletSendEcashOverviewPage({super.key, required this.amount, this.memo, required this.mint, this.p2pkOption,});
 
@@ -39,7 +39,7 @@ class _WalletSendEcashOverviewPageState extends State<WalletSendEcashOverviewPag
   List<CardItemModel> _items = [];
 
   bool _isCoinSelection = false;
-  List<Proof>? _selectedProofs;
+  List<ProofIsar>? _selectedProofs;
 
   double get createTokenBtnBottomMargin => 12.px;
   double get createTokenBtnHeight => 44.px;
@@ -139,7 +139,7 @@ class _WalletSendEcashOverviewPageState extends State<WalletSendEcashOverviewPag
           value: _isCoinSelection,
           onChanged: (value) async {
             if (value) {
-              List<Proof>? result = await OXNavigator.pushPage(context, (context) => WalletSendEcashCoinSelectionPage(amount: widget.amount,mint: widget.mint,));
+              List<ProofIsar>? result = await OXNavigator.pushPage(context, (context) => WalletSendEcashCoinSelectionPage(amount: widget.amount,mint: widget.mint,));
               if(result != null){
                 _selectedProofs = result;
                 int totalAmount = result.fold(0, (pre, proof) => pre + proof.amountNum);

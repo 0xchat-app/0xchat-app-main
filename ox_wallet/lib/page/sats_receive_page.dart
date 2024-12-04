@@ -32,7 +32,7 @@ class _SatsReceivePageState extends State<SatsReceivePage> {
 
   final ValueNotifier<String?> _invoiceNotifier = ValueNotifier('');
   final ValueNotifier<int> _expiredTimeNotifier = ValueNotifier(0);
-  final ValueNotifier<IMint?> _mintNotifier = ValueNotifier(null);
+  final ValueNotifier<IMintIsar?> _mintNotifier = ValueNotifier(null);
   final TextEditingController _amountEditController = TextEditingController();
   final TextEditingController _noteEditController = TextEditingController();
   final FocusNode _noteFocus = FocusNode();
@@ -43,10 +43,10 @@ class _SatsReceivePageState extends State<SatsReceivePage> {
   String get amount => _amountEditController.text;
   String get note => _noteEditController.text;
   String? get invoice => _invoiceNotifier.value;
-  IMint? get mint => _mintNotifier.value;
+  IMintIsar? get mint => _mintNotifier.value;
 
   String _amountLastInput = '', _noteLastInput = '';
-  late IMint? _mintLastSelected;
+  late IMintIsar? _mintLastSelected;
 
   @override
   void initState() {
@@ -246,7 +246,7 @@ class _SatsReceivePageState extends State<SatsReceivePage> {
     _expiredTimeNotifier.value = 0;
   }
 
-  void _onChanged(IMint mint) {
+  void _onChanged(IMintIsar mint) {
     _mintNotifier.value = mint;
     if(_mintLastSelected != mint) {
       _createLightningInvoice();

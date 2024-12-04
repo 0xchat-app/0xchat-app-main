@@ -10,9 +10,9 @@ import 'package:cashu_dart/cashu_dart.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
 class MintItem extends StatelessWidget {
-  final IMint? mint;
+  final IMintIsar? mint;
   final double? height;
-  final ValueChanged<IMint?>? onChanged;
+  final ValueChanged<IMintIsar?>? onChanged;
 
   const MintItem({super.key, required this.mint, this.onChanged, this.height});
 
@@ -81,7 +81,7 @@ class MintItem extends StatelessWidget {
     );
   }
 
-  String _mintTitle(IMint mint) => mint.name.isNotEmpty ? mint.name : mint.mintURL;
+  String _mintTitle(IMintIsar mint) => mint.name.isNotEmpty ? mint.name : mint.mintURL;
 
   void _onChanged() {
     if (onChanged != null) {
@@ -91,8 +91,8 @@ class MintItem extends StatelessWidget {
 }
 
 class MintIndicatorItem extends StatelessWidget {
-  final IMint? mint;
-  final ValueChanged<IMint>? onChanged;
+  final IMintIsar? mint;
+  final ValueChanged<IMintIsar>? onChanged;
 
   const MintIndicatorItem({super.key, this.mint, this.onChanged});
 

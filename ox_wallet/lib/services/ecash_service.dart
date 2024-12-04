@@ -4,7 +4,7 @@ import 'package:ox_common/log_util.dart';
 
 class EcashService {
 
-  static Future<Receipt?> createLightningInvoice({required IMint mint, required int amount}) async {
+  static Future<Receipt?> createLightningInvoice({required IMintIsar mint, required int amount}) async {
     Receipt? receipt;
     try {
       receipt = await Cashu.createLightningInvoice(mint: mint, amount: amount);
@@ -15,10 +15,10 @@ class EcashService {
   }
 
   static Future<CashuResponse<String>> sendEcash({
-    required IMint mint,
+    required IMintIsar mint,
     required int amount,
     String? memo,
-    List<Proof>? proofs,
+    List<ProofIsar>? proofs,
   }) async {
     try {
       return await Cashu.sendEcash(
@@ -34,7 +34,7 @@ class EcashService {
   }
 
   static Future<CashuResponse<String>> sendEcashForP2PK({
-    required IMint mint,
+    required IMintIsar mint,
     required int amount,
     String? memo,
     required List<UserDBISAR> singer,
@@ -42,7 +42,7 @@ class EcashService {
     DateTime? locktime,
     int? signNumRequired,
     P2PKSecretSigFlag? sigFlag,
-    List<Proof>? proofs,
+    List<ProofIsar>? proofs,
   }) async {
     try {
       return await Cashu.sendEcashToPublicKeys(
@@ -83,7 +83,7 @@ class EcashService {
     return amount;
   }
 
-  static Future<CashuResponse?> payingLightningInvoice({required IMint mint, required String pr}) async {
+  static Future<CashuResponse?> payingLightningInvoice({required IMintIsar mint, required String pr}) async {
     try{
       return await Cashu.payingLightningInvoice(mint: mint, pr: pr);
     }catch(e,s){
@@ -92,8 +92,8 @@ class EcashService {
     return null;
   }
 
-  static Future<List<Proof>> getAllUseProofs({required IMint mint}) async {
-    List<Proof> proofs = [];
+  static Future<List<ProofIsar>> getAllUseProofs({required IMintIsar mint}) async {
+    List<ProofIsar> proofs = [];
     try{
       proofs = await Cashu.getAllUseProofs(mint);
     }catch(e,s){
@@ -110,8 +110,8 @@ class EcashService {
     return Cashu.isCashuToken(token);
   }
 
-  static Future<List<IHistoryEntry>> getHistoryList() async {
-    List<IHistoryEntry> historyEntry = [];
+  static Future<List<IHistoryEntryIsar>> getHistoryList() async {
+    List<IHistoryEntryIsar> historyEntry = [];
     try {
       historyEntry = await Cashu.getHistoryList(size: 50);
     } catch (e, s) {
@@ -120,11 +120,11 @@ class EcashService {
     return historyEntry;
   }
 
-  static Future<IMint?> addMint(String mintURL) async {
+  static Future<IMintIsar?> addMint(String mintURL) async {
     return await Cashu.addMint(mintURL);
   }
 
-  static Future<bool> deleteMint(IMint mint) async {
+  static Future<bool> deleteMint(IMintIsar mint) async {
     try {
       return await Cashu.deleteMint(mint);
     } catch (e, s) {
@@ -133,7 +133,7 @@ class EcashService {
     }
   }
 
-  static Future<int?> checkProofsAvailable(IMint mint) async {
+  static Future<int?> checkProofsAvailable(IMintIsar mint) async {
     int? result;
     try {
       result = await Cashu.checkProofsAvailable(mint);
@@ -143,7 +143,7 @@ class EcashService {
     return result;
   }
 
-  static Future<bool?> checkEcashTokenSpendable({required IHistoryEntry entry}) async {
+  static Future<bool?> checkEcashTokenSpendable({required IHistoryEntryIsar entry}) async {
     bool? result;
     try {
       result = await Cashu.isEcashTokenSpendableFromHistory(entry);
@@ -157,11 +157,11 @@ class EcashService {
     return Cashu.tryCreateSpendableEcashToken(token);
   }
 
-  static Future<void> editMintName(IMint mint, String name) async {
+  static Future<void> editMintName(IMintIsar mint, String name) async {
     return await Cashu.editMintName(mint, name);
   }
 
-  static Future<bool> fetchMintInfo(IMint mint) {
+  static Future<bool> fetchMintInfo(IMintIsar mint) {
     return Cashu.fetchMintInfo(mint);
   }
 

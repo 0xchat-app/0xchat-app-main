@@ -200,7 +200,7 @@ class EcashHelper {
   }
 }
 
-extension IHistoryEntryEcashEx on IHistoryEntry {
+extension IHistoryEntryEcashEx on IHistoryEntryIsar {
   EcashReceiptHistoryISAR toReceiptHistory() =>
     EcashReceiptHistoryISAR(
       tokenMD5: EncryptUtils.generateMd5(value),

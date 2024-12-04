@@ -34,7 +34,7 @@ class EcashDetailPageState extends State<EcashDetailPage> {
 
   String? ownerName;
 
-  IHistoryEntry? recordDetail;
+  IHistoryEntryIsar? recordDetail;
 
   List<EcashTokenInfo> historyList = [];
 

@@ -27,8 +27,8 @@ class WalletSwapEcashPage extends StatefulWidget {
 class _WalletSwapEcashPageState extends State<WalletSwapEcashPage> {
 
   final TextEditingController _amountEditController = TextEditingController();
-  final ValueNotifier<IMint?> _sendMintNotifier = ValueNotifier(EcashManager.shared.defaultIMint);
-  final ValueNotifier<IMint?> _receiveNotifier = ValueNotifier(null);
+  final ValueNotifier<IMintIsar?> _sendMintNotifier = ValueNotifier(EcashManager.shared.defaultIMint);
+  final ValueNotifier<IMintIsar?> _receiveNotifier = ValueNotifier(null);
 
   String get amount => _amountEditController.text;
 
@@ -54,7 +54,7 @@ class _WalletSwapEcashPageState extends State<WalletSwapEcashPage> {
     );
   }
 
-  Widget _buildSelectMintWidget(String label, ValueNotifier<IMint?> mintNotifier, {ValueChanged<IMint?>? onChanged}) {
+  Widget _buildSelectMintWidget(String label, ValueNotifier<IMintIsar?> mintNotifier, {ValueChanged<IMintIsar?>? onChanged}) {
     return CommonLabeledCard(
       label: label,
       child: MintIndicatorItem(
@@ -103,9 +103,9 @@ class _WalletSwapEcashPageState extends State<WalletSwapEcashPage> {
   }
 
   void _mintChanged(
-    IMint? selectedMint,
-    ValueNotifier<IMint?> exchange,
-    ValueNotifier<IMint?> recipient,
+    IMintIsar? selectedMint,
+    ValueNotifier<IMintIsar?> exchange,
+    ValueNotifier<IMintIsar?> recipient,
   ) {
     exchange.value = selectedMint;
     if (exchange.value == recipient.value) {
