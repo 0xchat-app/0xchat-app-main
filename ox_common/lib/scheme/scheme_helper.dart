@@ -55,3 +55,23 @@ class SchemeHelper {
     defaultHandler?.call(uri, action, query);
   }
 }
+
+enum SchemeShareType {
+  text,
+  image,
+  file,
+}
+
+extension SchemeShareTypeEx on SchemeShareType{
+
+  String get typeText{
+    switch(this){
+      case SchemeShareType.text:
+        return 'text';
+      case SchemeShareType.image:
+        return 'image';
+      case SchemeShareType.file:
+        return 'file';
+    }
+  }
+}
