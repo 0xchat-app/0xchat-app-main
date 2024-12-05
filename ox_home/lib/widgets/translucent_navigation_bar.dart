@@ -109,6 +109,10 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
   late AnimationController _animationController;
   late Animation<double> _animation;
 
+  late double _horizontalPadding;
+  late double _verticalPadding;
+  double _dialogItemWidth = 180.px;
+
   void updateOffset(double offset) {
     _animationController.value = offset;
   }
@@ -133,6 +137,8 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     OXChatBinding.sharedInstance.addObserver(this);
     OXMomentManager.sharedInstance.addObserver(this);
     ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
+    _horizontalPadding = widget.horizontalPadding ?? 20.px;
+    _verticalPadding = widget.verticalPadding ?? 24.px;
     if (OXUserInfoManager.sharedInstance.momentPosition == 1) {
       _typeList = [HomeTabBarType.home, HomeTabBarType.contact, HomeTabBarType.discover, HomeTabBarType.me];
     } else {
@@ -199,8 +205,8 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
           offset: Offset(0, _animation.value),
           child: Container(
             margin: EdgeInsets.symmetric(
-              vertical: widget.verticalPadding ?? 24.px,
-              horizontal: widget.horizontalPadding ?? 20.px,
+              vertical: _verticalPadding,
+              horizontal: _horizontalPadding,
             ),
             height: widget.height,
             // width: double.infinity,
@@ -594,9 +600,8 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     final position = renderBox.localToGlobal(Offset.zero);
     List<TabbarMenuModel> menuList = _getMenuList(index);
     if (menuList.isEmpty) return;
-    double leftPosition = _calculateDialogPosition(context, index, position);
+    double leftPosition = _calculateDialogPosition(context, index, position, renderBox);
     double screenHeight = MediaQuery.of(context).size.height;
-
     showGeneralDialog(
       context: context,
       barrierDismissible: true,
@@ -618,7 +623,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
                 bottom: screenHeight - position.dy + 4.px + (_typeList.elementAt(index) == HomeTabBarType.me ? 46.px : 0),
                 left: leftPosition,
                 child: Container(
-                  width: 180.px,
+                  width: _dialogItemWidth,
                   height: menuList.length * 44.px,
                   constraints: BoxConstraints(maxHeight: screenHeight/2),
                   decoration: BoxDecoration(
@@ -655,9 +660,9 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
                 visible: _typeList.elementAt(index) == HomeTabBarType.me,
                 child: Positioned(
                   bottom: screenHeight - position.dy + 4.px,
-                  left: _calculateDialogPosition(context, index, position),
+                  left: leftPosition,
                   child: Container(
-                    width: 180.px,
+                    width: _dialogItemWidth,
                     height: 46.px,
                     constraints: BoxConstraints(maxHeight: screenHeight/2),
                     decoration: BoxDecoration(
@@ -677,7 +682,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Container(height: 2.px, color: ThemeColor.color200),
-                      _menuItemView(2, _currentUser),
+                      _menuItemView(_typeList.indexOf(HomeTabBarType.me), _currentUser),
                     ],
                   ),),
                 ),
@@ -714,7 +719,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
                 fontWeight: FontWeight.w500,
               ),
             ),
-            index == 2
+            _typeList.elementAt(index) == HomeTabBarType.me
                 ? (showName ==
                 Localized.text(
                     'ox_usercenter.str_add_account')
@@ -737,11 +742,10 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     );
   }
 
-  double _calculateDialogPosition(BuildContext context, int index, Offset position) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final navBarItemWidth = (screenWidth - 40.px) / 3;
+  double _calculateDialogPosition(BuildContext context, int index, Offset position, RenderBox renderBox) {
+    final size = renderBox.size;
+    final currentWidth = size.width;
     double dialogOffset;
-
     switch (index) {
       case 0:
         dialogOffset = position.dx - 40;
@@ -776,8 +780,8 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
         list = _userCacheList.toList();
         break;
       case HomeTabBarType.discover:
-        list.add(TabbarMenuModel(type: MenuItemType.moveToTop, name: Localized.text('ox_chat.str_move_to_top'), picture: 'icon_chat_mark_as_read.png', iconPackage: 'ox_chat'));
-        list.add(TabbarMenuModel(type: MenuItemType.deleteMoments, name: Localized.text('ox_chat.delete'), picture: 'icon_chat_mark_as_read.png', iconPackage: 'ox_chat'));
+        list.add(TabbarMenuModel(type: MenuItemType.moveToTop, name: Localized.text('ox_chat.str_move_to_top'), picture: 'icon_moments_movetop.png', iconPackage: 'ox_chat'));
+        list.add(TabbarMenuModel(type: MenuItemType.deleteMoments, name: Localized.text('ox_chat.delete'), picture: 'icon_chat_delete.png', iconPackage: 'ox_chat'));
         break;
     }
 

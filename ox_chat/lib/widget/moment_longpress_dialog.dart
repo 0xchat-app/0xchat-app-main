@@ -128,8 +128,8 @@ class MomentLongPressDialog {
 
   List<MomentMenuModel> _getMenuList() {
     List<MomentMenuModel> list = [];
-    list.add(MomentMenuModel(type: MomentLpMenuType.moveToTabBar,  iconName: 'icon_chat_delete.png', iconPackage: 'ox_chat'));
-    list.add(MomentMenuModel(type: MomentLpMenuType.createNewMoment,  iconName: 'icon_chat_delete.png', iconPackage: 'ox_chat'));
+    list.add(MomentMenuModel(type: MomentLpMenuType.moveToTabBar,  iconName: 'icon_moments_movedown.png', iconPackage: 'ox_chat'));
+    list.add(MomentMenuModel(type: MomentLpMenuType.createNewMoment,  iconName: 'icon_moments_new_moment.png', iconPackage: 'ox_chat'));
     list.add(MomentMenuModel(type: MomentLpMenuType.delete,  iconName: 'icon_chat_delete.png', iconPackage: 'ox_chat'));
     return list;
   }
