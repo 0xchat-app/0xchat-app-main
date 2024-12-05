@@ -344,5 +344,8 @@
   "message": "Message",
   "chat_input_length_over_hint": "The text you entered is too long to send.",
   "str_move_to_tabbar": "Move to TabBar",
-  "str_move_to_top": "Move to Top"
+  "str_move_to_top": "Move to Top",
+  "str_remove": "Remove",
+  "str_remove_moments": "Remove Moments",
+  "str_remove_moments_hint": "Are you sure you want to remove the moment? This action cannot be undone."
 }

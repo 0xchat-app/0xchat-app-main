@@ -91,6 +91,7 @@ class MomentLongPressDialog {
   }
 
   Widget _menuItemView(BuildContext context, MomentMenuModel? model){
+    final optionType = model?.type;
     String showName = model?.type.text ?? '';
     String showPicture = model?.iconName ?? '';
     return GestureDetector(
@@ -111,14 +112,18 @@ class MomentLongPressDialog {
               showName,
               style: TextStyle(
                 fontSize: 16.px,
-                color: ThemeColor.color100,
+                color: optionType == MomentLpMenuType.remove
+                    ? ThemeColor.red
+                    : ThemeColor.color100,
                 fontWeight: FontWeight.w500,
               ),
             ),
             CommonImage(
                 iconName: showPicture,
                 size:  24.px,
-                color: ThemeColor.color100,
+                color: optionType == MomentLpMenuType.remove
+                    ? ThemeColor.red
+                    : ThemeColor.color100,
                 package: model?.iconPackage),
           ],
         ),
@@ -130,7 +135,7 @@ class MomentLongPressDialog {
     List<MomentMenuModel> list = [];
     list.add(MomentMenuModel(type: MomentLpMenuType.moveToTabBar,  iconName: 'icon_moments_movedown.png', iconPackage: 'ox_chat'));
     list.add(MomentMenuModel(type: MomentLpMenuType.createNewMoment,  iconName: 'icon_moments_new_moment.png', iconPackage: 'ox_chat'));
-    list.add(MomentMenuModel(type: MomentLpMenuType.delete,  iconName: 'icon_chat_delete.png', iconPackage: 'ox_chat'));
+    list.add(MomentMenuModel(type: MomentLpMenuType.remove,  iconName: 'icon_chat_delete.png', iconPackage: 'ox_chat'));
     return list;
   }
 
@@ -150,7 +155,7 @@ class MomentLongPressDialog {
           null,
         );
         break;
-      case MomentLpMenuType.delete:
+      case MomentLpMenuType.remove:
         OXUserInfoManager.sharedInstance.momentPosition = 2;
         OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.APP_MOMENT_POSITION, 2);
         OXMomentManager.sharedInstance.deleteMomentsCallBack();
@@ -170,7 +175,7 @@ class MomentMenuModel {
 enum MomentLpMenuType{
   moveToTabBar,
   createNewMoment,
-  delete,
+  remove,
 }
 
 extension MomentLpMenuTypeEx on MomentLpMenuType{
@@ -181,8 +186,8 @@ extension MomentLpMenuTypeEx on MomentLpMenuType{
         return 'str_move_to_tabbar'.localized();
       case MomentLpMenuType.createNewMoment:
         return Localized.text('ox_discovery.new_moments_title');
-      case MomentLpMenuType.delete:
-        return 'delete'.localized();
+      case MomentLpMenuType.remove:
+        return 'str_remove'.localized();
     }
   }
 }

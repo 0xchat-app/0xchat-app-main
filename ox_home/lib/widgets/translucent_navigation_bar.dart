@@ -1,41 +1,37 @@
 library dot_navigation_bar;
 
-export 'translucent_navigation_bar_item.dart';
 import 'dart:async';
 
+import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/src/painting/gradient.dart' as gradient;
 import 'package:glassmorphism/glassmorphism.dart';
-import 'package:ox_common/business_interface/ox_chat/interface.dart';
-import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_common/model/chat_type.dart';
+import 'package:ox_common/model/msg_notification_model.dart';
+import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/ox_moment_manager.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/platform_utils.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
+import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/utils/user_config_tool.dart';
-import 'package:ox_common/utils/widget_tool.dart';
-import 'package:ox_common/widgets/avatar.dart';
-import 'package:ox_common/widgets/common_image.dart';
-import 'package:ox_common/widgets/common_loading.dart';
-import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_home/model/home_tabbar_type.dart';
+import 'package:ox_home/model/tab_bar_menu_model.dart';
+import 'package:ox_home/widgets/tab_bar_longpress_dialog.dart';
+import 'package:ox_home/widgets/translucent_navigation_bar.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_theme/ox_theme.dart';
 import 'package:rive/rive.dart' as river;
-import 'package:ox_common/utils/adapt.dart';
-import 'package:ox_common/utils/theme_color.dart';
-import 'translucent_navigation_bar_item.dart';
-import 'package:flutter/src/painting/gradient.dart' as gradient;
 
-import 'package:chatcore/chat-core.dart';
-import 'package:flutter/services.dart';
-import 'package:ox_common/model/chat_type.dart';
-import 'package:ox_common/model/msg_notification_model.dart';
-import 'package:ox_home/widgets/translucent_navigation_bar.dart';
-import 'package:ox_localizable/ox_localizable.dart';
-import 'package:ox_cache_manager/ox_cache_manager.dart';
+import 'translucent_navigation_bar_item.dart';
+
+export 'translucent_navigation_bar_item.dart';
+
 
 
 class TranslucentNavigationBar extends StatefulWidget {
@@ -87,7 +83,7 @@ class TranslucentNavigationBar extends StatefulWidget {
 }
 
 class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with OXUserInfoObserver, OXChatObserver, OXMomentObserver, TickerProviderStateMixin, WidgetsBindingObserver {
-  bool isLogin = false;
+  bool _isLogin = false;
   Timer? _refreshMessagesTimer;
   int selectedIndex = 1;
   double middleIndex = (4 / 2).floorToDouble();
@@ -111,7 +107,6 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
 
   late double _horizontalPadding;
   late double _verticalPadding;
-  double _dialogItemWidth = 180.px;
 
   void updateOffset(double offset) {
     _animationController.value = offset;
@@ -132,7 +127,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
   @override
   void initState() {
     super.initState();
-    isLogin = OXUserInfoManager.sharedInstance.isLogin;
+    _isLogin = OXUserInfoManager.sharedInstance.isLogin;
     OXUserInfoManager.sharedInstance.addObserver(this);
     OXChatBinding.sharedInstance.addObserver(this);
     OXMomentManager.sharedInstance.addObserver(this);
@@ -287,10 +282,15 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     );
   }
 
-  void _tabbarItemOnLongPress(TranslucentNavigationBarItem item){
+  void _tabbarItemOnLongPress(TranslucentNavigationBarItem item) async {
     int index = _itemList.indexOf(item);
     TookKit.vibrateEffect();
-    _showPopupDialog(context, index);
+    if (!_isLogin) return;
+    if (_typeList.elementAt(index) == HomeTabBarType.me) {
+      await _loadLocalInfo();
+    }
+    TabBarLongPressDialog dialog = TabBarLongPressDialog(currentUser: _currentUser, userCacheList: _userCacheList, typeList: _typeList, horizontalPadding: _horizontalPadding);
+    dialog.showPopupDialog(context, index, _navItemKeyList, _tabbarItemWidget(_itemList.elementAt(index), GlobalKey()));
   }
 
   void _tabBarItemOnTap(TranslucentNavigationBarItem item) {
@@ -434,7 +434,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
   @override
   void didLoginSuccess(UserDBISAR? userInfo) {
     setState(() {
-      isLogin = true;
+      _isLogin = true;
       fetchUnreadCount();
       if (_itemList.isNotEmpty) {
         _tabBarItemOnTap(_itemList.elementAt(_typeList.indexOf(HomeTabBarType.home)));
@@ -448,7 +448,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
   @override
   void didLogout() {
     setState(() {
-      isLogin = false;
+      _isLogin = false;
       if (_itemList.isNotEmpty) {
         _tabBarItemOnTap(_itemList.elementAt(_typeList.indexOf(HomeTabBarType.home)));
         for (var element in _itemList) {
@@ -591,250 +591,4 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     return true; //
   }
 
-  void _showPopupDialog(BuildContext context, int index) async {
-    if (_typeList.elementAt(index) == HomeTabBarType.me) {
-      await _loadLocalInfo();
-    }
-    final RenderBox renderBox =
-        _navItemKeyList[index].currentContext!.findRenderObject() as RenderBox;
-    final position = renderBox.localToGlobal(Offset.zero);
-    List<TabbarMenuModel> menuList = _getMenuList(index);
-    if (menuList.isEmpty) return;
-    double leftPosition = _calculateDialogPosition(context, index, position, renderBox);
-    double screenHeight = MediaQuery.of(context).size.height;
-    showGeneralDialog(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: '',
-      barrierColor: Colors.black.withOpacity(0.5),
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return StatefulBuilder(builder: (context, setState){
-          return Stack(
-            children: [
-              Positioned(
-                top: position.dy,
-                left: position.dx,
-                child: Material(
-                  color: Colors.transparent,
-                  child: _tabbarItemWidget(_itemList.elementAt(index), GlobalKey()),
-                ),
-              ),
-              Positioned(
-                bottom: screenHeight - position.dy + 4.px + (_typeList.elementAt(index) == HomeTabBarType.me ? 46.px : 0),
-                left: leftPosition,
-                child: Container(
-                  width: _dialogItemWidth,
-                  height: menuList.length * 44.px,
-                  constraints: BoxConstraints(maxHeight: screenHeight/2),
-                  decoration: BoxDecoration(
-                    color: ThemeColor.color180,
-                    borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(16.px),
-                        topRight: Radius.circular(16.px),
-                        bottomLeft: Radius.circular(_typeList.elementAt(index) == HomeTabBarType.me ? 0 : 16.px),
-                        bottomRight: Radius.circular(_typeList.elementAt(index) == HomeTabBarType.me ? 0 : 16.px)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 8.px,
-                        spreadRadius: 0,
-                      ),
-                    ],
-                  ),
-                  child: ListView.builder(
-                    padding: EdgeInsets.zero,
-                    itemCount: menuList.length,
-                    physics: const BouncingScrollPhysics(),
-                    itemBuilder: (context, menuIndex) {
-                      TabbarMenuModel? model;
-                      if (menuList.isNotEmpty && menuIndex > -1) {
-                        model = menuList[menuIndex];
-                      }
-                      return _menuItemView(index, model);
-                    },
-                  ),
-
-                ),
-              ),
-              Visibility(
-                visible: _typeList.elementAt(index) == HomeTabBarType.me,
-                child: Positioned(
-                  bottom: screenHeight - position.dy + 4.px,
-                  left: leftPosition,
-                  child: Container(
-                    width: _dialogItemWidth,
-                    height: 46.px,
-                    constraints: BoxConstraints(maxHeight: screenHeight/2),
-                    decoration: BoxDecoration(
-                      color: ThemeColor.color180,
-                      borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(16.px),
-                          bottomRight: Radius.circular(16.px)),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black26,
-                          blurRadius: 8.px,
-                          spreadRadius: 0,
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(height: 2.px, color: ThemeColor.color200),
-                      _menuItemView(_typeList.indexOf(HomeTabBarType.me), _currentUser),
-                    ],
-                  ),),
-                ),
-              ),
-            ],
-          );
-        });
-      },
-    );
-  }
-
-  Widget _menuItemView(int index, TabbarMenuModel? model){
-    String showName = model?.name ?? '';
-    String showPicture = model?.picture ?? '';
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onTap: () {
-        if (model != null) {
-          _menuOnTap(context, model);
-        }
-      },
-      child: Container(
-        height: 44.px,
-        padding: EdgeInsets.symmetric(horizontal: 16.px),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              showName,
-              style: TextStyle(
-                fontSize: 16.px,
-                color: ThemeColor.color100,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            _typeList.elementAt(index) == HomeTabBarType.me
-                ? (showName ==
-                Localized.text(
-                    'ox_usercenter.str_add_account')
-                ? CommonImage(
-              iconName: 'add_circle_icon.png',
-              size: 24.px,
-              package: 'ox_common',
-              useTheme: true,
-            )
-                : OXUserAvatar(
-                imageUrl: showPicture, size: 24.px))
-                : CommonImage(
-                iconName: model?.picture ?? '',
-                size: model != null && (model.type == MenuItemType.addContact || model.type == MenuItemType.addGroup) ? 18.px : 24.px,
-                color: ThemeColor.color100,
-                package: model?.iconPackage).setPadding(EdgeInsets.only(right: model != null && (model.type == MenuItemType.addContact || model.type == MenuItemType.addGroup) ? 6.px : 0)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  double _calculateDialogPosition(BuildContext context, int index, Offset position, RenderBox renderBox) {
-    final size = renderBox.size;
-    final currentWidth = size.width;
-    double dialogOffset;
-    if (index == 0) {
-      dialogOffset = _horizontalPadding;
-    } else if (_typeList.length - 1 == index) {
-      dialogOffset = Adapt.screenW - _dialogItemWidth - _horizontalPadding;
-    } else {
-      dialogOffset = position.dx + currentWidth / 2 - _dialogItemWidth / 2;
-    }
-    return dialogOffset;
-  }
-
-  List<TabbarMenuModel> _getMenuList(int index) {
-    HomeTabBarType tabBarType = _typeList.elementAt(index);
-    List<TabbarMenuModel> list = [];
-    switch(tabBarType){
-      case HomeTabBarType.contact:
-        list.add(TabbarMenuModel(type: MenuItemType.addContact, name: Localized.text('ox_common.str_add_friend'), picture: 'icon_new_friend.png', iconPackage: 'ox_common'));
-        list.add(TabbarMenuModel(type: MenuItemType.addGroup, name: Localized.text('ox_chat.str_new_group'), picture: 'icon_new_group.png', iconPackage: 'ox_common'));
-        break;
-      case HomeTabBarType.home:
-        int unReadCount = OXChatBinding.sharedInstance.getAllSessionUnReadCount();
-        if (unReadCount > 0) {
-          list.add(TabbarMenuModel(type: MenuItemType.markToRead, name: Localized.text('ox_chat.str_all_chats_mark_as_read'), picture: 'icon_chat_mark_as_read.png', iconPackage: 'ox_chat'));
-        }
-        break;
-      case HomeTabBarType.me:
-        list = _userCacheList.toList();
-        break;
-      case HomeTabBarType.discover:
-        list.add(TabbarMenuModel(type: MenuItemType.moveToTop, name: Localized.text('ox_chat.str_move_to_top'), picture: 'icon_moments_movetop.png', iconPackage: 'ox_chat'));
-        list.add(TabbarMenuModel(type: MenuItemType.deleteMoments, name: Localized.text('ox_chat.delete'), picture: 'icon_chat_delete.png', iconPackage: 'ox_chat'));
-        break;
-    }
-
-    return list;
-  }
-
-  void _menuOnTap(BuildContext context, TabbarMenuModel model) async {
-    OXNavigator.pop(context);
-    switch(model.type){
-      case MenuItemType.userType:
-        String pubKey = model.pubKey ?? '';
-        if (pubKey.isEmpty) {
-          CommonToast.instance.show(context, 'PubKey is empty, try other.');
-          return;
-        }
-        if (pubKey == OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey) return;
-        await OXLoading.show();
-        await OXUserInfoManager.sharedInstance.switchAccount(pubKey);
-        await OXLoading.dismiss();
-        break;
-      case MenuItemType.addUserType:
-        OXModuleService.pushPage(context, 'ox_login', 'LoginPage', {});
-        break;
-      case MenuItemType.markToRead:
-        OXChatBinding.sharedInstance.setAllSessionToReaded();
-        break;
-      case MenuItemType.addContact:
-        OXChatInterface.addContact(context);
-        break;
-      case MenuItemType.addGroup:
-        OXChatInterface.addGroup(context);
-        break;
-      case MenuItemType.moveToTop:
-        OXUserInfoManager.sharedInstance.momentPosition = 0;
-        OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.APP_MOMENT_POSITION, 0);
-        OXMomentManager.sharedInstance.moveToTopCallBack();
-        break;
-      case MenuItemType.deleteMoments:
-        OXUserInfoManager.sharedInstance.momentPosition = 2;
-        OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.APP_MOMENT_POSITION, 2);
-        OXMomentManager.sharedInstance.moveToTopCallBack();
-        break;
-    }
-  }
-}
-
-class TabbarMenuModel extends MultipleUserModel{
-  final MenuItemType type;
-  final String iconPackage;
-
-  TabbarMenuModel({this.type = MenuItemType.userType, this.iconPackage = '', super.pubKey = '', super.name = '', super.picture = '', super.dns = ''});
-}
-
-enum MenuItemType{
-  userType,
-  addUserType,
-  markToRead,
-  addContact,
-  addGroup,
-  moveToTop,
-  deleteMoments,
 }

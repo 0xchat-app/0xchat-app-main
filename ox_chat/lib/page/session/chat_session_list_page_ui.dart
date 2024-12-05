@@ -60,7 +60,7 @@ extension ChatSessionListPageUI on ChatSessionListPageState{
                   context,
                   'ox_discovery',
                   'discoveryPageWidget',
-                  {'typeInt': 1, 'showBackBtn': true},
+                  {'typeInt': 1, 'isSecondPage': true},
                 );
               } else {
                 OXModuleService.pushPage(context, "ox_login", "LoginPage", {});

@@ -53,7 +53,7 @@ class OXDiscovery extends OXFlutterModule {
                 (context) => PublicMomentsPage());
       case 'discoveryPageWidget':
         return OXNavigator.pushPage(context,
-                (context) => DiscoveryPage(typeInt: params?['typeInt']));
+                (context) => DiscoveryPage(typeInt: params?['typeInt'], isSecondPage: params?['isSecondPage'] ?? true));
       case 'CreateMomentsPage':
         return OXNavigator.presentPage(context,
                 (context) => const CreateMomentsPage());
@@ -61,8 +61,8 @@ class OXDiscovery extends OXFlutterModule {
     return null;
   }
 
-  Widget discoveryPageWidget(BuildContext context, {int typeInt = 1, bool showBackBtn = false}) {
-    return DiscoveryPage(typeInt: typeInt, showBackBtn: showBackBtn);
+  Widget discoveryPageWidget(BuildContext context, {int typeInt = 1, bool isSecondPage = false}) {
+    return DiscoveryPage(typeInt: typeInt, isSecondPage: isSecondPage);
   }
 
   Widget momentRichTextWidget(
