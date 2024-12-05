@@ -79,6 +79,7 @@ dependencies:
     path: ./minio
   bitsdojo_window: ^0.1.6
   screenshot: ^2.5.0
+  ffmpeg_kit_flutter: ^5.0.0
 
 
   chatcore:
