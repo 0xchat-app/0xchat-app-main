@@ -746,18 +746,12 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     final size = renderBox.size;
     final currentWidth = size.width;
     double dialogOffset;
-    switch (index) {
-      case 0:
-        dialogOffset = position.dx - 40;
-        break;
-      case 1:
-        dialogOffset = position.dx - 40;
-        break;
-      case 2:
-        dialogOffset = position.dx - 86;
-        break;
-      default:
-        dialogOffset = position.dx;
+    if (index == 0) {
+      dialogOffset = _horizontalPadding;
+    } else if (_typeList.length - 1 == index) {
+      dialogOffset = Adapt.screenW - _dialogItemWidth - _horizontalPadding;
+    } else {
+      dialogOffset = position.dx + currentWidth / 2 - _dialogItemWidth / 2;
     }
     return dialogOffset;
   }
