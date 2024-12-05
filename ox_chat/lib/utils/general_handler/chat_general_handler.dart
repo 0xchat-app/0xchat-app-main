@@ -4,6 +4,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' as ui;
 
+// import 'package:ffmpeg_kit_flutter/return_code.dart';
+import 'package:ffmpeg_kit_flutter/return_code.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
@@ -25,8 +27,10 @@ import 'package:ox_common/upload/file_type.dart';
 import 'package:ox_common/upload/upload_utils.dart';
 import 'package:ox_common/utils/aes_encrypt_utils.dart';
 import 'package:ox_common/utils/encode_utils.dart';
+import 'package:ox_common/utils/file_utils.dart';
 import 'package:ox_common/utils/image_picker_utils.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
+import 'package:ox_common/utils/platform_utils.dart';
 import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/custom_uri_helper.dart';
@@ -70,6 +74,10 @@ import 'package:ox_common/widgets/zaps/zaps_action_handler.dart';
 
 import '../../manager/chat_data_manager_models.dart';
 import 'message_data_controller.dart';
+import 'package:file_picker/file_picker.dart' as filePickerUtils;
+import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
+import 'package:path_provider/path_provider.dart';
+
 
 part 'chat_send_message_handler.dart';
 
@@ -762,6 +770,10 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
 
   // type: 1 - image, 2 - video
   Future albumPressHandler(BuildContext context, int type) async {
+    if(PlatformUtils.isDesktop){
+      await _goToPhoto(context, type);
+      return;
+    }
     DeviceInfoPlugin plugin = DeviceInfoPlugin();
     bool storagePermission = false;
     if (Platform.isAndroid && (await plugin.androidInfo).version.sdkInt >= 34) {
@@ -795,6 +807,7 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
     } else {
       storagePermission = await PermissionUtils.getPhotosPermission(context,type: type);
     }
+
     if(storagePermission){
       await _goToPhoto(context, type);
     } else {
@@ -889,13 +902,22 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
   Future<void> _goToPhoto(BuildContext context, int type) async {
     // type: 1 - image, 2 - video
     final isVideo = type == 2;
+    GalleryMode mode = isVideo ? GalleryMode.video : GalleryMode.image;
+    List<Media> res = [];
+    if(PlatformUtils.isMobile){
+      res = await ImagePickerUtils.pickerPaths(
+        galleryMode: mode,
+        selectCount: 1,
+        showGif: false,
+        compressSize: 1024,
+      );
+    }else{
+      List<Media>? mediaList = await FileUtils.importClientFile(type);
+      if(mediaList != null){
+        res = mediaList;
+      }
+    }
 
-    final res = await ImagePickerUtils.pickerPaths(
-      galleryMode: isVideo ? GalleryMode.video : GalleryMode.image,
-      selectCount: 1,
-      showGif: false,
-      compressSize: 1024,
-    );
 
     if (isVideo) {
       sendVideoMessageWithFile(context, res);

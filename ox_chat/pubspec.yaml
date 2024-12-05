@@ -18,6 +18,8 @@ dependencies:
   chewie: ^1.4.0  #Player
   screen_protector: ^1.3.0
   avatar_stack: any
+  file_picker: ^6.1.1
+  ffmpeg_kit_flutter: ^5.0.0
 
   ox_module_service:
     path: ../../base_framework/ox_module_service
