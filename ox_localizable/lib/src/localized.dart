@@ -20,6 +20,7 @@ enum LocaleType {
     el,//Greek
     es,//Spanish
     et,//estonian
+    fa,//Farsi
     fr,//French
     hi,//Hindi
     hu,//Hungarian
@@ -106,6 +107,8 @@ extension LocaleTypeExtension on LocaleType{
                 return 'da';
             case LocaleType.ca:
                 return 'ca';
+            case LocaleType.fa:
+                return 'fa';
         }
     }
 
@@ -173,6 +176,8 @@ extension LocaleTypeExtension on LocaleType{
                 return 29;
             case LocaleType.ca:
                 return 30;
+            case LocaleType.fa:
+                return 31;
         }
     }
 
@@ -238,6 +243,8 @@ extension LocaleTypeExtension on LocaleType{
                 return 'da';
             case LocaleType.ca:
                 return 'ca';
+            case LocaleType.fa:
+                return 'fa';
         }
     }
 
@@ -303,6 +310,8 @@ extension LocaleTypeExtension on LocaleType{
                 return 'Dansk';
             case LocaleType.ca:
                 return 'Català';
+            case LocaleType.fa:
+                return 'فارسی';
         }
     }
 }
