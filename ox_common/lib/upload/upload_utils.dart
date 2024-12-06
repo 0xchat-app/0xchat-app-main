@@ -44,7 +44,7 @@ class UploadUtils {
           return UploadResult.error('Storage function abnormal');
         }
         directoryPath = externalStorageDirectory.path;
-      } else if (Platform.isIOS) {
+      } else if (Platform.isIOS || Platform.isMacOS) {
         Directory temporaryDirectory = await getTemporaryDirectory();
         directoryPath = temporaryDirectory.path;
       }

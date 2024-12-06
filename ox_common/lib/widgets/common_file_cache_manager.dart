@@ -8,18 +8,6 @@ import 'package:ox_common/utils/aes_encrypt_utils.dart';
 import 'package:ox_common/utils/string_utils.dart';
 import 'package:path/path.dart' as path;
 
-class OXDefaultCacheManager extends CacheManager with ImageCacheManager {
-  static const key = 'libCachedImageData';
-
-  static final OXDefaultCacheManager _instance = OXDefaultCacheManager._();
-
-  factory OXDefaultCacheManager() {
-    return _instance;
-  }
-
-  OXDefaultCacheManager._() : super(Config(key, repo: JsonCacheInfoRepository(databaseName: key)));
-}
-
 class OXFileCacheManager {
   static CacheManager get({
     String? encryptKey,
@@ -37,18 +25,34 @@ class OXFileCacheManager {
   }
 }
 
+class OXDefaultCacheManager extends CacheManager with ImageCacheManager {
+  static const key = 'libCachedImageData';
+
+  static final OXDefaultCacheManager _instance = OXDefaultCacheManager._();
+
+  factory OXDefaultCacheManager() {
+    return _instance;
+  }
+
+  OXDefaultCacheManager._() : super(Config(key, repo: JsonCacheInfoRepository(databaseName: key)));
+}
+
 class DecryptedCacheManager extends CacheManager {
   static const key = "decryptCache";
+  static Config config = Config(
+    key,
+    repo: JsonCacheInfoRepository(databaseName: key),
+  );
+  static final decryptedStore = CacheManager(config).store;
+  static final decryptedWebHelper = CacheManager(config).webHelper;
+
   final String decryptKey;
   final String decryptNonce;
 
-  DecryptedCacheManager(this.decryptKey, this.decryptNonce) : super(
-    Config(
-      key,
-      maxNrOfCacheObjects: 10000,
-      stalePeriod: Duration(days: 1000),
-      repo: JsonCacheInfoRepository(databaseName: key),
-    ),
+  DecryptedCacheManager(this.decryptKey, this.decryptNonce) : super.custom(
+    config,
+    cacheStore: decryptedStore,
+    webHelper: decryptedWebHelper,
   );
 
   @override

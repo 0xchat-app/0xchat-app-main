@@ -9,6 +9,10 @@ abstract mixin class OXMomentObserver {
 
   didNewNotificationCallBack(List<NotificationDBISAR> notifications) {}
 
+  void didMoveToTabBarCallBack() {}
+  void didMoveToTopCallBack() {}
+  void didDeleteMomentsCallBack() {}
+
 }
 
 class OXMomentManager {
@@ -88,6 +92,24 @@ class OXMomentManager {
   void groupsNoteCallBack(NoteDBISAR notes) {
     for (OXMomentObserver observer in _observers) {
       observer.didGroupsNoteCallBack(notes);
+    }
+  }
+
+  void moveToTabBarCallBack() {
+    for (OXMomentObserver observer in _observers) {
+      observer.didMoveToTabBarCallBack();
+    }
+  }
+
+  void moveToTopCallBack() {
+    for (OXMomentObserver observer in _observers) {
+      observer.didMoveToTopCallBack();
+    }
+  }
+
+  void deleteMomentsCallBack() {
+    for (OXMomentObserver observer in _observers) {
+      observer.didDeleteMomentsCallBack();
     }
   }
 }

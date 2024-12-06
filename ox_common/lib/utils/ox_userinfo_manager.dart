@@ -66,6 +66,8 @@ class OXUserInfoManager {
   bool canVibrate = true;
   bool canSound = true;
   bool signatureVerifyFailed = false;
+  //0: top; 1: tabbar; 2: delete.
+  int momentPosition= 0;
 
   Future initDB(String pubkey) async {
     if(pubkey.isEmpty) return;
@@ -95,6 +97,7 @@ class OXUserInfoManager {
   }
 
   Future initLocalData() async {
+    momentPosition = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.APP_MOMENT_POSITION, defaultValue: 0);
     ///account auto-login
     final String? localPubKey = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_PUBKEY);
     if (localPubKey != null) {
@@ -182,10 +185,16 @@ class OXUserInfoManager {
       LogUtil.d("Michael: init privateChatMessageCallBack message.id =${message.messageId}");
       OXChatBinding.sharedInstance.privateChatMessageCallBack(message);
     };
-    Contacts.sharedInstance.privateChatMessageUpdateCallBack = (MessageDBISAR message, String replacedMessageId) {
-      LogUtil.d("Michael: init privateChatMessageUpdateCallBack message.id =${message.messageId}");
+
+    final messageUpdateCallBack = (MessageDBISAR message, String replacedMessageId) {
       OXChatBinding.sharedInstance.chatMessageUpdateCallBack(message, replacedMessageId);
     };
+    Contacts.sharedInstance.privateChatMessageUpdateCallBack = messageUpdateCallBack;
+    Contacts.sharedInstance.secretChatMessageUpdateCallBack = messageUpdateCallBack;
+    Channels.sharedInstance.channelMessageUpdateCallBack = messageUpdateCallBack;
+    Groups.sharedInstance.groupMessageUpdateCallBack = messageUpdateCallBack;
+    RelayGroup.sharedInstance.groupMessageUpdateCallBack = messageUpdateCallBack;
+
     Channels.sharedInstance.channelMessageCallBack = (MessageDBISAR messageDB) async {
       LogUtil.d('Michael: init  channelMessageCallBack');
       OXChatBinding.sharedInstance.channalMessageCallBack(messageDB);
