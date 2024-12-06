@@ -1,0 +1,14 @@
+{
+  "str_call_duration": "مدت زمان: ${time}",
+  "str_call_canceled": "لغو شده",
+  "str_call_other_canceled": "طرف مقابل لغو کرده است",
+  "str_call_rejected": "رد شده",
+  "str_call_other_rejected": "طرف مقابل رد کرده است",
+  "str_call_not_answered": "تماس پاسخ داده نشده",
+  "str_call_other_not_answered": "تماس پاسخ داده نشد",
+  "str_invite_you_to_a_voice_call": "شما را به یک تماس صوتی دعوت می‌کند...",
+  "str_invite_you_to_a_video_call": "شما را به یک تماس ویدئویی دعوت می‌کند...",
+  "str_call_connecting": "در حال اتصال...",
+  "str_call_busy": "خط مشغول است",
+  "str_voice_call_in_use": "تماس صوتی در حال استفاده"
+}

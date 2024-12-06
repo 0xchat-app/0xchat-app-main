@@ -17,23 +17,23 @@ class EcashManager extends ChangeNotifier {
   final ecashAccessKey = StorageSettingKey.KEY_WALLET_ACCESS.name;
   final ecashSafeTipsSeenKey = StorageSettingKey.KEY_ECASH_SAFE_TIPS_SEEN.name;
 
-  List<IMint> _mintList = [];
+  List<IMintIsar> _mintList = [];
 
-  IMint? _defaultIMint;
+  IMintIsar? _defaultIMint;
 
   bool _isWalletAvailable = false;
 
   bool _isWalletSafeTipsSeen = false;
 
-  List<IMint> get mintList => _mintList;
+  List<IMintIsar> get mintList => _mintList;
 
   int get mintCount => mintList.length;
 
-  IMint? get defaultIMint => _defaultIMint;
+  IMintIsar? get defaultIMint => _defaultIMint;
   
   String get pubKey => OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
 
-  bool isDefaultMint(IMint mint) => _defaultIMint == mint;
+  bool isDefaultMint(IMintIsar mint) => _defaultIMint == mint;
 
   bool get isWalletAvailable => _isWalletAvailable;
 
@@ -65,12 +65,12 @@ class EcashManager extends ChangeNotifier {
     }
   }
 
-  void _setDefaultMint(IMint? mint){
+  void _setDefaultMint(IMintIsar? mint){
     _defaultIMint = mint;
     if(mint != null) updateMintList(mint);
   }
 
-  _onMintsChanged(List<IMint> mints) {
+  _onMintsChanged(List<IMintIsar> mints) {
     if(!listEquals(mints, _mintList)){
       _mintList = mints;
       _initDefaultMint();
@@ -78,11 +78,11 @@ class EcashManager extends ChangeNotifier {
     }
   }
 
-  void addMint(IMint mint) {
+  void addMint(IMintIsar mint) {
     _mintList.add(mint);
   }
 
-  Future<bool> deleteMint(IMint mint) async {
+  Future<bool> deleteMint(IMintIsar mint) async {
     if (isDefaultMint(mint)) {
       await removeDefaultMint();
     }
@@ -90,7 +90,7 @@ class EcashManager extends ChangeNotifier {
     return _mintList.remove(mint);
   }
 
-  void updateMintList(IMint mint) {
+  void updateMintList(IMintIsar mint) {
     if (_mintList.contains(mint)) {
       _mintList.remove(mint);
       _mintList.insert(0, mint);
@@ -101,7 +101,7 @@ class EcashManager extends ChangeNotifier {
 
   List<String> get mintURLs => mintList.map((element) => element.mintURL).toList();
 
-  Future<void> setDefaultMint(IMint mint) async {
+  Future<void> setDefaultMint(IMintIsar mint) async {
     await _saveMintURLForLocal(mint.mintURL);
     _setDefaultMint(mint);
   }

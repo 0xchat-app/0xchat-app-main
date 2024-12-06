@@ -8,7 +8,7 @@ import 'package:ox_wallet/services/ecash_service.dart';
 import 'package:ox_wallet/widget/common_card.dart';
 
 class WalletMintInfo extends StatefulWidget {
-  final IMint mint;
+  final IMintIsar mint;
   const WalletMintInfo({super.key, required this.mint});
 
   @override
@@ -17,7 +17,7 @@ class WalletMintInfo extends StatefulWidget {
 
 class _WalletMintInfoState extends State<WalletMintInfo> {
 
-  MintInfo? mintInfo;
+  MintInfoIsar? mintInfo;
 
   @override
   void initState() {

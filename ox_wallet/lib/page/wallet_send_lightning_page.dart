@@ -43,7 +43,7 @@ class WalletSendLightningPage extends StatefulWidget {
 class _WalletSendLightningPageState extends State<WalletSendLightningPage> {
 
   final ValueNotifier<SendType> _sendType = ValueNotifier<SendType>(SendType.none);
-  final ValueNotifier<IMint?> _mintNotifier = ValueNotifier(null);
+  final ValueNotifier<IMintIsar?> _mintNotifier = ValueNotifier(null);
   final ValueNotifier<bool> _enableButton = ValueNotifier(true);
 
   final TextEditingController _invoiceEditController = TextEditingController();
@@ -51,7 +51,7 @@ class _WalletSendLightningPageState extends State<WalletSendLightningPage> {
 
   final FocusNode _invoiceFocus = FocusNode();
   String get invoice => _invoiceEditController.text;
-  IMint? get mint => _mintNotifier.value;
+  IMintIsar? get mint => _mintNotifier.value;
   String get amount => _amountEditController.text;
 
   @override

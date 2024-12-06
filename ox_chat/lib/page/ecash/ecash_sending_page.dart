@@ -84,7 +84,7 @@ class _EcashSendingPageState extends State<EcashSendingPage> with
     TickerProviderStateMixin {
 
   _PackageType packageType = _PackageType.single;
-  IMint? mint;
+  IMintIsar? mint;
 
   final EcashCondition condition = EcashCondition();
 
@@ -703,7 +703,7 @@ class _EcashSendingPageState extends State<EcashSendingPage> with
   }
 
   Future createEcashForSingleType(
-    IMint mint,
+    IMintIsar mint,
     int amount,
     DateTime? lockTime,
   ) async {
@@ -746,7 +746,7 @@ class _EcashSendingPageState extends State<EcashSendingPage> with
   }
 
   Future createEcashForMultipleType(
-    IMint mint,
+    IMintIsar mint,
     List<int> amountList,
     List<UserDBISAR> signee,
     DateTime? lockTime,
@@ -784,7 +784,7 @@ class _EcashSendingPageState extends State<EcashSendingPage> with
   }
 
   Future createEcashForExclusiveType(
-    IMint mint,
+    IMintIsar mint,
     int amount,
     List<UserDBISAR> receiver,
     List<UserDBISAR> signee,

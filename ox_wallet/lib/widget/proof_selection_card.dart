@@ -6,9 +6,9 @@ import 'package:ox_wallet/widget/common_card.dart';
 import 'package:cashu_dart/cashu_dart.dart';
 
 class ProofSelectionCard extends StatefulWidget {
-  final List<Proof> items;
+  final List<ProofIsar> items;
   final bool enableSelection;
-  final ValueChanged<List<Proof>>? onChanged;
+  final ValueChanged<List<ProofIsar>>? onChanged;
   final ScrollPhysics? physics;
   const ProofSelectionCard({super.key, required this.items,bool ? enableSelection, this.onChanged, this.physics}) : enableSelection = enableSelection ?? true;
 
@@ -17,7 +17,7 @@ class ProofSelectionCard extends StatefulWidget {
 }
 
 class _ProofSelectionCardState extends State<ProofSelectionCard> {
-  final List<Proof> _selectedItem = [];
+  final List<ProofIsar> _selectedItem = [];
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +53,7 @@ class _ProofSelectionCardState extends State<ProofSelectionCard> {
       },
       child: CommonCardItem(
         label: proof.amount,
-        content: proof.id,
+        content: proof.keysetId,
         action: widget.enableSelection ? CommonImage(
           iconName: isSelected ? 'icon_item_selected.png' : 'icon_item_unselected.png',
           size: 24.px,

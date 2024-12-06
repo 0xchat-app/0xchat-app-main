@@ -45,7 +45,7 @@ class CreateMomentsPage extends StatefulWidget {
   final NotedUIModel? notedUIModel;
   const CreateMomentsPage(
       {Key? key,
-      required this.type,
+      this.type = EMomentType.picture,
       this.sendMomentsType = EOptionMomentsType.personal,
       this.groupId,
       this.imageList,

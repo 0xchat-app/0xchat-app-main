@@ -81,7 +81,7 @@ class OXWallet extends OXFlutterModule {
     return const WalletPage();
   }
 
-  IMint? getDefaultMint() {
+  IMintIsar? getDefaultMint() {
     return EcashManager.shared.defaultIMint;
   }
 
@@ -90,8 +90,8 @@ class OXWallet extends OXFlutterModule {
   }
 
   Widget buildMintIndicatorItem({
-    required IMint? mint,
-    required ValueChanged<IMint>? selectedMintChange,
+    required IMintIsar? mint,
+    required ValueChanged<IMintIsar>? selectedMintChange,
   }) {
     return MintIndicatorItem(
       mint: mint,

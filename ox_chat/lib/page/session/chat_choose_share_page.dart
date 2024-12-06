@@ -9,6 +9,7 @@ import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_common/scheme/scheme_helper.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -26,8 +27,10 @@ import 'package:grouped_list/grouped_list.dart';
 class ChatChooseSharePage extends StatefulWidget {
   final Key? key;
   final String msg;
+  final String type; // text, image , file
+  final String? path;
 
-  ChatChooseSharePage({this.key, required this.msg}) : super(key: key);
+  ChatChooseSharePage({this.key, required this.msg, this.type = 'text', this.path}) : super(key: key);
 
   @override
   _ChatChooseSharePageState createState() => _ChatChooseSharePageState();
@@ -317,10 +320,13 @@ class _ChatChooseSharePageState extends State<ChatChooseSharePage> with ShareIte
           OXCommonHintAction.sure(
               text: Localized.text('ox_common.str_share'),
               onTap: () async {
-                OXNavigator.pop(context, true);
+              OXNavigator.pop(context, true);
 
+              if (widget.type == SchemeShareType.text.typeText) {
                 OXLoading.show();
-                final urlPreviewData = await WebURLHelper.getPreviewData(widget.msg, isShare: true);
+                final urlPreviewData = await WebURLHelper.getPreviewData(
+                    widget.msg,
+                    isShare: true);
                 OXLoading.dismiss();
 
                 final title = urlPreviewData?.title ?? '';
@@ -339,9 +345,20 @@ class _ChatChooseSharePageState extends State<ChatChooseSharePage> with ShareIte
                     widget.msg,
                   );
                 }
-
-                OXNavigator.pop(context, true);
-              }),
+              } else if (widget.type == SchemeShareType.image.typeText) {
+                ChatMessageSendEx.staticSendImageMessageWithFile(
+                  receiverPubkey: sessionModel.chatId,
+                  imageFilePath: widget.path ?? '',
+                );
+              } else if (widget.type == SchemeShareType.video.typeText) {
+                ChatMessageSendEx.staticSendVideoMessageWithFile(
+                  receiverPubkey: sessionModel.chatId,
+                  videoFilePath: widget.path ?? '',
+                );
+              }
+              OXNavigator.pop(context, true);
+            },
+          ),
         ],
         isRowAction: true);
   }

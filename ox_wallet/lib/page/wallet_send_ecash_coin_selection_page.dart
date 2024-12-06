@@ -13,7 +13,7 @@ import 'package:cashu_dart/cashu_dart.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
 class WalletSendEcashCoinSelectionPage extends StatefulWidget {
-  final IMint mint;
+  final IMintIsar mint;
   final int amount;
 
   const WalletSendEcashCoinSelectionPage({super.key, required this.amount, required this.mint});
@@ -25,8 +25,8 @@ class WalletSendEcashCoinSelectionPage extends StatefulWidget {
 class _WalletSendEcashCoinSelectionPage extends State<WalletSendEcashCoinSelectionPage> {
   final ValueNotifier<List<CardItemModel>> _commonCardItemList = ValueNotifier([]);
   final ValueNotifier<bool> _enable = ValueNotifier(false);
-  List<Proof> _proofs = [];
-  List<Proof> _selectedProofs = [];
+  List<ProofIsar> _proofs = [];
+  List<ProofIsar> _selectedProofs = [];
 
   @override
   void initState() {
@@ -88,7 +88,7 @@ class _WalletSendEcashCoinSelectionPage extends State<WalletSendEcashCoinSelecti
   }
 
   Future<void> _getAllProof() async {
-    List<Proof> proofs = await EcashService.getAllUseProofs(mint: widget.mint);
+    List<ProofIsar> proofs = await EcashService.getAllUseProofs(mint: widget.mint);
     if(proofs.isNotEmpty){
       setState(() {
         _proofs = proofs;
@@ -96,7 +96,7 @@ class _WalletSendEcashCoinSelectionPage extends State<WalletSendEcashCoinSelecti
     }
   }
 
-  void _onChanged(List<Proof> items){
+  void _onChanged(List<ProofIsar> items){
     int totalAmount = items.fold(0, (pre, proof) => pre + proof.amountNum);
     if(totalAmount >= widget.amount){
       _enable.value = true;

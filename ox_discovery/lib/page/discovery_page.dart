@@ -48,7 +48,8 @@ extension EDiscoveryPageTypeEx on EDiscoveryPageType {
 
 class DiscoveryPage extends StatefulWidget {
   final int typeInt;
-  const DiscoveryPage({Key? key, required this.typeInt}) : super(key: key);
+  final bool isSecondPage;
+  const DiscoveryPage({Key? key, required this.typeInt, this.isSecondPage = false}) : super(key: key);
 
   @override
   State<DiscoveryPage> createState() => DiscoveryPageState();
@@ -125,7 +126,10 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
         backgroundColor: ThemeColor.color200,
         elevation: 0,
         titleSpacing: 0.0,
+        canBack: widget.isSecondPage,
         actions: _actionWidget(),
+        centerTitle: false,
+        leadingWidth: widget.isSecondPage ? null : 0,
         titleWidget: GestureDetector(
           behavior: HitTestBehavior.translucent,
           onTap: (){
@@ -133,7 +137,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
               _scrollMomentToTop();
             }
           },
-          child: Center(
+          child: widget.isSecondPage ? Center(
             child: Text(
               pageType.text,
               style: TextStyle(
@@ -141,8 +145,25 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
                 fontSize: Adapt.px(20),
                 color: ThemeColor.titleColor,
               ),
-            ).setPaddingOnly(left: pageType == EDiscoveryPageType.moment ?  36.px : 0.px),
-          ),
+            ).setPaddingOnly(left: pageType == EDiscoveryPageType.moment ? 36.px : 0),
+          ) : ShaderMask(
+            shaderCallback: (Rect bounds) {
+              return LinearGradient(
+                colors: [
+                  ThemeColor.gradientMainEnd,
+                  ThemeColor.gradientMainStart,
+                ],
+              ).createShader(Offset.zero & bounds.size);
+            },
+            child: Text(
+              pageType.text,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: Adapt.px(20),
+                color: ThemeColor.titleColor,
+              ),
+            ),
+          ).setPaddingOnly(left: pageType == EDiscoveryPageType.moment ? 24.px : 0),
         ),
       ),
       body: _body(),
@@ -229,6 +250,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
       return PublicMomentsPage(
         key: publicMomentPageKey,
         publicMomentsPageType: publicMomentsPageType,
+        newMomentsBottom: widget.isSecondPage ? 50.px : 128.px,
       );
     return GroupsPage(
       key: groupsPageState,

@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 
 class EcashListener with CashuListener {
   final ValueChanged<Receipt>? onInvoicePaidChanged;
-  final ValueChanged<IMint>? onEcashBalanceChanged;
-  final ValueChanged<List<IMint>>? onMintsChanged;
+  final ValueChanged<IMintIsar>? onEcashBalanceChanged;
+  final ValueChanged<List<IMintIsar>>? onMintsChanged;
   final VoidCallback? onHistoryChanged;
 
   EcashListener({
@@ -22,14 +22,14 @@ class EcashListener with CashuListener {
   }
 
   @override
-  void handleBalanceChanged(IMint mint) {
+  void handleBalanceChanged(IMintIsar mint) {
     if (onEcashBalanceChanged != null) {
       onEcashBalanceChanged!(mint);
     }
   }
 
   @override
-  void handleMintListChanged(List<IMint> mints) {
+  void handleMintListChanged(List<IMintIsar> mints) {
     if (onMintsChanged != null) {
       onMintsChanged!(mints);
     }

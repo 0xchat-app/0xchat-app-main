@@ -68,7 +68,7 @@ class MessageDataController with OXChatObserver {
     );
     if (uiMessage == null) return ;
 
-    updateMessage(uiMessage);
+    updateMessage(uiMessage, originMessageId: replacedMessageId);
   }
 
   @override
@@ -482,8 +482,9 @@ extension MessageDataControllerPrivate on MessageDataController {
     String? originMessageId,
   }) {
     originMessageId ??= originMessage?.id ?? newMessage.id;
-    final index = messageList.indexWhere( (msg) => msg.id == originMessageId );
+    final index = messageList.indexWhere( (msg) => msg.id == originMessageId || msg.remoteId == originMessageId);
     if (index >= 0) {
+      newMessage = newMessage.copyWith(id: messageList[index].id);
       messageList.replaceRange(index, index + 1, [newMessage]);
       // In certain cases (such as image or video message replacements),
       // message.id and message.remoteId are not the same value.

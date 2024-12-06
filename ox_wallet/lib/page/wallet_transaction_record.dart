@@ -15,7 +15,7 @@ import 'package:cashu_dart/cashu_dart.dart';
 import 'package:ox_wallet/widget/common_labeled_item.dart';
 
 class WalletTransactionRecord extends StatefulWidget {
-  final IHistoryEntry entry;
+  final IHistoryEntryIsar entry;
   const WalletTransactionRecord({super.key, required this.entry});
 
   @override

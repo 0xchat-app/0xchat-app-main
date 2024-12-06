@@ -71,8 +71,9 @@ extension EPublicMomentsPageTypeEx on EPublicMomentsPageType {
 
 class PublicMomentsPage extends StatefulWidget {
   final EPublicMomentsPageType publicMomentsPageType;
+  final double? newMomentsBottom;
   const PublicMomentsPage(
-      {Key? key, this.publicMomentsPageType = EPublicMomentsPageType.contacts})
+      {Key? key, this.publicMomentsPageType = EPublicMomentsPageType.contacts, this.newMomentsBottom})
       : super(key: key);
 
   @override
@@ -183,7 +184,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
           ),
         ),
         Positioned(
-          bottom: 50.px,
+          bottom: widget.newMomentsBottom ?? 50.px,
           right: 20.px,
           child: GestureDetector(
             onLongPress: () {

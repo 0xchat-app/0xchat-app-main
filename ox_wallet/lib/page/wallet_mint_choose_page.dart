@@ -12,7 +12,7 @@ import 'package:ox_wallet/widget/mint_indicator_item.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
 class WalletMintChoosePage extends StatefulWidget {
-  final ValueChanged<IMint>? onChanged;
+  final ValueChanged<IMintIsar>? onChanged;
   const WalletMintChoosePage({super.key, this.onChanged});
 
   @override
@@ -20,7 +20,7 @@ class WalletMintChoosePage extends StatefulWidget {
 }
 
 class _WalletMintChoosePageState extends State<WalletMintChoosePage> {
-  List<IMint> mintItems = [];
+  List<IMintIsar> mintItems = [];
 
   @override
   void initState() {
@@ -61,7 +61,7 @@ class _WalletMintChoosePageState extends State<WalletMintChoosePage> {
     },);
   }
 
-  Future<void> _chooseMint(IMint? mint) async {
+  Future<void> _chooseMint(IMintIsar? mint) async {
     if(mint == null) return;
     if(context.mounted){
       OXNavigator.pop(context);

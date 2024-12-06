@@ -50,6 +50,52 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     );
   }
 
+  static void staticSendImageMessageWithFile({
+    required String receiverPubkey,
+    required String imageFilePath,
+    int chatType = ChatType.chatSingle,
+    String secretSessionId = '',
+    ChatSessionModelISAR? session,
+  }) {
+    final sender = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
+    if (sender.isEmpty) return;
+
+    session ??= _getSessionModel(
+      receiverPubkey,
+      chatType,
+      secretSessionId,
+    );
+    if (session == null) return;
+
+    ChatGeneralHandler(session: session).sendImageMessageWithFile(
+      null,
+      [File(imageFilePath)],
+    );
+  }
+
+  static void staticSendVideoMessageWithFile({
+    required String receiverPubkey,
+    required String videoFilePath,
+    int chatType = ChatType.chatSingle,
+    String secretSessionId = '',
+    ChatSessionModelISAR? session,
+  }) {
+    final sender = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
+    if (sender.isEmpty) return;
+
+    session ??= _getSessionModel(
+      receiverPubkey,
+      chatType,
+      secretSessionId,
+    );
+    if (session == null) return;
+
+    ChatGeneralHandler(session: session).sendVideoMessageWithFile(
+      null,
+      [Media()..path = videoFilePath],
+    );
+  }
+
   static Future sendSystemMessageHandler(
     String receiverPubkey,
     String text, {
@@ -169,7 +215,12 @@ extension ChatMessageSendEx on ChatGeneralHandler {
         return null;
       },
       replaceMessageId: replaceMessageId,
-      sendEventHandler: (event, sendMsg) => _sendEventHandler(event, sendMsg, sendFinish),
+      sendEventHandler: (event, sendMsg) => _sendEventHandler(
+        event: event,
+        sendMsg: sendMsg,
+        sendFinish: sendFinish,
+        replaceMessageId: replaceMessageId,
+      ),
       sendActionFinishHandler: (message) {
         _sendActionFinishHandler(
           message: message,
@@ -185,9 +236,14 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     }
   }
 
-  Future _sendEventHandler(OKEvent event, types.Message sendMsg, OXValue sendFinish) async {
+  Future _sendEventHandler({
+    required OKEvent event,
+    required types.Message sendMsg,
+    required OXValue sendFinish,
+    String? replaceMessageId,
+  }) async {
     sendFinish.value = true;
-    final message = await dataController.getMessage(sendMsg.id);
+    final message = await dataController.getMessage(replaceMessageId ?? sendMsg.id);
     if (message == null) return;
 
     final updatedMessage = message.copyWith(
@@ -306,7 +362,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     } catch (_) {}
   }
 
-  Future sendImageMessageWithFile(BuildContext context, List<File> images) async {
+  Future sendImageMessageWithFile(BuildContext? context, List<File> images) async {
     for (final imageFile in images) {
       final fileId = await EncodeUtils.generatePartialFileMd5(imageFile);
       final bytes = await imageFile.readAsBytes();
@@ -451,7 +507,10 @@ extension ChatMessageSendEx on ChatGeneralHandler {
 
             // Store cache image for new URL
             final imageFile = File(filePath!);
-            OXFileCacheManager.get(encryptKey: encryptedKey).putFile(
+            OXFileCacheManager.get(
+              encryptKey: encryptedKey,
+              encryptNonce: encryptedNonce,
+            ).putFile(
               imageURL,
               imageFile.readAsBytesSync(),
               fileExtension: imageFile.path.getFileExtension(),
@@ -549,7 +608,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     OXLoading.dismiss();
   }
 
-  Future sendVideoMessageWithFile(BuildContext context, List<Media> videos) async {
+  Future sendVideoMessageWithFile(BuildContext? context, List<Media> videos) async {
     for (final videoMedia in videos) {
       final videoPath = videoMedia.path ?? '';
       if (videoPath.isEmpty) continue;

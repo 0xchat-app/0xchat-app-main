@@ -21,7 +21,7 @@ import 'package:ox_wallet/widget/common_modal_bottom_sheet_widget.dart';
 import 'package:ox_wallet/widget/switch_widget.dart';
 
 class WalletMintManagementPage extends StatefulWidget {
-  final IMint mint;
+  final IMintIsar mint;
   const WalletMintManagementPage({super.key, required this.mint});
 
   @override

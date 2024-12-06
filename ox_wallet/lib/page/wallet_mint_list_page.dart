@@ -24,7 +24,7 @@ class WalletMintListPage extends StatefulWidget {
 
 class _WalletMintListPageState extends State<WalletMintListPage> {
 
-  List<IMint> mintItems = [];
+  List<IMintIsar> mintItems = [];
 
   @override
   void initState() {

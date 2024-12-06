@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:ox_common/upload/file_type.dart';
 import 'package:ox_common/upload/upload_utils.dart';
+import 'package:ox_common/utils/file_utils.dart';
+import 'package:ox_common/utils/platform_utils.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:path/path.dart' as Path;
 import 'package:ox_common/utils/image_picker_utils.dart';
@@ -14,21 +16,26 @@ class AlbumUtils {
       int selectCount = 9,
       Function(List<String>)? callback}) async {
     final isVideo = type == 2;
-    final messageSendHandler = isVideo ? dealWithVideo : dealWithPicture;
+    List<Media> mediaList = [];
+    if(PlatformUtils.isDesktop){
+      List<Media>? list = await FileUtils.importClientFile(type);
+      if(list != null) mediaList = list;
+    }else{
+      mediaList = await ImagePickerUtils.pickerPaths(
+        galleryMode: isVideo ? GalleryMode.video : GalleryMode.image,
+        selectCount: selectCount,
+        showGif: false,
+        compressSize: 1024,
+      );
+    }
 
-    final res = await ImagePickerUtils.pickerPaths(
-      galleryMode: isVideo ? GalleryMode.video : GalleryMode.image,
-      selectCount: selectCount,
-      showGif: false,
-      compressSize: 1024,
-    );
-    if(res.isEmpty) return;
+    if(mediaList.isEmpty) return;
 
     if (isVideo) {
-      dealWithVideo(context, res, callback);
+      dealWithVideo(context, mediaList, callback);
     } else {
       List<File> fileList = [];
-      await Future.forEach(res, (element) async {
+      await Future.forEach(mediaList, (element) async {
         final entity = element;
         final file = File(entity.path ?? '');
         fileList.add(file);

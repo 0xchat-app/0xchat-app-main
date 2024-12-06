@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_discovery/page/discovery_page.dart';
+import 'package:ox_discovery/page/moments/create_moments_page.dart';
 import 'package:ox_discovery/page/moments/group_moments_page.dart';
 import 'package:ox_discovery/page/moments/moments_page.dart';
 import 'package:ox_discovery/page/moments/personal_moments_page.dart';
@@ -31,6 +32,7 @@ class OXDiscovery extends OXFlutterModule {
 
   @override
   Map<String, Function> get interfaces => {
+        'discoveryPageWidget': discoveryPageWidget,
         'momentPage': jumpMomentPage,
         'momentRichTextWidget': momentRichTextWidget,
         'showPersonMomentsPage': showPersonMomentsPage,
@@ -51,11 +53,17 @@ class OXDiscovery extends OXFlutterModule {
                 (context) => PublicMomentsPage());
       case 'discoveryPageWidget':
         return OXNavigator.pushPage(context,
-                (context) => DiscoveryPage(typeInt: params?['typeInt']));
+                (context) => DiscoveryPage(typeInt: params?['typeInt'], isSecondPage: params?['isSecondPage'] ?? true));
+      case 'CreateMomentsPage':
+        return OXNavigator.presentPage(context,
+                (context) => const CreateMomentsPage());
     }
     return null;
   }
 
+  Widget discoveryPageWidget(BuildContext context, {int typeInt = 1, bool isSecondPage = false}) {
+    return DiscoveryPage(typeInt: typeInt, isSecondPage: isSecondPage);
+  }
 
   Widget momentRichTextWidget(
     BuildContext context, {

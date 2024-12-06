@@ -16,7 +16,7 @@ import 'package:cashu_dart/cashu_dart.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
 class WalletBackupFundsPage extends StatefulWidget {
-  final IMint? mint;
+  final IMintIsar? mint;
   const WalletBackupFundsPage({super.key, required this.mint});
 
   @override
@@ -112,7 +112,7 @@ class _WalletBackupFundsPageState extends State<WalletBackupFundsPage> {
   }
 
   void _getCashuToken() async {
-    List<IMint> mints = widget.mint == null ? EcashManager.shared.mintList : [widget.mint!];
+    List<IMintIsar> mints = widget.mint == null ? EcashManager.shared.mintList : [widget.mint!];
     OXLoading.show();
     CashuResponse<String> response = await Cashu.getBackUpToken(mints);
     OXLoading.dismiss();

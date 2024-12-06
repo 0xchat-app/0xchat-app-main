@@ -28,7 +28,7 @@ class _WalletHomePageState extends State<WalletHomePage> with CommonStateViewMix
 
   double _opacity = 0;
 
-  List<IHistoryEntry> _recentTransaction = [];
+  List<IHistoryEntryIsar> _recentTransaction = [];
   late final EcashListener _balanceChangedListener;
 
   @override
@@ -262,7 +262,7 @@ class _WalletHomePageState extends State<WalletHomePage> with CommonStateViewMix
     );
   }
 
-  String _getTransactionItemSubtitle(IHistoryEntry entry){
+  String _getTransactionItemSubtitle(IHistoryEntryIsar entry){
     final time = WalletUtils.formatTimeAgo(entry.timestamp.toInt());
     final memo = entry.memo?.isEmpty ?? true ? '-' : entry.memo;
     return '$time · $memo';

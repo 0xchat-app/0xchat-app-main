@@ -33,7 +33,7 @@ class _WalletSendEcashPageState extends State<WalletSendEcashPage> {
   bool get enable => amount.isNotEmpty && double.parse(amount) > 0 && _mint != null;
   SendP2PKOption p2pkOption = SendP2PKOption();
 
-  IMint? _mint;
+  IMintIsar? _mint;
 
   @override
   void initState() {
@@ -124,7 +124,7 @@ class _WalletSendEcashPageState extends State<WalletSendEcashPage> {
     );
   }
 
-  void _onChanged(IMint mint) {
+  void _onChanged(IMintIsar mint) {
     setState(() {
       _mint = mint;
     });
