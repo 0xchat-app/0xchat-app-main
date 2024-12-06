@@ -510,7 +510,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
       tempList.add(i);
       riveInputs.add('Press');
       HomeTabBarType homeTabBarType = _typeList[i];
-      if (_unreadMap[homeTabBarType] == null) {
+      if (!_unreadMap.containsKey(homeTabBarType)) {
         _unreadMap[homeTabBarType] = 0;
       }
       _navItemKeyList.add(GlobalKey());
