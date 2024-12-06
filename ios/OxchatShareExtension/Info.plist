@@ -13,6 +13,10 @@
 		<dict>
 			<key>NSExtensionActivationRule</key>
 			<dict>
+				<key>NSExtensionActivationSupportsMovieWithMaxCount</key>
+				<integer>1</integer>
+				<key>NSExtensionActivationSupportsImageWithMaxCount - 2</key>
+				<integer>1</integer>
 				<key>NSExtensionActivationSupportsText</key>
 				<true/>
 				<key>NSExtensionActivationSupportsWebURLWithMaxCount</key>
@@ -23,7 +27,8 @@
 				<string>public.text</string>
 				<string>public.url</string>
 				<string>public.image</string>
-				<string>public.movie</string>
+				<string>public.mpeg-4</string>
+				<string>public.quicktime-movie</string>
 			</array>
 		</dict>
 		<key>NSExtensionMainStoryboard</key>

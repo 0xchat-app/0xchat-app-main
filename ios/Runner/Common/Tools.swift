@@ -18,7 +18,7 @@ class Tools {
                     return "image"
                 } else if type.conforms(to: .pdf) {
                     return "pdf"
-                } else if type.conforms(to: .video) {
+                } else if type.conforms(to: .video) || type.conforms(to: .movie) {
                     return "video"
                 } else if type.conforms(to: .audio) {
                     return "audio"
