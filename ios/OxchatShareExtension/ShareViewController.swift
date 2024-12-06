@@ -57,7 +57,7 @@ class ShareViewController: SLComposeServiceViewController {
     
     private func openApp() {
         getShareMedia {
-            guard let scheme = URL(string: "oxchat://shareLinkWithScheme") else {
+            guard let scheme = URL(string: AppGroupHelper.shareScheme) else {
                 self.extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
                 return
             }
@@ -73,14 +73,39 @@ class ShareViewController: SLComposeServiceViewController {
         if let attachments = extensionItem.attachments {
             for itemProvider in attachments {
                 let urlIdentifier = kUTTypeURL as String
+                let movieIdentifier = kUTTypeMovie as String
                 if itemProvider.hasItemConformingToTypeIdentifier(urlIdentifier) {
                     itemProvider.loadItem(forTypeIdentifier: urlIdentifier, options: nil) { (data, error) in
                         if let url = data as? URL {
                             AppGroupHelper.saveDataForGourp(
                                 url.absoluteString,
-                                forKey: AppGroupHelper.shareDataKey
+                                forKey: AppGroupHelper.shareDataURLKey
                             )
                             completion()
+                        }
+                    }
+                } else if itemProvider.hasItemConformingToTypeIdentifier(movieIdentifier) {
+                    itemProvider.loadItem(forTypeIdentifier: movieIdentifier, options: nil) { (data, error) in
+                        if let url = data as? URL, let documentsDirectory = AppGroupHelper.groupContainerURL() {
+                            let fileManager = FileManager.default
+                            let destinationURL = documentsDirectory.appendingPathComponent(url.lastPathComponent)
+                            
+                            do {
+                                if fileManager.fileExists(atPath: destinationURL.path) {
+                                    try fileManager.removeItem(at: destinationURL)
+                                }
+                                
+                                try fileManager.copyItem(at: url, to: destinationURL)
+                                
+                                AppGroupHelper.saveDataForGourp(
+                                    destinationURL.path,
+                                    forKey: AppGroupHelper.shareDataFilePathKey
+                                )
+                                
+                                completion()
+                            } catch {
+                                print("Error copying file: \(error.localizedDescription)")
+                            }
                         }
                     }
                 }

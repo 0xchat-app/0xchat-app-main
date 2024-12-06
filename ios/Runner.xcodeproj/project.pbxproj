@@ -11,7 +11,6 @@
 		0C52EF982BFDF8FB00C2E301 /* OCXCrashManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C52EF972BFDF8FB00C2E301 /* OCXCrashManager.swift */; };
 		0C52EF9A2BFDFC0B00C2E301 /* OXCLaunchCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C52EF992BFDFC0B00C2E301 /* OXCLaunchCoordinator.swift */; };
 		0C829C2E2B8C95F70066C893 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C98C7542B8C6D3200950443 /* ShareViewController.swift */; };
-		0C829C302B8DBF1E0066C893 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C98C7542B8C6D3200950443 /* ShareViewController.swift */; };
 		0C829C322B8DBF5B0066C893 /* AppGroupHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C829C312B8DBF5B0066C893 /* AppGroupHelper.swift */; };
 		0C829C342B8DBF690066C893 /* AppGroupHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C829C312B8DBF5B0066C893 /* AppGroupHelper.swift */; };
 		0C98C7582B8C6D3200950443 /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0C98C7562B8C6D3200950443 /* MainInterface.storyboard */; };
@@ -19,6 +18,7 @@
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
 		5E0D07FE2CF8753A00B2D38F /* calling.caf in Resources */ = {isa = PBXBuildFile; fileRef = 5E0D07FD2CF8753A00B2D38F /* calling.caf */; };
+		5EC4C7AE2D007959007D7029 /* Tools.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EC4C7AD2D007959007D7029 /* Tools.swift */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
@@ -84,6 +84,7 @@
 		3B1CB4F3D472658B95EB84A6 /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = AppFrameworkInfo.plist; path = Flutter/AppFrameworkInfo.plist; sourceTree = "<group>"; };
 		5E0D07FD2CF8753A00B2D38F /* calling.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = calling.caf; sourceTree = "<group>"; };
+		5EC4C7AD2D007959007D7029 /* Tools.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tools.swift; sourceTree = "<group>"; };
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
 		74858FAE1ED2DC5600515810 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		7AFA3C8E1D35360C0083082E /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Release.xcconfig; path = Flutter/Release.xcconfig; sourceTree = "<group>"; };
@@ -230,6 +231,7 @@
 				CF8DE51326733D7300EF6C1B /* OXCFlutterViewController.m */,
 				CF8DE50F2673386000EF6C1B /* OXCFlutterEngineManager.h */,
 				CF8DE5102673386100EF6C1B /* OXCFlutterEngineManager.m */,
+				5EC4C7AD2D007959007D7029 /* Tools.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -453,9 +455,9 @@
 				CF8DE5112673386100EF6C1B /* OXCFlutterEngineManager.m in Sources */,
 				74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */,
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
+				5EC4C7AE2D007959007D7029 /* Tools.swift in Sources */,
 				0C52EF982BFDF8FB00C2E301 /* OCXCrashManager.swift in Sources */,
 				0C829C322B8DBF5B0066C893 /* AppGroupHelper.swift in Sources */,
-				0C829C302B8DBF1E0066C893 /* ShareViewController.swift in Sources */,
 				CF8DD7FE2664D91800EF6C1B /* OXCBaseNavigationController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

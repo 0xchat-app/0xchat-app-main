@@ -55,19 +55,33 @@ import ox_push
     
     override func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
         
-        var urlStr = url.absoluteString
+        var urlStr = url.isFileURL ? AppGroupHelper.shareScheme : url.absoluteString
         
         if url.host == "shareLinkWithScheme" {
-            if var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: true),
-                let text = AppGroupHelper.loadDataForGourp(forKey: AppGroupHelper.shareDataKey) as? String {
-                
+            if var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: true) {
                 var queryItems = (urlComponents.queryItems ?? [])
-                queryItems.append(URLQueryItem(name: "text", value: text.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)))
-                urlComponents.queryItems = queryItems
-             
-                urlStr = urlComponents.url?.absoluteString ?? urlStr
+            
+                if let text = AppGroupHelper.loadDataForGourp(forKey: AppGroupHelper.shareDataURLKey) as? String {
+                    queryItems.append(URLQueryItem(name: "text", value: text.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)))
+                    queryItems.append(URLQueryItem(name: "type", value: "text"))
+                    AppGroupHelper.saveDataForGourp(nil, forKey: AppGroupHelper.shareDataURLKey)
+                } else if let path = AppGroupHelper.loadDataForGourp(forKey: AppGroupHelper.shareDataFilePathKey) as? String {
+                    queryItems.append(URLQueryItem(name: "path", value: path.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)))
+                    queryItems.append(URLQueryItem(name: "type", value: Tools.getFileType(from: URL(fileURLWithPath: path))))
+                    AppGroupHelper.saveDataForGourp(nil, forKey: AppGroupHelper.shareDataFilePathKey)
+                }
                 
-                AppGroupHelper.saveDataForGourp(nil, forKey: AppGroupHelper.shareDataKey)
+                urlComponents.queryItems = queryItems
+                urlStr = urlComponents.url?.absoluteString ?? urlStr
+            }
+        } else if url.isFileURL {
+            if var urlComponents = URLComponents(string: urlStr) {
+                var queryItems = (urlComponents.queryItems ?? [])
+                queryItems.append(URLQueryItem(name: "path", value: url.path.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)))
+                queryItems.append(URLQueryItem(name: "type", value: Tools.getFileType(from: url)))
+                
+                urlComponents.queryItems = queryItems
+                urlStr = urlComponents.url?.absoluteString ?? urlStr
             }
         }
         
