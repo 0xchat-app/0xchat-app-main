@@ -65,6 +65,10 @@ import ox_push
                     queryItems.append(URLQueryItem(name: "text", value: text.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)))
                     queryItems.append(URLQueryItem(name: "type", value: "text"))
                     AppGroupHelper.saveDataForGourp(nil, forKey: AppGroupHelper.shareDataURLKey)
+                } else if let path = AppGroupHelper.loadDataForGourp(forKey: AppGroupHelper.shareDataFilePathKey) as? String {
+                    queryItems.append(URLQueryItem(name: "path", value: path.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)))
+                    queryItems.append(URLQueryItem(name: "type", value: Tools.getFileType(from: URL(fileURLWithPath: path))))
+                    AppGroupHelper.saveDataForGourp(nil, forKey: AppGroupHelper.shareDataFilePathKey)
                 }
                 
                 urlComponents.queryItems = queryItems
