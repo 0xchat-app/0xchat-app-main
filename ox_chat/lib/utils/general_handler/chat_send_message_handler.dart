@@ -73,6 +73,29 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     );
   }
 
+  static void staticSendVideoMessageWithFile({
+    required String receiverPubkey,
+    required String videoFilePath,
+    int chatType = ChatType.chatSingle,
+    String secretSessionId = '',
+    ChatSessionModelISAR? session,
+  }) {
+    final sender = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
+    if (sender.isEmpty) return;
+
+    session ??= _getSessionModel(
+      receiverPubkey,
+      chatType,
+      secretSessionId,
+    );
+    if (session == null) return;
+
+    ChatGeneralHandler(session: session).sendVideoMessageWithFile(
+      null,
+      [Media()..path = videoFilePath],
+    );
+  }
+
   static Future sendSystemMessageHandler(
     String receiverPubkey,
     String text, {
@@ -585,7 +608,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     OXLoading.dismiss();
   }
 
-  Future sendVideoMessageWithFile(BuildContext context, List<Media> videos) async {
+  Future sendVideoMessageWithFile(BuildContext? context, List<Media> videos) async {
     for (final videoMedia in videos) {
       final videoPath = videoMedia.path ?? '';
       if (videoPath.isEmpty) continue;

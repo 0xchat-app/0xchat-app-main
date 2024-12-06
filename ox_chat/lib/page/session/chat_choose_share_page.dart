@@ -350,6 +350,11 @@ class _ChatChooseSharePageState extends State<ChatChooseSharePage> with ShareIte
                   receiverPubkey: sessionModel.chatId,
                   imageFilePath: widget.path ?? '',
                 );
+              } else if (widget.type == SchemeShareType.video.typeText) {
+                ChatMessageSendEx.staticSendVideoMessageWithFile(
+                  receiverPubkey: sessionModel.chatId,
+                  videoFilePath: widget.path ?? '',
+                );
               }
               OXNavigator.pop(context, true);
             },
