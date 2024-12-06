@@ -59,6 +59,7 @@ class SchemeHelper {
 enum SchemeShareType {
   text,
   image,
+  video,
   file,
 }
 
@@ -70,6 +71,8 @@ extension SchemeShareTypeEx on SchemeShareType{
         return 'text';
       case SchemeShareType.image:
         return 'image';
+      case SchemeShareType.video:
+        return 'video';
       case SchemeShareType.file:
         return 'file';
     }
