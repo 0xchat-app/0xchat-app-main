@@ -192,7 +192,12 @@ extension ChatMessageSendEx on ChatGeneralHandler {
         return null;
       },
       replaceMessageId: replaceMessageId,
-      sendEventHandler: (event, sendMsg) => _sendEventHandler(event, sendMsg, sendFinish),
+      sendEventHandler: (event, sendMsg) => _sendEventHandler(
+        event: event,
+        sendMsg: sendMsg,
+        sendFinish: sendFinish,
+        replaceMessageId: replaceMessageId,
+      ),
       sendActionFinishHandler: (message) {
         _sendActionFinishHandler(
           message: message,
@@ -208,9 +213,14 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     }
   }
 
-  Future _sendEventHandler(OKEvent event, types.Message sendMsg, OXValue sendFinish) async {
+  Future _sendEventHandler({
+    required OKEvent event,
+    required types.Message sendMsg,
+    required OXValue sendFinish,
+    String? replaceMessageId,
+  }) async {
     sendFinish.value = true;
-    final message = await dataController.getMessage(sendMsg.id);
+    final message = await dataController.getMessage(replaceMessageId ?? sendMsg.id);
     if (message == null) return;
 
     final updatedMessage = message.copyWith(
@@ -474,7 +484,10 @@ extension ChatMessageSendEx on ChatGeneralHandler {
 
             // Store cache image for new URL
             final imageFile = File(filePath!);
-            OXFileCacheManager.get(encryptKey: encryptedKey).putFile(
+            OXFileCacheManager.get(
+              encryptKey: encryptedKey,
+              encryptNonce: encryptedNonce,
+            ).putFile(
               imageURL,
               imageFile.readAsBytesSync(),
               fileExtension: imageFile.path.getFileExtension(),
