@@ -342,5 +342,10 @@
   "str_show_in_chat": "نمایش در چت",
   "media_message_delete_tips": "آیا مطمئنید که می‌خواهید این پیام‌های محلی رسانه‌ای را پاک کنید؟",
   "message": "پیام",
-  "chat_input_length_over_hint": "متنی که وارد کرده‌اید خیلی طولانی است تا ارسال شود."
+  "chat_input_length_over_hint": "متنی که وارد کرده‌اید خیلی طولانی است تا ارسال شود.",
+  "str_move_to_tabbar": "انتقال به TabBar",
+  "str_move_to_top": "انتقال به بالای صفحه",
+  "str_remove": "حذف",
+  "str_remove_moments": "حذف لحظات",
+  "str_remove_moments_hint": "آیا از حذف این لحظه اطمینان دارید؟ این اقدام قابل برگشت نیست."
 }
