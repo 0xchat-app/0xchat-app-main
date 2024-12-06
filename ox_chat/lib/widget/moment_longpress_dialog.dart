@@ -7,6 +7,7 @@ import 'package:ox_common/utils/ox_moment_manager.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
@@ -148,17 +149,33 @@ class MomentLongPressDialog {
         OXMomentManager.sharedInstance.moveToTabBarCallBack();
         break;
       case MomentLpMenuType.createNewMoment:
-        OXModuleService.pushPage(
-          context,
-          'ox_discovery',
-          'CreateMomentsPage',
-          null,
-        );
+        if (OXUserInfoManager.sharedInstance.isLogin) {
+          OXModuleService.pushPage(
+            context,
+            'ox_discovery',
+            'CreateMomentsPage',
+            null,
+          );
+        }
         break;
       case MomentLpMenuType.remove:
-        OXUserInfoManager.sharedInstance.momentPosition = 2;
-        OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.APP_MOMENT_POSITION, 2);
-        OXMomentManager.sharedInstance.deleteMomentsCallBack();
+        OXCommonHintDialog.show(OXNavigator.navigatorKey.currentContext!,
+            title: Localized.text('ox_chat.str_remove_moments'),
+            content: Localized.text('ox_chat.str_remove_moments_hint'),
+            actionList: [
+              OXCommonHintAction.cancel(onTap: () {
+                OXNavigator.pop(OXNavigator.navigatorKey.currentContext!);
+              }),
+              OXCommonHintAction.sure(
+                  text: Localized.text('ox_common.confirm'),
+                  onTap: () async {
+                    OXNavigator.pop(OXNavigator.navigatorKey.currentContext!);
+                    OXUserInfoManager.sharedInstance.momentPosition = 2;
+                    OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.APP_MOMENT_POSITION, 2);
+                    OXMomentManager.sharedInstance.deleteMomentsCallBack();
+                  }),
+            ],
+            isRowAction: true);
         break;
     }
   }

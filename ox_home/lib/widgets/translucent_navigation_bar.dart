@@ -263,29 +263,28 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          for (final item in updatedItems)
+          for (int index = 0; index < updatedItems.length; index ++)
             GestureDetector(
               onLongPress: () {
-                _tabbarItemOnLongPress(item);
+                _tabbarItemOnLongPress(index);
               },
               onTap: () {
-                _tabBarItemOnTap(item);
+                _tabBarItemOnTap(index);
               },
-              onDoubleTap: updatedItems.indexOf(item) == selectedIndex ? () {
-                widget.handleDoubleTap?.call(updatedItems.indexOf(item),selectedIndex);
+              onDoubleTap: index == selectedIndex ? () {
+                widget.handleDoubleTap?.call(index, selectedIndex);
               } : null,
               behavior: HitTestBehavior.translucent,
-              child: _tabbarItemWidget(item, _navItemKeyList[updatedItems.indexOf(item)]),
+              child: _tabbarItemWidget(_itemList.elementAt(index), _navItemKeyList[index]),
             ),
         ],
       ),
     );
   }
 
-  void _tabbarItemOnLongPress(TranslucentNavigationBarItem item) async {
-    int index = _itemList.indexOf(item);
+  void _tabbarItemOnLongPress(int index) async {
     TookKit.vibrateEffect();
-    if (!_isLogin) return;
+    if (!_isLogin && _typeList.elementAt(index) != HomeTabBarType.discover) return;
     if (_typeList.elementAt(index) == HomeTabBarType.me) {
       await _loadLocalInfo();
     }
@@ -293,9 +292,8 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     dialog.showPopupDialog(context, index, _navItemKeyList, _tabbarItemWidget(_itemList.elementAt(index), GlobalKey()));
   }
 
-  void _tabBarItemOnTap(TranslucentNavigationBarItem item) {
+  void _tabBarItemOnTap(int index) {
     int draftIndex = selectedIndex;
-    int index = _itemList.indexOf(item);
     if (selectedIndex != index) {
       TookKit.vibrateEffect();
     }
@@ -437,7 +435,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
       _isLogin = true;
       fetchUnreadCount();
       if (_itemList.isNotEmpty) {
-        _tabBarItemOnTap(_itemList.elementAt(_typeList.indexOf(HomeTabBarType.home)));
+        _tabBarItemOnTap(_typeList.indexOf(HomeTabBarType.home));
         for (var element in _itemList) {
           element.unreadMsgCount = 0;
         }
@@ -450,7 +448,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     setState(() {
       _isLogin = false;
       if (_itemList.isNotEmpty) {
-        _tabBarItemOnTap(_itemList.elementAt(_typeList.indexOf(HomeTabBarType.home)));
+        _tabBarItemOnTap(_typeList.indexOf(HomeTabBarType.home));
         for (var element in _itemList) {
           element.unreadMsgCount = 0;
         }
@@ -462,7 +460,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
   void didSwitchUser(UserDBISAR? userInfo) {
     setState(() {
       if (_itemList.isNotEmpty) {
-        _tabBarItemOnTap(_itemList.elementAt(_typeList.indexOf(HomeTabBarType.home)));
+        _tabBarItemOnTap(_typeList.indexOf(HomeTabBarType.home));
         for (var element in _itemList) {
           element.unreadMsgCount = 0;
         }
@@ -493,6 +491,9 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
 
   @override
   void didDeleteMomentsCallBack() {
+    if (_typeList.length == 3) {
+      return;
+    }
     _typeList = [HomeTabBarType.contact, HomeTabBarType.home, HomeTabBarType.me];
     dataInit();
   }

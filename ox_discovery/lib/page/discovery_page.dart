@@ -146,12 +146,22 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
                 color: ThemeColor.titleColor,
               ),
             ).setPaddingOnly(left: pageType == EDiscoveryPageType.moment ? 36.px : 0),
-          ) : Text(
-            pageType.text,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: Adapt.px(20),
-              color: ThemeColor.titleColor,
+          ) : ShaderMask(
+            shaderCallback: (Rect bounds) {
+              return LinearGradient(
+                colors: [
+                  ThemeColor.gradientMainEnd,
+                  ThemeColor.gradientMainStart,
+                ],
+              ).createShader(Offset.zero & bounds.size);
+            },
+            child: Text(
+              pageType.text,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: Adapt.px(20),
+                color: ThemeColor.titleColor,
+              ),
             ),
           ).setPaddingOnly(left: pageType == EDiscoveryPageType.moment ? 24.px : 0),
         ),

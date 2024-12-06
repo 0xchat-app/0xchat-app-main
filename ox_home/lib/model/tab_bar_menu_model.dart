@@ -19,5 +19,6 @@ enum MenuItemType{
   addContact,
   addGroup,
   moveToTop,
+  createNewMoment,
   deleteMoments,
 }

@@ -242,6 +242,9 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
 
   @override
   void didDeleteMomentsCallBack() {
+    if (_typeList.length == 3) {
+      return;
+    }
     _typeList = [HomeTabBarType.contact, HomeTabBarType.home, HomeTabBarType.me];
     setState(() {
       tabViewInfo = TabViewInfo.getTabViewData(_typeList);
