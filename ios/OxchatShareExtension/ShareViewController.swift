@@ -57,7 +57,7 @@ class ShareViewController: SLComposeServiceViewController {
     
     private func openApp() {
         getShareMedia {
-            guard let scheme = URL(string: "oxchat://shareLinkWithScheme") else {
+            guard let scheme = URL(string: AppGroupHelper.shareScheme) else {
                 self.extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
                 return
             }
@@ -78,7 +78,7 @@ class ShareViewController: SLComposeServiceViewController {
                         if let url = data as? URL {
                             AppGroupHelper.saveDataForGourp(
                                 url.absoluteString,
-                                forKey: AppGroupHelper.shareDataKey
+                                forKey: AppGroupHelper.shareDataURLKey
                             )
                             completion()
                         }
