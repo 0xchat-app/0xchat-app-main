@@ -58,7 +58,7 @@ class _MomentPaymentWidgetState extends State<MomentPaymentWidget> {
     if (widget.type == EPaymentType.lighting) {
       final getZapReceipt = await Zaps.getZapReceipt('', invoice: invoice);
       final getPaymentRequestInfo = Zaps.getPaymentRequestInfo(invoice);
-      amount = getPaymentRequestInfo.amount.ceil().toString();
+      amount = Zaps.getPaymentRequestAmount(invoice).toString();
       DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(
           getPaymentRequestInfo.timestamp.toInt() * 1000);
       lightingTime = DateFormat('yyyy-MM-dd HH:mm:ss').format(dateTime);
