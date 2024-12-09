@@ -145,7 +145,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
                 fontSize: Adapt.px(20),
                 color: ThemeColor.titleColor,
               ),
-            ).setPaddingOnly(left: pageType == EDiscoveryPageType.moment ? 36.px : 0),
+            ).setPaddingOnly(left: pageType == EDiscoveryPageType.moment ? 36.px : 0.0),
           ) : ShaderMask(
             shaderCallback: (Rect bounds) {
               return LinearGradient(
