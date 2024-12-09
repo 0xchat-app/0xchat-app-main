@@ -111,7 +111,7 @@ post_install do |installer|
   end
 
   framework_paths = [
-    "Pods/ffmpegkit/ffmpegkit.framework/ffmpegkit",
+    "Pods/ffmpeg-kit-ios-https/ffmpegkit.xcframework/ios-arm64/ffmpegkit.framework/ffmpegkit",
   ]
 
   framework_paths.each do |framework_path|
