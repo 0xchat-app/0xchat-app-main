@@ -101,5 +101,27 @@ post_install do |installer|
       ]
     end
   end
-end
 
+  # Bitcode stripping configuration
+  bitcode_strip_path = `xcrun --find bitcode_strip`.chomp
+  def strip_bitcode_from_framework(bitcode_strip_path, framework_path)
+    command = "#{bitcode_strip_path} #{framework_path} -r -o #{framework_path}"
+    puts "Stripping bitcode: #{command}"
+    system(command)
+  end
+
+  framework_paths = [
+    "Pods/ffmpeg-kit-ios-https/ffmpegkit.xcframework/ios-arm64/ffmpegkit.framework/ffmpegkit",
+    "Pods/ffmpeg-kit-ios-https/libavfilter.xcframework/ios-arm64/libavfilter.framework/libavfilter",
+    "Pods/ffmpeg-kit-ios-https/libswscale.xcframework/ios-arm64/libswscale.framework/libswscale",
+    "Pods/ffmpeg-kit-ios-https/libswresample.xcframework/ios-arm64/libswresample.framework/libswresample",
+    "Pods/ffmpeg-kit-ios-https/libavcodec.xcframework/ios-arm64/libavcodec.framework/libavcodec",
+    "Pods/ffmpeg-kit-ios-https/libavutil.xcframework/ios-arm64/libavutil.framework/libavutil",
+    "Pods/ffmpeg-kit-ios-https/libavformat.xcframework/ios-arm64/libavformat.framework/libavformat",
+    "Pods/ffmpeg-kit-ios-https/libavdevice.xcframework/ios-arm64/libavdevice.framework/libavdevice",
+  ]
+
+  framework_paths.each do |framework_path|
+    strip_bitcode_from_framework(bitcode_strip_path, framework_path)
+  end
+end
