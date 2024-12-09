@@ -412,6 +412,7 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
     final description = ZapsMessageEx(message).description;
 
     final requestInfo = Zaps.getPaymentRequestInfo(invoice);
+    final amount = Zaps.getPaymentRequestAmount(invoice);
 
     final zapsReceiptList = await Zaps.getZapReceipt(zapper, invoice: invoice);
     final zapsReceipt = zapsReceiptList.length > 0 ? zapsReceiptList.first : null;
@@ -420,7 +421,7 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
 
     final zapsDetail = ZapsRecordDetail(
       invoice: invoice,
-      amount: (requestInfo.amount.toDouble() * 100000000).toInt(),
+      amount: amount,
       fromPubKey: senderPubkey,
       toPubKey: receiverPubkey,
       zapsTime: (requestInfo.timestamp.toInt() * 1000).toString(),

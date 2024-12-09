@@ -5,6 +5,7 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_common/utils/platform_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/utils/widget_tool.dart';
@@ -250,6 +251,10 @@ class _MomentWidgetState extends State<MomentWidget> {
     NotedUIModel? model = notedUIModel;
     if (model == null || !widget.isShowUserInfo) return const SizedBox();
     String pubKey = model.noteDB.author;
+
+    double width = MediaQuery.of(context).size.width;
+    double maxWidth = width - 170;
+
     return Container(
       padding: EdgeInsets.only(bottom: 12.px),
       child: Row(
@@ -257,9 +262,6 @@ class _MomentWidgetState extends State<MomentWidget> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Container(
-            constraints: BoxConstraints(
-              maxWidth: Adapt.screenW - 110.px,
-            ),
             child: ValueListenableBuilder<UserDBISAR>(
               valueListenable: Account.sharedInstance.getUserNotifier(pubKey),
               builder: (context, value, child) {
@@ -292,7 +294,7 @@ class _MomentWidgetState extends State<MomentWidget> {
                         left: 10.px,
                       ),
                       constraints: BoxConstraints(
-                        maxWidth: Adapt.screenW - 170.px,
+                        maxWidth: maxWidth,
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,

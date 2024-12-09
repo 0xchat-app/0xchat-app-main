@@ -752,7 +752,6 @@ class _ZapsPageState extends State<ZapsPage> {
     for (var zapRecordsDB in zapRecordsDBList) {
       if (zapRecordsDB != null) {
         final invoice = zapRecordsDB.bolt11;
-        final requestInfo = Zaps.getPaymentRequestInfo(invoice);
         final fromPubKey = zapRecordsDB.sender;
         final toPubKey = zapRecordsDB.recipient;
         final paidAt = (zapRecordsDB.paidAt * 1000).toString();
@@ -763,7 +762,7 @@ class _ZapsPageState extends State<ZapsPage> {
         zapsRecordDetailList.add(
           ZapsRecordDetail(
               invoice: invoice,
-              amount: (requestInfo.amount.toDouble() * 100000000).toInt(),
+              amount: Zaps.getPaymentRequestAmount(invoice),
               fromPubKey: '${fromUser?.name} (${fromUser?.shortEncodedPubkey})',
               toPubKey: '${toUser?.name} (${toUser?.shortEncodedPubkey})',
               zapsTime: paidAt,
