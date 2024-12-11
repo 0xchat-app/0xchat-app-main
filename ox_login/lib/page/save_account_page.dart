@@ -49,7 +49,7 @@ class _SaveAccountPageState extends State<SaveAccountPage>
   void initState() {
     super.initState();
     _encodedPubkey = Nip19.encodePubkey(widget.keychain.public);
-    _encodedPrivkey = Nip19.encodePubkey(widget.keychain.private);
+    _encodedPrivkey = Nip19.encodePrivkey(widget.keychain.private);
     opacityController = AnimationController(
       duration: Duration(milliseconds: 500),
       vsync: this,
