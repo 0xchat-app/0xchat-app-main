@@ -16,7 +16,6 @@ import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_moment_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_module_service/ox_module_service.dart';
-import 'package:sqflite_sqlcipher/sqflite.dart';
 
 abstract mixin class OXUserInfoObserver {
   void didLoginSuccess(UserDBISAR? userInfo);
@@ -74,14 +73,14 @@ class OXUserInfoManager {
     await logout(needObserver: false);
     await ThreadPoolManager.sharedInstance.initialize();
     String dbpath = pubkey + ".db2";
-    bool exists = await databaseExists(dbpath);
+    bool exists = await DB.sharedInstance.databaseExists(dbpath);
     if (exists) {
       String? dbpw = await OXCacheManager.defaultOXCacheManager.getForeverData('dbpw+$pubkey');
       await DB.sharedInstance.open(dbpath, version: CommonConstant.dbVersion, password: dbpw);
       await DBISAR.sharedInstance.open(pubkey);
       await DB.sharedInstance.migrateToISAR();
       debugPrint("delete Table");
-      await deleteDatabase(dbpath);
+      await DB.sharedInstance.deleteDatabaseFile(dbpath);
     }
     else{
       await DBISAR.sharedInstance.open(pubkey);
