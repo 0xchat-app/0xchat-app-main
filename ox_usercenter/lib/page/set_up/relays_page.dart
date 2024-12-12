@@ -31,10 +31,17 @@ class RelaysPage extends StatefulWidget {
 
 class _RelaysPageState extends State<RelaysPage> {
   final TextEditingController _relayTextFieldControll = TextEditingController();
-  final Map<RelayType, List<RelayDBISAR>> _relayListMap = {RelayType.general: [], RelayType.dm: []};
+  final Map<RelayType, List<RelayDBISAR>> _relayListMap = {
+    RelayType.general: [],
+    RelayType.dm: [],
+    RelayType.outbox: [],
+    RelayType.inbox: []
+  };
   final Map<RelayType, List<RelayDBISAR>> _recommendRelayListMap = {
     RelayType.general: [],
-    RelayType.dm: []
+    RelayType.dm: [],
+    RelayType.outbox: [],
+    RelayType.inbox: []
   };
   bool _isEditing = false;
   bool _isShowDelete = false;
@@ -102,6 +109,10 @@ class _RelaysPageState extends State<RelaysPage> {
       case RelayType.general:
         return Account.sharedInstance.getMyRecommendGeneralRelaysList();
       case RelayType.dm:
+        return Account.sharedInstance.getMyRecommendDMRelaysList();
+      case RelayType.inbox:
+        return Account.sharedInstance.getMyRecommendDMRelaysList();
+      case RelayType.outbox:
         return Account.sharedInstance.getMyRecommendDMRelaysList();
       default:
         return [];
