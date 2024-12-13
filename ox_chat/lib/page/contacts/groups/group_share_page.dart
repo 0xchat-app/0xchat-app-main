@@ -389,8 +389,8 @@ class _GroupSharePageState extends State<GroupSharePage> {
       ChatMessagePage.open(
         context: context,
         communityItem: ChatSessionModelISAR(
-          chatId: widget.groupId,
-          groupId: widget.groupId,
+          chatId: _practicalGroupId,
+          groupId: _practicalGroupId,
           chatType: ChatType.chatRelayGroup,
           chatName: widget.groupName,
         ),
@@ -421,8 +421,8 @@ class _GroupSharePageState extends State<GroupSharePage> {
       ChatMessagePage.open(
         context: context,
         communityItem: ChatSessionModelISAR(
-          chatId: widget.groupId,
-          groupId: widget.groupId,
+          chatId: _practicalGroupId,
+          groupId: _practicalGroupId,
           chatType: ChatType.chatRelayGroup,
           chatName: widget.groupName,
         ),
