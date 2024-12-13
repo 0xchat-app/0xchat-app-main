@@ -287,7 +287,7 @@ class _LoginPageState extends State<LoginPage> {
     String decodeSignature = UserDBISAR.decodePubkey(signature) ?? '';
     String currentUserPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
     await OXUserInfoManager.sharedInstance.initDB(decodeSignature);
-    UserDBISAR? userDB = await Account.sharedInstance.loginWithPubKey(decodeSignature);
+    UserDBISAR? userDB = await Account.sharedInstance.loginWithPubKey(decodeSignature, SignerApplication.androidSigner);
     userDB = await OXUserInfoManager.sharedInstance.handleSwitchFailures(userDB, currentUserPubKey);
     if (userDB == null) {
       await OXLoading.dismiss();
