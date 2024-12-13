@@ -113,7 +113,7 @@ class OXUserInfoManager {
           String decodeSignature = UserDB.decodePubkey(signature) ?? '';
           if (decodeSignature.isNotEmpty) {
             await initDB(localPubKey);
-            UserDBISAR? tempUserDB = await Account.sharedInstance.loginWithPubKey(localPubKey);
+            UserDBISAR? tempUserDB = await Account.sharedInstance.loginWithPubKey(localPubKey, SignerApplication.androidSigner);
             if (tempUserDB != null) {
               UserConfigTool.compatibleOld(tempUserDB);
               currentUserInfo = tempUserDB;
