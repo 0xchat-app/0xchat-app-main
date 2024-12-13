@@ -34,6 +34,7 @@ target 'Runner' do
   target 'RunnerTests' do
     inherit! :search_paths
   end
+  pod 'FMDB/SQLCipher', '2.7.10'
 end
 
 post_install do |installer|
