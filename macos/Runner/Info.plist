@@ -33,5 +33,7 @@
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+    <key>LSApplicationCategoryType</key>
+    <string>public.app-category.social-networking</string>
 </dict>
 </plist>
