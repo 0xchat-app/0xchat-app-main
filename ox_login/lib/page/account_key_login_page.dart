@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ox_common/log_util.dart';
+
 // common
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -11,10 +12,12 @@ import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/utils/app_relay_hint_dialog.dart';
+
 // component
 import '../component/common_input.dart';
 import '../component/input_wrap.dart';
 import '../component/lose_focus_wrap.dart';
+
 // plugin
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:chatcore/chat-core.dart';
@@ -32,7 +35,8 @@ class AccountKeyLoginPage extends StatefulWidget {
 }
 
 class _AccountKeyLoginPageState extends State<AccountKeyLoginPage> {
-  TextEditingController _accountKeyEditingController = new TextEditingController();
+  TextEditingController _accountKeyEditingController =
+      new TextEditingController();
   bool _isShowLoginBtn = false;
   String _accountKeyInput = '';
 
@@ -67,13 +71,30 @@ class _AccountKeyLoginPageState extends State<AccountKeyLoginPage> {
             hintText: 'nsec...',
             textController: _accountKeyEditingController,
             maxLines: null,
+            inputAction: TextInputAction.done,
+            onSubmitted: (value) {
+              _checkAccountKey();
+              if (_accountKeyInput.isNotEmpty) {
+                _nescLogin();
+              }
+            },
+          ),
+        ),
+        Visibility(
+          visible: !_isShowLoginBtn && _accountKeyEditingController.text.length >= 63,
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              Localized.text('ox_login.str_nesc_invalid_hint'),
+              style: TextStyle(color: ThemeColor.red, fontSize: 12.sp),
+            ),
           ),
         ),
         Visibility(
           visible: _isShowLoginBtn,
           child: GestureDetector(
             behavior: HitTestBehavior.translucent,
-            onTap: _login,
+            onTap: _nescLogin,
             child: Container(
               width: double.infinity,
               height: Adapt.px(48),
@@ -133,23 +154,21 @@ class _AccountKeyLoginPageState extends State<AccountKeyLoginPage> {
 
   void _checkAccountKey() {
     String textContent = _accountKeyEditingController.text;
-    if (textContent.length == 63) {
+    if (textContent.trim().length >= 63) {
       final String? decodeResult = UserDBISAR.decodePrivkey(textContent);
-      if (decodeResult == null || decodeResult.isEmpty) return;
-      setState(() {
+      if (decodeResult == null || decodeResult.isEmpty) {
+        _isShowLoginBtn = false;
+      } else {
         _accountKeyInput = decodeResult;
         _isShowLoginBtn = true;
-      });
-      return;
-    }
-
-    if (!_isShowLoginBtn) return;
-    setState(() {
+      }
+    } else {
       _isShowLoginBtn = false;
-    });
+    }
+    setState(() {});
   }
 
-  void _login() async {
+  void _nescLogin() async {
     await OXLoading.show();
     String pubkey = Account.getPublicKey(_accountKeyInput);
     String currentUserPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';

@@ -29,5 +29,6 @@
   "enter_account_key_login_hint": "输入您的私钥登录：",
   "private_key_regular_failed": "私钥规则检验失败",
   "pub_key_regular_failed": "公钥规则检验失败",
-  "str_not_installed_amber": "您尚未安装Amber"
+  "str_not_installed_amber": "您尚未安装Amber",
+  "str_nesc_invalid_hint": "您输入的NSEC无效，请重新输入"
 }
