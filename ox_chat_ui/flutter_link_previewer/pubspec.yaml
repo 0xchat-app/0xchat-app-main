@@ -26,7 +26,6 @@ dependencies:
     path: ../../../base_framework/ox_common
 
 dev_dependencies:
-  dart_code_metrics: ^5.7.6
   flutter_lints: ^2.0.1
   flutter_test:
     sdk: flutter
