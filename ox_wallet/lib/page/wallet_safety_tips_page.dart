@@ -76,8 +76,6 @@ class WalletSafetyTipsPageState extends State<WalletSafetyTipsPage> {
               EdgeInsets.only(
                 top: 18.px,
                 bottom: 18.px,
-                left: 40.px,
-                right: 20.px,
               ),
             ),
           )

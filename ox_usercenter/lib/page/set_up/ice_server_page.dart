@@ -63,9 +63,6 @@ class _ICEServerPageState extends State<ICEServerPage> {
         actions: [
           //icon_edit.png
           Container(
-            margin: EdgeInsets.only(
-              right: Adapt.px(14),
-            ),
             color: Colors.transparent,
             child: OXButton(
               highlightColor: Colors.transparent,
@@ -194,11 +191,11 @@ class _ICEServerPageState extends State<ICEServerPage> {
         color: ThemeColor.color180,
       ),
       alignment: Alignment.center,
+      padding: EdgeInsets.symmetric(horizontal: 16.px),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Container(
-            margin: EdgeInsets.only(left: Adapt.px(16)),
             width: Adapt.px(24),
             height: Adapt.px(24),
             child: CommonImage(

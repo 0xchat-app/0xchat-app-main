@@ -106,7 +106,7 @@ class _ChatRelayGroupMsgPageState extends State<ChatRelayGroupMsgPage> with OXCh
               setState(() { });
             },
           ),
-        ).setPadding(EdgeInsets.only(right: Adapt.px(24))),
+        ),
       ],
     );
   }

@@ -113,24 +113,20 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
             },
           ),
           actions: [
-            Container(
-              margin: EdgeInsets.only(right: Adapt.px(5), top: Adapt.px(12)),
+            OXButton(
+              highlightColor: Colors.transparent,
               color: Colors.transparent,
-              child: OXButton(
-                highlightColor: Colors.transparent,
-                color: Colors.transparent,
-                minWidth: Adapt.px(44),
-                height: Adapt.px(44),
-                child: CommonImage(
-                  iconName: "icon_done.png",
-                  width: Adapt.px(24),
-                  height: Adapt.px(24),
-                  useTheme: true,
-                ),
-                onPressed: () {
-                  _editProfile();
-                },
+              minWidth: Adapt.px(44),
+              height: Adapt.px(44),
+              child: CommonImage(
+                iconName: "icon_done.png",
+                width: Adapt.px(24),
+                height: Adapt.px(24),
+                useTheme: true,
               ),
+              onPressed: () {
+                _editProfile();
+              },
             ),
           ],
         ),

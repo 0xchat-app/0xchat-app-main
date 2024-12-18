@@ -135,29 +135,23 @@ class _RelaysPageState extends State<RelaysPage> {
         titleTextColor: ThemeColor.color0,
         actions: [
           //icon_edit.png
-          Container(
-            margin: EdgeInsets.only(
-              right: Adapt.px(14),
-            ),
+          OXButton(
+            highlightColor: Colors.transparent,
             color: Colors.transparent,
-            child: OXButton(
-              highlightColor: Colors.transparent,
-              color: Colors.transparent,
-              minWidth: Adapt.px(44),
-              height: Adapt.px(44),
-              child: CommonImage(
-                iconName: _isEditing ? 'icon_done.png' : 'icon_edit.png',
-                width: Adapt.px(24),
-                height: Adapt.px(24),
-                useTheme: true,
-              ),
-              onPressed: () {
-                setState(() {
-                  _isEditing = !_isEditing;
-                });
-              },
+            minWidth: Adapt.px(44),
+            height: Adapt.px(44),
+            child: CommonImage(
+              iconName: _isEditing ? 'icon_done.png' : 'icon_edit.png',
+              width: Adapt.px(24),
+              height: Adapt.px(24),
+              useTheme: true,
             ),
-          )
+            onPressed: () {
+              setState(() {
+                _isEditing = !_isEditing;
+              });
+            },
+          ),
         ],
       ),
       backgroundColor: ThemeColor.color190,
@@ -404,12 +398,12 @@ class _RelaysPageState extends State<RelaysPage> {
         color: ThemeColor.color180,
       ),
       alignment: Alignment.center,
+      padding: EdgeInsets.symmetric(horizontal: 16.px),
       child: IntrinsicHeight(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Container(
-              margin: EdgeInsets.only(left: Adapt.px(16)),
               width: Adapt.px(24),
               height: Adapt.px(24),
               child: CommonImage(

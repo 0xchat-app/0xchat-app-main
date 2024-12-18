@@ -14,7 +14,7 @@ extension ChatSessionListPageUI on ChatSessionListPageState{
       elevation: 0,
       titleSpacing: 0.0,
       title: Container(
-        margin: EdgeInsets.only(left: Adapt.px(24)),
+        margin: EdgeInsets.symmetric(horizontal: 24.px),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -53,7 +53,7 @@ extension ChatSessionListPageUI on ChatSessionListPageState{
               size: 24.px,
               color: ThemeColor.color100,
               package: 'ox_chat',
-            ).setPaddingOnly(right: 16.px),
+            ),
             onTap: () {
               if (_isLogin) {
                 OXModuleService.pushPage(
@@ -68,6 +68,7 @@ extension ChatSessionListPageUI on ChatSessionListPageState{
             },
           ),
         ),
+        SizedBox(width: 16.px),
         GestureDetector(
           behavior: HitTestBehavior.translucent,
           child: CommonImage(
@@ -555,6 +556,7 @@ extension ChatSessionListPageUI on ChatSessionListPageState{
           horizontal: Adapt.px(24),
           vertical: Adapt.px(6),
         ),
+        padding: EdgeInsets.symmetric(horizontal: 16.px),
         height: Adapt.px(48),
         decoration: BoxDecoration(
           color: ThemeColor.color190,
@@ -565,14 +567,7 @@ extension ChatSessionListPageUI on ChatSessionListPageState{
           mainAxisAlignment: MainAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              margin: EdgeInsets.only(left: Adapt.px(18)),
-              child: assetIcon(
-                'icon_chat_search.png',
-                24,
-                24,
-              ),
-            ),
+            assetIcon('icon_chat_search.png', 24, 24),
             SizedBox(
               width: Adapt.px(8),
             ),
