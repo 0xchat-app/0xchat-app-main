@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:ui' as ui;
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter/widgets.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 
 /*
@@ -340,6 +342,14 @@ class Localized {
 
     static LocaleType getCurrentLanguage() {
         return localized.localeType;
+    }
+
+    static TextDirection getTextDirectionForLang() {
+        if (localized.localeType == LocaleType.ar || localized.localeType == LocaleType.fa) {
+            return TextDirection.rtl;
+        } else {
+            return TextDirection.ltr;
+        }
     }
 
     static String commonText(String key){
