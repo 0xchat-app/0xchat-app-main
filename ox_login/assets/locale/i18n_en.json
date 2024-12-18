@@ -30,5 +30,7 @@
   "private_key_regular_failed": "Private Key regular failed",
   "pub_key_regular_failed": "Pub Key regular failed",
   "str_not_installed_amber": "You have not installed Amber",
-  "str_nesc_invalid_hint": "The NSEC you entered is invalid. Please enter it again."
+  "str_nesc_invalid_hint": "The NSEC you entered is invalid. Please enter it again.",
+  "str_login_with_nip46": "Login with Nip46",
+  "str_enter_nip46_login_hint": "Enter your Nip46 link to login:"
 }

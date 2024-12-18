@@ -30,5 +30,7 @@
   "private_key_regular_failed": "私钥规则检验失败",
   "pub_key_regular_failed": "公钥规则检验失败",
   "str_not_installed_amber": "您尚未安装Amber",
-  "str_nesc_invalid_hint": "您输入的NSEC无效，请重新输入"
+  "str_nesc_invalid_hint": "您输入的NSEC无效，请重新输入",
+  "str_login_with_nip46": "使用Nip46登录",
+  "str_enter_nip46_login_hint": "输入您的Nip46链接登录："
 }

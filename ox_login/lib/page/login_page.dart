@@ -1,6 +1,8 @@
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 // ox_common
 import 'package:ox_common/log_util.dart';
@@ -11,10 +13,13 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
+import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/common_webview.dart';
 import 'package:ox_common/widgets/common_loading.dart';
+import 'package:ox_login/component/common_input.dart';
+import 'package:ox_login/component/input_wrap.dart';
 
 // ox_login
 import 'package:ox_login/page/account_key_login_page.dart';
@@ -42,7 +47,7 @@ class _LoginPageState extends State<LoginPage> {
   int groupValue = 1;
   String loginSchema = 'wc';
   String? platformUniqueKey;
-
+  TextEditingController _nip46UrlEditingController = new TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -102,7 +107,7 @@ class _LoginPageState extends State<LoginPage> {
                 textAlign: TextAlign.center,
               ),
             ),
-            SizedBox(height: Adapt.px(110)),
+            SizedBox(height: 90.px),
             Column(
               mainAxisAlignment: MainAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
@@ -221,28 +226,50 @@ class _LoginPageState extends State<LoginPage> {
                     onTap: _loginWithAmber,
                     child: Container(
                       width: double.infinity,
-                      height: Adapt.px(48),
-                      margin: EdgeInsets.only(top: 40.px),
+                      height: 70.px,
+                      margin: EdgeInsets.only(top: 20.px),
                       child: Stack(
-                        alignment: Alignment.center,
                         children: [
-                          Container(width: double.infinity, height: 0.5.px, color: ThemeColor.color160),
-                          CommonImage(iconName: 'icon_login_amber.png', width: 48.px, height: 48.px, package: 'ox_login'),
+                          Positioned(top: 24.px, left: 0, right: 0, child: Container(width: double.infinity, height: 0.5.px, color: ThemeColor.color160)),
+                          Align(alignment: Alignment.topCenter, child: CommonImage(iconName: 'icon_login_amber.png', width: 48.px, height: 48.px, package: 'ox_login')),
+                          Align(
+                              alignment: Alignment.bottomCenter,
+                              child: Text(
+                                Localized.text('ox_login.login_with_amber'),
+                                style: TextStyle(
+                                    color: ThemeColor.color120,
+                                    fontSize: Adapt.px(12)
+                                ),
+                              )
+                          ),
                         ],
                       ),
                     ),
                   ),
                 ),
-                Visibility(
-                  visible: Platform.isAndroid,
+                GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: _loginWithNip46Dialog,
                   child: Container(
-                    margin: EdgeInsets.only(top: 4.px),
-                    child: Text(
-                      Localized.text('ox_login.login_with_amber'),
-                      style: TextStyle(
-                        color: ThemeColor.color120,
-                        fontSize: Adapt.px(12),
-                      ),
+                    width: double.infinity,
+                    height: 70.px,
+                    margin: EdgeInsets.only(top: 12.px),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Positioned(top: 24.px, left: 0, right: 0, child: Container(width: double.infinity, height: 0.5.px, color: ThemeColor.color160)),
+                        Align(alignment: Alignment.topCenter, child: CommonImage(iconName: 'icon_login_amber.png', width: 48.px, height: 48.px, package: 'ox_login')),
+                        Align(
+                            alignment: Alignment.bottomCenter,
+                            child: Text(
+                              Localized.text('ox_login.str_login_with_nip46'),
+                              style: TextStyle(
+                                  color: ThemeColor.color120,
+                                  fontSize: 12.px
+                              ),
+                            ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -310,5 +337,24 @@ class _LoginPageState extends State<LoginPage> {
 
   void _privacyPolicyWebView() {
     OXModuleService.invoke('ox_common', 'gotoWebView', [context, 'https://www.0xchat.com/protocols/0xchat_privacy_policy.html', null, null, null, null]);
+  }
+
+  void _loginWithNip46Dialog() {
+    OXCommonHintDialog.show(context, title: 'Please enter nip46 link', contentView:         InputWrap(
+      title: Localized.text('ox_login.str_enter_nip46_login_hint'),
+      contentWidget: CommonInput(
+        hintText: 'xxx...',
+        textController: _nip46UrlEditingController,
+        maxLines: null,
+        inputAction: TextInputAction.done,
+        onSubmitted: (value) {
+          _nip46Login();
+        },
+      ),
+    ),);
+  }
+
+  void _nip46Login() async {
+
   }
 }

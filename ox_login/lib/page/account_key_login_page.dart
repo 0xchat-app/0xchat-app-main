@@ -35,8 +35,7 @@ class AccountKeyLoginPage extends StatefulWidget {
 }
 
 class _AccountKeyLoginPageState extends State<AccountKeyLoginPage> {
-  TextEditingController _accountKeyEditingController =
-      new TextEditingController();
+  TextEditingController _accountKeyEditingController = new TextEditingController();
   bool _isShowLoginBtn = false;
   String _accountKeyInput = '';
 
