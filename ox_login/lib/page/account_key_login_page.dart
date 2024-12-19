@@ -69,7 +69,7 @@ class _AccountKeyLoginPageState extends State<AccountKeyLoginPage> {
         InputWrap(
           title: Localized.text('ox_login.enter_account_key_login_hint'),
           contentWidget: CommonInput(
-            hintText: 'nsec/bunker...',
+            hintText: 'nsec...',
             textController: _accountKeyEditingController,
             maxLines: null,
             inputAction: TextInputAction.done,
