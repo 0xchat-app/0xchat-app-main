@@ -4,17 +4,22 @@ import 'dart:io';
 import 'package:cashu_dart/business/wallet/cashu_manager.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/log_util.dart';
+import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/ox_common.dart';
+import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_server_manager.dart';
 import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/utils/cashu_helper.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_moment_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
+import 'package:ox_common/widgets/common_hint_dialog.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 
 abstract mixin class OXUserInfoObserver {
@@ -156,6 +161,28 @@ class OXUserInfoManager {
   }
 
   void addChatCallBack() async {
+    Account.sharedInstance.nip46commandResultCallback = (NIP46CommandResult nip46Result) async {
+      LogUtil.e('nip46commandResultCallback: result.result =${nip46Result.result}; result.error =${nip46Result.error}; ');
+      OXCommonHintDialog.show(
+        OXNavigator.navigatorKey.currentContext!,
+        contentView: Text(
+          nip46Result.result.toString(),
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 12.px,
+          ),
+        ),
+        actionList: [
+          OXCommonHintAction(
+              text: () => Localized.text('ox_common.ok'),
+              onTap: () {
+                //TODO
+              },
+            ),
+          ],
+        showCancelButton: true,
+      );
+    };
     Contacts.sharedInstance.secretChatRequestCallBack = (SecretSessionDBISAR ssDB) async {
       LogUtil.d("Michael: init secretChatRequestCallBack ssDB.sessionId =${ssDB.sessionId}");
       OXChatBinding.sharedInstance.secretChatRequestCallBack(ssDB);
