@@ -490,7 +490,7 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
     final tokenList = EcashV2MessageEx(message).tokenList;
     final signatureTokenList = <String>[];
     for (var token in tokenList) {
-      final newToken = await EcashHelper.addSignatureToToken(token);
+      final newToken = await EcashHelper.addP2PKSignatureToToken(token);
       if (newToken.isEmpty) {
         CommonToast.instance.show(context, 'Signature failure');
         return ;
