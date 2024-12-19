@@ -21,6 +21,7 @@ import '../component/lose_focus_wrap.dart';
 // plugin
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:chatcore/chat-core.dart';
+import 'package:nostr_core_dart/nostr.dart';
 
 ///Title: account_key_login_page
 ///Description: TODO(Fill in by oneself)
@@ -60,6 +61,7 @@ class _AccountKeyLoginPageState extends State<AccountKeyLoginPage> {
   }
 
   Widget _body() {
+    String inputStr = _accountKeyEditingController.text;
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
@@ -67,7 +69,7 @@ class _AccountKeyLoginPageState extends State<AccountKeyLoginPage> {
         InputWrap(
           title: Localized.text('ox_login.enter_account_key_login_hint'),
           contentWidget: CommonInput(
-            hintText: 'nsec...',
+            hintText: 'nsec/bunker...',
             textController: _accountKeyEditingController,
             maxLines: null,
             inputAction: TextInputAction.done,
@@ -80,7 +82,7 @@ class _AccountKeyLoginPageState extends State<AccountKeyLoginPage> {
           ),
         ),
         Visibility(
-          visible: !_isShowLoginBtn && _accountKeyEditingController.text.length >= 63,
+          visible: !_isShowLoginBtn && inputStr.trim().startsWith('nsec') && inputStr.length >= 63,
           child: Align(
             alignment: Alignment.centerLeft,
             child: Text(
@@ -152,27 +154,40 @@ class _AccountKeyLoginPageState extends State<AccountKeyLoginPage> {
   }
 
   void _checkAccountKey() {
-    String textContent = _accountKeyEditingController.text;
-    if (textContent.trim().length >= 63) {
-      final String? decodeResult = UserDBISAR.decodePrivkey(textContent);
-      if (decodeResult == null || decodeResult.isEmpty) {
-        _isShowLoginBtn = false;
-      } else {
-        _accountKeyInput = decodeResult;
-        _isShowLoginBtn = true;
-      }
+    String textContent = _accountKeyEditingController.text.trim();
+    if (textContent.startsWith('bunker://')){
+      _isShowLoginBtn = true;
+      _accountKeyInput = textContent;
     } else {
-      _isShowLoginBtn = false;
+      if (textContent.length >= 63) {
+        final String? decodeResult = UserDBISAR.decodePrivkey(textContent);
+        if (decodeResult == null || decodeResult.isEmpty) {
+          _isShowLoginBtn = false;
+        } else {
+          _accountKeyInput = decodeResult;
+          _isShowLoginBtn = true;
+        }
+      } else {
+        _isShowLoginBtn = false;
+      }
     }
     setState(() {});
   }
 
   void _nescLogin() async {
     await OXLoading.show();
-    String pubkey = Account.getPublicKey(_accountKeyInput);
+    String pubkey = "";
+    UserDBISAR? userDB;
     String currentUserPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
-    await OXUserInfoManager.sharedInstance.initDB(pubkey);
-    UserDBISAR? userDB = await Account.sharedInstance.loginWithPriKey(_accountKeyInput);
+    if (_accountKeyInput.startsWith('bunker://')){
+      pubkey = Account.getPublicKeyWithNIP46URI(_accountKeyInput);
+      await OXUserInfoManager.sharedInstance.initDB(pubkey);
+      userDB = await Account.sharedInstance.loginWithNip46Pubkey(pubkey);
+    } else {
+      pubkey = Account.getPublicKey(_accountKeyInput);
+      await OXUserInfoManager.sharedInstance.initDB(pubkey);
+      userDB = await Account.sharedInstance.loginWithPriKey(_accountKeyInput);
+    }
     userDB = await OXUserInfoManager.sharedInstance.handleSwitchFailures(userDB, currentUserPubKey);
     if (userDB == null) {
       CommonToast.instance.show(context, Localized.text('ox_login.private_key_regular_failed'));
