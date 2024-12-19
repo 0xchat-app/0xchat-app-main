@@ -40,7 +40,7 @@ class PlatformUtils {
       win.minSize = minWindowSize;
       win.size = initialWindowSize;
       win.alignment = Alignment.center;
-      win.title = 'oxchat';
+      win.title = '0xchat';
       win.show();
     });
   }
