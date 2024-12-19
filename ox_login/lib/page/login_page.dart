@@ -66,17 +66,14 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _appBarActions() {
-    return Container(
-      margin: EdgeInsets.only(right: Adapt.px(24)),
-      child: GestureDetector(
-        onTap: () => OXNavigator.pop(context),
-        child: CommonImage(
-          iconName: 'close_icon_white.png',
-          fit: BoxFit.contain,
-          width: Adapt.px(24),
-          height: Adapt.px(24),
-          useTheme: true,
-        ),
+    return GestureDetector(
+      onTap: () => OXNavigator.pop(context),
+      child: CommonImage(
+        iconName: 'close_icon_white.png',
+        fit: BoxFit.contain,
+        width: Adapt.px(24),
+        height: Adapt.px(24),
+        useTheme: true,
       ),
     );
   }
@@ -227,7 +224,7 @@ class _LoginPageState extends State<LoginPage> {
                     child: Container(
                       width: double.infinity,
                       height: 70.px,
-                      margin: EdgeInsets.only(top: 20.px),
+                      margin: EdgeInsets.only(top: 40.px),
                       child: Stack(
                         children: [
                           Positioned(top: 24.px, left: 0, right: 0, child: Container(width: double.infinity, height: 0.5.px, color: ThemeColor.color160)),
@@ -244,32 +241,6 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ],
                       ),
-                    ),
-                  ),
-                ),
-                GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  onTap: _loginWithNip46Dialog,
-                  child: Container(
-                    width: double.infinity,
-                    height: 70.px,
-                    margin: EdgeInsets.only(top: 12.px),
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Positioned(top: 24.px, left: 0, right: 0, child: Container(width: double.infinity, height: 0.5.px, color: ThemeColor.color160)),
-                        Align(alignment: Alignment.topCenter, child: CommonImage(iconName: 'icon_login_amber.png', width: 48.px, height: 48.px, package: 'ox_login')),
-                        Align(
-                            alignment: Alignment.bottomCenter,
-                            child: Text(
-                              Localized.text('ox_login.str_login_with_nip46'),
-                              style: TextStyle(
-                                  color: ThemeColor.color120,
-                                  fontSize: 12.px
-                              ),
-                            ),
-                        ),
-                      ],
                     ),
                   ),
                 ),
@@ -311,14 +282,17 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
     await OXLoading.show();
-    String decodeSignature = UserDBISAR.decodePubkey(signature) ?? '';
+    String decodeSignature = signature;
+    if (signature.startsWith('npub')) {
+      decodeSignature = UserDBISAR.decodePubkey(signature) ?? '';
+    }
     String currentUserPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
     await OXUserInfoManager.sharedInstance.initDB(decodeSignature);
     UserDBISAR? userDB = await Account.sharedInstance.loginWithPubKey(decodeSignature, SignerApplication.androidSigner);
     userDB = await OXUserInfoManager.sharedInstance.handleSwitchFailures(userDB, currentUserPubKey);
     if (userDB == null) {
       await OXLoading.dismiss();
-      CommonToast.instance.show(context, Localized.text('ox_common.pub_key_regular_failed'));
+      CommonToast.instance.show(context, Localized.text('ox_login.pub_key_regular_failed'));
       return;
     }
     Account.sharedInstance.reloadProfileFromRelay(userDB.pubKey).then((value) {
@@ -337,24 +311,5 @@ class _LoginPageState extends State<LoginPage> {
 
   void _privacyPolicyWebView() {
     OXModuleService.invoke('ox_common', 'gotoWebView', [context, 'https://www.0xchat.com/protocols/0xchat_privacy_policy.html', null, null, null, null]);
-  }
-
-  void _loginWithNip46Dialog() {
-    OXCommonHintDialog.show(context, title: 'Please enter nip46 link', contentView:         InputWrap(
-      title: Localized.text('ox_login.str_enter_nip46_login_hint'),
-      contentWidget: CommonInput(
-        hintText: 'xxx...',
-        textController: _nip46UrlEditingController,
-        maxLines: null,
-        inputAction: TextInputAction.done,
-        onSubmitted: (value) {
-          _nip46Login();
-        },
-      ),
-    ),);
-  }
-
-  void _nip46Login() async {
-
   }
 }
