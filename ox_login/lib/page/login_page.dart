@@ -161,57 +161,47 @@ class _LoginPageState extends State<LoginPage> {
                 SizedBox(height: Adapt.px(18)),
                 Container(
                   width: double.infinity,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      SizedBox(width: Adapt.px(8)),
-                      Container(
-                        width: Adapt.screenW - Adapt.px(20 + 8 * 2 + 30 * 2),
-                        child: RichTextWidget(
-                          // default Text
-                          Text(
-                            Localized.text('ox_login.terms_of_service_privacy_policy'),
-                            style: TextStyle(
-                              fontWeight: FontWeight.w500,
-                              fontSize: Adapt.px(14),
-                              color: ThemeColor.titleColor,
-                              height: 1.5,
+                  margin: EdgeInsets.symmetric(horizontal: 24.px),
+                  child: RichTextWidget(
+                    // default Text
+                    Text(
+                      Localized.text('ox_login.terms_of_service_privacy_policy'),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        fontSize: Adapt.px(14),
+                        color: ThemeColor.titleColor,
+                        height: 1.5,
+                      ),
+                    ),
+                    maxLines: 2,
+                    textAlign: TextAlign.center,
+                    // rich text list
+                    richTexts: [
+                      BaseRichText(
+                        Localized.text("ox_login.terms_of_service"),
+                        style: TextStyle(
+                          fontSize: Adapt.px(14),
+                          foreground: Paint()
+                            ..shader = LinearGradient(
+                              colors: [ThemeColor.gradientMainEnd, ThemeColor.gradientMainStart],
+                            ).createShader(
+                              Rect.fromLTWH(0.0, 0.0, 550.0, 70.0),
                             ),
-                          ),
-                          maxLines: 2,
-                          textAlign: TextAlign.center,
-                          // rich text list
-                          richTexts: [
-                            BaseRichText(
-                              Localized.text("ox_login.terms_of_service"),
-                              style: TextStyle(
-                                fontSize: Adapt.px(14),
-                                foreground: Paint()
-                                  ..shader = LinearGradient(
-                                    colors: [ThemeColor.gradientMainEnd, ThemeColor.gradientMainStart],
-                                  ).createShader(
-                                    Rect.fromLTWH(0.0, 0.0, 550.0, 70.0),
-                                  ),
-                              ),
-                              onTap: _serviceWebView,
-                            ),
-                            BaseRichText(
-                              Localized.text("ox_login.privacy_policy"),
-                              style: TextStyle(
-                                fontSize: Adapt.px(14),
-                                foreground: Paint()
-                                  ..shader = LinearGradient(
-                                    colors: [ThemeColor.gradientMainEnd, ThemeColor.gradientMainStart],
-                                  ).createShader(
-                                    Rect.fromLTWH(0.0, 0.0, 350.0, 70.0),
-                                  ),
-                              ),
-                              onTap: _privacyPolicyWebView,
-                            ),
-                          ],
                         ),
+                        onTap: _serviceWebView,
+                      ),
+                      BaseRichText(
+                        Localized.text("ox_login.privacy_policy"),
+                        style: TextStyle(
+                          fontSize: Adapt.px(14),
+                          foreground: Paint()
+                            ..shader = LinearGradient(
+                              colors: [ThemeColor.gradientMainEnd, ThemeColor.gradientMainStart],
+                            ).createShader(
+                              Rect.fromLTWH(0.0, 0.0, 350.0, 70.0),
+                            ),
+                        ),
+                        onTap: _privacyPolicyWebView,
                       ),
                     ],
                   ),
