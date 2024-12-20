@@ -286,6 +286,7 @@ extension UserCenterPageUI on UserCenterPageState{
                   ),
                   SizedBox(height: Adapt.px(24)),
                   const SettingsPage(),
+                  if (Platform.isMacOS) _buildDeleteButton(),
                   // SizedBox(height: Adapt.px(24)),
                   // Container(
                   //   width: double.infinity,
@@ -588,5 +589,18 @@ extension UserCenterPageUI on UserCenterPageState{
         isRowAction: true,
       );
     }
+  }
+
+  Widget _buildDeleteButton() {
+    return ThemeButton(
+      onTap: _deleteAccountHandler,
+      text: Localized.text('ox_usercenter.delete_account'),
+      height: 48.px,
+      textStyle: TextStyle(color: ThemeColor.red1),
+      gradientBg: LinearGradient(colors: [
+        ThemeColor.color180,
+        ThemeColor.color180,
+      ]),
+    ).setPaddingOnly(top: 24.px);
   }
 }

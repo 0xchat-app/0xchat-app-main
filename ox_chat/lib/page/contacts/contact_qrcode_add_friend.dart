@@ -1,4 +1,5 @@
 
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
@@ -128,6 +129,7 @@ class _CommunityQrcodeAddFriendState extends BasePageState<CommunityQrcodeAddFri
       //   ),
       child: Row(
         children: [
+          if(!Platform.isMacOS)
           Expanded(
             child: GestureDetector(
               child: Container(
