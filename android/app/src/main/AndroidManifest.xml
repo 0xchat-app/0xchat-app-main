@@ -45,6 +45,22 @@
         </intent>
     </queries>
 
+    <supports-screens
+        android:smallScreens="true"
+        android:normalScreens="true"
+        android:largeScreens="true"
+        android:xlargeScreens="true"
+        android:resizeable="true"
+        android:anyDensity="true" />
+
+    <uses-feature
+        android:name="android.hardware.screen.portrait"
+        android:required="false" />
+
+    <uses-feature
+        android:name="android.hardware.screen.landscape"
+        android:required="false" />
+
     <application
         android:name=".OXApplication"
         android:allowBackup="false"
@@ -54,6 +70,7 @@
         android:theme="@style/LaunchTheme_night"
         android:usesCleartextTraffic="true"
         android:hardwareAccelerated="true"
+        android:resizeableActivity="true"
         android:largeHeap="true"
         tools:replace="android:label, android:allowBackup, android:theme">
         <meta-data
@@ -62,11 +79,11 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:launchMode="singleTop"
-            android:screenOrientation="portrait"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">
             <!-- Specifies an Android theme to apply to this Activity as soon as
@@ -115,7 +132,6 @@
             android:name=".MultiEngineActivity"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
-            android:screenOrientation="portrait"
             android:theme="@style/transparentTheme"
             android:windowSoftInputMode="adjustResize">
             <!--<meta-data

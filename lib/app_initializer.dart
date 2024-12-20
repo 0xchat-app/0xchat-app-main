@@ -50,7 +50,8 @@ class AppInitializer {
         await _setupModules();
         await OXUserInfoManager.sharedInstance.initLocalData();
         SystemChrome.setPreferredOrientations(
-            [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+            [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown,
+              DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
         SystemChrome.setSystemUIOverlayStyle(ThemeManager.getCurrentThemeStyle().toOverlayStyle());
         ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
         double fontSize = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.APP_FONT_SIZE, defaultValue: 1.0);
