@@ -175,7 +175,7 @@ class _ChatListState extends State<ChatList>
                     ),
               ),
             ),
-            buildHeaderListView(),
+            buildStagingListView(),
             buildBodyListView(),
             SliverPadding(
               padding: EdgeInsets.only(
@@ -214,7 +214,15 @@ class _ChatListState extends State<ChatList>
         ),
       );
 
-  Widget buildHeaderListView() =>
+  /// A widget that serves as a staging area for header items in the list view.
+  ///
+  /// This widget is used to temporarily render header items in an invisible
+  /// `ListView` to calculate their total height. Once the height is determined,
+  /// the header items are inserted into the body list view.
+  ///
+  /// This widget is essential for dynamically adding header items while ensuring
+  /// proper layout alignment in the body list view.
+  Widget buildStagingListView() =>
       SliverVisibility(
         visible: false,
         maintainState: true,
@@ -230,6 +238,7 @@ class _ChatListState extends State<ChatList>
             child: SizeChangedLayoutNotifier(
               child: ListView.builder(
                 padding: EdgeInsets.zero,
+                physics: NeverScrollableScrollPhysics(),
                 key: headerWidgetKey,
                 shrinkWrap: true,
                 reverse: true,
