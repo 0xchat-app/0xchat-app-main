@@ -47,7 +47,8 @@ class Adapt {
   }
 
   static double px(number) {
-    if(PlatformUtils.isDesktop) {
+    final orientation = MediaQuery.of(OXNavigator.navigatorKey.currentContext!).orientation;
+    if(PlatformUtils.isDesktop || (Platform.isAndroid && orientation == Orientation.landscape)) {
       return double.tryParse(number.toString()) ?? 0.0;
     }
     if (!(_ratioW is double || _ratioW is int)) {
