@@ -11,16 +11,13 @@ import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/ox_common.dart';
-import 'package:ox_common/utils/adapt.dart';
-import 'package:ox_common/utils/nip46_callback_dialog_manager.dart';
-import 'package:ox_common/utils/ox_server_manager.dart';
-import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/utils/cashu_helper.dart';
+import 'package:ox_common/utils/nip46_callback_dialog_manager.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_moment_manager.dart';
+import 'package:ox_common/utils/ox_server_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
-import 'package:ox_common/widgets/common_hint_dialog.dart';
-import 'package:ox_localizable/ox_localizable.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 
 abstract mixin class OXUserInfoObserver {
@@ -163,8 +160,7 @@ class OXUserInfoManager {
 
   void addCallBackBeforeLogin() {
     Account.sharedInstance.nip46commandResultCallback = (NIP46CommandResult nip46Result) async {
-      LogUtil.e('nip46commandResultCallback: result.result =${nip46Result.result}; result.error =${nip46Result.error}; ');
-      Nip46CallbackDialogManager.showDialogWithId(context: OXNavigator.navigatorKey.currentContext!, id: nip46Result.id, content: nip46Result.result.toString());
+      Nip46CallbackDialogManager.showDialogWithId(context: OXNavigator.navigatorKey.currentContext!, nip46Result: nip46Result);
     };
   }
 
