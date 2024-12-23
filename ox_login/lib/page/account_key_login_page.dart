@@ -180,7 +180,7 @@ class _AccountKeyLoginPageState extends State<AccountKeyLoginPage> {
     UserDBISAR? userDB;
     String currentUserPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
     if (_accountKeyInput.startsWith('bunker://')){
-      pubkey = Account.getPublicKeyWithNIP46URI(_accountKeyInput);
+      pubkey = await Account.getPublicKeyWithNIP46URI(_accountKeyInput);
       await OXUserInfoManager.sharedInstance.initDB(pubkey);
       OXUserInfoManager.sharedInstance.addCallBackBeforeLogin();
       userDB = await Account.sharedInstance.loginWithNip46URI(_accountKeyInput);
