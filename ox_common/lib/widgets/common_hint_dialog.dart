@@ -406,6 +406,7 @@ class OXCommonHintDialog extends StatelessWidget {
     RouteTransitionsBuilder? transitionBuilder,
     AssetImage? bgImage,
     bool isRowAction = false,
+    Function(BuildContext)? onDialogContextCreated,
   }) {
     actionList ??= [
       OXCommonHintAction.sure(

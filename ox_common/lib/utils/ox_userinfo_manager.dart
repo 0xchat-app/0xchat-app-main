@@ -12,6 +12,7 @@ import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/nip46_callback_dialog_manager.dart';
 import 'package:ox_common/utils/ox_server_manager.dart';
 import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/utils/cashu_helper.dart';
@@ -160,29 +161,14 @@ class OXUserInfoManager {
     }
   }
 
-  void addChatCallBack() async {
+  void addCallBackBeforeLogin() {
     Account.sharedInstance.nip46commandResultCallback = (NIP46CommandResult nip46Result) async {
       LogUtil.e('nip46commandResultCallback: result.result =${nip46Result.result}; result.error =${nip46Result.error}; ');
-      OXCommonHintDialog.show(
-        OXNavigator.navigatorKey.currentContext!,
-        contentView: Text(
-          nip46Result.result.toString(),
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 12.px,
-          ),
-        ),
-        actionList: [
-          OXCommonHintAction(
-              text: () => Localized.text('ox_common.ok'),
-              onTap: () {
-                //TODO
-              },
-            ),
-          ],
-        showCancelButton: true,
-      );
+      Nip46CallbackDialogManager.showDialogWithId(context: OXNavigator.navigatorKey.currentContext!, id: nip46Result.id, content: nip46Result.result.toString());
     };
+  }
+
+  void addChatCallBack() {
     Contacts.sharedInstance.secretChatRequestCallBack = (SecretSessionDBISAR ssDB) async {
       LogUtil.d("Michael: init secretChatRequestCallBack ssDB.sessionId =${ssDB.sessionId}");
       OXChatBinding.sharedInstance.secretChatRequestCallBack(ssDB);
