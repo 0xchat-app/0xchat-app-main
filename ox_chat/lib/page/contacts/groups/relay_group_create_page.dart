@@ -70,7 +70,6 @@ class _RelayGroupCreatePageState extends State<RelayGroupCreatePage> {
           GestureDetector(
             child: Container(
               alignment: Alignment.center,
-              margin: EdgeInsets.only(right: 24.px),
               child: ShaderMask(
                   shaderCallback: (Rect bounds) {
                     return LinearGradient(
