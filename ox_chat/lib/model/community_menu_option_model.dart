@@ -100,7 +100,7 @@ class CommunityMenuOptionModel {
   }
 
   static void _createGroup(BuildContext context, GroupType groupType) {
-    final height = MediaQuery.of(OXNavigator.navigatorKey.currentState!.context).size.height - MediaQuery.of(OXNavigator.navigatorKey.currentState!.context).padding.top;
+    final height = MediaQuery.of(OXNavigator.navigatorKey.currentContext!).size.height - MediaQuery.of(OXNavigator.navigatorKey.currentContext!).padding.top;
     List<UserDBISAR> userList = Contacts.sharedInstance.allContacts.values.toList();
     switch(groupType){
       case GroupType.channel:
@@ -108,7 +108,7 @@ class CommunityMenuOptionModel {
         break;
       case GroupType.privateGroup:
         showModalBottomSheet(
-          context: OXNavigator.navigatorKey.currentState!.context,
+          context: OXNavigator.navigatorKey.currentContext!,
           isScrollControlled: true,
           backgroundColor: Colors.transparent,
           builder: (BuildContext context) =>
@@ -125,7 +125,7 @@ class CommunityMenuOptionModel {
         break;
       case GroupType.openGroup:
       case GroupType.closeGroup:
-        OXNavigator.pushPage(OXNavigator.navigatorKey.currentState!.context, (context) => RelayGroupCreatePage(groupType: groupType));
+        OXNavigator.pushPage(OXNavigator.navigatorKey.currentContext!, (context) => RelayGroupCreatePage(groupType: groupType));
         break;
     }
   }
