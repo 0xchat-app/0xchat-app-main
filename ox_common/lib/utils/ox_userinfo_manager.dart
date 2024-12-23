@@ -412,6 +412,7 @@ class OXUserInfoManager {
     _initFeedback();
     await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageSettingKey.KEY_CHAT_RUN_STATUS.name, true);
     OXServerManager.sharedInstance.loadConnectICEServer();
+    OXUserInfoManager.sharedInstance.addCallBackBeforeLogin();
     addChatCallBack();
     initDataActions.forEach((fn) {
       fn();
