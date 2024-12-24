@@ -88,6 +88,7 @@ class OXUserInfoManager {
     else{
       await DBISAR.sharedInstance.open(pubkey);
     }
+    Account.sharedInstance.init();
     {
       final cashuDBPwd = await CashuHelper.getDBPassword(pubkey);
       CashuManager.shared.setup(pubkey, dbPassword: cashuDBPwd, defaultMint: []);
