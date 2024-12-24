@@ -74,7 +74,6 @@ class OXUserInfoManager {
   Future initDB(String pubkey) async {
     if(pubkey.isEmpty) return;
     await logout(needObserver: false);
-    await ThreadPoolManager.sharedInstance.initialize();
     String dbpath = pubkey + ".db2";
     bool exists = await DB.sharedInstance.databaseExists(dbpath);
     if (exists) {

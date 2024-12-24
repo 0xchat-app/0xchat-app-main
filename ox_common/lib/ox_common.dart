@@ -46,6 +46,7 @@ class OXCommon extends OXFlutterModule {
   @override
   Future<void> setup() async {
     await super.setup();
+    await ThreadPoolManager.sharedInstance.initialize();
     PromptToneManager.sharedInstance.setup();
     OXUserInfoManager.sharedInstance.initDataActions.add(() async {
       PromptToneManager.sharedInstance.initSoundTheme();
