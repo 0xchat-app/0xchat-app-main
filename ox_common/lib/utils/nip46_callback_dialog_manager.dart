@@ -25,9 +25,10 @@ class Nip46CallbackDialogManager {
       }
       return; //Don't create when ID exist
     }
+    String command = nip46Result.command == null ? '' : ' ${nip46Result.command.toString()}';
     await OXCommonHintDialog.show(
       context,
-      title: 'Please waiting for authorization',
+      title: 'Please waiting for${command} authorization',
       contentView: Text(
         nip46Result.result.toString(),
         style: TextStyle(
