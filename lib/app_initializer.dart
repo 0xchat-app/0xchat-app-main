@@ -26,6 +26,7 @@ import 'package:ox_usercenter/ox_usercenter.dart';
 import 'package:ox_wallet/ox_wallet.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_socks_proxy/socks_proxy.dart';
+import 'package:dart_ping_ios/dart_ping_ios.dart';
 
 import 'main.reflectable.dart';
 
@@ -53,6 +54,7 @@ class AppInitializer {
         ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
         double fontSize = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.APP_FONT_SIZE, defaultValue: 1.0);
         textScaleFactorNotifier.value = fontSize;
+        DartPingIOS.register();
         FlutterError.onError = (FlutterErrorDetails details) async {
           bool openDevLog = UserConfigTool.getSetting(StorageSettingKey.KEY_OPEN_DEV_LOG.name,
               defaultValue: false);
