@@ -128,7 +128,6 @@ class _LoginWithQRCodeDialogState extends BasePageState<LoginWithQRCodeDialog> {
   }
 
   Widget _qrCodeWidget() {
-    print('Jeff : _loginQRCodeUrl = ${_loginQRCodeUrl}...');
     return PrettyQr(
       size: Adapt.px(240),
       data: _loginQRCodeUrl,

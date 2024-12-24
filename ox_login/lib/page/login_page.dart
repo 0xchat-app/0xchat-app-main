@@ -332,7 +332,6 @@ class _LoginPageState extends State<LoginPage> {
         context: context,
         barrierDismissible: true,
         builder: (BuildContext context) {
-          LogUtil.e('Michael:---builder---qrCodeContext = ${qrCodeContext}}');
           qrCodeContext = context;
           return LoginWithQRCodeDialog(loginQRCodeUrl: nostrUrl);
         });
@@ -344,8 +343,9 @@ class _LoginPageState extends State<LoginPage> {
     OXUserInfoManager.sharedInstance.addCallBackBeforeLogin();
     userDB = await Account.sharedInstance.loginWithNip46URI(nostrUrl);
     userDB = await OXUserInfoManager.sharedInstance.handleSwitchFailures(userDB, currentUserPubKey);
-    LogUtil.e('Michael:---qrCodeContext--pop = ${qrCodeContext}}');
-    OXNavigator.pop(qrCodeContext);
+    if (qrCodeContext != null) {
+      Navigator.pop(qrCodeContext!);
+    }
     if (userDB == null) {
       CommonToast.instance.show(context, Localized.text('ox_login.private_key_regular_failed'));
       return;
