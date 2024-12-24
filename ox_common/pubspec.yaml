@@ -36,6 +36,7 @@ dependencies:
   flutter_zxing: ^1.4.1
   pretty_qr_code: ^2.0.2
   dart_ping: ^6.0.0
+  dart_ping_ios: ^1.1.0
   lpinyin: ^2.0.0
   flutter_sticky_header: ^0.6.0
   syncfusion_flutter_core: '>=20.4.51 <20.4.52'
