@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ox_common/mixin/common_navigator_observer_mixin.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/platform_utils.dart';
@@ -12,6 +13,7 @@ import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:ox_usercenter/page/set_up/relay_detail_page.dart';
+import 'package:ox_usercenter/widget/ping_delay_time_widget.dart';
 import 'package:ox_usercenter/widget/relay_recommend_widget.dart';
 import 'package:ox_usercenter/widget/relay_selectable_tab_bar.dart';
 
@@ -29,7 +31,7 @@ class RelaysPage extends StatefulWidget {
   }
 }
 
-class _RelaysPageState extends State<RelaysPage> {
+class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, NavigatorObserverMixin {
   final TextEditingController _relayTextFieldControll = TextEditingController();
   final Map<RelayType, List<RelayDBISAR>> _relayListMap = {
     RelayType.general: [],
@@ -46,10 +48,12 @@ class _RelaysPageState extends State<RelaysPage> {
   bool _isEditing = false;
   bool _isShowDelete = false;
   RelayType _relayType = RelayType.general;
+  final PingLifecycleController _pingLifecycleController = PingLifecycleController();
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _initDefault();
     Connect.sharedInstance.addConnectStatusListener((relay, status, relayKinds) {
       didRelayStatusChange(relay, status);
@@ -66,6 +70,8 @@ class _RelaysPageState extends State<RelaysPage> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _pingLifecycleController.isPaused.dispose();
     super.dispose();
   }
 
@@ -306,6 +312,7 @@ class _RelaysPageState extends State<RelaysPage> {
   Widget _itemBuild(BuildContext context, int index) {
     List<RelayDBISAR> relayList = _relayListMap[_relayType]!;
     RelayDBISAR _model = relayList[index];
+    final host = _model.url.split('//').last;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -334,12 +341,21 @@ class _RelaysPageState extends State<RelaysPage> {
                 Expanded(
                   child: Container(
                     margin: EdgeInsets.symmetric(horizontal: 12.px),
-                    child: Text(
-                      _model.url,
-                      style: TextStyle(
-                        color: ThemeColor.color0,
-                        fontSize: Adapt.px(16),
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _model.url,
+                          style: TextStyle(
+                            color: ThemeColor.color0,
+                            fontSize: Adapt.px(16),
+                          ),
+                        ),
+                        PingDelayTimeWidget(
+                          host: host,
+                          controller: _pingLifecycleController,
+                        ).setPaddingOnly(top: 4.px)
+                      ],
                     ),
                   ),
                 ),
@@ -536,6 +552,25 @@ class _RelaysPageState extends State<RelaysPage> {
               }),
         ],
         isRowAction: true);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.inactive || state == AppLifecycleState.paused) {
+      _pingLifecycleController.isPaused.value = true;
+    } else if (state == AppLifecycleState.resumed) {
+      _pingLifecycleController.isPaused.value = false;
+    }
+  }
+
+  @override
+  void didPushNext() {
+    _pingLifecycleController.isPaused.value = true;
+  }
+
+  @override
+  void didPopNext() {
+    _pingLifecycleController.isPaused.value = false;
   }
 }
 
