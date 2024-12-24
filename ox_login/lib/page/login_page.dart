@@ -29,6 +29,7 @@ import 'package:ox_login/page/create_account_page.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_localizable/ox_localizable.dart';
+import 'package:ox_login/page/login_with_qrcode_dialog.dart';
 import 'package:rich_text_widget/rich_text_widget.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 
@@ -151,6 +152,27 @@ class _LoginPageState extends State<LoginPage> {
                     alignment: Alignment.center,
                     child: Text(
                       Localized.text('ox_login.login_button'),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: Adapt.px(16),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: Adapt.px(18)),
+                GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: _loginWithQRCode,
+                  child: Container(
+                    width: double.infinity,
+                    height: Adapt.px(48),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      color: ThemeColor.color180,
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      'Login with QRCode',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: Adapt.px(16),
@@ -301,5 +323,42 @@ class _LoginPageState extends State<LoginPage> {
 
   void _privacyPolicyWebView() {
     OXModuleService.invoke('ox_common', 'gotoWebView', [context, 'https://www.0xchat.com/protocols/0xchat_privacy_policy.html', null, null, null, null]);
+  }
+
+  void _loginWithQRCode() async {
+    BuildContext? qrCodeContext;
+    String nostrUrl = await AccountNIP46.createNostrConnectURI();
+    showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          LogUtil.e('Michael:---builder---qrCodeContext = ${qrCodeContext}}');
+          qrCodeContext = context;
+          return LoginWithQRCodeDialog(loginQRCodeUrl: nostrUrl);
+        });
+    String pubkey = "";
+    UserDBISAR? userDB;
+    String currentUserPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
+    pubkey = await Account.getPublicKeyWithNIP46URI(nostrUrl);
+    await OXUserInfoManager.sharedInstance.initDB(pubkey);
+    OXUserInfoManager.sharedInstance.addCallBackBeforeLogin();
+    userDB = await Account.sharedInstance.loginWithNip46URI(nostrUrl);
+    userDB = await OXUserInfoManager.sharedInstance.handleSwitchFailures(userDB, currentUserPubKey);
+    LogUtil.e('Michael:---qrCodeContext--pop = ${qrCodeContext}}');
+    OXNavigator.pop(qrCodeContext);
+    if (userDB == null) {
+      CommonToast.instance.show(context, Localized.text('ox_login.private_key_regular_failed'));
+      return;
+    }
+    Account.sharedInstance.reloadProfileFromRelay(userDB.pubKey).then((value) {
+      LogUtil.e('Michael:---reloadProfileFromRelay--name = ${value.name}; pic =${value.picture}}');
+      UserConfigTool.saveUser(value);
+      UserConfigTool.updateSettingFromDB(value.settings);
+    });
+
+    OXUserInfoManager.sharedInstance.loginSuccess(userDB);
+    await OXLoading.dismiss();
+    OXNavigator.popToRoot(context);
+    AppRelayHintDialog.show(context);
   }
 }
