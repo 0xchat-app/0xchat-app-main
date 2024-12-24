@@ -160,7 +160,9 @@ class OXUserInfoManager {
 
   void addCallBackBeforeLogin() {
     Account.sharedInstance.nip46commandResultCallback = (NIP46CommandResult nip46Result) async {
-      Nip46CallbackDialogManager.showDialogWithId(context: OXNavigator.navigatorKey.currentContext!, nip46Result: nip46Result);
+      if(nip46Result.result == 'auth_url'){
+        Nip46CallbackDialogManager.showDialogWithId(context: OXNavigator.navigatorKey.currentContext!, nip46Result: nip46Result);
+      }
     };
   }
 
