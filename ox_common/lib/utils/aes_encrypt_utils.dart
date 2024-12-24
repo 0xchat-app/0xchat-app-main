@@ -31,26 +31,52 @@ class AesEncryptUtils {
     final sourceBytes = sourceFile.readAsBytesSync();
     final uint8list = hexToBytes(key);
     final encrypter = Encrypter(AES(Key(uint8list), mode: mode));
-    final iv = (nonce != null && nonce.isNotEmpty) ? IV.fromUtf8(nonce) : IV.allZerosOfLength(16);
+    var iv;
+    if (nonce != null && nonce.isNotEmpty) {
+      final uint8listNonce = hexToBytes(nonce);
+      iv = IV(uint8listNonce);
+    } else {
+      iv = IV.allZerosOfLength(16);
+    }
     final encryptedBytes = encrypter.encryptBytes(sourceBytes, iv: iv);
     encryptedFile.writeAsBytesSync(encryptedBytes.bytes);
   }
 
-  static Future<void> decryptFileInIsolate(File encryptedFile, File decryptedFile, String key,
-      {String? nonce, AESMode mode = AESMode.gcm,}) async {
+  static Future<void> decryptFileInIsolate(
+    File encryptedFile,
+    File decryptedFile,
+    String key, {
+    String? nonce,
+    AESMode mode = AESMode.gcm,
+  }) async {
     await ThreadPoolManager.sharedInstance.runAlgorithmTask(() => _decryptFile(
-        encryptedFile, decryptedFile, key,
-        nonce: nonce, mode: mode,));
+          encryptedFile,
+          decryptedFile,
+          key,
+          nonce: nonce,
+          mode: mode,
+        ));
   }
 
-  static Future<void> _decryptFile(File encryptedFile, File decryptedFile, String key,
-      {String? nonce, AESMode mode = AESMode.gcm,}) async {
+  static Future<void> _decryptFile(
+    File encryptedFile,
+    File decryptedFile,
+    String key, {
+    String? nonce,
+    AESMode mode = AESMode.gcm,
+  }) async {
     if (nonce == null || nonce.isEmpty) mode = AESMode.sic;
     final encryptedBytes = encryptedFile.readAsBytesSync();
     final uint8list = hexToBytes(key);
     final decrypter = Encrypter(AES(Key(uint8list), mode: mode));
     final encrypted = Encrypted(encryptedBytes);
-    final iv = (nonce != null && nonce.isNotEmpty) ? IV.fromUtf8(nonce) : IV.allZerosOfLength(16);
+    var iv;
+    if (nonce != null && nonce.isNotEmpty) {
+      final uint8listNonce = hexToBytes(nonce);
+      iv = IV(uint8listNonce);
+    } else {
+      iv = IV.allZerosOfLength(16);
+    }
     final decryptedBytes = decrypter.decryptBytes(encrypted, iv: iv);
     decryptedFile.writeAsBytesSync(decryptedBytes);
   }
