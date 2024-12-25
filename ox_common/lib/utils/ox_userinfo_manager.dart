@@ -158,14 +158,6 @@ class OXUserInfoManager {
     }
   }
 
-  void addCallBackBeforeLogin() {
-    Account.sharedInstance.nip46commandResultCallback = (NIP46CommandResult nip46Result) async {
-      if(nip46Result.result == 'auth_url'){
-        Nip46CallbackDialogManager.showDialogWithId(context: OXNavigator.navigatorKey.currentContext!, nip46Result: nip46Result);
-      }
-    };
-  }
-
   void addChatCallBack() {
     Contacts.sharedInstance.secretChatRequestCallBack = (SecretSessionDBISAR ssDB) async {
       LogUtil.d("Michael: init secretChatRequestCallBack ssDB.sessionId =${ssDB.sessionId}");
@@ -322,7 +314,7 @@ class OXUserInfoManager {
     resetData(needObserver: needObserver);
   }
 
-  Future<void> resetData({bool needObserver = true}) async {
+  void resetData({bool needObserver = true}) {
     signatureVerifyFailed = false;
     OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUBKEY, null);
     currentUserInfo = null;
@@ -414,7 +406,6 @@ class OXUserInfoManager {
     _initFeedback();
     await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageSettingKey.KEY_CHAT_RUN_STATUS.name, true);
     OXServerManager.sharedInstance.loadConnectICEServer();
-    OXUserInfoManager.sharedInstance.addCallBackBeforeLogin();
     addChatCallBack();
     initDataActions.forEach((fn) {
       fn();
@@ -431,7 +422,6 @@ class OXUserInfoManager {
       Zaps.sharedInstance.init();
       _initMessage();
     });
-
     LogUtil.e('Michael: data await Friends Channels init friends =${Contacts.sharedInstance.allContacts.values.toList().toString()}');
   }
 
