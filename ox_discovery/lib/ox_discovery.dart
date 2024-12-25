@@ -17,6 +17,7 @@ import 'package:ox_common/utils/ox_moment_manager.dart';
 
 import 'model/moment_extension_model.dart';
 import 'model/moment_ui_model.dart';
+import 'page/widgets/moment_widget.dart';
 
 class OXDiscovery extends OXFlutterModule {
   @override
@@ -36,6 +37,7 @@ class OXDiscovery extends OXFlutterModule {
         'momentPage': jumpMomentPage,
         'momentRichTextWidget': momentRichTextWidget,
         'showPersonMomentsPage': showPersonMomentsPage,
+        'momentWidget': momentWidget,
       };
 
   @override
@@ -80,6 +82,21 @@ class OXDiscovery extends OXFlutterModule {
       isShowAllContent: isShowAllContent,
       clickBlankCallback: clickBlankCallback,
       showMoreCallback: showMoreCallback,
+    );
+  }
+
+  Widget momentWidget(
+    BuildContext context, {
+    required NoteDBISAR noteDB,
+  }) {
+    return MomentWidget(
+      isShowReplyWidget: true,
+      notedUIModel: NotedUIModel(noteDB: noteDB),
+      isShowMomentOptionWidget: false,
+      clickMomentCallback: (NotedUIModel? notedUIModel) async {
+        await OXNavigator.pushPage(
+            context, (context) => MomentsPage(notedUIModel: notedUIModel));
+      },
     );
   }
 

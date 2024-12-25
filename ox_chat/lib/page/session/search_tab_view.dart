@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ox_chat/model/group_ui_model.dart';
 import 'package:ox_chat/model/search_chat_model.dart';
-import 'package:ox_chat/widget/search_tab_grid_view.dart';
+import 'package:ox_chat/widget/search_note_view.dart';
+import 'package:ox_chat/widget/search_media_view.dart';
 import 'package:ox_chat/widget/search_tab_grouped_view.dart';
 import 'package:ox_common/mixin/common_state_view_mixin.dart';
 import 'package:chatcore/chat-core.dart';
@@ -102,13 +103,16 @@ class _SearchTabViewState extends State<SearchTabView> with CommonStateViewMixin
       // case SearchType.ecash:
       //   break;
       case SearchType.media:
-        return SearchTabGridView(
+        return SearchMediaView(
           searchQuery: widget.searchQuery,
           chatId: widget.chatId,
         );
-        break;
       // case SearchType.link:
       //   break;
+      case SearchType.note:
+        return SearchNoteView(
+          searchQuery: widget.searchQuery,
+        );
       default:
         break;
     }
@@ -116,7 +120,7 @@ class _SearchTabViewState extends State<SearchTabView> with CommonStateViewMixin
   }
 
   void _handleNoData() {
-    if(widget.type == SearchType.media) return;
+    if(widget.type == SearchType.media || widget.type == SearchType.note) return;
     if (widget.data.isEmpty) {
       updateStateView(CommonStateView.CommonStateView_NoData);
     } else {
