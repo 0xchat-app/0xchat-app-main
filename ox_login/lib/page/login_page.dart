@@ -328,6 +328,7 @@ class _LoginPageState extends State<LoginPage> {
   void _loginWithQRCode() async {
     BuildContext? qrCodeContext;
     String nostrUrl = await AccountNIP46.createNostrConnectURI();
+    LogUtil.e('Michael:------nostrUrl = ${nostrUrl}');
     showDialog(
         context: context,
         barrierDismissible: true,
@@ -340,7 +341,6 @@ class _LoginPageState extends State<LoginPage> {
     String currentUserPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
     pubkey = await Account.getPublicKeyWithNIP46URI(nostrUrl);
     await OXUserInfoManager.sharedInstance.initDB(pubkey);
-    OXUserInfoManager.sharedInstance.addCallBackBeforeLogin();
     userDB = await Account.sharedInstance.loginWithNip46URI(nostrUrl);
     userDB = await OXUserInfoManager.sharedInstance.handleSwitchFailures(userDB, currentUserPubKey);
     if (qrCodeContext != null) {
