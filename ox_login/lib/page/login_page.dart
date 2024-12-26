@@ -1,37 +1,28 @@
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
+// plugin
+import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-
+import 'package:nostr_core_dart/nostr.dart';
 // ox_common
 import 'package:ox_common/log_util.dart';
-import 'package:ox_common/utils/app_relay_hint_dialog.dart';
-import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
-import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/app_relay_hint_dialog.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
-import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
-import 'package:ox_common/widgets/common_toast.dart';
-import 'package:ox_common/widgets/common_webview.dart';
 import 'package:ox_common/widgets/common_loading.dart';
-import 'package:ox_login/component/common_input.dart';
-import 'package:ox_login/component/input_wrap.dart';
-
+import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 // ox_login
 import 'package:ox_login/page/account_key_login_page.dart';
 import 'package:ox_login/page/create_account_page.dart';
-
-// plugin
-import 'package:chatcore/chat-core.dart';
-import 'package:nostr_core_dart/nostr.dart';
-import 'package:ox_localizable/ox_localizable.dart';
-import 'package:ox_login/page/login_with_qrcode_dialog.dart';
-import 'package:rich_text_widget/rich_text_widget.dart';
+import 'package:ox_login/page/login_with_qrcode_page.dart';
 import 'package:ox_module_service/ox_module_service.dart';
+import 'package:rich_text_widget/rich_text_widget.dart';
 
 class LoginPage extends StatefulWidget {
   final bool? isLoginShow;
@@ -166,15 +157,11 @@ class _LoginPageState extends State<LoginPage> {
                   child: Container(
                     width: double.infinity,
                     height: Adapt.px(48),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      color: ThemeColor.color180,
-                    ),
                     alignment: Alignment.center,
                     child: Text(
                       'Login with QRCode',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: ThemeColor.gradientMainStart,
                         fontSize: Adapt.px(16),
                       ),
                     ),
@@ -325,40 +312,7 @@ class _LoginPageState extends State<LoginPage> {
     OXModuleService.invoke('ox_common', 'gotoWebView', [context, 'https://www.0xchat.com/protocols/0xchat_privacy_policy.html', null, null, null, null]);
   }
 
-  void _loginWithQRCode() async {
-    BuildContext? qrCodeContext;
-    String nostrUrl = await AccountNIP46.createNostrConnectURI();
-    LogUtil.e('Michael:------nostrUrl = ${nostrUrl}');
-    showDialog(
-        context: context,
-        barrierDismissible: true,
-        builder: (BuildContext context) {
-          qrCodeContext = context;
-          return LoginWithQRCodeDialog(loginQRCodeUrl: nostrUrl);
-        });
-    String pubkey = "";
-    UserDBISAR? userDB;
-    String currentUserPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
-    pubkey = await Account.getPublicKeyWithNIP46URI(nostrUrl);
-    await OXUserInfoManager.sharedInstance.initDB(pubkey);
-    userDB = await Account.sharedInstance.loginWithNip46URI(nostrUrl);
-    userDB = await OXUserInfoManager.sharedInstance.handleSwitchFailures(userDB, currentUserPubKey);
-    if (qrCodeContext != null) {
-      Navigator.pop(qrCodeContext!);
-    }
-    if (userDB == null) {
-      CommonToast.instance.show(context, Localized.text('ox_login.private_key_regular_failed'));
-      return;
-    }
-    Account.sharedInstance.reloadProfileFromRelay(userDB.pubKey).then((value) {
-      LogUtil.e('Michael:---reloadProfileFromRelay--name = ${value.name}; pic =${value.picture}}');
-      UserConfigTool.saveUser(value);
-      UserConfigTool.updateSettingFromDB(value.settings);
-    });
-
-    OXUserInfoManager.sharedInstance.loginSuccess(userDB);
-    await OXLoading.dismiss();
-    OXNavigator.popToRoot(context);
-    AppRelayHintDialog.show(context);
+  void _loginWithQRCode() {
+    OXNavigator.pushPage(context, (context) => LoginWithQRCodePage());
   }
 }
