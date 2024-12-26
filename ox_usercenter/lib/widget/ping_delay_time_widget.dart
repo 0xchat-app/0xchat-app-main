@@ -117,3 +117,22 @@ class _PingDelayTimeWidgetState extends State<PingDelayTimeWidget> {
 class PingLifecycleController {
   final ValueNotifier<bool> isPaused = ValueNotifier(false);
 }
+
+class PingInheritedWidget extends InheritedWidget {
+  const PingInheritedWidget({
+    super.key,
+    required this.controller,
+    required super.child,
+  });
+
+  final PingLifecycleController controller;
+
+  static PingInheritedWidget? of(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<PingInheritedWidget>();
+  }
+
+  @override
+  bool updateShouldNotify(PingInheritedWidget oldWidget) {
+    return controller != oldWidget.controller;
+  }
+}

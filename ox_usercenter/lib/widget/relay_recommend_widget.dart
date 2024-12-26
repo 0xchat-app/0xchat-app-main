@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_usercenter/page/set_up/relay_detail_page.dart';
 import 'package:chatcore/chat-core.dart';
+import 'package:ox_usercenter/widget/ping_delay_time_widget.dart';
 
 ///Title: relay_recommend_widget
 ///Description: TODO(Fill in by oneself)
@@ -67,6 +69,8 @@ class RelayCommendWidget extends StatelessWidget {
 
   Widget _itemBuild(BuildContext context, int index) {
     RelayRecommendModule _model = commendRelayList[index];
+    final controller = PingInheritedWidget.of(context)?.controller ?? PingLifecycleController();
+    final host = _model.relayDB.url.split('//').last;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -89,12 +93,21 @@ class RelayCommendWidget extends StatelessWidget {
                 Expanded(
                   child: Container(
                     margin: EdgeInsets.symmetric(horizontal: 12.px),
-                    child: Text(
-                      _model.relayDB.url,
-                      style: TextStyle(
-                        color: ThemeColor.color0,
-                        fontSize: Adapt.px(16),
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _model.relayDB.url,
+                          style: TextStyle(
+                            color: ThemeColor.color0,
+                            fontSize: Adapt.px(16),
+                          ),
+                        ),
+                        PingDelayTimeWidget(
+                          host: host,
+                          controller: controller,
+                        ).setPaddingOnly(top: 4.px)
+                      ],
                     ),
                   ),
                 ),

@@ -180,129 +180,132 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
             constraints: BoxConstraints(
               maxWidth: PlatformUtils.listWidth,
             ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                RelaySelectableTabBar(
-                  tabs: RelayType.values.map((e) => e.name()).toList(),
-                  tabTips: RelayType.values.map((e) => e.tips()).toList(),
-                  onChanged: _relayTypeChanged,
-                ).setPaddingOnly(top: 12.px),
-                Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.only(top: 24.px, bottom: 12.px),
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    // Localized.text('ox_usercenter.connect_relay'),
-                    'CONNECT TO ${_relayType.sign()} RELAY',
-                    style: TextStyle(
-                      color: ThemeColor.color0,
-                      fontSize: Adapt.px(14),
-                    ),
-                  ),
-                ),
-                _inputRelay(),
-                SizedBox(
-                  height: Adapt.px(12),
-                ),
-                _isShowDelete
-                    ? Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: InkWell(
-                              onTap: () {
-                                setState(() {
-                                  _relayTextFieldControll.text = '';
-                                  _isShowDelete = false;
-                                });
-                              },
-                              child: Container(
-                                height: Adapt.px(36),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(Adapt.px(8)),
-                                  color: ThemeColor.color180,
-                                ),
-                                alignment: Alignment.center,
-                                child: Text(
-                                  Localized.text('ox_common.cancel'),
-                                  style: TextStyle(
-                                    fontSize: Adapt.px(14),
-                                    color: ThemeColor.color0,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            width: Adapt.px(12),
-                          ),
-                          Expanded(
-                            child: GestureDetector(
-                              behavior: HitTestBehavior.translucent,
-                              onTap: () => _addOnTap(isUserInput: true),
-                              child: Container(
-                                height: Adapt.px(36),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(Adapt.px(8)),
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      ThemeColor.gradientMainEnd,
-                                      ThemeColor.gradientMainStart,
-                                    ],
-                                    begin: Alignment.centerLeft,
-                                    end: Alignment.centerRight,
-                                  ),
-                                ),
-                                alignment: Alignment.center,
-                                child: Text(
-                                  'Add',
-                                  style: TextStyle(
-                                    fontSize: Adapt.px(14),
-                                    color: ThemeColor.color0,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      )
-                    : Container(),
-                if (relayList.isNotEmpty) ...[
+            child: PingInheritedWidget(
+              controller: _pingLifecycleController,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  RelaySelectableTabBar(
+                    tabs: RelayType.values.map((e) => e.name()).toList(),
+                    tabTips: RelayType.values.map((e) => e.tips()).toList(),
+                    onChanged: _relayTypeChanged,
+                  ).setPaddingOnly(top: 12.px),
                   Container(
                     width: double.infinity,
                     padding: EdgeInsets.only(top: 24.px, bottom: 12.px),
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      // Localized.text('ox_usercenter.connected_relay'),
-                      'CONNECTED TO ${_relayType.sign()} RELAY',
+                      // Localized.text('ox_usercenter.connect_relay'),
+                      'CONNECT TO ${_relayType.sign()} RELAY',
                       style: TextStyle(
                         color: ThemeColor.color0,
-                        fontSize: Adapt.px(16),
+                        fontSize: Adapt.px(14),
                       ),
                     ),
                   ),
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(Adapt.px(16)),
-                      color: ThemeColor.color180,
-                    ),
-                    child: ListView.builder(
-                      physics: const NeverScrollableScrollPhysics(),
-                      shrinkWrap: true,
-                      itemBuilder: _itemBuild,
-                      itemCount: relayList.length,
-                      padding: EdgeInsets.zero,
-                    ),
+                  _inputRelay(),
+                  SizedBox(
+                    height: Adapt.px(12),
                   ),
+                  _isShowDelete
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    _relayTextFieldControll.text = '';
+                                    _isShowDelete = false;
+                                  });
+                                },
+                                child: Container(
+                                  height: Adapt.px(36),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(Adapt.px(8)),
+                                    color: ThemeColor.color180,
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    Localized.text('ox_common.cancel'),
+                                    style: TextStyle(
+                                      fontSize: Adapt.px(14),
+                                      color: ThemeColor.color0,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: Adapt.px(12),
+                            ),
+                            Expanded(
+                              child: GestureDetector(
+                                behavior: HitTestBehavior.translucent,
+                                onTap: () => _addOnTap(isUserInput: true),
+                                child: Container(
+                                  height: Adapt.px(36),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(Adapt.px(8)),
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        ThemeColor.gradientMainEnd,
+                                        ThemeColor.gradientMainStart,
+                                      ],
+                                      begin: Alignment.centerLeft,
+                                      end: Alignment.centerRight,
+                                    ),
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    'Add',
+                                    style: TextStyle(
+                                      fontSize: Adapt.px(14),
+                                      color: ThemeColor.color0,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                      : Container(),
+                  if (relayList.isNotEmpty) ...[
+                    Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.only(top: 24.px, bottom: 12.px),
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        // Localized.text('ox_usercenter.connected_relay'),
+                        'CONNECTED TO ${_relayType.sign()} RELAY',
+                        style: TextStyle(
+                          color: ThemeColor.color0,
+                          fontSize: Adapt.px(16),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(Adapt.px(16)),
+                        color: ThemeColor.color180,
+                      ),
+                      child: ListView.builder(
+                        physics: const NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        itemBuilder: _itemBuild,
+                        itemCount: relayList.length,
+                        padding: EdgeInsets.zero,
+                      ),
+                    ),
+                  ],
+                  if (recommendRelayList.isNotEmpty)
+                    RelayCommendWidget(recommendRelayList, (RelayDBISAR relayDB) {
+                      _addOnTap(upcomingRelay: relayDB.url);
+                    }),
                 ],
-                if (recommendRelayList.isNotEmpty)
-                  RelayCommendWidget(recommendRelayList, (RelayDBISAR relayDB) {
-                    _addOnTap(upcomingRelay: relayDB.url);
-                  }),
-              ],
-            ).setPadding(
-                EdgeInsets.only(left: Adapt.px(24), right: Adapt.px(24), bottom: Adapt.px(24))),
+              ).setPadding(
+                  EdgeInsets.only(left: Adapt.px(24), right: Adapt.px(24), bottom: Adapt.px(24))),
+            ),
           ),
         ),
       ),
