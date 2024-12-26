@@ -77,6 +77,33 @@ class AesEncryptUtils {
     } else {
       iv = IV.allZerosOfLength(16);
     }
+    try{
+      final decryptedBytes = decrypter.decryptBytes(encrypted, iv: iv);
+      decryptedFile.writeAsBytesSync(decryptedBytes);
+    }
+    catch(e){
+      _decryptFileFromUTF8Nonce(encryptedFile, decryptedFile, key, nonce: nonce, mode: mode);
+    }
+  }
+
+  static Future<void> _decryptFileFromUTF8Nonce(
+      File encryptedFile,
+      File decryptedFile,
+      String key, {
+        String? nonce,
+        AESMode mode = AESMode.gcm,
+      }) async {
+    if (nonce == null || nonce.isEmpty) mode = AESMode.sic;
+    final encryptedBytes = encryptedFile.readAsBytesSync();
+    final uint8list = hexToBytes(key);
+    final decrypter = Encrypter(AES(Key(uint8list), mode: mode));
+    final encrypted = Encrypted(encryptedBytes);
+    var iv;
+    if (nonce != null && nonce.isNotEmpty) {
+      iv = IV.fromUtf8(nonce);
+    } else {
+      iv = IV.allZerosOfLength(16);
+    }
     final decryptedBytes = decrypter.decryptBytes(encrypted, iv: iv);
     decryptedFile.writeAsBytesSync(decryptedBytes);
   }
