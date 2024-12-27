@@ -85,5 +85,6 @@
   "mint": "Münt",
   "how_to_operate": "Kuidas see toimib?",
   "backup_funds_instruction": "Varude varukoopia protsess konsolideerib ja arvutab automaatselt väikseimad tõendid tõhusaks säilitamiseks ja suurendab samal ajal turvalisust. Siiski olge teadlik, et taastamise lõppedes muutub vana Cashu-märk kehtetuks, seega veenduge, et protsess viiakse läbi turvaliselt",
-  "download_button": "Laadi alla"
+  "download_button": "Laadi alla",
+  "some_proofs_spendable_hint": "Mõned tõendid on juba kasutatud, kuid teised on endiselt kasutatavad. Kas soovite kasutatavad tõendid lunastada?"
 }

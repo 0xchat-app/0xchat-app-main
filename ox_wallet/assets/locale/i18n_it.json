@@ -85,5 +85,6 @@
   "mint": "Coniata",
   "how_to_operate": "Come funziona?",
   "backup_funds_instruction": "Il processo di backup dei fondi consolida e calcola automaticamente le prove più piccole per un archiviazione efficiente mentre migliora la sicurezza. Tuttavia, tenga presente che una volta completato il ripristino, il vecchio token Cashu diventa non valido, quindi assicurati che il processo venga eseguito in modo sicuro",
-  "download_button": "Scarica"
+  "download_button": "Scarica",
+  "some_proofs_spendable_hint": "Alcune prove sono già state spese, ma altre sono ancora utilizzabili. Vuoi riscattare le prove utilizzabili?"
 }

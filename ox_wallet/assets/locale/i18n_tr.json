@@ -85,5 +85,6 @@
   "mint": "Madeni para",
   "how_to_operate": "Nasıl çalışır?",
   "backup_funds_instruction": "Fonların yedeklenmesi süreci, en küçük kanıtların hesaplanması ve etkin depolama için otomatik olarak bir araya getirilmesiyle güvenliği artırır. Bununla birlikte, kurtarma tamamlandıktan sonra eski Cashu jetonunun geçersiz hale geldiğine dikkat edin, bu nedenle işlemin güvenli bir şekilde gerçekleştirildiğinden emin olun",
-  "download_button": "İndir"
+  "download_button": "İndir",
+  "some_proofs_spendable_hint": "Bazı kanıtlar zaten harcanmış, ancak diğerleri hala harcanabilir durumda. Harcanabilir kanıtları kullanmak ister misiniz?"
 }

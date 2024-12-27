@@ -85,5 +85,6 @@
   "mint": "Mint",
   "how_to_operate": "Kā tas darbojas?",
   "backup_funds_instruction": "Rezerves fondu process automātiski konsolidē un aprēķina vismazākos pierādījumus efektīvai glabāšanai, vienlaikus uzlabojot drošību. Tomēr, lūdzu, ņemiet vērā, ka pabeidzot atjaunošanu, vecais Cashu žetons kļūst par nederīgu, tāpēc pārliecinieties, ka process tiek veikts droši",
-  "download_button": "Lejupielādēt"
+  "download_button": "Lejupielādēt",
+  "some_proofs_spendable_hint": "Daži pierādījumi jau ir izmantoti, bet citi joprojām ir izmantojami. Vai vēlaties izpirkt izmantojamos pierādījumus?"
 }

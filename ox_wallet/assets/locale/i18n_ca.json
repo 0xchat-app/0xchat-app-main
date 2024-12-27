@@ -85,5 +85,6 @@
   "mint": "Mint",
   "how_to_operate": "Com funciona?",
   "backup_funds_instruction": "El procés de còpia de seguretat dels fons consolida i calcula automàticament les proves més petites per a un emmagatzematge eficient mentre millora la seguretat. No obstant això, tingueu en compte que un cop finalitzada la recuperació, el vell token de Cashu esdevé invàlid, així que assegureu-vos que el procés es faci de manera segura",
-  "download_button": "Baixar"
+  "download_button": "Baixar",
+  "some_proofs_spendable_hint": "Algunes proves ja s'han gastat, però d'altres encara són utilitzables. Voleu bescanviar les proves utilitzables?"
 }

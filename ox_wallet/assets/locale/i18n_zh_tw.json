@@ -85,5 +85,6 @@
   "mint": "鑄幣",
   "how_to_operate": "它是如何運作的？",
   "backup_funds_instruction": "備份資金流程自動合併和計算最小的證明，以實現高效存儲，同時增強安全性。 但請注意，一旦恢復完成，舊的 Cashu 令牌就會失效，因此請確保該過程安全地進行",
-  "download_button": "下載"
+  "download_button": "下載",
+  "some_proofs_spendable_hint": "部分憑證已被使用，但其他憑證仍可使用。您想兌換可用憑證嗎？"
 }

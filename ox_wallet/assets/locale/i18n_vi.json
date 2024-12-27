@@ -85,5 +85,6 @@
   "mint": "Đúc",
   "how_to_operate": "Hoạt động như thế nào?",
   "backup_funds_instruction": "Quá trình sao lưu quỹ tự động gom nhặt và tính toán các bằng chứng nhỏ nhất để lưu trữ hiệu quả đồng thời nâng cao tính bảo mật. Tuy nhiên, hãy lưu ý rằng sau khi khôi phục hoàn tất, token Cashu cũ sẽ trở thành không hợp lệ, vì vậy hãy đảm bảo quá trình được thực hiện một cách an toàn",
-  "download_button": "Tải xuống"
+  "download_button": "Tải xuống",
+  "some_proofs_spendable_hint": "Một số bằng chứng đã được sử dụng, nhưng những bằng chứng khác vẫn có thể sử dụng được. Bạn có muốn đổi các bằng chứng có thể sử dụng được không?"
 }
