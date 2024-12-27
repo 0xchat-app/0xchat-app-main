@@ -62,11 +62,9 @@ class _RelaysForLoginPageState extends State<RelaysForLoginPage> with WidgetsBin
 
   void _initRelayList() {
     List<String> urls = ['wss://relay.nsec.app'];
-    print('Jeff: --_initRelayList---widget.relayUrls =${widget.relayUrls}');
     if (widget.relayUrls.isNotEmpty) {
       urls = widget.relayUrls;
     }
-    print('Jeff: --_initRelayList---urls =${urls}');
     for(String url in urls) {
       _relayList.add(RelayDBISAR(url: url));
     }
