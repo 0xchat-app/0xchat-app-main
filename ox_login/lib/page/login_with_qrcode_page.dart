@@ -3,14 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
-import 'package:ox_common/utils/app_relay_hint_dialog.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/widgets/base_page_state.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_login/page/account_key_login_page.dart';
+import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 
@@ -30,7 +32,7 @@ class LoginWithQRCodePage extends StatefulWidget {
 
 class _LoginWithQRCodePageState extends BasePageState<LoginWithQRCodePage> {
   String _loginQRCodeUrl = '';
-  GlobalKey _globalKey = new GlobalKey();
+  List<String> _relayUrls = [];
 
   @override
   void initState() {
@@ -123,7 +125,7 @@ class _LoginWithQRCodePageState extends BasePageState<LoginWithQRCodePage> {
                 GestureDetector(
                   behavior: HitTestBehavior.translucent,
                   onTap: () {
-
+                    _showRelayPage();
                   },
                   child: Container(
                     width: 120.px,
@@ -134,7 +136,7 @@ class _LoginWithQRCodePageState extends BasePageState<LoginWithQRCodePage> {
                       borderRadius: BorderRadius.circular(12.px),
                     ),
                     child: Text(
-                      Localized.text('ox_usercenter.relays'),
+                      Localized.text('ox_usercenter.relays') + '(${_relayUrls.length})',
                       style: TextStyle(
                         color: ThemeColor.color0,
                         fontSize: 14.px,
@@ -145,7 +147,7 @@ class _LoginWithQRCodePageState extends BasePageState<LoginWithQRCodePage> {
                 GestureDetector(
                   behavior: HitTestBehavior.translucent,
                   onTap: () {
-
+                    _copyUrl();
                   },
                   child: Container(
                     width: 120.px,
@@ -175,6 +177,24 @@ class _LoginWithQRCodePageState extends BasePageState<LoginWithQRCodePage> {
               style: TextStyle(
                 color: ThemeColor.color0,
                 fontSize: 14.px,
+              ),
+            ),
+          ),
+          GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: () {
+              OXNavigator.pushPage(context, (context) => AccountKeyLoginPage());
+            },
+            child: Container(
+              margin: EdgeInsets.only(top: 25.px),
+              alignment: Alignment.center,
+              height: 48.px,
+              child: Text(
+                Localized.text('ox_login.str_login_with_account'),
+                style: TextStyle(
+                  color: ThemeColor.gradientMainStart,
+                  fontSize: 14.px,
+                ),
               ),
             ),
           ),
@@ -209,13 +229,24 @@ class _LoginWithQRCodePageState extends BasePageState<LoginWithQRCodePage> {
       return;
     }
     Account.sharedInstance.reloadProfileFromRelay(userDB.pubKey).then((value) {
-      LogUtil.e(
-          'Michael:---reloadProfileFromRelay--name = ${value.name}; pic =${value.picture}}');
       UserConfigTool.saveUser(value);
       UserConfigTool.updateSettingFromDB(value.settings);
     });
 
     OXUserInfoManager.sharedInstance.loginSuccess(userDB);
     OXNavigator.popToRoot(context);
+  }
+
+  Future<void> _showRelayPage() async {
+    final result = await OXModuleService.pushPage(context, 'ox_usercenter', 'RelaysForLoginPage', {'relayUrls': _relayUrls});
+    if (result != null && result is List<String> && mounted) {
+      setState(() {
+        _relayUrls = result;
+      });
+    }
+  }
+
+  Future<void> _copyUrl() async {
+    await TookKit.copyKey(context, _loginQRCodeUrl);
   }
 }
