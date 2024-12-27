@@ -160,6 +160,5 @@ class _LoginWithQRCodePageState extends BasePageState<LoginWithQRCodePage> {
 
     OXUserInfoManager.sharedInstance.loginSuccess(userDB);
     OXNavigator.popToRoot(context);
-    AppRelayHintDialog.show(context);
   }
 }
