@@ -301,7 +301,6 @@ class _LoginPageState extends State<LoginPage> {
     OXUserInfoManager.sharedInstance.loginSuccess(userDB, isAmber: true);
     await OXLoading.dismiss();
     OXNavigator.popToRoot(context);
-    AppRelayHintDialog.show(context);
   }
 
   void _serviceWebView() {

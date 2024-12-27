@@ -201,6 +201,5 @@ class _AccountKeyLoginPageState extends State<AccountKeyLoginPage> {
     OXUserInfoManager.sharedInstance.loginSuccess(userDB);
     await OXLoading.dismiss();
     OXNavigator.popToRoot(context);
-    AppRelayHintDialog.show(context);
   }
 }
