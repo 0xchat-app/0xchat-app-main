@@ -81,5 +81,7 @@
   "group_search_text": "Nyitott és Zárt Csoportok Keresése",
   "channel_search_text": "Nyilvános Csatornák Keresése",
   "member": "Tag",
-  "members": "Tagok"
+  "members": "Tagok",
+  "like_fail_tips": "Kedvelés sikertelen!",
+  "open_group": "Nyitott Csoportok"
 }

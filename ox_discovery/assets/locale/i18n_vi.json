@@ -81,5 +81,7 @@
   "group_search_text": "Tìm kiếm Nhóm Mở & Đóng",
   "channel_search_text": "Tìm kiếm Kênh Công khai",
   "member": "Thành viên",
-  "members": "Thành viên"
+  "members": "Thành viên",
+  "like_fail_tips": "Không thể thích!",
+  "open_group": "Nhóm Mở"
 }

@@ -81,5 +81,7 @@
   "group_search_text": "Buscar Grupos Abiertos y Cerrados",
   "channel_search_text": "Buscar Canales Públicos",
   "member": "Miembro",
-  "members": "Miembros"
+  "members": "Miembros",
+  "like_fail_tips": "Error al dar me gusta!",
+  "open_group": "Grupos Abiertos"
 }

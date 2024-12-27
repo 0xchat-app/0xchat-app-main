@@ -81,5 +81,7 @@
   "group_search_text": "オープン＆クローズドグループを検索",
   "channel_search_text": "公開チャンネルを検索",
   "member": "メンバー",
-  "members": "メンバー"
+  "members": "メンバー",
+  "like_fail_tips": "いいねに失敗しました！",
+  "open_group": "公開グループ"
 }

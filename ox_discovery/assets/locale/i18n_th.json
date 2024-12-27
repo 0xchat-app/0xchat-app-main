@@ -81,5 +81,7 @@
   "group_search_text": "ค้นหากลุ่มเปิดและปิด",
   "channel_search_text": "ค้นหาช่องสาธารณะ",
   "member": "สมาชิก",
-  "members": "สมาชิก"
+  "members": "สมาชิก",
+  "like_fail_tips": "กดถูกใจล้มเหลว!",
+  "open_group": "กลุ่มเปิด"
 }

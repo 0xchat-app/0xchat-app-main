@@ -52,7 +52,6 @@
   "not_set_lnurl_tips": "The friend has not set LNURL!",
   "repost_success_tips": "Repost successfully!",
   "like_success_tips": "Like Successfully!",
-  "like_fail_tips": "Fail to like!",
   "reply_success_tips": "Reply successfully!",
   "content_empty_tips": "The content cannot be empty !",
   "show_replies_text": "Show replies",
@@ -79,10 +78,10 @@
   "just_now": "just now",
   "channel": "Public Channels",
   "group": "Groups",
-  "open_group": "Open Groups",
   "group_search_text": "Search Open & Closed Groups",
   "channel_search_text": "Search Public Channels",
   "member": "Member",
-  "members": "Members"
+  "members": "Members",
+  "like_fail_tips": "Fail to like!",
+  "open_group": "Open Groups"
 }
-

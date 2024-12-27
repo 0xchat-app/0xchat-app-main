@@ -81,5 +81,7 @@
   "group_search_text": "Cerca Gruppi Aperti e Chiusi",
   "channel_search_text": "Cerca Canali Pubblici",
   "member": "Membro",
-  "members": "Membri"
+  "members": "Membri",
+  "like_fail_tips": "Impossibile mettere Mi piace!",
+  "open_group": "Gruppi Aperti"
 }

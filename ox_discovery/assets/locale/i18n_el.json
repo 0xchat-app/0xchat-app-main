@@ -81,5 +81,7 @@
   "group_search_text": "Αναζήτηση Ανοιχτών & Κλειστών Ομάδων",
   "channel_search_text": "Αναζήτηση Δημόσιων Καναλιών",
   "member": "Μέλος",
-  "members": "Μέλη"
+  "members": "Μέλη",
+  "like_fail_tips": "Αποτυχία να αρέσει!",
+  "open_group": "Ανοιχτές Ομάδες"
 }

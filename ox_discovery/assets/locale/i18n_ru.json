@@ -81,5 +81,7 @@
   "group_search_text": "Поиск Открытых и Закрытых Групп",
   "channel_search_text": "Поиск Публичных Каналов",
   "member": "Член",
-  "members": "Члены"
+  "members": "Члены",
+  "like_fail_tips": "Не удалось поставить лайк!",
+  "open_group": "Открытые группы"
 }

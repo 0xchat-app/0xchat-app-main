@@ -81,5 +81,7 @@
   "group_search_text": "Søg Åbne og Lukkede Grupper",
   "channel_search_text": "Søg Offentlige Kanaler",
   "member": "Medlem",
-  "members": "Medlemmer"
+  "members": "Medlemmer",
+  "like_fail_tips": "Kunne ikke lide!",
+  "open_group": "Åbne Grupper"
 }

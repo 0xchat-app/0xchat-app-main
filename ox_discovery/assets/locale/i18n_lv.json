@@ -81,5 +81,7 @@
   "group_search_text": "Meklēt Atvērtās un Slēgtās Grupas",
   "channel_search_text": "Meklēt Publiskos Kanālus",
   "member": "Dalībnieks",
-  "members": "Dalībnieki"
+  "members": "Dalībnieki",
+  "like_fail_tips": "Neizdevās atzīmēt kā patīkamu!",
+  "open_group": "Atvērtās Grupas"
 }
