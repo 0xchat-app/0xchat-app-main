@@ -32,5 +32,11 @@
   "str_not_installed_amber": "您尚未安装Amber",
   "str_nesc_invalid_hint": "您输入的NSEC无效，请重新输入",
   "str_login_with_nip46": "使用Nip46登录",
-  "str_enter_nip46_login_hint": "输入您的Nip46链接登录："
+  "str_enter_nip46_login_hint": "输入您的Nip46链接登录：",
+  "str_login_with_qrcode": "通过二维码登录",
+  "str_login_with_qrcode_hint": "通过二维码登录到0xchat",
+  "str_login_with_qrcode_description": "1 在手机上打开0xchat\n2 转到 添加 > 扫描\n3 将手机对准此屏幕以确认登录",
+  "str_login_with_account": "通过账户登录",
+  "str_login_with_copy_url": "复制网址"
+
 }
