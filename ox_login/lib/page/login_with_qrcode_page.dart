@@ -1,25 +1,17 @@
-import 'dart:ui';
-
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/app_relay_hint_dialog.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
-import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/widgets/base_page_state.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
-import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 
 ///Title: login_with_qrcode_page
@@ -74,7 +66,7 @@ class _LoginWithQRCodePageState extends BasePageState<LoginWithQRCodePage> {
   }
 
   @override
-  String get routeName => 'MyIdCardDialog';
+  String get routeName => 'LoginWithQRCodePage';
 
   void _initData() async {
     _loginQRCodeUrl = AccountNIP46.createNostrConnectURI();
@@ -85,21 +77,21 @@ class _LoginWithQRCodePageState extends BasePageState<LoginWithQRCodePage> {
 
   Widget _body() {
     return Container(
-      alignment: Alignment.topCenter,
       margin: EdgeInsets.only(top: 80.px),
+      padding: EdgeInsets.symmetric(horizontal: 24.px),
       child: Column(
         children: [
           Container(
             width: Adapt.px(310),
+            alignment: Alignment.center,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Container(
-                  width: double.infinity,
-                  height: Adapt.px(260),
+                  width: 220.px,
+                  height: 220.px,
                   alignment: Alignment.center,
-                  margin: EdgeInsets.symmetric(horizontal: 25.px),
                   decoration: BoxDecoration(
                     color: Colors.white,
                   ),
@@ -112,14 +104,79 @@ class _LoginWithQRCodePageState extends BasePageState<LoginWithQRCodePage> {
                 Container(
                   margin: EdgeInsets.only(top: 36.px),
                   alignment: Alignment.center,
-                  child: Text('Please scan the QR Code'),
+                  child: Text(
+                    Localized.text('ox_login.str_login_with_qrcode_hint'),
+                    style: TextStyle(
+                      color: ThemeColor.color0,
+                      fontSize: 14.px,
+                    ),
+                  ),
                 ),
               ],
             ),
           ),
           Container(
-            margin: EdgeInsets.only(top: 36.px),
-            child: Text('1 Open 0xchat on your phone\n2 Go to Add > Scan\n3 Point your phone at this screen to confirm login'),
+            margin: EdgeInsets.only(top: 32.px),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: () {
+
+                  },
+                  child: Container(
+                    width: 120.px,
+                    height: 48.px,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: ThemeColor.color180,
+                      borderRadius: BorderRadius.circular(12.px),
+                    ),
+                    child: Text(
+                      Localized.text('ox_usercenter.relays'),
+                      style: TextStyle(
+                        color: ThemeColor.color0,
+                        fontSize: 14.px,
+                      ),
+                    ),
+                  ),
+                ),
+                GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: () {
+
+                  },
+                  child: Container(
+                    width: 120.px,
+                    height: 48.px,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: ThemeColor.color180,
+                      borderRadius: BorderRadius.circular(12.px),
+                    ),
+                    child: Text(
+                      Localized.text('ox_login.str_login_with_copy_url'),
+                      style: TextStyle(
+                        color: ThemeColor.color0,
+                        fontSize: 14.px,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            margin: EdgeInsets.only(top: 32.px),
+            alignment: Alignment.centerLeft,
+            child: Text(
+              Localized.text('ox_login.str_login_with_qrcode_description'),
+              style: TextStyle(
+                color: ThemeColor.color0,
+                fontSize: 14.px,
+              ),
+            ),
           ),
         ],
       ),
@@ -128,7 +185,7 @@ class _LoginWithQRCodePageState extends BasePageState<LoginWithQRCodePage> {
 
   Widget _qrCodeWidget() {
     return PrettyQr(
-      size: 240.px,
+      size: 200.px,
       data: _loginQRCodeUrl,
       errorCorrectLevel: QrErrorCorrectLevel.M,
       typeNumber: null,

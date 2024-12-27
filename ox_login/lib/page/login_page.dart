@@ -159,7 +159,7 @@ class _LoginPageState extends State<LoginPage> {
                     height: Adapt.px(48),
                     alignment: Alignment.center,
                     child: Text(
-                      'Login with QRCode',
+                      Localized.text('ox_login.str_login_with_qrcode'),
                       style: TextStyle(
                         color: ThemeColor.gradientMainStart,
                         fontSize: Adapt.px(16),
