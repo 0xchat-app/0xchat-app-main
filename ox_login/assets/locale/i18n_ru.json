@@ -26,8 +26,16 @@
   "public_key": "Публичный ключ",
   "private_key": "Приватный ключ",
   "lets_go": "Поехали!",
-  "enter_account_key_login_hint": "Введите ваш приватный ключ для входа:",
+  "enter_account_key_login_hint": "Введите ключ или URL для входа:",
   "private_key_regular_failed": "Регулярный сбой закрытого ключа",
   "pub_key_regular_failed": "Регулярный сбой открытого ключа",
-  "str_not_installed_amber": "Вы не установили Amber"
+  "str_not_installed_amber": "Вы не установили Amber",
+  "str_nesc_invalid_hint": "Введенный NSEC недействителен. Пожалуйста, введите его снова.",
+  "str_login_with_nip46": "Войти через Nip46",
+  "str_enter_nip46_login_hint": "Введите ссылку Nip46 для входа:",
+  "str_login_with_qrcode": "Войти с помощью QR-кода",
+  "str_login_with_qrcode_hint": "Войдите в 0xchat с помощью QR-кода",
+  "str_login_with_qrcode_description": "1 Откройте 0xchat на вашем телефоне\n2 Перейдите в Добавить > Сканировать\n3 Наведите телефон на экран, чтобы подтвердить вход",
+  "str_login_with_account": "Войти через аккаунт",
+  "str_login_with_copy_url": "Скопировать URL"
 }

@@ -26,8 +26,16 @@
   "public_key": "Chave Pública",
   "private_key": "Chave Privada",
   "lets_go": "Vamos lá!",
-  "enter_account_key_login_hint": "Insira sua chave privada para entrar:",
+  "enter_account_key_login_hint": "Insira a chave ou URL para fazer login:",
   "private_key_regular_failed": "Chave privada regular falhou",
   "pub_key_regular_failed": "Chave pública regular falhou",
-  "str_not_installed_amber": "Você não instalou o Amber"
+  "str_not_installed_amber": "Você não instalou o Amber",
+  "str_nesc_invalid_hint": "O NSEC inserido é inválido. Por favor, insira novamente.",
+  "str_login_with_nip46": "Entrar com Nip46",
+  "str_enter_nip46_login_hint": "Insira o link Nip46 para fazer login:",
+  "str_login_with_qrcode": "Entrar com QR Code",
+  "str_login_with_qrcode_hint": "Faça login no 0xchat usando um código QR",
+  "str_login_with_qrcode_description": "1 Abra o 0xchat no seu telefone\n2 Vá para Adicionar > Escanear\n3 Aponte seu telefone para esta tela para confirmar o login",
+  "str_login_with_account": "Entrar com conta",
+  "str_login_with_copy_url": "Copiar URL"
 }

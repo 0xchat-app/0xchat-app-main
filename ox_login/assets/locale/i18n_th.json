@@ -26,8 +26,16 @@
   "public_key": "กุญแจสาธารณะ",
   "private_key": "กุญแจส่วนตัว",
   "lets_go": "ไปเลย!",
-  "enter_account_key_login_hint": "ใส่กุญแจส่วนตัวเพื่อเข้าสู่ระบบ:",
+  "enter_account_key_login_hint": "ป้อนคีย์หรือ URL เพื่อเข้าสู่ระบบ:",
   "private_key_regular_failed": "คีย์ส่วนตัวล้มเหลวตามปกติ",
   "pub_key_regular_failed": "คีย์สาธารณะล้มเหลวตามปกติ",
-  "str_not_installed_amber": "คุณยังไม่ได้ติดตั้ง Amber"
+  "str_not_installed_amber": "คุณยังไม่ได้ติดตั้ง Amber",
+  "str_nesc_invalid_hint": "NSEC ที่คุณป้อนไม่ถูกต้อง กรุณาป้อนใหม่อีกครั้ง",
+  "str_login_with_nip46": "เข้าสู่ระบบด้วย Nip46",
+  "str_enter_nip46_login_hint": "ป้อนลิงก์ Nip46 เพื่อเข้าสู่ระบบ:",
+  "str_login_with_qrcode": "เข้าสู่ระบบด้วย QR Code",
+  "str_login_with_qrcode_hint": "เข้าสู่ระบบ 0xchat ด้วย QR Code",
+  "str_login_with_qrcode_description": "1 เปิด 0xchat บนโทรศัพท์ของคุณ\n2 ไปที่ เพิ่ม > สแกน\n3 ชี้โทรศัพท์ของคุณไปที่หน้าจอนี้เพื่อยืนยันการเข้าสู่ระบบ",
+  "str_login_with_account": "เข้าสู่ระบบด้วยบัญชี",
+  "str_login_with_copy_url": "คัดลอก URL"
 }

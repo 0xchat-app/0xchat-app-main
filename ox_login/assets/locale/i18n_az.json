@@ -26,8 +26,16 @@
   "public_key": "İctimai açar",
   "private_key": "Şəxsi açar",
   "lets_go": "Getmək!",
-  "enter_account_key_login_hint": "Giriş üçün şəxsi açarınızı daxil edin:",
+  "enter_account_key_login_hint": "Daxil olmaq üçün açar və ya URL-ni daxil edin:",
   "private_key_regular_failed": "Özəl açar müntəzəm uğursuz oldu",
   "pub_key_regular_failed": "İctimai açar müntəzəm uğursuz oldu",
-  "str_not_installed_amber": "Amber'i quraşdırmamısınız"
+  "str_not_installed_amber": "Amber'i quraşdırmamısınız",
+  "str_nesc_invalid_hint": "Daxil etdiyiniz NSEC yanlışdır. Yenidən daxil edin.",
+  "str_login_with_nip46": "Nip46 ilə daxil olun",
+  "str_enter_nip46_login_hint": "Daxil olmaq üçün Nip46 bağlantısını daxil edin:",
+  "str_login_with_qrcode": "QR Kod ilə daxil olun",
+  "str_login_with_qrcode_hint": "0xchat-ə QR Kod ilə daxil olun",
+  "str_login_with_qrcode_description": "1 Telefonunuzda 0xchat-ı açın\n2 Əlavə > Tarayın bölməsinə keçin\n3 Daxil olmağı təsdiqləmək üçün telefonunuzu bu ekrana yönəldin",
+  "str_login_with_account": "Hesabla daxil olun",
+  "str_login_with_copy_url": "URL-ni kopyalayın"
 }

@@ -26,8 +26,16 @@
   "public_key": "Khóa công khai",
   "private_key": "Khóa riêng tư",
   "lets_go": "Chúng ta bắt đầu!",
-  "enter_account_key_login_hint": "Nhập khóa riêng để đăng nhập:",
+  "enter_account_key_login_hint": "Nhập khóa hoặc URL để đăng nhập:",
   "private_key_regular_failed": "Khóa riêng thất bại thường xuyên",
   "pub_key_regular_failed": "Khóa công khai thất bại thường xuyên",
-  "str_not_installed_amber": "Bạn chưa cài đặt Amber"
+  "str_not_installed_amber": "Bạn chưa cài đặt Amber",
+  "str_nesc_invalid_hint": "NSEC bạn đã nhập không hợp lệ. Vui lòng nhập lại.",
+  "str_login_with_nip46": "Đăng nhập bằng Nip46",
+  "str_enter_nip46_login_hint": "Nhập liên kết Nip46 để đăng nhập:",
+  "str_login_with_qrcode": "Đăng nhập bằng Mã QR",
+  "str_login_with_qrcode_hint": "Đăng nhập vào 0xchat bằng Mã QR",
+  "str_login_with_qrcode_description": "1 Mở 0xchat trên điện thoại của bạn\n2 Chuyển đến Thêm > Quét\n3 Chỉ điện thoại của bạn vào màn hình này để xác nhận đăng nhập",
+  "str_login_with_account": "Đăng nhập bằng tài khoản",
+  "str_login_with_copy_url": "Sao chép URL"
 }

@@ -26,7 +26,7 @@
   "public_key": "公开账户ID",
   "private_key": "账户私钥",
   "lets_go": "让我们出发吧!",
-  "enter_account_key_login_hint": "输入您的私钥登录：",
+  "enter_account_key_login_hint": "请输入您的密钥或URL",
   "private_key_regular_failed": "私钥规则检验失败",
   "pub_key_regular_failed": "公钥规则检验失败",
   "str_not_installed_amber": "您尚未安装Amber",
@@ -38,5 +38,4 @@
   "str_login_with_qrcode_description": "1 在手机上打开0xchat\n2 转到 添加 > 扫描\n3 将手机对准此屏幕以确认登录",
   "str_login_with_account": "通过账户登录",
   "str_login_with_copy_url": "复制网址"
-
 }

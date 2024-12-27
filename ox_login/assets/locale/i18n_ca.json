@@ -26,8 +26,16 @@
   "public_key": "Clau pública",
   "private_key": "Clau privada",
   "lets_go": "Anem-hi!",
-  "enter_account_key_login_hint": "Introdueix la teva clau privada per iniciar la sessió:",
+  "enter_account_key_login_hint": "Introduïu la clau o l'URL per iniciar sessió:",
   "private_key_regular_failed": "Error en la clau privada regular",
   "pub_key_regular_failed": "Error en la clau pública regular",
-  "str_not_installed_amber": "No has instal·lat Amber"
+  "str_not_installed_amber": "No has instal·lat Amber",
+  "str_nesc_invalid_hint": "El NSEC introduït no és vàlid. Torneu-lo a introduir.",
+  "str_login_with_nip46": "Inicia sessió amb Nip46",
+  "str_enter_nip46_login_hint": "Introduïu l'enllaç Nip46 per iniciar sessió:",
+  "str_login_with_qrcode": "Inicia sessió amb codi QR",
+  "str_login_with_qrcode_hint": "Inicia sessió a 0xchat amb codi QR",
+  "str_login_with_qrcode_description": "1 Obriu 0xchat al vostre telèfon\n2 Aneu a Afegeix > Escaneja\n3 Apunteu el telèfon a aquesta pantalla per confirmar l'inici de sessió",
+  "str_login_with_account": "Inicia sessió amb compte",
+  "str_login_with_copy_url": "Copia l'URL"
 }

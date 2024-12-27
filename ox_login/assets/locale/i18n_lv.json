@@ -26,8 +26,16 @@
   "public_key": "Publiskā atslēga",
   "private_key": "Privātā atslēga",
   "lets_go": "Aiziet!",
-  "enter_account_key_login_hint": "Lai iegūtu piekļuvi, ievadiet savu privāto atslēgu:",
+  "enter_account_key_login_hint": "Ievadiet atslēgu vai URL, lai pieteiktos:",
   "private_key_regular_failed": "Privātās atslēgas regulāra kļūme",
   "pub_key_regular_failed": "Publiskās atslēgas regulāra kļūme",
-  "str_not_installed_amber": "Jūs neesat instalējis Amber"
+  "str_not_installed_amber": "Jūs neesat instalējis Amber",
+  "str_nesc_invalid_hint": "Ievadītais NSEC nav derīgs. Lūdzu, ievadiet to vēlreiz.",
+  "str_login_with_nip46": "Pieteikties ar Nip46",
+  "str_enter_nip46_login_hint": "Ievadiet Nip46 saiti, lai pieteiktos:",
+  "str_login_with_qrcode": "Pieteikties ar QR kodu",
+  "str_login_with_qrcode_hint": "Izmantojot QR kodu, piesakieties 0xchat",
+  "str_login_with_qrcode_description": "1 Atveriet 0xchat savā tālrunī\n2 Dodieties uz Pievienot > Skenēt\n3 Norādiet savu tālruni uz šo ekrānu, lai apstiprinātu pieteikšanos",
+  "str_login_with_account": "Pieteikties ar kontu",
+  "str_login_with_copy_url": "Kopēt URL"
 }

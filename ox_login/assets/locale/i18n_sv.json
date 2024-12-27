@@ -26,8 +26,16 @@
   "public_key": "Offentlig nyckel",
   "private_key": "Privat nyckel",
   "lets_go": "Låt oss gå!",
-  "enter_account_key_login_hint": "Ange din privata nyckel för att logga in:",
+  "enter_account_key_login_hint": "Ange nyckel eller URL för att logga in:",
   "private_key_regular_failed": "Privat nyckel regelbundet misslyckad",
   "pub_key_regular_failed": "Offentlig nyckel regelbundet misslyckad",
-  "str_not_installed_amber": "Du har inte installerat Amber"
+  "str_not_installed_amber": "Du har inte installerat Amber",
+  "str_nesc_invalid_hint": "Den angivna NSEC är ogiltig. Vänligen ange den igen.",
+  "str_login_with_nip46": "Logga in med Nip46",
+  "str_enter_nip46_login_hint": "Ange Nip46-länken för att logga in:",
+  "str_login_with_qrcode": "Logga in med QR-kod",
+  "str_login_with_qrcode_hint": "Logga in på 0xchat med en QR-kod",
+  "str_login_with_qrcode_description": "1 Öppna 0xchat på din telefon\n2 Gå till Lägg till > Skanna\n3 Rikta din telefon mot denna skärm för att bekräfta inloggningen",
+  "str_login_with_account": "Logga in med konto",
+  "str_login_with_copy_url": "Kopiera URL"
 }
