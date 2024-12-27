@@ -85,5 +85,6 @@
   "mint": "Mint",
   "how_to_operate": "Hvordan virker det?",
   "backup_funds_instruction": "Processen med at sikkerhedskopiere midler konsoliderer og beregner automatisk de mindste beviser til effektiv opbevaring og forbedrer samtidig sikkerheden. Vær dog opmærksom på, at efter gendannelsen er den gamle Cashu-token ugyldig, så sørg for, at processen udføres sikkert",
-  "download_button": "Hent"
+  "download_button": "Hent",
+  "some_proofs_spendable_hint": "Nogle beviser er allerede brugt, men andre kan stadig bruges. Vil du indløse de brugbare beviser?"
 }

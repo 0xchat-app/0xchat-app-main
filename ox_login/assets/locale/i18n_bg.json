@@ -26,8 +26,16 @@
   "public_key": "Публичен ключ",
   "private_key": "Частен ключ",
   "lets_go": "Нека започнем!",
-  "enter_account_key_login_hint": "Въведете своя частен ключ, за да влезете:",
+  "enter_account_key_login_hint": "Въведете ключ или URL за вход:",
   "private_key_regular_failed": "Неуспешен редовен частен ключ",
   "pub_key_regular_failed": "Неуспешен редовен публичен ключ",
-  "str_not_installed_amber": "Не сте инсталирали Amber"
+  "str_not_installed_amber": "Не сте инсталирали Amber",
+  "str_nesc_invalid_hint": "Въведеният NSEC е невалиден. Моля, въведете го отново.",
+  "str_login_with_nip46": "Вход с Nip46",
+  "str_enter_nip46_login_hint": "Въведете Nip46 връзка за вход:",
+  "str_login_with_qrcode": "Вход чрез QR код",
+  "str_login_with_qrcode_hint": "Влезте в 0xchat чрез QR код",
+  "str_login_with_qrcode_description": "1 Отворете 0xchat на телефона си\n2 Отидете на Добавяне > Сканиране\n3 Насочете телефона си към този екран, за да потвърдите входа",
+  "str_login_with_account": "Вход чрез акаунт",
+  "str_login_with_copy_url": "Копирайте URL"
 }

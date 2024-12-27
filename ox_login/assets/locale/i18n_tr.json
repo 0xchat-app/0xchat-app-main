@@ -26,8 +26,16 @@
   "public_key": "Halka Açık Anahtar",
   "private_key": "Özel Anahtar",
   "lets_go": "Haydi gidelim!",
-  "enter_account_key_login_hint": "Giriş yapmak için özel anahtarınızı girin:",
+  "enter_account_key_login_hint": "Giriş yapmak için anahtar veya URL girin:",
   "private_key_regular_failed": "Özel Anahtar düzenli başarısız oldu",
   "pub_key_regular_failed": "Genel Anahtar düzenli başarısız oldu",
-  "str_not_installed_amber": "Amber'i yüklemediniz"
+  "str_not_installed_amber": "Amber'i yüklemediniz",
+  "str_nesc_invalid_hint": "Girdiğiniz NSEC geçersiz. Lütfen tekrar girin.",
+  "str_login_with_nip46": "Nip46 ile Giriş Yap",
+  "str_enter_nip46_login_hint": "Giriş yapmak için Nip46 bağlantısını girin:",
+  "str_login_with_qrcode": "QR Kodu ile Giriş Yap",
+  "str_login_with_qrcode_hint": "QR Kodu kullanarak 0xchat'e giriş yapın",
+  "str_login_with_qrcode_description": "1 Telefonunuzda 0xchat'i açın\n2 Ekle > Tara'ya gidin\n3 Giriş yapmak için telefonunuzu bu ekrana yönlendirin",
+  "str_login_with_account": "Hesap ile Giriş Yap",
+  "str_login_with_copy_url": "URL'yi Kopyala"
 }

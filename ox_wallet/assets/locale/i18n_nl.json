@@ -85,5 +85,6 @@
   "mint": "Munt",
   "how_to_operate": "Hoe werkt het?",
   "backup_funds_instruction": "Het proces van het back-uppen van fondsen consolideert en berekent automatisch de kleinste bewijzen voor efficiënte opslag en verbetert de beveiliging. Let echter op dat nadat het herstel is voltooid, het oude Cashu-token ongeldig wordt, dus zorg ervoor dat het proces veilig verloopt",
-  "download_button": "Downloaden"
+  "download_button": "Downloaden",
+  "some_proofs_spendable_hint": "Sommige bewijzen zijn al gebruikt, maar andere zijn nog bruikbaar. Wil je de bruikbare bewijzen inwisselen?"
 }

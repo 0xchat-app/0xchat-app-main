@@ -223,6 +223,7 @@
   "str_p2p_title": "语音和视频数据通过TURN服务器中继，以防止您的IP地址暴露给您的联系人。",
   "str_p2p_tips": "始终使用中继",
   "str_read_file_failed": "读取文件失败",
+  "removePhoto": "移除照片",
   "nuts_zaps": "Nuts Zaps",
   "use_socks_proxy":"使用SOCKS代理",
   "use_socks_proxy_port":"端口",
@@ -231,5 +232,6 @@
   "str_add_other_account": "添加其他账号",
   "str_set_new_photo": "设置新头像",
   "str_font_size": "字体大小",
-  "str_settings_chat": "聊天设置"
+  "str_settings_chat": "字体大小",
+  "str_settings_chat_set": "设置"
 }

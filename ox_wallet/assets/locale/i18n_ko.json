@@ -79,5 +79,6 @@
   "backup_wallet_button": "지갑 백업/가져오기",
   "backup_wallet": "지갑 백업",
   "cancel": "취소",
-  "select_mint_title": "화폐 선택"
+  "select_mint_title": "화폐 선택",
+  "some_proofs_spendable_hint": "일부 증명은 이미 사용되었지만, 다른 증명은 여전히 사용할 수 있습니다. 사용할 수 있는 증명을 교환하시겠습니까?"
 }

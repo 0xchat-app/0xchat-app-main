@@ -85,5 +85,6 @@
   "mint": "Cunhagem",
   "how_to_operate": "Como funciona?",
   "backup_funds_instruction": "O processo de backup de fundos consolida e calcula automaticamente as menores provas para armazenamento eficiente, enquanto aumenta a segurança. No entanto, observe que, uma vez concluída a recuperação, o antigo token Cashu torna-se inválido, portanto, certifique-se de que o processo é realizado com segurança",
-  "download_button": "Baixar"
+  "download_button": "Baixar",
+  "some_proofs_spendable_hint": "Algumas provas já foram usadas, mas outras ainda são utilizáveis. Deseja resgatar as provas utilizáveis?"
 }

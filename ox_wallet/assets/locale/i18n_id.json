@@ -85,5 +85,6 @@
   "mint": "Mint",
   "how_to_operate": "Bagaimana cara kerjanya?",
   "backup_funds_instruction": "Proses cadangan dana secara otomatis mengonsolidasikan dan menghitung bukti terkecil untuk penyimpanan yang efisien sambil meningkatkan keamanan. Namun, perhatikan bahwa setelah pemulihan selesai, token Cashu lama menjadi tidak valid, jadi pastikan proses dilakukan dengan aman",
-  "download_button": "Unduh"
+  "download_button": "Unduh",
+  "some_proofs_spendable_hint": "Beberapa bukti sudah digunakan, tetapi yang lain masih dapat digunakan. Apakah Anda ingin menukarkan bukti yang dapat digunakan?"
 }

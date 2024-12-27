@@ -26,8 +26,16 @@
   "public_key": "Kunci Publik",
   "private_key": "Kunci Pribadi",
   "lets_go": "Ayo mulai!",
-  "enter_account_key_login_hint": "Masukkan kunci pribadi Anda untuk masuk:",
+  "enter_account_key_login_hint": "Masukkan kunci atau URL untuk masuk:",
   "private_key_regular_failed": "Kunci pribadi gagal reguler",
   "pub_key_regular_failed": "Kunci publik gagal reguler",
-  "str_not_installed_amber": "Anda belum menginstal Amber"
+  "str_not_installed_amber": "Anda belum menginstal Amber",
+  "str_nesc_invalid_hint": "NSEC yang Anda masukkan tidak valid. Silakan masukkan lagi.",
+  "str_login_with_nip46": "Masuk dengan Nip46",
+  "str_enter_nip46_login_hint": "Masukkan tautan Nip46 untuk masuk:",
+  "str_login_with_qrcode": "Masuk dengan Kode QR",
+  "str_login_with_qrcode_hint": "Masuk ke 0xchat menggunakan Kode QR",
+  "str_login_with_qrcode_description": "1 Buka 0xchat di ponsel Anda\n2 Pergi ke Tambah > Pindai\n3 Arahkan ponsel Anda ke layar ini untuk mengonfirmasi masuk",
+  "str_login_with_account": "Masuk dengan Akun",
+  "str_login_with_copy_url": "Salin URL"
 }
