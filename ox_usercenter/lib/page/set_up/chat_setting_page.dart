@@ -179,7 +179,7 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
           OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.APP_FONT_SIZE, _textScale);
           OXNavigator.pop(context);
         },
-      ).setPaddingOnly(right: 24.px),
+      ),
     );
   }
 }
