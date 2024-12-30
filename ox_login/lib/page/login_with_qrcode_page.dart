@@ -4,6 +4,7 @@ import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_common/utils/platform_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/utils/user_config_tool.dart';
@@ -81,124 +82,130 @@ class _LoginWithQRCodePageState extends BasePageState<LoginWithQRCodePage> {
     return Container(
       margin: EdgeInsets.only(top: 80.px),
       padding: EdgeInsets.symmetric(horizontal: 24.px),
-      child: Column(
-        children: [
-          Container(
-            width: Adapt.px(310),
-            alignment: Alignment.center,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Container(
-                  width: 220.px,
-                  height: 220.px,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                  ),
-                  padding: EdgeInsets.all(
-                    Adapt.px(8),
-                  ),
-                  child:
-                  _loginQRCodeUrl.isEmpty ? Container() : _qrCodeWidget(),
-                ),
-                Container(
-                  margin: EdgeInsets.only(top: 36.px),
-                  alignment: Alignment.center,
-                  child: Text(
-                    Localized.text('ox_login.str_login_with_qrcode_hint'),
-                    style: TextStyle(
-                      color: ThemeColor.color0,
-                      fontSize: 14.px,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            margin: EdgeInsets.only(top: 32.px),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  onTap: () {
-                    _showRelayPage();
-                  },
-                  child: Container(
-                    width: 120.px,
-                    height: 48.px,
+      alignment: Alignment.topCenter,
+      child: Container(
+        constraints: BoxConstraints(
+          maxWidth: PlatformUtils.listWidth,
+        ),
+        child: Column(
+          children: [
+            Container(
+              width: Adapt.px(310),
+              alignment: Alignment.center,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 220.px,
+                    height: 220.px,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: ThemeColor.color180,
-                      borderRadius: BorderRadius.circular(12.px),
+                      color: Colors.white,
                     ),
+                    padding: EdgeInsets.all(
+                      Adapt.px(8),
+                    ),
+                    child:
+                    _loginQRCodeUrl.isEmpty ? Container() : _qrCodeWidget(),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(top: 36.px),
+                    alignment: Alignment.center,
                     child: Text(
-                      Localized.text('ox_usercenter.relays') + '(${_relayUrls.length})',
+                      Localized.text('ox_login.str_login_with_qrcode_hint'),
                       style: TextStyle(
                         color: ThemeColor.color0,
                         fontSize: 14.px,
                       ),
                     ),
                   ),
-                ),
-                GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  onTap: () {
-                    _copyUrl();
-                  },
-                  child: Container(
-                    width: 120.px,
-                    height: 48.px,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: ThemeColor.color180,
-                      borderRadius: BorderRadius.circular(12.px),
-                    ),
-                    child: Text(
-                      Localized.text('ox_login.str_login_with_copy_url'),
-                      style: TextStyle(
-                        color: ThemeColor.color0,
-                        fontSize: 14.px,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            margin: EdgeInsets.only(top: 32.px),
-            alignment: Alignment.centerLeft,
-            child: Text(
-              Localized.text('ox_login.str_login_with_qrcode_description'),
-              style: TextStyle(
-                color: ThemeColor.color0,
-                fontSize: 14.px,
+                ],
               ),
             ),
-          ),
-          GestureDetector(
-            behavior: HitTestBehavior.translucent,
-            onTap: () {
-              OXNavigator.pushPage(context, (context) => AccountKeyLoginPage());
-            },
-            child: Container(
-              margin: EdgeInsets.only(top: 25.px),
-              alignment: Alignment.center,
-              height: 48.px,
+            Container(
+              margin: EdgeInsets.only(top: 32.px),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onTap: () {
+                      _showRelayPage();
+                    },
+                    child: Container(
+                      width: 120.px,
+                      height: 48.px,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: ThemeColor.color180,
+                        borderRadius: BorderRadius.circular(12.px),
+                      ),
+                      child: Text(
+                        Localized.text('ox_usercenter.relays') + '(${_relayUrls.length})',
+                        style: TextStyle(
+                          color: ThemeColor.color0,
+                          fontSize: 14.px,
+                        ),
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onTap: () {
+                      _copyUrl();
+                    },
+                    child: Container(
+                      width: 120.px,
+                      height: 48.px,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: ThemeColor.color180,
+                        borderRadius: BorderRadius.circular(12.px),
+                      ),
+                      child: Text(
+                        Localized.text('ox_login.str_login_with_copy_url'),
+                        style: TextStyle(
+                          color: ThemeColor.color0,
+                          fontSize: 14.px,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              margin: EdgeInsets.only(top: 32.px),
+              alignment: Alignment.centerLeft,
               child: Text(
-                Localized.text('ox_login.str_login_with_account'),
+                Localized.text('ox_login.str_login_with_qrcode_description'),
                 style: TextStyle(
-                  color: ThemeColor.gradientMainStart,
+                  color: ThemeColor.color0,
                   fontSize: 14.px,
                 ),
               ),
             ),
-          ),
-        ],
+            GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: () {
+                OXNavigator.pushPage(context, (context) => AccountKeyLoginPage());
+              },
+              child: Container(
+                margin: EdgeInsets.only(top: 25.px),
+                alignment: Alignment.center,
+                height: 48.px,
+                child: Text(
+                  Localized.text('ox_login.str_login_with_account'),
+                  style: TextStyle(
+                    color: ThemeColor.gradientMainStart,
+                    fontSize: 14.px,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
