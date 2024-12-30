@@ -148,7 +148,7 @@ class _RelaysForLoginPageState extends State<RelaysForLoginPage> with WidgetsBin
                     padding: EdgeInsets.only(top: 24.px, bottom: 12.px),
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      'CONNECT TO GENERAL RELAY',
+                      'CONNECT TO REMOTE SIGNER RELAY',
                       style: TextStyle(
                         color: ThemeColor.color0,
                         fontSize: Adapt.px(14),
@@ -229,7 +229,7 @@ class _RelaysForLoginPageState extends State<RelaysForLoginPage> with WidgetsBin
                       alignment: Alignment.centerLeft,
                       child: Text(
                         // Localized.text('ox_usercenter.connected_relay'),
-                        'CONNECTED TO GENERAL RELAY',
+                        'CONNECTED TO REMOTE SIGNER RELAY',
                         style: TextStyle(
                           color: ThemeColor.color0,
                           fontSize: Adapt.px(16),
