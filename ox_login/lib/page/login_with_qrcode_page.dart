@@ -177,7 +177,7 @@ class _LoginWithQRCodePageState extends BasePageState<LoginWithQRCodePage> {
             ),
             Container(
               margin: EdgeInsets.only(top: 32.px),
-              alignment: Alignment.centerLeft,
+              alignment: Alignment.center,
               child: Text(
                 Localized.text('ox_login.str_login_with_qrcode_description'),
                 style: TextStyle(
