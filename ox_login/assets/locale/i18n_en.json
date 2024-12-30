@@ -26,16 +26,16 @@
   "public_key": "Public Key",
   "private_key": "Private Key",
   "lets_go": "Let’s go!",
-  "enter_account_key_login_hint": "Enter key or url to login:",
+  "enter_account_key_login_hint": "Use nostr key or remote signer to login:",
   "private_key_regular_failed": "Private Key regular failed",
   "pub_key_regular_failed": "Pub Key regular failed",
   "str_not_installed_amber": "You have not installed Amber",
   "str_nesc_invalid_hint": "The NSEC you entered is invalid. Please enter it again.",
   "str_login_with_nip46": "Login with Nip46",
   "str_enter_nip46_login_hint": "Enter your Nip46 link to login:",
-  "str_login_with_qrcode": "Login by QRCode",
-  "str_login_with_qrcode_hint": "Loin to 0xchat by QR Code",
-  "str_login_with_qrcode_description": "1 Open 0xchat on your phone\n2 Go to Add > Scan\n3 Point your phone at this screen to confirm login",
-  "str_login_with_account": "Login by Account",
-  "str_login_with_copy_url": "Copy URL"
+  "str_login_with_qrcode": "Login via QR Code",
+  "str_login_with_qrcode_hint": "Log in to 0xChat using the QR code",
+  "str_login_with_qrcode_description": "1. Select remote signer relays\n2. Open the Amber app or nsec.app website\n3. Scan the QR code or copy the URI to log in",
+  "str_login_with_account": "Login by entering \"bunker://\" URI",
+  "str_login_with_copy_url": "Copy URI"
 }
