@@ -40,8 +40,8 @@ class Uploader {
       switch (imageService) {
         case ImageServices.POMF2_LAIN_LA:
           return await Pomf2LainLa.upload(localPath, fileName: fileName, onProgress: onProgress);
-        case ImageServices.NOSTR_BUILD:
-          return await NostrBuildUploader.upload(localPath, fileName: fileName, onProgress: onProgress);
+        // case ImageServices.NOSTR_BUILD:
+        //   return await NostrBuildUploader.upload(localPath, fileName: fileName, onProgress: onProgress);
         case ImageServices.NOSTO_RE:
           return await BolssomUploader.upload("https://nosto.re/", localPath,
               fileName: fileName, onProgress: onProgress);
@@ -52,6 +52,7 @@ class Uploader {
           }
         case ImageServices.VOID_CAT:
           return await VoidCatUploader.upload(localPath, onProgress: onProgress);
+        case ImageServices.NOSTR_BUILD:
         case ImageServices.NIP_96:
           if (StringUtil.isNotBlank(imageServiceAddr)) {
             return await NIP96Uploader.upload(imageServiceAddr!, localPath,
