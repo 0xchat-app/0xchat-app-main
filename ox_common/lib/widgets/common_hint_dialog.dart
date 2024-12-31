@@ -406,6 +406,7 @@ class OXCommonHintDialog extends StatelessWidget {
     RouteTransitionsBuilder? transitionBuilder,
     AssetImage? bgImage,
     bool isRowAction = false,
+    Function(BuildContext)? onDialogContextCreated,
   }) {
     actionList ??= [
       OXCommonHintAction.sure(
@@ -425,7 +426,10 @@ class OXCommonHintDialog extends StatelessWidget {
         isRowAction: isRowAction,
       ),
       barrierDismissible: barrierDismissible,
-      transitionBuilder: (BuildContext context, Animation<double> animation1, Animation<double> animation2, Widget child) {
+      transitionBuilder: (BuildContext tContext, Animation<double> animation1, Animation<double> animation2, Widget child) {
+        if (onDialogContextCreated != null && animation1.isCompleted){
+          onDialogContextCreated.call(tContext);
+        }
         return ScaleTransition(
           scale: Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(
             parent: animation1,
@@ -442,6 +446,7 @@ class OXCommonHintDialog extends StatelessWidget {
       BuildContext context, {
         String? title,
         String? content,
+        Function(BuildContext)? onDialogContextCreated,
       }) {
     final completer = Completer<bool>();
     OXCommonHintDialog.show(
@@ -450,6 +455,7 @@ class OXCommonHintDialog extends StatelessWidget {
       content: content,
       isRowAction: true,
       showCancelButton: true,
+      onDialogContextCreated: onDialogContextCreated,
       sureOnTap: () {
         completer.complete(true);
       },

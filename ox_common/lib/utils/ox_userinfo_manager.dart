@@ -4,19 +4,21 @@ import 'dart:io';
 import 'package:cashu_dart/business/wallet/cashu_manager.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/log_util.dart';
+import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/ox_common.dart';
-import 'package:ox_common/utils/ox_server_manager.dart';
-import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/utils/cashu_helper.dart';
+import 'package:ox_common/utils/nip46_callback_dialog_manager.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_moment_manager.dart';
+import 'package:ox_common/utils/ox_server_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_module_service/ox_module_service.dart';
-import 'package:sqflite_sqlcipher/sqflite.dart';
 
 abstract mixin class OXUserInfoObserver {
   void didLoginSuccess(UserDBISAR? userInfo);
@@ -72,20 +74,20 @@ class OXUserInfoManager {
   Future initDB(String pubkey) async {
     if(pubkey.isEmpty) return;
     await logout(needObserver: false);
-    await ThreadPoolManager.sharedInstance.initialize();
     String dbpath = pubkey + ".db2";
-    bool exists = await databaseExists(dbpath);
+    bool exists = await DB.sharedInstance.databaseExists(dbpath);
     if (exists) {
       String? dbpw = await OXCacheManager.defaultOXCacheManager.getForeverData('dbpw+$pubkey');
       await DB.sharedInstance.open(dbpath, version: CommonConstant.dbVersion, password: dbpw);
       await DBISAR.sharedInstance.open(pubkey);
       await DB.sharedInstance.migrateToISAR();
       debugPrint("delete Table");
-      await deleteDatabase(dbpath);
+      await DB.sharedInstance.deleteDatabaseFile(dbpath);
     }
     else{
       await DBISAR.sharedInstance.open(pubkey);
     }
+    Account.sharedInstance.init();
     {
       final cashuDBPwd = await CashuHelper.getDBPassword(pubkey);
       CashuManager.shared.setup(pubkey, dbPassword: cashuDBPwd, defaultMint: []);
@@ -114,7 +116,7 @@ class OXUserInfoManager {
           String decodeSignature = UserDB.decodePubkey(signature) ?? '';
           if (decodeSignature.isNotEmpty) {
             await initDB(localPubKey);
-            UserDBISAR? tempUserDB = await Account.sharedInstance.loginWithPubKey(localPubKey);
+            UserDBISAR? tempUserDB = await Account.sharedInstance.loginWithPubKey(localPubKey, SignerApplication.androidSigner);
             if (tempUserDB != null) {
               UserConfigTool.compatibleOld(tempUserDB);
               currentUserInfo = tempUserDB;
@@ -156,7 +158,7 @@ class OXUserInfoManager {
     }
   }
 
-  void addChatCallBack() async {
+  void addChatCallBack() {
     Contacts.sharedInstance.secretChatRequestCallBack = (SecretSessionDBISAR ssDB) async {
       LogUtil.d("Michael: init secretChatRequestCallBack ssDB.sessionId =${ssDB.sessionId}");
       OXChatBinding.sharedInstance.secretChatRequestCallBack(ssDB);
@@ -312,7 +314,7 @@ class OXUserInfoManager {
     resetData(needObserver: needObserver);
   }
 
-  Future<void> resetData({bool needObserver = true}) async {
+  void resetData({bool needObserver = true}) {
     signatureVerifyFailed = false;
     OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUBKEY, null);
     currentUserInfo = null;
@@ -420,7 +422,6 @@ class OXUserInfoManager {
       Zaps.sharedInstance.init();
       _initMessage();
     });
-
     LogUtil.e('Michael: data await Friends Channels init friends =${Contacts.sharedInstance.allContacts.values.toList().toString()}');
   }
 

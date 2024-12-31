@@ -6,6 +6,7 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 import 'dart:ui';
 import 'package:ox_theme/ox_theme.dart';
 
@@ -93,8 +94,7 @@ class LargeTitleState extends State<LargeTitle> {
 }
 
 // marked by ccso
-class
-CommonAppBar extends StatefulWidget implements PreferredSizeWidget {
+class CommonAppBar extends StatefulWidget implements PreferredSizeWidget {
   final bool canBack;
   final bool isClose;
   final VoidCallback? backCallback;
@@ -153,43 +153,51 @@ class BaseAppBarState extends State<CommonAppBar> {
   // marked by ccso
   @override
   Widget build(BuildContext context) {
-    return AppBar(
-      // brightness: _defaultBrightness(),
-      title: widget.useLargeTitle || widget.useMediumTitle
-          ? null
-          : (widget.titleWidget ?? Text(
-        widget.title,
-        style: TextStyle(
-          color: widget.titleTextColor ?? ThemeColor.color0,
-          fontSize: 16.sp,
-          fontWeight: FontWeight.w600,
-        ),
-      )),
-      titleSpacing: widget.titleSpacing,
-      backgroundColor: _defaultBackgroundColor(),
-      surfaceTintColor: Colors.transparent,
-      centerTitle: widget.centerTitle,
-      elevation: widget.elevation,
-      leading: _buildLeading(),
-      actions: _buildActions(widget.actions),
-      flexibleSpace: widget.useLargeTitle
-          ? Padding(
-              padding: EdgeInsets.only(
-                  left: MediaQuery.of(context).size.width * 0.042),
-              child: LargeTitle(
-                title: widget.title,
-              ),
-            )
-          : (widget.useLargeTitle == false && widget.useMediumTitle == true)
+    return PreferredSize(
+      preferredSize: Size.fromHeight(kToolbarHeight),
+      child: Container(
+        color: _defaultBackgroundColor(),
+        padding: EdgeInsets.symmetric(horizontal: 24.px),
+        child: AppBar(
+          // brightness: _defaultBrightness(),
+          title: widget.useLargeTitle || widget.useMediumTitle
+              ? null
+              : (widget.titleWidget ??
+                  Text(
+                    widget.title,
+                    style: TextStyle(
+                      color: widget.titleTextColor ?? ThemeColor.color0,
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  )),
+          titleSpacing: widget.titleSpacing,
+          backgroundColor: _defaultBackgroundColor(),
+          surfaceTintColor: Colors.transparent,
+          centerTitle: widget.centerTitle,
+          elevation: widget.elevation,
+          leading: _buildLeading(),
+          actions: _buildActions(widget.actions),
+          flexibleSpace: widget.useLargeTitle
               ? Padding(
                   padding: EdgeInsets.only(
-                      left: MediaQuery.of(context).size.width * 0.051),
-                  child: MediumTitle(
+                      left: MediaQuery.of(context).size.width * 0.042),
+                  child: LargeTitle(
                     title: widget.title,
                   ),
                 )
-              : null,
-      leadingWidth: widget.leadingWidth,
+              : (widget.useLargeTitle == false && widget.useMediumTitle == true)
+                  ? Padding(
+                      padding: EdgeInsets.only(
+                          left: MediaQuery.of(context).size.width * 0.051),
+                      child: MediumTitle(
+                        title: widget.title,
+                      ),
+                    )
+                  : null,
+          leadingWidth: widget.leadingWidth,
+        ),
+      ),
     );
   }
 
@@ -208,7 +216,10 @@ class BaseAppBarState extends State<CommonAppBar> {
 
   Widget? _buildLeading() {
     if (widget.leading != null) {
-      return widget.leading;
+      return Align(
+        alignment: Localized.getTextDirectionForLang() == TextDirection.ltr ?  Alignment.centerLeft : Alignment.centerRight,
+        child: widget.leading,
+      );
     }
     if (widget.isClose) {
       return Builder(
@@ -216,13 +227,13 @@ class BaseAppBarState extends State<CommonAppBar> {
           return GestureDetector(
             behavior: HitTestBehavior.translucent,
             child: Align(
-              alignment: Alignment.centerLeft,
+              alignment: Localized.getTextDirectionForLang() == TextDirection.ltr ?  Alignment.centerLeft : Alignment.centerRight,
               child: CommonImage(
                 iconName: "title_close.png",
                 size:  24.px,
                 useTheme: true,
               ),
-            ).setPaddingOnly(left: 24.px),
+            ),
             onTap: widget.backCallback ??
                 () {
                   OXNavigator.pop(context);
@@ -237,13 +248,13 @@ class BaseAppBarState extends State<CommonAppBar> {
           return GestureDetector(
             behavior: HitTestBehavior.translucent,
             child: Align(
-              alignment: Alignment.centerLeft,
+              alignment: Localized.getTextDirectionForLang() == TextDirection.ltr ?  Alignment.centerLeft : Alignment.centerRight,
               child: CommonImage(
                 iconName: "icon_back_left_arrow.png",
                 size: 24.px,
                 useTheme: true,
               ),
-            ).setPaddingOnly(left: 24.px),
+            ),
             onTap: widget.backCallback ??
                 () {
                   OXNavigator.pop(context);

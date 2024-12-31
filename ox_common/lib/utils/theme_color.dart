@@ -27,6 +27,7 @@ class ThemeColor {
   static Color get yellow1 => ThemeManager.colors('ox_common.yellow1');
   static Color get green2 => ThemeManager.colors('ox_common.green2');
   static Color get green1 => ThemeManager.colors('ox_common.green1');
+  static Color get green4 => ThemeManager.colors('ox_common.green3');
   static Color get blue1 => ThemeManager.colors('ox_common.blue1');
   static Color get purple1 => ThemeManager.colors('ox_common.purple1');
   static Color get purple2 => ThemeManager.colors('ox_common.purple2');

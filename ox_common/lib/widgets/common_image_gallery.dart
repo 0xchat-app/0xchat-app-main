@@ -270,7 +270,7 @@ class _CommonImageGalleryState extends State<CommonImageGallery>
                             speed: 1.0,
                             inertialSpeed: 100.0,
                             initialScale: 1.0,
-                            inPageView: false,
+                            inPageView: true,
                             initialAlignment: InitialAlignment.center,
                           );
                         },

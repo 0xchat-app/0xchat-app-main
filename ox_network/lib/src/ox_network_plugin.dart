@@ -1,5 +1,6 @@
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/services.dart';
 
@@ -13,6 +14,9 @@ class OXNetworkPlugin {
   }
 
   static Future<String> getProxyAddress(String url) async {
+    if (Platform.isMacOS) {
+      return '';
+    }
     final String version = await _channel.invokeMethod('getProxyAddress', { 'url': url });
     return version;
   }
