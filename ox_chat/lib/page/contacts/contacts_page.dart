@@ -128,7 +128,7 @@ class _ContractsPageState extends ContactBasePageState<ContractsPage>
       titleSpacing: 0.0,
       centerTitle: false,
       title: Padding(
-        padding: EdgeInsets.only(left: 24.0),
+        padding: EdgeInsets.symmetric(horizontal: 24.px),
         child: CommonCategoryTitleView(
           bgColor: Colors.transparent,
           selectedGradientColors: [
@@ -154,7 +154,7 @@ class _ContractsPageState extends ContactBasePageState<ContractsPage>
       ),
       actions: <Widget>[
         Container(
-          margin: EdgeInsets.only(right: Adapt.px(16), top: Adapt.px(0)),
+          margin: EdgeInsets.symmetric(horizontal: 12.px),
           color: Colors.transparent,
           child: OXButton(
             highlightColor: Colors.transparent,
@@ -353,6 +353,7 @@ class _ContractsPageState extends ContactBasePageState<ContractsPage>
               horizontal: Adapt.px(24),
               vertical: Adapt.px(6),
             ),
+            padding: EdgeInsets.symmetric(horizontal: 16.px),
             height: Adapt.px(48),
             decoration: BoxDecoration(
               color: ThemeColor.color190,
@@ -363,14 +364,7 @@ class _ContractsPageState extends ContactBasePageState<ContractsPage>
               mainAxisAlignment: MainAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  margin: EdgeInsets.only(left: Adapt.px(18)),
-                  child: assetIcon(
-                    'icon_chat_search.png',
-                    24,
-                    24,
-                  ),
-                ),
+                assetIcon('icon_chat_search.png', 24, 24),
                 SizedBox(
                   width: Adapt.px(8),
                 ),

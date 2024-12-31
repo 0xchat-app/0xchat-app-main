@@ -85,7 +85,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> {
               setState(() { });
             },
           ),
-        ).setPadding(EdgeInsets.only(right: Adapt.px(24))),
+        ),
       ],
     );
   }

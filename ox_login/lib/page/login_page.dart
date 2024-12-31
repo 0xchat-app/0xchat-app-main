@@ -1,31 +1,28 @@
 import 'dart:io';
 
+// plugin
+import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
-
+import 'package:nostr_core_dart/nostr.dart';
 // ox_common
 import 'package:ox_common/log_util.dart';
-import 'package:ox_common/utils/app_relay_hint_dialog.dart';
-import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
-import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/app_relay_hint_dialog.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
-import 'package:ox_common/widgets/common_toast.dart';
-import 'package:ox_common/widgets/common_webview.dart';
 import 'package:ox_common/widgets/common_loading.dart';
-
+import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 // ox_login
 import 'package:ox_login/page/account_key_login_page.dart';
 import 'package:ox_login/page/create_account_page.dart';
-
-// plugin
-import 'package:chatcore/chat-core.dart';
-import 'package:nostr_core_dart/nostr.dart';
-import 'package:ox_localizable/ox_localizable.dart';
-import 'package:rich_text_widget/rich_text_widget.dart';
+import 'package:ox_login/page/login_with_qrcode_page.dart';
 import 'package:ox_module_service/ox_module_service.dart';
+import 'package:rich_text_widget/rich_text_widget.dart';
 
 class LoginPage extends StatefulWidget {
   final bool? isLoginShow;
@@ -42,7 +39,7 @@ class _LoginPageState extends State<LoginPage> {
   int groupValue = 1;
   String loginSchema = 'wc';
   String? platformUniqueKey;
-
+  TextEditingController _nip46UrlEditingController = new TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -61,17 +58,14 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _appBarActions() {
-    return Container(
-      margin: EdgeInsets.only(right: Adapt.px(24)),
-      child: GestureDetector(
-        onTap: () => OXNavigator.pop(context),
-        child: CommonImage(
-          iconName: 'close_icon_white.png',
-          fit: BoxFit.contain,
-          width: Adapt.px(24),
-          height: Adapt.px(24),
-          useTheme: true,
-        ),
+    return GestureDetector(
+      onTap: () => OXNavigator.pop(context),
+      child: CommonImage(
+        iconName: 'close_icon_white.png',
+        fit: BoxFit.contain,
+        width: Adapt.px(24),
+        height: Adapt.px(24),
+        useTheme: true,
       ),
     );
   }
@@ -102,7 +96,7 @@ class _LoginPageState extends State<LoginPage> {
                 textAlign: TextAlign.center,
               ),
             ),
-            SizedBox(height: Adapt.px(110)),
+            SizedBox(height: 90.px),
             Column(
               mainAxisAlignment: MainAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
@@ -157,59 +151,66 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 SizedBox(height: Adapt.px(18)),
+                GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: _loginWithQRCode,
+                  child: Container(
+                    width: double.infinity,
+                    height: Adapt.px(48),
+                    alignment: Alignment.center,
+                    child: Text(
+                      Localized.text('ox_login.str_login_with_qrcode'),
+                      style: TextStyle(
+                        color: ThemeColor.gradientMainStart,
+                        fontSize: Adapt.px(16),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: Adapt.px(18)),
                 Container(
                   width: double.infinity,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      SizedBox(width: Adapt.px(8)),
-                      Container(
-                        width: Adapt.screenW - Adapt.px(20 + 8 * 2 + 30 * 2),
-                        child: RichTextWidget(
-                          // default Text
-                          Text(
-                            Localized.text('ox_login.terms_of_service_privacy_policy'),
-                            style: TextStyle(
-                              fontWeight: FontWeight.w500,
-                              fontSize: Adapt.px(14),
-                              color: ThemeColor.titleColor,
-                              height: 1.5,
+                  margin: EdgeInsets.symmetric(horizontal: 24.px),
+                  child: RichTextWidget(
+                    // default Text
+                    Text(
+                      Localized.text('ox_login.terms_of_service_privacy_policy'),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        fontSize: Adapt.px(14),
+                        color: ThemeColor.titleColor,
+                        height: 1.5,
+                      ),
+                    ),
+                    maxLines: 2,
+                    textAlign: TextAlign.center,
+                    // rich text list
+                    richTexts: [
+                      BaseRichText(
+                        Localized.text("ox_login.terms_of_service"),
+                        style: TextStyle(
+                          fontSize: Adapt.px(14),
+                          foreground: Paint()
+                            ..shader = LinearGradient(
+                              colors: [ThemeColor.gradientMainEnd, ThemeColor.gradientMainStart],
+                            ).createShader(
+                              Rect.fromLTWH(0.0, 0.0, 550.0, 70.0),
                             ),
-                          ),
-                          maxLines: 2,
-                          textAlign: TextAlign.center,
-                          // rich text list
-                          richTexts: [
-                            BaseRichText(
-                              Localized.text("ox_login.terms_of_service"),
-                              style: TextStyle(
-                                fontSize: Adapt.px(14),
-                                foreground: Paint()
-                                  ..shader = LinearGradient(
-                                    colors: [ThemeColor.gradientMainEnd, ThemeColor.gradientMainStart],
-                                  ).createShader(
-                                    Rect.fromLTWH(0.0, 0.0, 550.0, 70.0),
-                                  ),
-                              ),
-                              onTap: _serviceWebView,
-                            ),
-                            BaseRichText(
-                              Localized.text("ox_login.privacy_policy"),
-                              style: TextStyle(
-                                fontSize: Adapt.px(14),
-                                foreground: Paint()
-                                  ..shader = LinearGradient(
-                                    colors: [ThemeColor.gradientMainEnd, ThemeColor.gradientMainStart],
-                                  ).createShader(
-                                    Rect.fromLTWH(0.0, 0.0, 350.0, 70.0),
-                                  ),
-                              ),
-                              onTap: _privacyPolicyWebView,
-                            ),
-                          ],
                         ),
+                        onTap: _serviceWebView,
+                      ),
+                      BaseRichText(
+                        Localized.text("ox_login.privacy_policy"),
+                        style: TextStyle(
+                          fontSize: Adapt.px(14),
+                          foreground: Paint()
+                            ..shader = LinearGradient(
+                              colors: [ThemeColor.gradientMainEnd, ThemeColor.gradientMainStart],
+                            ).createShader(
+                              Rect.fromLTWH(0.0, 0.0, 350.0, 70.0),
+                            ),
+                        ),
+                        onTap: _privacyPolicyWebView,
                       ),
                     ],
                   ),
@@ -221,27 +222,23 @@ class _LoginPageState extends State<LoginPage> {
                     onTap: _loginWithAmber,
                     child: Container(
                       width: double.infinity,
-                      height: Adapt.px(48),
+                      height: 70.px,
                       margin: EdgeInsets.only(top: 40.px),
                       child: Stack(
-                        alignment: Alignment.center,
                         children: [
-                          Container(width: double.infinity, height: 0.5.px, color: ThemeColor.color160),
-                          CommonImage(iconName: 'icon_login_amber.png', width: 48.px, height: 48.px, package: 'ox_login'),
+                          Positioned(top: 24.px, left: 0, right: 0, child: Container(width: double.infinity, height: 0.5.px, color: ThemeColor.color160)),
+                          Align(alignment: Alignment.topCenter, child: CommonImage(iconName: 'icon_login_amber.png', width: 48.px, height: 48.px, package: 'ox_login')),
+                          Align(
+                              alignment: Alignment.bottomCenter,
+                              child: Text(
+                                Localized.text('ox_login.login_with_amber'),
+                                style: TextStyle(
+                                    color: ThemeColor.color120,
+                                    fontSize: Adapt.px(12)
+                                ),
+                              )
+                          ),
                         ],
-                      ),
-                    ),
-                  ),
-                ),
-                Visibility(
-                  visible: Platform.isAndroid,
-                  child: Container(
-                    margin: EdgeInsets.only(top: 4.px),
-                    child: Text(
-                      Localized.text('ox_login.login_with_amber'),
-                      style: TextStyle(
-                        color: ThemeColor.color120,
-                        fontSize: Adapt.px(12),
                       ),
                     ),
                   ),
@@ -284,14 +281,17 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
     await OXLoading.show();
-    String decodeSignature = UserDBISAR.decodePubkey(signature) ?? '';
+    String decodeSignature = signature;
+    if (signature.startsWith('npub')) {
+      decodeSignature = UserDBISAR.decodePubkey(signature) ?? '';
+    }
     String currentUserPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
     await OXUserInfoManager.sharedInstance.initDB(decodeSignature);
-    UserDBISAR? userDB = await Account.sharedInstance.loginWithPubKey(decodeSignature);
+    UserDBISAR? userDB = await Account.sharedInstance.loginWithPubKey(decodeSignature, SignerApplication.androidSigner);
     userDB = await OXUserInfoManager.sharedInstance.handleSwitchFailures(userDB, currentUserPubKey);
     if (userDB == null) {
       await OXLoading.dismiss();
-      CommonToast.instance.show(context, Localized.text('ox_common.pub_key_regular_failed'));
+      CommonToast.instance.show(context, Localized.text('ox_login.pub_key_regular_failed'));
       return;
     }
     Account.sharedInstance.reloadProfileFromRelay(userDB.pubKey).then((value) {
@@ -301,7 +301,6 @@ class _LoginPageState extends State<LoginPage> {
     OXUserInfoManager.sharedInstance.loginSuccess(userDB, isAmber: true);
     await OXLoading.dismiss();
     OXNavigator.popToRoot(context);
-    AppRelayHintDialog.show(context);
   }
 
   void _serviceWebView() {
@@ -310,5 +309,9 @@ class _LoginPageState extends State<LoginPage> {
 
   void _privacyPolicyWebView() {
     OXModuleService.invoke('ox_common', 'gotoWebView', [context, 'https://www.0xchat.com/protocols/0xchat_privacy_policy.html', null, null, null, null]);
+  }
+
+  void _loginWithQRCode() {
+    OXNavigator.presentPage(context, (context) => LoginWithQRCodePage(), fullscreenDialog: true);
   }
 }

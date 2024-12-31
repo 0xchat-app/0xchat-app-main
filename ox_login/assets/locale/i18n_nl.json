@@ -26,8 +26,16 @@
   "public_key": "Openbare sleutel",
   "private_key": "Privésleutel",
   "lets_go": "Laten we gaan!",
-  "enter_account_key_login_hint": "Voer uw privésleutel in om in te loggen:",
+  "enter_account_key_login_hint": "Voer een sleutel of URL in om in te loggen:",
   "private_key_regular_failed": "Reguliere privésleutel mislukt",
   "pub_key_regular_failed": "Reguliere openbare sleutel mislukt",
-  "str_not_installed_amber": "U hebt Amber niet geïnstalleerd"
+  "str_not_installed_amber": "U hebt Amber niet geïnstalleerd",
+  "str_nesc_invalid_hint": "De ingevoerde NSEC is ongeldig. Voer deze opnieuw in.",
+  "str_login_with_nip46": "Inloggen met Nip46",
+  "str_enter_nip46_login_hint": "Voer de Nip46-link in om in te loggen:",
+  "str_login_with_qrcode": "Inloggen met QR-code",
+  "str_login_with_qrcode_hint": "Log in op 0xchat met een QR-code",
+  "str_login_with_qrcode_description": "1 Open 0xchat op je telefoon\n2 Ga naar Toevoegen > Scannen\n3 Richt je telefoon op dit scherm om inloggen te bevestigen",
+  "str_login_with_account": "Inloggen met Account",
+  "str_login_with_copy_url": "Kopieer URL"
 }

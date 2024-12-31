@@ -81,5 +81,7 @@
   "group_search_text": "Zoek Open & Gesloten Groepen",
   "channel_search_text": "Zoek Openbare Kanalen",
   "member": "Lid",
-  "members": "Leden"
+  "members": "Leden",
+  "like_fail_tips": "Vind-ik-leuk mislukt!",
+  "open_group": "Open Groepen"
 }

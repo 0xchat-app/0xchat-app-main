@@ -10,23 +10,21 @@ extension UserCenterPageUI on UserCenterPageState{
       useLargeTitle: false,
       centerTitle: false,
       canBack: false,
-      leading: OXButton(
-        color: Colors.transparent,
-        highlightColor: Colors.transparent,
+      leading: GestureDetector(
+        behavior: HitTestBehavior.translucent,
         child: CommonImage(
           iconName: 'icon_qrcode.png',
           size: 24.px,
           package: 'ox_usercenter',
           color: ThemeColor.color0,
         ),
-        onPressed: () {
+        onTap: () {
           OXModuleService.invoke('ox_chat', 'showMyIdCardDialog', [context]);
         },
       ),
       actions: <Widget>[
         if (isLogin)
           Container(
-            margin: EdgeInsets.only(right: Adapt.px(5)),
             color: Colors.transparent,
             child: OXButton(
               highlightColor: Colors.transparent,
@@ -288,6 +286,7 @@ extension UserCenterPageUI on UserCenterPageState{
                   ),
                   SizedBox(height: Adapt.px(24)),
                   const SettingsPage(),
+                  if (Platform.isMacOS) _buildDeleteButton(),
                   // SizedBox(height: Adapt.px(24)),
                   // Container(
                   //   width: double.infinity,
@@ -497,50 +496,52 @@ extension UserCenterPageUI on UserCenterPageState{
             height: Adapt.px(52),
             padding: EdgeInsets.symmetric(horizontal: 16.px),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                CommonImage(
-                  iconName: iconName ?? '',
-                  width: Adapt.px(32),
-                  height: Adapt.px(32),
-                  package: 'ox_usercenter',
-                ),
-                SizedBox(width: 12.px),
-                Text(
-                  title ?? '',
-                  style: TextStyle(
-                    color: ThemeColor.color0,
-                    fontSize: Adapt.px(16),
-                  ),
-                ),
-                Expanded(
-                  child: Align(
-                    alignment: Alignment.centerRight,
-                    child: SizedBox(
-                      width: Adapt.px(56),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          badgeImgUrl == null
-                              ? (_isShowZapBadge && iconName == 'icon_settings_zaps.png' ? _buildUnreadWidget() :const SizedBox())
-                              : OXCachedNetworkImage(
-                            imageUrl: badgeImgUrl,
-                            placeholder: (context, url) => placeholderImage,
-                            errorWidget: (context, url, error) =>
-                            placeholderImage,
-                            width: Adapt.px(32),
-                            height: Adapt.px(32),
-                            fit: BoxFit.cover,
-                          ),
-                          CommonImage(
-                            iconName: 'icon_arrow_more.png',
-                            width: Adapt.px(24),
-                            height: Adapt.px(24),
-                          )
-                        ],
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    CommonImage(
+                      iconName: iconName ?? '',
+                      width: Adapt.px(32),
+                      height: Adapt.px(32),
+                      package: 'ox_usercenter',
+                    ),
+                    SizedBox(width: 12.px),
+                    Text(
+                      title ?? '',
+                      style: TextStyle(
+                        color: ThemeColor.color0,
+                        fontSize: Adapt.px(16),
                       ),
                     ),
+                  ],
+                ),
+                SizedBox(
+                  width: Adapt.px(56),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      badgeImgUrl == null
+                          ? (_isShowZapBadge && iconName == 'icon_settings_zaps.png' ? _buildUnreadWidget() :const SizedBox())
+                          : OXCachedNetworkImage(
+                        imageUrl: badgeImgUrl,
+                        placeholder: (context, url) => placeholderImage,
+                        errorWidget: (context, url, error) =>
+                        placeholderImage,
+                        width: Adapt.px(32),
+                        height: Adapt.px(32),
+                        fit: BoxFit.cover,
+                      ),
+                      CommonImage(
+                        iconName: 'icon_arrow_more.png',
+                        width: Adapt.px(24),
+                        height: Adapt.px(24),
+                      )
+                    ],
                   ),
                 ),
               ],
@@ -588,5 +589,18 @@ extension UserCenterPageUI on UserCenterPageState{
         isRowAction: true,
       );
     }
+  }
+
+  Widget _buildDeleteButton() {
+    return ThemeButton(
+      onTap: _deleteAccountHandler,
+      text: Localized.text('ox_usercenter.delete_account'),
+      height: 48.px,
+      textStyle: TextStyle(color: ThemeColor.red1),
+      gradientBg: LinearGradient(colors: [
+        ThemeColor.color180,
+        ThemeColor.color180,
+      ]),
+    ).setPaddingOnly(top: 24.px);
   }
 }

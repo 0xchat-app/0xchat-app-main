@@ -93,7 +93,7 @@ class _ChatChannelMessagePageState extends State<ChatChannelMessagePage> {
               setState(() { });
             },
           ),
-        ).setPadding(EdgeInsets.only(right: Adapt.px(24))),
+        ),
       ],
     );
   }

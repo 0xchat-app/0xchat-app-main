@@ -81,5 +81,7 @@
   "group_search_text": "Cerca Grups Oberts i Tancats",
   "channel_search_text": "Cerca Canals Públics",
   "member": "Membre",
-  "members": "Membres"
+  "members": "Membres",
+  "like_fail_tips": "No s'ha pogut agradar!",
+  "open_group": "Grups Oberts"
 }

@@ -81,5 +81,7 @@
   "group_search_text": "Cari Grup Terbuka & Tertutup",
   "channel_search_text": "Cari Saluran Publik",
   "member": "Anggota",
-  "members": "Anggota"
+  "members": "Anggota",
+  "like_fail_tips": "Gagal menyukai!",
+  "open_group": "Grup Terbuka"
 }

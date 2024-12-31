@@ -351,47 +351,51 @@ Widget itemView(String iconName, String title, String rightContent, bool showDiv
         padding: EdgeInsets.symmetric(horizontal: 16.px, vertical: 10.px),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            CommonImage(
-              iconName: iconName,
-              width: Adapt.px(32),
-              height: Adapt.px(32),
-              package: 'ox_usercenter',
-            ),
-            SizedBox(width: 12.px),
-            Container(
-              constraints: BoxConstraints(maxWidth: Adapt.screenW / (rightContent.isEmpty || badge == null ? 2 : 3)),
-              child: Text(
-                Localized.text(title),
-                style: TextStyle(
-                  color: ThemeColor.color0,
-                  fontSize: Adapt.px(16),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                CommonImage(
+                  iconName: iconName,
+                  width: Adapt.px(32),
+                  height: Adapt.px(32),
+                  package: 'ox_usercenter',
                 ),
-                maxLines: 4,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            Expanded(
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: devLogWidget ?? Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    isShowZapBadge ? badge ?? const SizedBox() : const SizedBox(),
-                    Text(
-                      rightContent,
-                      style: TextStyle(
-                        color: ThemeColor.color100,
-                        fontSize: Adapt.px(16),
-                      ),
+                SizedBox(width: 12.px),
+                Container(
+                  constraints: BoxConstraints(maxWidth: Adapt.screenW / (rightContent.isEmpty || badge == null ? 2 : 3)),
+                  child: Text(
+                    Localized.text(title),
+                    style: TextStyle(
+                      color: ThemeColor.color0,
+                      fontSize: Adapt.px(16),
                     ),
-                    showArrow ? CommonImage(
-                      iconName: 'icon_arrow_more.png',
-                      width: Adapt.px(24),
-                      height: Adapt.px(24),
-                    ) : Container(),
-                  ],
+                    maxLines: 4,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
+              ],
+            ),
+            Container(
+              child: devLogWidget ?? Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  isShowZapBadge ? badge ?? const SizedBox() : const SizedBox(),
+                  Text(
+                    rightContent,
+                    style: TextStyle(
+                      color: ThemeColor.color100,
+                      fontSize: Adapt.px(16),
+                    ),
+                  ),
+                  showArrow ? CommonImage(
+                    iconName: 'icon_arrow_more.png',
+                    width: Adapt.px(24),
+                    height: Adapt.px(24),
+                  ) : Container(),
+                ],
               ),
             ),
           ],

@@ -77,7 +77,7 @@ class _DonatePageState extends State<DonatePage> {
         });
       }
     });
-    if(Platform.isIOS) { // donate on Android do not through GPay
+    if(Platform.isIOS || Platform.isMacOS) { // donate on Android do not through GPay
       final Stream<List<PurchaseDetails>> purchaseUpdated = _inAppPurchase.purchaseStream;
       _subscription = purchaseUpdated.listen((List<PurchaseDetails> purchaseDetailsList) {
         _listenToPurchaseUpdated(purchaseDetailsList);
@@ -98,7 +98,7 @@ class _DonatePageState extends State<DonatePage> {
     if (!_isAppleOrGooglePay) {
       _setSatsData();
     }
-    if (Platform.isIOS) _requestData();
+    if (Platform.isIOS || Platform.isMacOS) _requestData();
   }
 
   Future<void> initStoreInfo() async {
@@ -126,14 +126,14 @@ class _DonatePageState extends State<DonatePage> {
       ]);
     }
 
-    if (Platform.isIOS) {
+    if (Platform.isIOS || Platform.isMacOS) {
       final InAppPurchaseStoreKitPlatformAddition iosPlatformAddition = _inAppPurchase.getPlatformAddition<InAppPurchaseStoreKitPlatformAddition>();
       await iosPlatformAddition.setDelegate(ExamplePaymentQueueDelegate());
     }
     if (_productList != null && _productList!.isNotEmpty) {
       Set<String> _kIds = {};
       for (var element in _productList!) {
-        if (Platform.isIOS && element.inPurchasingIdIos != null) {
+        if ((Platform.isIOS || Platform.isMacOS) && element.inPurchasingIdIos != null) {
           _kIds.add(element.inPurchasingIdIos!);
         } else if (Platform.isAndroid && element.inPurchasingIdAndroid != null) {
           _kIds.add(element.inPurchasingIdAndroid!);
@@ -550,7 +550,7 @@ class _DonatePageState extends State<DonatePage> {
     }
     _clickProductEntity = _productList![_selectIndex];
     String consumableId = '';
-    if (Platform.isIOS && _clickProductEntity!.inPurchasingIdIos != null) {
+    if ((Platform.isIOS || Platform.isMacOS) && _clickProductEntity!.inPurchasingIdIos != null) {
       consumableId = _clickProductEntity!.inPurchasingIdIos!;
     } else if (Platform.isAndroid && _clickProductEntity!.inPurchasingIdAndroid != null) {
       consumableId = _clickProductEntity!.inPurchasingIdAndroid!;

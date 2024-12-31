@@ -26,8 +26,16 @@
   "public_key": "Avalik võti",
   "private_key": "Privaatvõti",
   "lets_go": "Lähme!",
-  "enter_account_key_login_hint": "Sisestage sisselogimiseks oma privaatvõti:",
+  "enter_account_key_login_hint": "Sisestage sisselogimiseks võti või URL:",
   "private_key_regular_failed": "Privaatvõti regulaarselt ebaõnnestus",
   "pub_key_regular_failed": "Avalik võti regulaarselt ebaõnnestus",
-  "str_not_installed_amber": "Teil ei ole Amberi installitud"
+  "str_not_installed_amber": "Teil ei ole Amberi installitud",
+  "str_nesc_invalid_hint": "Sisestatud NSEC on kehtetu. Palun sisestage see uuesti.",
+  "str_login_with_nip46": "Logi sisse Nip46-ga",
+  "str_enter_nip46_login_hint": "Sisestage Nip46 link sisselogimiseks:",
+  "str_login_with_qrcode": "Logi sisse QR-koodiga",
+  "str_login_with_qrcode_hint": "Logige sisse 0xchat QR-koodiga",
+  "str_login_with_qrcode_description": "1 Avage 0xchat oma telefonis\n2 Minge Lisa > Skaneerimine\n3 Suunake oma telefon sellele ekraanile, et kinnitada sisselogimine",
+  "str_login_with_account": "Logi sisse kontoga",
+  "str_login_with_copy_url": "Kopeeri URL"
 }

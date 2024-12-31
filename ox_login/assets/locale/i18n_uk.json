@@ -26,8 +26,16 @@
   "public_key": "Публічний ключ",
   "private_key": "Приватний ключ",
   "lets_go": "Почнемо!",
-  "enter_account_key_login_hint": "Введіть ваш приватний ключ для входу:",
+  "enter_account_key_login_hint": "Введіть ключ або URL для входу:",
   "private_key_regular_failed": "Регулярний збій приватного ключа",
   "pub_key_regular_failed": "Регулярний збій публічного ключа",
-  "str_not_installed_amber": "Ви не встановили Amber"
+  "str_not_installed_amber": "Ви не встановили Amber",
+  "str_nesc_invalid_hint": "Введений NSEC недійсний. Будь ласка, введіть його знову.",
+  "str_login_with_nip46": "Увійти через Nip46",
+  "str_enter_nip46_login_hint": "Введіть посилання Nip46 для входу:",
+  "str_login_with_qrcode": "Увійти за QR-кодом",
+  "str_login_with_qrcode_hint": "Увійдіть до 0xchat за допомогою QR-коду",
+  "str_login_with_qrcode_description": "1 Відкрийте 0xchat на своєму телефоні\n2 Перейдіть до Додати > Сканувати\n3 Наведіть телефон на екран, щоб підтвердити вхід",
+  "str_login_with_account": "Увійти через обліковий запис",
+  "str_login_with_copy_url": "Скопіювати URL"
 }

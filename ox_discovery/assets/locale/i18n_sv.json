@@ -81,5 +81,7 @@
   "group_search_text": "Sök Öppna & Stängda Grupper",
   "channel_search_text": "Sök Offentliga Kanaler",
   "member": "Medlem",
-  "members": "Medlemmar"
+  "members": "Medlemmar",
+  "like_fail_tips": "Misslyckades att gilla!",
+  "open_group": "Öppna Grupper"
 }

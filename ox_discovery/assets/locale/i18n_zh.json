@@ -52,7 +52,6 @@
   "not_set_lnurl_tips": "好友未设置LNURL",
   "repost_success_tips": "转发成功!",
   "like_success_tips": "点赞成功!",
-  "like_fail_tips": "点赞失败!",
   "reply_success_tips": "回复成功",
   "content_empty_tips": "内容不能为空!",
   "show_replies_text": "显示更多回复",
@@ -82,5 +81,7 @@
   "group_search_text": "搜索开放和封闭群聊",
   "channel_search_text": "搜索公共频道",
   "member": "个成员",
-  "members": "个成员"
+  "members": "个成员",
+  "like_fail_tips": "点赞失败!",
+  "open_group": "开放群组"
 }

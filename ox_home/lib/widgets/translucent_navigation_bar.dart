@@ -342,13 +342,11 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  padding: EdgeInsets.only(
+                  margin: EdgeInsets.only(
                     bottom: Adapt.px(2),
                   ),
                   width: Adapt.px(24),
-                  child: Stack(
-                    children: [_getMyTabBarIcon(item)],
-                  ),
+                  child: _getMyTabBarIcon(item)
                 ),
                 _getTabBarTitle(item),
               ],

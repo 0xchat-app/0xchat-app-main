@@ -25,9 +25,6 @@ dependencies:
   ox_localizable:
     path: ../../base_framework/ox_localizable
 
-  # plugin
-  lottie: ^2.3.2
-  rive: ^0.13.8
 
 dev_dependencies:
   flutter_test:

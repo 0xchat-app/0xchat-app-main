@@ -490,7 +490,7 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
     final tokenList = EcashV2MessageEx(message).tokenList;
     final signatureTokenList = <String>[];
     for (var token in tokenList) {
-      final newToken = await EcashHelper.addSignatureToToken(token);
+      final newToken = await EcashHelper.addP2PKSignatureToToken(token);
       if (newToken.isEmpty) {
         CommonToast.instance.show(context, 'Signature failure');
         return ;
@@ -634,17 +634,20 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
     required types.Message message,
     required Future<OKEvent> Function() deleteAction,
   }) async {
+    BuildContext? tempContext;
     final result = await OXCommonHintDialog.showConfirmDialog(
       context,
       content: Localized.text('ox_chat.message_delete_hint'),
+      onDialogContextCreated: (BuildContext dialogContext) {
+        tempContext = dialogContext;
+      },
     );
-
     if (result) {
       OXLoading.show();
       OKEvent event = await deleteAction(); //await Messages.deleteMessageFromRelay(messageId, '');
       OXLoading.dismiss();
       if (event.status) {
-        OXNavigator.pop(null);
+        OXNavigator.pop(tempContext);
         messageDeleteHandler(message);
       } else {
         CommonToast.instance.show(context, event.message);

@@ -127,6 +127,7 @@ class _MyIdCardDialogState extends BasePageState<MyIdCardDialog> {
                   height: Adapt.px(48),
                   margin: EdgeInsets.only(
                     left: Adapt.px(24),
+                    right: 24.px,
                     top: Adapt.px(36),
                   ),
                   child: Row(

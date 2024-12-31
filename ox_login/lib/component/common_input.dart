@@ -6,8 +6,10 @@ class CommonInput extends StatelessWidget {
   final String? hintText;
   final TextEditingController? textController;
   final int? maxLines;
+  final TextInputAction? inputAction;
+  final ValueChanged<String>? onSubmitted;
 
-  CommonInput({this.hintText, this.textController, this.maxLines});
+  CommonInput({this.hintText, this.textController, this.maxLines, this.inputAction, this.onSubmitted});
 
   Widget build(BuildContext context) {
     return TextField(
@@ -22,11 +24,13 @@ class CommonInput extends StatelessWidget {
       ),
       controller: textController,
       keyboardType: TextInputType.multiline,
+      textInputAction: inputAction,
       style: TextStyle(
         color: ThemeColor.color40,
         fontWeight: FontWeight.w400,
       ),
       maxLines: maxLines,
+      onSubmitted: onSubmitted,
     );
   }
 }

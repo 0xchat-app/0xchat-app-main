@@ -17,37 +17,27 @@ import 'package:ox_usercenter/widget/ping_delay_time_widget.dart';
 import 'package:ox_usercenter/widget/relay_recommend_widget.dart';
 import 'package:ox_usercenter/widget/relay_selectable_tab_bar.dart';
 
-///Title: relays_page
+///Title: relays_for_login_page
 ///Description: TODO(Fill in by oneself)
 ///Copyright: Copyright (c) 2021
 ///@author Michael
-///CreateTime: 2023/5/4 17:20
-class RelaysPage extends StatefulWidget {
-  const RelaysPage({super.key});
+///CreateTime: 2024/12/27 15:33
+class RelaysForLoginPage extends StatefulWidget {
+  final List<String> relayUrls;
+  const RelaysForLoginPage({super.key, required this.relayUrls});
 
   @override
   State<StatefulWidget> createState() {
-    return _RelaysPageState();
+    return _RelaysForLoginPageState();
   }
 }
 
-class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, NavigatorObserverMixin {
+class _RelaysForLoginPageState extends State<RelaysForLoginPage> with WidgetsBindingObserver, NavigatorObserverMixin {
   final TextEditingController _relayTextFieldControll = TextEditingController();
-  final Map<RelayType, List<RelayDBISAR>> _relayListMap = {
-    RelayType.general: [],
-    RelayType.dm: [],
-    RelayType.outbox: [],
-    RelayType.inbox: []
-  };
-  final Map<RelayType, List<RelayDBISAR>> _recommendRelayListMap = {
-    RelayType.general: [],
-    RelayType.dm: [],
-    RelayType.outbox: [],
-    RelayType.inbox: []
-  };
+  late List<RelayDBISAR> _relayList = [];
+  late List<RelayDBISAR> _recommendRelayList = [];
   bool _isEditing = false;
   bool _isShowDelete = false;
-  RelayType _relayType = RelayType.general;
   final PingLifecycleController _pingLifecycleController = PingLifecycleController();
 
   @override
@@ -55,18 +45,8 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _initDefault();
-    Connect.sharedInstance.addConnectStatusListener((relay, status, relayKinds) {
-      didRelayStatusChange(relay, status);
-    });
-    Account.sharedInstance.relayListUpdateCallback = _initDefault;
-    Account.sharedInstance.dmRelayListUpdateCallback = _initDefault;
   }
 
-  void _relayTypeChanged(int index) {
-    setState(() {
-      _relayType = RelayType.values[index];
-    });
-  }
 
   @override
   void dispose() {
@@ -76,98 +56,76 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
   }
 
   void _initDefault() async {
-    for (var relayType in RelayType.values) {
-      _initRelayList(relayType);
-    }
+    _initRelayList();
     if (mounted) setState(() {});
   }
 
-  void _initRelayList(RelayType relayType) {
-    List<RelayDBISAR> relayList = _getRelayList(relayType);
-    List<RelayDBISAR> recommendRelayList = _getRecommendRelayList(relayType);
-
+  void _initRelayList() {
+    List<String> urls = ['wss://relay.nsec.app'];
+    if (widget.relayUrls.isNotEmpty) {
+      urls = widget.relayUrls;
+    }
+    for(String url in urls) {
+      _relayList.add(RelayDBISAR(url: url));
+    }
+    _recommendRelayList = [RelayDBISAR(url: 'wss://relay.nsec.app')];
     //Filters elements in the relay LIst
-    recommendRelayList.removeWhere((recommendRelay) {
-      return relayList.any((relay) => relay.url == recommendRelay.url);
+    _recommendRelayList.removeWhere((recommendRelay) {
+      return _relayList.any((relay) => relay.url == recommendRelay.url);
     });
 
-    _relayListMap[relayType] = relayList;
-    _recommendRelayListMap[relayType] = recommendRelayList;
-  }
-
-  List<RelayDBISAR> _getRelayList(RelayType relayType) {
-    switch (relayType) {
-      case RelayType.general:
-        return Account.sharedInstance.getMyGeneralRelayList();
-      case RelayType.dm:
-        return Account.sharedInstance.getMyDMRelayList();
-      case RelayType.inbox:
-        return Account.sharedInstance.getMyInboxRelayList();
-      case RelayType.outbox:
-        return Account.sharedInstance.getMyOutboxRelayList();
-      default:
-        return [];
-    }
-  }
-
-  List<RelayDBISAR> _getRecommendRelayList(RelayType relayType) {
-    switch (relayType) {
-      case RelayType.general:
-        return Account.sharedInstance.getMyRecommendGeneralRelaysList();
-      case RelayType.dm:
-        return Account.sharedInstance.getMyRecommendDMRelaysList();
-      case RelayType.inbox:
-        return Account.sharedInstance.getMyRecommendDMRelaysList();
-      case RelayType.outbox:
-        return Account.sharedInstance.getMyRecommendDMRelaysList();
-      default:
-        return [];
-    }
-  }
-
-  void didRelayStatusChange(String relay, int status) {
-    if (mounted) {
-      setState(() {});
-    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CommonAppBar(
-        useLargeTitle: false,
-        centerTitle: true,
-        title: Localized.text('ox_usercenter.relays'),
-        titleTextColor: ThemeColor.color0,
-        actions: [
-          //icon_edit.png
-          OXButton(
-            highlightColor: Colors.transparent,
-            color: Colors.transparent,
-            minWidth: Adapt.px(44),
-            height: Adapt.px(44),
-            child: CommonImage(
-              iconName: _isEditing ? 'icon_done.png' : 'icon_edit.png',
-              width: Adapt.px(24),
-              height: Adapt.px(24),
-              useTheme: true,
+    return WillPopScope(
+      onWillPop: () {
+        if (widget.relayUrls.length != _relayList.length) {
+          List<String> newUrls = _relayList.map((relay) => relay.url).toList();
+          OXNavigator.pop(context, newUrls);
+          return Future.value(false);
+        } else {
+          return Future.value(true);
+        }
+      },
+      child: Scaffold(
+        appBar: CommonAppBar(
+          useLargeTitle: false,
+          centerTitle: true,
+          title: Localized.text('ox_usercenter.relays'),
+          titleTextColor: ThemeColor.color0,
+          backCallback: () {
+            OXNavigator.pop(context, _relayList.map((relay) => relay.url).toList());
+          },
+          actions: [
+            //icon_edit.png
+            OXButton(
+              highlightColor: Colors.transparent,
+              color: Colors.transparent,
+              minWidth: Adapt.px(44),
+              height: Adapt.px(44),
+              child: CommonImage(
+                iconName: _isEditing ? 'icon_done.png' : 'icon_edit.png',
+                width: Adapt.px(24),
+                height: Adapt.px(24),
+                useTheme: true,
+              ),
+              onPressed: () {
+                setState(() {
+                  _isEditing = !_isEditing;
+                });
+              },
             ),
-            onPressed: () {
-              setState(() {
-                _isEditing = !_isEditing;
-              });
-            },
-          ),
-        ],
+          ],
+        ),
+        backgroundColor: ThemeColor.color190,
+        body: _body(),
       ),
-      backgroundColor: ThemeColor.color190,
-      body: _body(),
     );
   }
 
   Widget _body() {
-    List<RelayDBISAR> relayList = _relayListMap[_relayType]!;
-    List<RelayDBISAR> recommendRelayList = _recommendRelayListMap[_relayType]!;
+    print('Jeff: --_body---_relayList----${_relayList.length}');
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () {
@@ -185,18 +143,12 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  RelaySelectableTabBar(
-                    tabs: RelayType.values.map((e) => e.name()).toList(),
-                    tabTips: RelayType.values.map((e) => e.tips()).toList(),
-                    onChanged: _relayTypeChanged,
-                  ).setPaddingOnly(top: 12.px),
                   Container(
                     width: double.infinity,
                     padding: EdgeInsets.only(top: 24.px, bottom: 12.px),
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      // Localized.text('ox_usercenter.connect_relay'),
-                      'CONNECT TO ${_relayType.sign()} RELAY',
+                      'CONNECT TO REMOTE SIGNER RELAY',
                       style: TextStyle(
                         color: ThemeColor.color0,
                         fontSize: Adapt.px(14),
@@ -270,14 +222,14 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
                           ],
                         )
                       : Container(),
-                  if (relayList.isNotEmpty) ...[
+                  if (_relayList.isNotEmpty) ...[
                     Container(
                       width: double.infinity,
                       padding: EdgeInsets.only(top: 24.px, bottom: 12.px),
                       alignment: Alignment.centerLeft,
                       child: Text(
                         // Localized.text('ox_usercenter.connected_relay'),
-                        'CONNECTED TO ${_relayType.sign()} RELAY',
+                        'CONNECTED TO REMOTE SIGNER RELAY',
                         style: TextStyle(
                           color: ThemeColor.color0,
                           fontSize: Adapt.px(16),
@@ -293,13 +245,13 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
                         physics: const NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
                         itemBuilder: _itemBuild,
-                        itemCount: relayList.length,
+                        itemCount: _relayList.length,
                         padding: EdgeInsets.zero,
                       ),
                     ),
                   ],
-                  if (recommendRelayList.isNotEmpty)
-                    RelayCommendWidget(recommendRelayList, (RelayDBISAR relayDB) {
+                  if (_recommendRelayList.isNotEmpty)
+                    RelayCommendWidget(_recommendRelayList, (RelayDBISAR relayDB) {
                       _addOnTap(upcomingRelay: relayDB.url);
                     }),
                 ],
@@ -313,8 +265,8 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
   }
 
   Widget _itemBuild(BuildContext context, int index) {
-    List<RelayDBISAR> relayList = _relayListMap[_relayType]!;
-    RelayDBISAR _model = relayList[index];
+    RelayDBISAR _model = _relayList[index];
+    print('Jeff: ---_relayList----${_model.url}');
     final host = _model.url.split('//').last;
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -367,7 +319,7 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
             ),
           ),
         ),
-        relayList.length > 1 && relayList.length - 1 != index
+        _relayList.length > 1 && _relayList.length - 1 != index
             ? Divider(
                 height: Adapt.px(0.5),
                 color: ThemeColor.color160,
@@ -390,22 +342,11 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
             height: Adapt.px(24),
           ));
     } else {
-      if (relayDB.connectStatus == RelayConnectStatus.open) {
-        return CommonImage(
-          iconName: 'icon_pic_selected.png',
-          width: Adapt.px(24),
-          height: Adapt.px(24),
-        );
-      } else {
-        return SizedBox(
-          width: Adapt.px(24),
-          height: Adapt.px(24),
-          child: CircularProgressIndicator(
-            backgroundColor: ThemeColor.color0.withOpacity(0.1),
-            valueColor: AlwaysStoppedAnimation<Color>(ThemeColor.color0),
-          ),
-        );
-      }
+      return CommonImage(
+        iconName: 'icon_pic_selected.png',
+        width: Adapt.px(24),
+        height: Adapt.px(24),
+      );
     }
   }
 
@@ -490,33 +431,17 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
     if (upcomingRelay.endsWith('/')) {
       upcomingRelay = upcomingRelay.substring(0, upcomingRelay.length - 1);
     }
-    List<RelayDBISAR> relayList = _relayListMap[_relayType]!;
-    List<RelayDBISAR> recommendRelayList = _recommendRelayListMap[_relayType]!;
-    final upcomingRelays = relayList.map((e) => e.url).toList();
+
     if (!isWssWithValidURL(upcomingRelay)) {
       CommonToast.instance.show(context, 'Please input the right wss');
       return;
     }
-    if (upcomingRelays.contains(upcomingRelay)) {
+    if (_relayList.contains(upcomingRelay)) {
       CommonToast.instance.show(context, 'This Relay already exists');
     } else {
-      switch (_relayType) {
-        case RelayType.general:
-          await Account.sharedInstance.addGeneralRelay(upcomingRelay);
-          break;
-        case RelayType.dm:
-          await Account.sharedInstance.addDMRelay(upcomingRelay);
-          break;
-        case RelayType.inbox:
-          await Account.sharedInstance.addInboxRelay(upcomingRelay);
-          break;
-        case RelayType.outbox:
-          await Account.sharedInstance.addOutboxRelay(upcomingRelay);
-          break;
-      }
-      recommendRelayList.removeWhere((element) => element.url == upcomingRelay);
+      _recommendRelayList.removeWhere((element) => element.url == upcomingRelay);
       setState(() {
-        relayList.add(RelayDBISAR(url: upcomingRelay!));
+        _relayList.add(RelayDBISAR(url: upcomingRelay!));
         if (isUserInput) {
           _relayTextFieldControll.text = '';
           _isShowDelete = false;
@@ -536,22 +461,11 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
           OXCommonHintAction.sure(
               text: Localized.text('ox_common.confirm'),
               onTap: () async {
-                switch (_relayType) {
-                  case RelayType.general:
-                    await Account.sharedInstance.removeGeneralRelay(relayModel.url);
-                    break;
-                  case RelayType.dm:
-                    await Account.sharedInstance.removeDMRelay(relayModel.url);
-                    break;
-                  case RelayType.inbox:
-                    await Account.sharedInstance.removeInboxRelay(relayModel.url);
-                    break;
-                  case RelayType.outbox:
-                    await Account.sharedInstance.removeOutboxRelay(relayModel.url);
-                    break;
+                _relayList.removeWhere((element) => element.url == relayModel.url);
+                if (relayModel.url == 'wss://relay.nsec.app' || relayModel.url == 'wss://relay.0xchat.com') {
+                  _recommendRelayList.add(relayModel);
                 }
                 OXNavigator.pop(context);
-                _initDefault();
               }),
         ],
         isRowAction: true);
@@ -577,53 +491,8 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
   }
 }
 
-enum RelayType {
-  general,
-  dm,
-  outbox,
-  inbox,
-}
 
-extension RelayTypeExtension on RelayType {
-  String name() {
-    switch (this) {
-      case RelayType.dm:
-        return 'DM Relays';
-      case RelayType.general:
-        return 'App Relays';
-      case RelayType.inbox:
-        return 'Inbox Relays';
-      case RelayType.outbox:
-        return 'Outbox Relays';
-    }
-  }
 
-  String sign() {
-    switch (this) {
-      case RelayType.dm:
-        return 'DM';
-      case RelayType.general:
-        return 'APP';
-      case RelayType.inbox:
-        return 'INBOX';
-      case RelayType.outbox:
-        return 'OUTBOX';
-    }
-  }
-
-  String tips() {
-    switch (this) {
-      case RelayType.dm:
-        return "Your private messages and private group chat messages will be sent to your DM relay. It is recommended to set up 1-3 DM inbox relays.";
-      case RelayType.general:
-        return "These relays are stored locally and are used to download user profiles, lists, and posts for you";
-      case RelayType.inbox:
-        return "These relays are used by other users to send notes, likes, zaps to you. It is recommended to set up 2-4 inbox relays.";
-      case RelayType.outbox:
-        return "0xchat will send your posts to these relays so other users can find your content. It is recommended to set up 2-4 outbox relays.";
-    }
-  }
-}
 
 class RelayConnectStatus {
   static final int connecting = 0;

@@ -179,7 +179,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
               setState(() {});
             },
           ),
-        ).setPadding(EdgeInsets.only(right: Adapt.px(24))),
+        ),
       ],
     );
   }

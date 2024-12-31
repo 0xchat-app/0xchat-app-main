@@ -44,18 +44,25 @@ class _RelayDetailPageState extends State<RelayDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CommonAppBar(
-        title: "Relay Detail",
-        useLargeTitle: false,
-        centerTitle: true,
-        backCallback: (){
-          OXNavigator.pop(context);
+    return PopScope(
+      onPopInvoked: (didPop) async {
+        if (OXLoading.isShow) {
           OXLoading.dismiss();
-        },
+        }
+      },
+      child: Scaffold(
+        appBar: CommonAppBar(
+          title: "Relay Detail",
+          useLargeTitle: false,
+          centerTitle: true,
+          backCallback: () async {
+            OXLoading.dismiss();
+            OXNavigator.pop(context);
+          },
+        ),
+        backgroundColor: ThemeColor.color190,
+        body: _buildBody(),
       ),
-      backgroundColor: ThemeColor.color190,
-      body: _buildBody(),
     );
   }
 

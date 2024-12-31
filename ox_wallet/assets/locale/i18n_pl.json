@@ -85,5 +85,6 @@
   "mint": "Mennica",
   "how_to_operate": "Jak to działa?",
   "backup_funds_instruction": "Proces tworzenia kopii zapasowej środków automatycznie konsoliduje i oblicza najmniejsze dowody dla efektywnego przechowywania, jednocześnie zwiększając bezpieczeństwo. Jednak należy pamiętać, że po zakończeniu odzyskiwania stary token Cashu staje się nieważny, dlatego upewnij się, że proces przebiega bezpiecznie",
-  "download_button": "Pobierz"
+  "download_button": "Pobierz",
+  "some_proofs_spendable_hint": "Niektóre dowody zostały już wykorzystane, ale inne nadal można wykorzystać. Czy chcesz wymienić dostępne dowody?"
 }

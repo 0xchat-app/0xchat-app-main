@@ -26,8 +26,16 @@
   "public_key": "Clé Publique",
   "private_key": "Clé Privée",
   "lets_go": "Allons-y !",
-  "enter_account_key_login_hint": "Entrez votre clé privée pour vous connecter :",
+  "enter_account_key_login_hint": "Entrez la clé ou l'URL pour vous connecter :",
   "private_key_regular_failed": "Échec régulier de la clé privée",
   "pub_key_regular_failed": "Échec régulier de la clé publique",
-  "str_not_installed_amber": "Vous n'avez pas installé Amber"
+  "str_not_installed_amber": "Vous n'avez pas installé Amber",
+  "str_nesc_invalid_hint": "Le NSEC saisi est invalide. Veuillez le saisir à nouveau.",
+  "str_login_with_nip46": "Se connecter avec Nip46",
+  "str_enter_nip46_login_hint": "Entrez le lien Nip46 pour vous connecter :",
+  "str_login_with_qrcode": "Se connecter avec un code QR",
+  "str_login_with_qrcode_hint": "Connectez-vous à 0xchat avec un code QR",
+  "str_login_with_qrcode_description": "1 Ouvrez 0xchat sur votre téléphone\n2 Allez dans Ajouter > Scanner\n3 Pointez votre téléphone vers cet écran pour confirmer la connexion",
+  "str_login_with_account": "Se connecter avec un compte",
+  "str_login_with_copy_url": "Copier l'URL"
 }

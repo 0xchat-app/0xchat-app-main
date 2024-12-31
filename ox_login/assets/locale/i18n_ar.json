@@ -26,8 +26,16 @@
   "public_key": "المفتاح العام",
   "private_key": "المفتاح الخاص",
   "lets_go": "هيا بنا!",
-  "enter_account_key_login_hint": "أدخل المفتاح الخاص للدخول:",
+  "enter_account_key_login_hint": "أدخل المفتاح أو الرابط لتسجيل الدخول:",
   "private_key_regular_failed": "فشل المفتاح الخاص العادي",
   "pub_key_regular_failed": "فشل المفتاح العام العادي",
-  "str_not_installed_amber": "لم تقم بتثبيت Amber"
+  "str_not_installed_amber": "لم تقم بتثبيت Amber",
+  "str_nesc_invalid_hint": "NSEC الذي أدخلته غير صالح. يرجى إدخاله مرة أخرى.",
+  "str_login_with_nip46": "تسجيل الدخول باستخدام Nip46",
+  "str_enter_nip46_login_hint": "أدخل رابط Nip46 لتسجيل الدخول:",
+  "str_login_with_qrcode": "تسجيل الدخول عبر رمز QR",
+  "str_login_with_qrcode_hint": "سجل الدخول إلى 0xchat باستخدام رمز QR",
+  "str_login_with_qrcode_description": "1 افتح 0xchat على هاتفك\n2 اذهب إلى إضافة > مسح\n3 وجه هاتفك نحو هذه الشاشة لتأكيد تسجيل الدخول",
+  "str_login_with_account": "تسجيل الدخول باستخدام الحساب",
+  "str_login_with_copy_url": "نسخ الرابط"
 }

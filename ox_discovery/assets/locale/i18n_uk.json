@@ -81,5 +81,7 @@
   "group_search_text": "Шукати Відкриті та Закриті Групи",
   "channel_search_text": "Шукати Публічні Канали",
   "member": "Член",
-  "members": "Члени"
+  "members": "Члени",
+  "like_fail_tips": "Не вдалося вподобати!",
+  "open_group": "Відкриті Групи"
 }

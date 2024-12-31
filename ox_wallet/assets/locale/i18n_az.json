@@ -85,5 +85,6 @@
   "mint": "Əşşə",
   "how_to_operate": "Necə işləyir?",
   "backup_funds_instruction": "Ehtiyat fondları prosesi avtomatik olaraq hesabların konsolidasiyasını və sərfəli saxlamaq üçün ən kiçik sübutları hesablayır və təhlil edir və təhlil edir. Amma xahiş edirəm diqqət edin ki, bərpa prosesi başa çatdıqdan sonra, köhnə Cashu nişanı etibarsız olur, buna görə də prosesin təhlükəsiz şəkildə həyata keçirildiyindən əmin olun",
-  "download_button": "Yüklə"
+  "download_button": "Yüklə",
+  "some_proofs_spendable_hint": "Bəzi sübutlar artıq xərclənmişdir, lakin digərləri istifadə edilə bilər. İstifadə edilə bilən sübutları geri qaytarmaq istəyirsinizmi?"
 }

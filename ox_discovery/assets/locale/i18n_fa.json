@@ -52,7 +52,6 @@
   "not_set_lnurl_tips": "دوست شما LNURL را تنظیم نکرده است!",
   "repost_success_tips": "بازنشر با موفقیت انجام شد!",
   "like_success_tips": "پسندیدن با موفقیت انجام شد!",
-  "like_fail_tips": "خطا در پسندیدن!",
   "reply_success_tips": "پاسخ با موفقیت ارسال شد!",
   "content_empty_tips": "محتوا نمی‌تواند خالی باشد!",
   "show_replies_text": "نمایش پاسخ‌ها",
@@ -79,9 +78,10 @@
   "just_now": "همین حالا",
   "channel": "کانال‌های عمومی",
   "group": "گروه‌ها",
-  "open_group": "گروه‌های باز",
   "group_search_text": "جستجوی گروه‌های باز و بسته",
   "channel_search_text": "جستجوی کانال‌های عمومی",
   "member": "عضو",
-  "members": "اعضا"
+  "members": "اعضا",
+  "like_fail_tips": "پسندیدن ناموفق بود!",
+  "open_group": "گروه‌های باز"
 }

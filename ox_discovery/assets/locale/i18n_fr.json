@@ -81,5 +81,7 @@
   "group_search_text": "Rechercher des Groupes Ouverts et Fermés",
   "channel_search_text": "Rechercher des Canaux Publics",
   "member": "Membre",
-  "members": "Membres"
+  "members": "Membres",
+  "like_fail_tips": "Échec du j'aime!",
+  "open_group": "Groupes Ouverts"
 }

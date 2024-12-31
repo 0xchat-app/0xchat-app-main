@@ -7,10 +7,19 @@ import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/widgets/common_file_cache_manager.dart';
 
 class ChatVoiceMessageHelper {
+  static Map<String, Duration> durationCache = {};
+
   static Future<Duration?> getAudioDuration(String uri) async {
+    final cache = durationCache[uri];
+    if (cache != null && cache != Duration.zero) return cache;
+
     final player = AudioPlayer();
     await player.setSource(uri.isRemoteURL ? UrlSource(uri) : DeviceFileSource(uri));
-    return await player.getDuration();
+    final duration = await player.getDuration();
+    if (duration != null && duration != Duration.zero) {
+      durationCache[uri] = duration;
+    }
+    return duration;
   }
 
   static Future<(File audioFile, Duration? duration)> populateMessageWithAudioDetails({
@@ -27,22 +36,11 @@ class ChatVoiceMessageHelper {
     if (cacheFile != null) {
       sourceFile = cacheFile;
     } else {
-      final response = await audioManager.downloadFile(uri);
+      var tempFile = await audioManager.getSingleFile(uri);
 
-      File tempFile = response.file;
       String newExtension = tempFile.path.split('.').last;
       String newPath = tempFile.path.replaceAll(newExtension, urlExtension);
       tempFile = await tempFile.rename(newPath);
-
-      if (message.fileEncryptionType == types.EncryptionType.encrypted &&
-          message.decryptKey != null) {
-        final decryptedFile = await DecryptedCacheManager.decryptFile(
-          tempFile,
-          message.decryptKey!,
-          nonce: message.decryptNonce,
-        );
-        tempFile = decryptedFile;
-      }
 
       sourceFile = await audioManager.putFile(
         uri,

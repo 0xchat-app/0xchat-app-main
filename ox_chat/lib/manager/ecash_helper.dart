@@ -181,8 +181,8 @@ class EcashHelper {
     return ('ecash_tokens_already_spent'.localized(), true);
   }
 
-  static Future<String> addSignatureToToken(String token) async {
-    return await Cashu.addSignatureToToken(
+  static Future<String> addP2PKSignatureToToken(String token) async {
+    return await Cashu.addP2PKSignatureToToken(
       ecashString: token,
       pukeyList: [Account.sharedInstance.currentPubkey],
     ) ?? '';

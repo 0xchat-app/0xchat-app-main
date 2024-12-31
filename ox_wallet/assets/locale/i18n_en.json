@@ -14,7 +14,7 @@
   "swap_text": "Swap",
   "send_text": "Send",
   "redeem_ecash_title": "Redeem Ecash",
-  "redeem_ecash_instruction": "Paste & redeem a Cashu token form Clipboard.",
+  "redeem_ecash_instruction": "Paste & redeem a Cashu token from Clipboard.",
   "deposit_ecash_title": "Deposit Ecash",
   "deposit_ecash_instruction": "Deposit Ecash by Paying a Lightning invoice",
   "send_ecash_title": "Send Ecash",

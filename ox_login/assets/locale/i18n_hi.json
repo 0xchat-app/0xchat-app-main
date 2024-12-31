@@ -26,8 +26,16 @@
   "public_key": "सार्वजनिक कुंजी",
   "private_key": "निजी कुंजी",
   "lets_go": "चलो चलते हैं!",
-  "enter_account_key_login_hint": "लॉग इन करने के लिए अपनी निजी कुंजी डालें:",
+  "enter_account_key_login_hint": "लॉगिन करने के लिए कुंजी या URL दर्ज करें:",
   "private_key_regular_failed": "नियमित निजी कुंजी विफल",
   "pub_key_regular_failed": "नियमित सार्वजनिक कुंजी विफल",
   "str_not_installed_amber": "आपने एम्बर स्थापित नहीं किया है",
+  "str_nesc_invalid_hint": "आपने जो NSEC दर्ज किया है वह अमान्य है। कृपया इसे फिर से दर्ज करें।",
+  "str_login_with_nip46": "Nip46 के साथ लॉगिन करें",
+  "str_enter_nip46_login_hint": "लॉगिन करने के लिए Nip46 लिंक दर्ज करें:",
+  "str_login_with_qrcode": "QR कोड से लॉगिन करें",
+  "str_login_with_qrcode_hint": "QR कोड का उपयोग करके 0xchat में लॉगिन करें",
+  "str_login_with_qrcode_description": "1 अपने फोन पर 0xchat खोलें\n2 जोड़ें > स्कैन पर जाएं\n3 लॉगिन की पुष्टि करने के लिए अपने फोन को इस स्क्रीन की ओर इंगित करें",
+  "str_login_with_account": "खाते से लॉगिन करें",
+  "str_login_with_copy_url": "URL कॉपी करें"
 }

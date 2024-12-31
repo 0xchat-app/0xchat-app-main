@@ -85,5 +85,6 @@
   "mint": "Pénzverde",
   "how_to_operate": "Hogyan működik?",
   "backup_funds_instruction": "A források mentési folyamata automatikusan konszolidálja és kiszámítja a legkisebb bizonyítékokat a hatékony tároláshoz, miközben növeli a biztonságot. Azonban vegye figyelembe, hogy a helyreállítás befejezése után az régi Cashu token érvénytelen lesz, ezért győződjön meg arról, hogy a folyamat biztonságosan történik",
-  "download_button": "Letöltés"
+  "download_button": "Letöltés",
+  "some_proofs_spendable_hint": "Néhány igazolást már felhasználtak, de mások még felhasználhatók. Szeretné beváltani a felhasználható igazolásokat?"
 }

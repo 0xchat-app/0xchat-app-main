@@ -134,9 +134,10 @@ class _SwitchAccountPageState extends State<SwitchAccountPage> with OXUserInfoOb
           await OXLoading.show();
           await OXUserInfoManager.sharedInstance.switchAccount(pubKey);
           await OXLoading.dismiss();
-          AppRelayHintDialog.show(context);
-          // _selectedIndex = index;
-          setState(() {});
+          if(mounted){
+            // _selectedIndex = index;
+            setState(() {});
+          }
         }
       },
       child: Container(
