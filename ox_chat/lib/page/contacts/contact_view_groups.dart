@@ -136,9 +136,7 @@ class _ContactViewGroupsState extends State<ContactViewGroups> with SingleTicker
         updateStateView(CommonStateView.CommonStateView_NotLogin);
       });
     } else {
-      setState(() {
-        _loadData();
-      });
+      _loadData();
     }
     _refreshController.refreshCompleted();
   }
