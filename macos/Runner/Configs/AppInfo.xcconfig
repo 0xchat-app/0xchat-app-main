@@ -11,4 +11,4 @@ PRODUCT_NAME = oxchat_app_main
 PRODUCT_BUNDLE_IDENTIFIER = com.oxchat.oxchatAppMain
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2024 com.oxchat. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2024 0xchat. All rights reserved.

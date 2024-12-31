@@ -89,6 +89,7 @@ dev_dependencies:
   flutter_socks_proxy: ^0.0.3
 
 dependency_overrides:
+  file_selector_linux: 0.9.2+1
   collection: 1.18.0
   logging: 1.2.0
   sqflite:
@@ -100,6 +101,12 @@ dependency_overrides:
       url: https://github.com/andychucs/flutter_inappwebview.git
       ref: master
       path: flutter_inappwebview_macos
+  url_launcher_linux:
+    git:
+      url: https://github.com/flutter/packages.git
+      ref: url_launcher_linux-v3.1.1
+      path: packages/url_launcher/url_launcher_linux
+
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

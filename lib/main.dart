@@ -192,10 +192,13 @@ class MainState extends State<MainApp>
         builder: (BuildContext context, Widget? child) {
           return OXLoading.init()(
             context,
-            MediaQuery(
-              ///Text size does not change with system Settings
-              data: MediaQuery.of(context).copyWith(textScaleFactor: widget.scaleFactor),
-              child: child!,
+            Directionality(
+              textDirection: Localized.getTextDirectionForLang(),
+              child: MediaQuery(
+                ///Text size does not change with system Settings
+                data: MediaQuery.of(context).copyWith(textScaleFactor: widget.scaleFactor),
+                child: child!,
+              ),
             ),
           );
         },
