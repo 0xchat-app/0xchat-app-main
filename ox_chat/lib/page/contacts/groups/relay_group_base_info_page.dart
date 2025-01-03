@@ -13,10 +13,12 @@ import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/upload/file_type.dart';
 import 'package:ox_common/upload/upload_utils.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/file_utils.dart';
 import 'package:ox_common/utils/image_picker_utils.dart';
 import 'package:ox_common/utils/num_utils.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/permission_utils.dart';
+import 'package:ox_common/utils/platform_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/utils/widget_tool.dart';
@@ -233,14 +235,21 @@ class _RelayGroupBaseInfoPageState extends State<RelayGroupBaseInfoPage> {
       storagePermission = await PermissionUtils.getPhotosPermission(context);
     }
     if (storagePermission) {
-      final res = await ImagePickerUtils.pickerPaths(
-        galleryMode: GalleryMode.image,
-        selectCount: 1,
-        showGif: false,
-        compressSize: 2048,
-      );
-      _imgFile = (res[0].path == null) ? null : File(res[0].path ?? '');
-      _uploadAndRefresh(_imgFile);
+      if(PlatformUtils.isDesktop){
+        List<Media>? list = await FileUtils.importClientFile(1);
+        if(list != null){
+          _uploadAndRefresh((list[0].path == null) ? null : File(list[0].path ?? ''));
+        }
+      }else{
+        final res = await ImagePickerUtils.pickerPaths(
+          galleryMode: GalleryMode.image,
+          selectCount: 1,
+          showGif: false,
+          compressSize: 2048,
+        );
+        _imgFile = (res[0].path == null) ? null : File(res[0].path ?? '');
+        _uploadAndRefresh(_imgFile);
+      }
     } else {
       CommonToast.instance.show(context, Localized.text('ox_common.str_grant_permission_photo_hint'));
       return;
