@@ -85,5 +85,6 @@
   "mint": "Mint",
   "how_to_operate": "Comment ça marche?",
   "backup_funds_instruction": "Le processus de sauvegarde des fonds consolide et calcule automatiquement les plus petites preuves pour un stockage efficace tout en améliorant la sécurité. Cependant, veuillez noter qu'une fois la récupération terminée, l'ancien jeton Cashu devient invalide, donc assurez-vous que le processus est effectué en toute sécurité",
-  "download_button": "Télécharger"
+  "download_button": "Télécharger",
+  "some_proofs_spendable_hint": "Certaines preuves ont déjà été utilisées, mais d'autres restent utilisables. Voulez-vous échanger les preuves utilisables ?"
 }

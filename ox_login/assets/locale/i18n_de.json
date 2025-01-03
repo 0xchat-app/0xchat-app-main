@@ -26,8 +26,16 @@
   "public_key": "Öffentlicher Schlüssel",
   "private_key": "Privatschlüssel",
   "lets_go": "Los geht's!",
-  "enter_account_key_login_hint": "Geben Sie Ihren Privatschlüssel zur Anmeldung ein:",
+  "enter_account_key_login_hint": "Geben Sie den Schlüssel oder die URL ein, um sich anzumelden:",
   "private_key_regular_failed": "Privater Schlüssel regulär fehlgeschlagen",
   "pub_key_regular_failed": "Öffentlicher Schlüssel regulär fehlgeschlagen",
-  "str_not_installed_amber": "Sie haben Amber nicht installiert"
+  "str_not_installed_amber": "Sie haben Amber nicht installiert",
+  "str_nesc_invalid_hint": "Der eingegebene NSEC ist ungültig. Bitte erneut eingeben.",
+  "str_login_with_nip46": "Mit Nip46 einloggen",
+  "str_enter_nip46_login_hint": "Geben Sie den Nip46-Link ein, um sich anzumelden:",
+  "str_login_with_qrcode": "Mit QR-Code einloggen",
+  "str_login_with_qrcode_hint": "Melden Sie sich mit einem QR-Code bei 0xchat an",
+  "str_login_with_qrcode_description": "1 Öffnen Sie 0xchat auf Ihrem Telefon\n2 Gehen Sie zu Hinzufügen > Scannen\n3 Richten Sie Ihr Telefon auf diesen Bildschirm, um die Anmeldung zu bestätigen",
+  "str_login_with_account": "Mit Konto anmelden",
+  "str_login_with_copy_url": "URL kopieren"
 }

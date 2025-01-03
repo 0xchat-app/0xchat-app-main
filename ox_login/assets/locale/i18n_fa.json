@@ -26,8 +26,16 @@
   "public_key": "کلید عمومی",
   "private_key": "کلید خصوصی",
   "lets_go": "بریم!",
-  "enter_account_key_login_hint": "برای ورود، کلید خصوصی خود را وارد کنید:",
+  "enter_account_key_login_hint": "کلید یا URL را برای ورود وارد کنید:",
   "private_key_regular_failed": "خطای عادی‌سازی کلید خصوصی",
   "pub_key_regular_failed": "خطای عادی‌سازی کلید عمومی",
-  "str_not_installed_amber": "شما Amber را نصب نکرده‌اید"
+  "str_not_installed_amber": "شما Amber را نصب نکرده‌اید",
+  "str_nesc_invalid_hint": "NSEC وارد شده نامعتبر است. لطفاً دوباره وارد کنید.",
+  "str_login_with_nip46": "ورود با Nip46",
+  "str_enter_nip46_login_hint": "لینک Nip46 را برای ورود وارد کنید:",
+  "str_login_with_qrcode": "ورود با کد QR",
+  "str_login_with_qrcode_hint": "با استفاده از کد QR وارد 0xchat شوید",
+  "str_login_with_qrcode_description": "1 0xchat را در تلفن خود باز کنید\n2 به افزودن > اسکن بروید\n3 تلفن خود را به سمت این صفحه نگه دارید تا ورود تأیید شود",
+  "str_login_with_account": "ورود با حساب کاربری",
+  "str_login_with_copy_url": "کپی کردن URL"
 }

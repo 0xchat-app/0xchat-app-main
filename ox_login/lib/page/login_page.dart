@@ -1,36 +1,28 @@
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
+// plugin
+import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-
+import 'package:nostr_core_dart/nostr.dart';
 // ox_common
 import 'package:ox_common/log_util.dart';
-import 'package:ox_common/utils/app_relay_hint_dialog.dart';
-import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
-import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/app_relay_hint_dialog.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
-import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
-import 'package:ox_common/widgets/common_toast.dart';
-import 'package:ox_common/widgets/common_webview.dart';
 import 'package:ox_common/widgets/common_loading.dart';
-import 'package:ox_login/component/common_input.dart';
-import 'package:ox_login/component/input_wrap.dart';
-
+import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 // ox_login
 import 'package:ox_login/page/account_key_login_page.dart';
 import 'package:ox_login/page/create_account_page.dart';
-
-// plugin
-import 'package:chatcore/chat-core.dart';
-import 'package:nostr_core_dart/nostr.dart';
-import 'package:ox_localizable/ox_localizable.dart';
-import 'package:rich_text_widget/rich_text_widget.dart';
+import 'package:ox_login/page/login_with_qrcode_page.dart';
 import 'package:ox_module_service/ox_module_service.dart';
+import 'package:rich_text_widget/rich_text_widget.dart';
 
 class LoginPage extends StatefulWidget {
   final bool? isLoginShow;
@@ -153,6 +145,23 @@ class _LoginPageState extends State<LoginPage> {
                       Localized.text('ox_login.login_button'),
                       style: TextStyle(
                         color: Colors.white,
+                        fontSize: Adapt.px(16),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: Adapt.px(18)),
+                GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: _loginWithQRCode,
+                  child: Container(
+                    width: double.infinity,
+                    height: Adapt.px(48),
+                    alignment: Alignment.center,
+                    child: Text(
+                      Localized.text('ox_login.str_login_with_qrcode'),
+                      style: TextStyle(
+                        color: ThemeColor.gradientMainStart,
                         fontSize: Adapt.px(16),
                       ),
                     ),
@@ -292,7 +301,6 @@ class _LoginPageState extends State<LoginPage> {
     OXUserInfoManager.sharedInstance.loginSuccess(userDB, isAmber: true);
     await OXLoading.dismiss();
     OXNavigator.popToRoot(context);
-    AppRelayHintDialog.show(context);
   }
 
   void _serviceWebView() {
@@ -301,5 +309,9 @@ class _LoginPageState extends State<LoginPage> {
 
   void _privacyPolicyWebView() {
     OXModuleService.invoke('ox_common', 'gotoWebView', [context, 'https://www.0xchat.com/protocols/0xchat_privacy_policy.html', null, null, null, null]);
+  }
+
+  void _loginWithQRCode() {
+    OXNavigator.presentPage(context, (context) => LoginWithQRCodePage(), fullscreenDialog: true);
   }
 }

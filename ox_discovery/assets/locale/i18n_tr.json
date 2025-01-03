@@ -81,5 +81,7 @@
   "group_search_text": "Açık ve Kapalı Grupları Ara",
   "channel_search_text": "Genel Kanalları Ara",
   "member": "Üye",
-  "members": "Üyeler"
+  "members": "Üyeler",
+  "like_fail_tips": "Beğenme başarısız!",
+  "open_group": "Açık Gruplar"
 }

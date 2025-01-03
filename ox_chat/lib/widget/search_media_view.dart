@@ -8,21 +8,21 @@ import 'package:chatcore/chat-core.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/gallery/gallery_image_widget.dart';
 
-class SearchTabGridView extends StatefulWidget {
+class SearchMediaView extends StatefulWidget {
   final String searchQuery;
   final String? chatId;
 
-  const SearchTabGridView({
+  const SearchMediaView({
     super.key,
     required this.searchQuery,
     this.chatId,
   });
 
   @override
-  State<SearchTabGridView> createState() => _SearchTabGridViewState();
+  State<SearchMediaView> createState() => _SearchMediaViewState();
 }
 
-class _SearchTabGridViewState extends State<SearchTabGridView> with CommonStateViewMixin {
+class _SearchMediaViewState extends State<SearchMediaView> with CommonStateViewMixin {
 
   List<MessageDBISAR> _mediaMessages = [];
   final ScrollController _scrollController = ScrollController();
@@ -119,7 +119,7 @@ class _SearchTabGridViewState extends State<SearchTabGridView> with CommonStateV
   }
 
   @override
-  void didUpdateWidget(covariant SearchTabGridView oldWidget) {
+  void didUpdateWidget(covariant SearchMediaView oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.searchQuery != oldWidget.searchQuery) {
       _mediaMessages.clear();

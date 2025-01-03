@@ -75,7 +75,6 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
       onTap: _clearNotifications,
       child: Container(
         alignment: Alignment.center,
-        margin: EdgeInsets.only(right: 24.px),
         child: ShaderMask(
           shaderCallback: (Rect bounds) {
             return LinearGradient(
@@ -198,6 +197,7 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
                           height: 40.px,
                           placeholder: (context, url) => placeholder,
                           errorWidget: (context, url, error) => placeholder,
+                          fit: BoxFit.cover,
                         ),
                       ),
                     ),

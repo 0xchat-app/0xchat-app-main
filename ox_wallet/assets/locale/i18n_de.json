@@ -85,5 +85,6 @@
   "mint": "Prägung",
   "how_to_operate": "Wie funktioniert es?",
   "backup_funds_instruction": "Der Sicherungsfondsprozess konsolidiert und berechnet automatisch die kleinsten Nachweise für eine effiziente Speicherung und verbessert die Sicherheit. Bitte beachten Sie jedoch, dass nach Abschluss der Wiederherstellung das alte Cashu-Token ungültig wird, daher stellen Sie sicher, dass der Prozess sicher durchgeführt wird",
-  "download_button": "Herunterladen"
+  "download_button": "Herunterladen",
+  "some_proofs_spendable_hint": "Einige Nachweise wurden bereits verwendet, aber andere sind noch einlösbar. Möchten Sie die einlösbaren Nachweise einlösen?"
 }

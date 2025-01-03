@@ -26,8 +26,16 @@
   "public_key": "Δημόσιο Κλειδί",
   "private_key": "Ιδιωτικό Κλειδί",
   "lets_go": "Ας πάμε!",
-  "enter_account_key_login_hint": "Εισαγάγετε το ιδιωτικό σας κλειδί για να συνδεθείτε:",
+  "enter_account_key_login_hint": "Εισάγετε κλειδί ή URL για σύνδεση:",
   "private_key_regular_failed": "Η κανονική ιδιωτική κλείδα απέτυχε",
   "pub_key_regular_failed": "Η κανονική δημόσια κλείδα απέτυχε",
-  "str_not_installed_amber": "Δεν έχετε εγκαταστήσει το Amber"
+  "str_not_installed_amber": "Δεν έχετε εγκαταστήσει το Amber",
+  "str_nesc_invalid_hint": "Το NSEC που εισάγατε δεν είναι έγκυρο. Παρακαλώ εισάγετε το ξανά.",
+  "str_login_with_nip46": "Σύνδεση με Nip46",
+  "str_enter_nip46_login_hint": "Εισάγετε τον σύνδεσμο Nip46 για σύνδεση:",
+  "str_login_with_qrcode": "Σύνδεση με QR κωδικό",
+  "str_login_with_qrcode_hint": "Συνδεθείτε στο 0xchat με QR κωδικό",
+  "str_login_with_qrcode_description": "1 Ανοίξτε το 0xchat στο τηλέφωνό σας\n2 Μεταβείτε στο Προσθήκη > Σάρωση\n3 Στρέψτε το τηλέφωνό σας προς αυτήν την οθόνη για να επιβεβαιώσετε τη σύνδεση",
+  "str_login_with_account": "Σύνδεση με λογαριασμό",
+  "str_login_with_copy_url": "Αντιγραφή URL"
 }

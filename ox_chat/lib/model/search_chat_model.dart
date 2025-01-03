@@ -37,6 +37,7 @@ enum SearchType {
   group(label: 'Groups'),
   channel(label: 'Channels'),
   // ecash(label: 'Ecash'),
+  note(label: 'Moments'),
   media(label: 'Media');
   // link(label: 'Links');
 
@@ -58,6 +59,8 @@ extension SearchTypeEx on SearchType {
         return Localized.text('ox_chat.str_title_channels');
       case SearchType.media:
         return Localized.text('ox_chat.str_title_media');
+      case SearchType.note:
+        return 'Moments';
     }
   }
 }

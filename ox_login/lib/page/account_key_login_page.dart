@@ -69,7 +69,7 @@ class _AccountKeyLoginPageState extends State<AccountKeyLoginPage> {
         InputWrap(
           title: Localized.text('ox_login.enter_account_key_login_hint'),
           contentWidget: CommonInput(
-            hintText: 'nsec...',
+            hintText: 'nsec or bunker:// ',
             textController: _accountKeyEditingController,
             maxLines: null,
             inputAction: TextInputAction.done,
@@ -182,7 +182,6 @@ class _AccountKeyLoginPageState extends State<AccountKeyLoginPage> {
     if (_accountKeyInput.startsWith('bunker://')){
       pubkey = await Account.getPublicKeyWithNIP46URI(_accountKeyInput);
       await OXUserInfoManager.sharedInstance.initDB(pubkey);
-      OXUserInfoManager.sharedInstance.addCallBackBeforeLogin();
       userDB = await Account.sharedInstance.loginWithNip46URI(_accountKeyInput);
     } else {
       pubkey = Account.getPublicKey(_accountKeyInput);
@@ -202,6 +201,5 @@ class _AccountKeyLoginPageState extends State<AccountKeyLoginPage> {
     OXUserInfoManager.sharedInstance.loginSuccess(userDB);
     await OXLoading.dismiss();
     OXNavigator.popToRoot(context);
-    AppRelayHintDialog.show(context);
   }
 }

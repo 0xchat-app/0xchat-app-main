@@ -40,7 +40,7 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
   GlobalKey<TranslucentNavigationBarState> tabBarGlobalKey = GlobalKey();
   double _previousScrollOffset = 0.0;
   double _bottomNavOffset = 0.0;
-  final double _bottomNavHeight = 72.0;
+  final double _bottomNavHeight = 72.px;
   final double _bottomNavMargin = 24.0.px;
   double _tabbarSH = 0;
   late List<HomeTabBarType> _typeList;

@@ -85,5 +85,6 @@
   "mint": "Prägling",
   "how_to_operate": "Hur fungerar det?",
   "backup_funds_instruction": "Processen för att säkerhetskopiera medel konsoliderar och beräknar automatiskt de minsta bevisen för effektiv lagring samtidigt som säkerheten förbättras. Observera dock att efter återställningen är den gamla Cashu-token ogiltig, så se till att processen utförs säkert",
-  "download_button": "Ladda ner"
+  "download_button": "Ladda ner",
+  "some_proofs_spendable_hint": "Vissa bevis har redan använts, men andra är fortfarande användbara. Vill du lösa in de användbara bevisen?"
 }

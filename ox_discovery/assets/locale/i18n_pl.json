@@ -81,5 +81,7 @@
   "group_search_text": "Szukaj Grup Otwartych i Zamkniętych",
   "channel_search_text": "Szukaj Kanałów Publicznych",
   "member": "Członek",
-  "members": "Członkowie"
+  "members": "Członkowie",
+  "like_fail_tips": "Nie udało się polubić!",
+  "open_group": "Otwarte Grupy"
 }

@@ -26,11 +26,16 @@
   "public_key": "公开账户ID",
   "private_key": "账户私钥",
   "lets_go": "让我们出发吧!",
-  "enter_account_key_login_hint": "输入您的私钥登录：",
+  "enter_account_key_login_hint": "请输入您的密钥或远程签名URL",
   "private_key_regular_failed": "私钥规则检验失败",
   "pub_key_regular_failed": "公钥规则检验失败",
   "str_not_installed_amber": "您尚未安装Amber",
   "str_nesc_invalid_hint": "您输入的NSEC无效，请重新输入",
   "str_login_with_nip46": "使用Nip46登录",
-  "str_enter_nip46_login_hint": "输入您的Nip46链接登录："
+  "str_enter_nip46_login_hint": "输入您的Nip46链接登录：",
+  "str_login_with_qrcode": "通过二维码登录",
+  "str_login_with_qrcode_hint": "通过二维码登录到0xchat",
+  "str_login_with_qrcode_description": "1 选择远程签名relay\n2 打开Amber App或者nsec.app网页\n3 扫二维码或者拷贝URI进行登陆",
+  "str_login_with_account": "通过输入 \"bunker://\" URI 登录",
+  "str_login_with_copy_url": "复制URI"
 }

@@ -81,5 +81,7 @@
   "group_search_text": "Otsi Avatud ja Suletud Gruppe",
   "channel_search_text": "Otsi Avalikke Kanaleid",
   "member": "Liige",
-  "members": "Liikmed"
+  "members": "Liikmed",
+  "like_fail_tips": "Meeldimine ebaõnnestus!",
+  "open_group": "Avatud Grupid"
 }

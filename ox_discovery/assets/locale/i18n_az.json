@@ -81,5 +81,7 @@
   "group_search_text": "Açıq və Qapalı Qrupları Axtar",
   "channel_search_text": "İctimai Kanalları Axtar",
   "member": "Üzv",
-  "members": "Üzvlər"
+  "members": "Üzvlər",
+  "like_fail_tips": "Bəyənmə uğursuz oldu!",
+  "open_group": "Açıq Qruplar"
 }

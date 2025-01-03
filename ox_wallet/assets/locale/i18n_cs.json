@@ -85,5 +85,6 @@
   "mint": "Minc",
   "how_to_operate": "Jak to funguje?",
   "backup_funds_instruction": "Proces zálohování fondů automaticky konsoliduje a vypočítává nejmenší důkazy pro efektivní uložení a zároveň zvyšuje bezpečnost. Buďte si však vědomi toho, že po dokončení obnovení starý token Cashu ztrácí platnost, takže si ověřte, že proces probíhá bezpečně",
-  "download_button": "Stáhnout"
+  "download_button": "Stáhnout",
+  "some_proofs_spendable_hint": "Některé důkazy již byly utraceny, ale jiné zůstávají použitelné. Chcete uplatnit použitelné důkazy?"
 }

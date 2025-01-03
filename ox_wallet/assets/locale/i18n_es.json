@@ -85,5 +85,6 @@
   "mint": "Mint",
   "how_to_operate": "¿Cómo funciona?",
   "backup_funds_instruction": "El proceso de respaldo de fondos consolida y calcula automáticamente las pruebas más pequeñas para un almacenamiento eficiente y mejora la seguridad. Sin embargo, tenga en cuenta que una vez completada la recuperación, el antiguo token de Cashu se vuelve inválido, así que asegúrese de que el proceso se realice de forma segura",
-  "download_button": "Descargar"
+  "download_button": "Descargar",
+  "some_proofs_spendable_hint": "Algunas pruebas ya se han gastado, pero otras siguen siendo utilizables. ¿Deseas canjear las pruebas utilizables?"
 }

@@ -225,7 +225,7 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
     if ((userDB.picture != null && userDB.picture!.isNotEmpty)) {
       picWidget = OXCachedNetworkImage(
         imageUrl: userInfo.db.picture ?? '',
-        fit: BoxFit.contain,
+        fit: BoxFit.cover,
         placeholder: (context, url) => _badgePlaceholderImage,
         errorWidget: (context, url, error) => _badgePlaceholderImage,
         width: Adapt.px(40),

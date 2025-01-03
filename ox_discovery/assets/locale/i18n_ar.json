@@ -81,5 +81,7 @@
   "group_search_text": "ابحث عن المجموعات المفتوحة والمغلقة",
   "channel_search_text": "ابحث عن القنوات العامة",
   "member": "عضو",
-  "members": "أعضاء"
+  "members": "أعضاء",
+  "like_fail_tips": "فشل في الإعجاب!",
+  "open_group": "مجموعات مفتوحة"
 }

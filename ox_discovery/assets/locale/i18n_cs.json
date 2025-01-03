@@ -81,5 +81,7 @@
   "group_search_text": "Hledat Otevřené a Uzavřené Skupiny",
   "channel_search_text": "Hledat Veřejné Kanály",
   "member": "Člen",
-  "members": "Členové"
+  "members": "Členové",
+  "like_fail_tips": "Nepodařilo se označit jako oblíbené!",
+  "open_group": "Otevřené Skupiny"
 }

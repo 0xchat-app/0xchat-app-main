@@ -81,5 +81,7 @@
   "group_search_text": "खुले और बंद समूह खोजें",
   "channel_search_text": "सार्वजनिक चैनल खोजें",
   "member": "सदस्य",
-  "members": "सदस्य"
+  "members": "सदस्य",
+  "like_fail_tips": "पसंद असफल!",
+  "open_group": "खुले समूह"
 }
