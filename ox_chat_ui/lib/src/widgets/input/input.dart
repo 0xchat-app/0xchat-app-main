@@ -8,6 +8,7 @@ import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
+import 'package:ox_common/utils/platform_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
@@ -215,6 +216,10 @@ class InputState extends State<Input>{
           },
           textController: _textController);
     } else if (inputType == InputType.inputTypeVoice){
+      if(PlatformUtils.isDesktop){
+        CommonToast.instance.show(context, 'The client does not support this function！');
+        return SizedBox();
+      }
       contentWidget = InputVoicePage(onPressed: (_path, duration) {
         if(widget.onVoiceSend != null){
           widget.onVoiceSend!(_path, duration);
