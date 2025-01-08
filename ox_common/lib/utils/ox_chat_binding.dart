@@ -45,15 +45,18 @@ class OXChatBinding {
   Future<void> initLocalSession() async {
     final isar = DBISAR.sharedInstance.isar;
     final List<ChatSessionModelISAR> sessionList = await isar.chatSessionModelISARs.where().sortByCreateTimeDesc().findAll();
+    Set<ChatSessionModelISAR> changedSessions = {};
     bool isRefreshSession = false;
     sessionList.forEach((e) {
       if (sessionMap[e.chatId] == null || (sessionMap[e.chatId] != null && sessionMap[e.chatId]!.createTime < e.createTime)) {
         sessionMap[e.chatId] = e;
         isRefreshSession = true;
+        changedSessions.add(e);
       }
     });
     if (isRefreshSession) {
       sessionUpdate();
+      sessionInfoUpdate(changedSessions.toList());
     }
   }
 
@@ -64,12 +67,17 @@ class OXChatBinding {
 
   void setAllSessionToReaded() async {
     final sessionList = sessionMap.values.toList();
+    Set<ChatSessionModelISAR> changedSessions = {};
     sessionList.forEach((element) {
-      element.unreadCount = 0;
+      if (element.unreadCount != 0) {
+        element.unreadCount = 0;
+        changedSessions.add(element);
+      }
     });
     unReadStrangerSessionCount = 0;
     await DBISAR.sharedInstance.saveObjectsToDB(sessionList);
     sessionUpdate();
+    sessionInfoUpdate(changedSessions.toList());
   }
 
   int getAllSessionUnReadCount(){
@@ -162,10 +170,55 @@ class OXChatBinding {
       if (isChange) {
         await ChatSessionModelISAR.saveChatSessionModelToDB(sessionModel);
         sessionUpdate();
+        sessionInfoUpdate([sessionModel]);
         changeCount = 1;
       }
     }
     return changeCount;
+  }
+
+  Future<void> addReactionMessage(String chatId, String messageId) async {
+    ChatSessionModelISAR? sessionModel = sessionMap[chatId];
+    if (sessionModel == null) return;
+
+    if (!sessionModel.reactionMessageIds.contains(messageId)) {
+      sessionModel.reactionMessageIds = [messageId, ...sessionModel.reactionMessageIds];
+      await ChatSessionModelISAR.saveChatSessionModelToDB(sessionModel);
+      sessionInfoUpdate([sessionModel]);
+    }
+  }
+
+  Future<void> removeReactionMessage(String chatId, [bool sendNotification = true]) async {
+    ChatSessionModelISAR? sessionModel = sessionMap[chatId];
+    if (sessionModel == null) return;
+
+    sessionModel.reactionMessageIds = [];
+    await ChatSessionModelISAR.saveChatSessionModelToDB(sessionModel);
+    if (sendNotification) {
+      sessionInfoUpdate([sessionModel]);
+    }
+  }
+
+  Future<void> addMentionMessage(String chatId, String messageId) async {
+    ChatSessionModelISAR? sessionModel = sessionMap[chatId];
+    if (sessionModel == null) return;
+
+    if (!sessionModel.mentionMessageIds.contains(messageId)) {
+      sessionModel.mentionMessageIds = [messageId, ...sessionModel.mentionMessageIds];
+      await ChatSessionModelISAR.saveChatSessionModelToDB(sessionModel);
+      sessionInfoUpdate([sessionModel]);
+    }
+  }
+
+  Future<void> removeMentionMessage(String chatId, [bool sendNotification = true]) async {
+    ChatSessionModelISAR? sessionModel = sessionMap[chatId];
+    if (sessionModel == null) return;
+
+    sessionModel.mentionMessageIds = [];
+    await ChatSessionModelISAR.saveChatSessionModelToDB(sessionModel);
+    if (sendNotification) {
+      sessionInfoUpdate([sessionModel]);
+    }
   }
 
   ChatSessionModelISAR? syncChatSessionTable(MessageDBISAR messageDB, {int? chatType}) {
@@ -565,6 +618,7 @@ class OXChatBinding {
     await ChatSessionModelISAR.saveChatSessionModelToDB(csModel);
     _updateUnReadStrangerSessionCount();
     sessionUpdate();
+    sessionInfoUpdate([csModel]);
     return 1;
   }
 
@@ -572,6 +626,7 @@ class OXChatBinding {
     //strangerSession to chatSession
     bool isChange = false;
     List<ChatSessionModelISAR> list = OXChatBinding.sharedInstance.sessionMap.values.toList();
+    Set<ChatSessionModelISAR> changedSessions = {};
     await Future.forEach(list, (csModel) async {
       if(csModel.chatType == ChatType.chatChannel || csModel.chatType == ChatType.chatGroup){
         return;
@@ -582,23 +637,28 @@ class OXChatBinding {
         if (csModel.chatType == ChatType.chatSecretStranger && (csModel.sender == pubkey || csModel.receiver == pubkey)) {
           tempChatType = ChatType.chatSecret;
           await updateChatSessionDB(csModel, tempChatType);
+          changedSessions.add(csModel);
         } else if (csModel.chatType == ChatType.chatStranger && csModel.chatId == pubkey) {
           tempChatType = ChatType.chatSingle;
           await updateChatSessionDB(csModel, tempChatType);
+          changedSessions.add(csModel);
         }
       } else {
         if (csModel.chatType == ChatType.chatSecret && (csModel.sender == pubkey || csModel.receiver == pubkey)) {
           tempChatType = ChatType.chatSecretStranger;
           await updateChatSessionDB(csModel, tempChatType);
+          changedSessions.add(csModel);
         } else if (csModel.chatType == ChatType.chatSingle && csModel.chatId == pubkey) {
           tempChatType = ChatType.chatStranger;
           await updateChatSessionDB(csModel, tempChatType);
+          changedSessions.add(csModel);
         }
       }
     });
     if (isChange) {
       _updateUnReadStrangerSessionCount();
       sessionUpdate();
+      sessionInfoUpdate(changedSessions.toList());
     }
   }
 
@@ -612,6 +672,7 @@ class OXChatBinding {
     //strangerSession to chatSession
     bool isChange = false;
     List<ChatSessionModelISAR> list = OXChatBinding.sharedInstance.sessionMap.values.toList();
+    Set<ChatSessionModelISAR> changedSessions = {};
     for (ChatSessionModelISAR csModel in list) {
       if(csModel.chatType == ChatType.chatChannel || csModel.chatType == ChatType.chatGroup){
         continue;
@@ -624,18 +685,21 @@ class OXChatBinding {
         if (senderUserDB != null || receiverUserDB != null) {
           tempChatType = ChatType.chatSecret;
           await updateChatSessionDB(csModel, tempChatType);
+          changedSessions.add(csModel);
         }
       } else if (csModel.chatType == ChatType.chatStranger) {
         UserDBISAR? chatIdUserDB = Contacts.sharedInstance.allContacts[csModel.chatId];
         if (chatIdUserDB != null) {
           tempChatType = ChatType.chatSingle;
           await updateChatSessionDB(csModel, tempChatType);
+          changedSessions.add(csModel);
         }
       }
     }
     if (isChange) {
       _updateUnReadStrangerSessionCount();
       sessionUpdate();
+      sessionInfoUpdate(changedSessions.toList());
     }
   }
 
@@ -666,6 +730,12 @@ class OXChatBinding {
   void sessionUpdate() {
     for (OXChatObserver observer in _observers) {
       observer.didSessionUpdate();
+    }
+  }
+
+  void sessionInfoUpdate(List<ChatSessionModelISAR> updatedSession) {
+    for (OXChatObserver observer in _observers) {
+      observer.didSessionInfoUpdate(updatedSession);
     }
   }
 
