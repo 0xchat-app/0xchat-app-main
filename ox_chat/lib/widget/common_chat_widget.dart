@@ -10,6 +10,7 @@ import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/manager/chat_page_config.dart';
 import 'package:ox_chat/utils/chat_voice_helper.dart';
 import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
+import 'package:ox_chat/widget/chat_highlight_message_widget.dart';
 import 'package:ox_chat/utils/general_handler/chat_mention_handler.dart';
 import 'package:ox_chat/utils/general_handler/message_data_controller.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
@@ -22,6 +23,8 @@ import 'package:ox_common/utils/web_url_helper.dart';
 import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
+
+import '../utils/general_handler/chat_highlight_message_handler.dart';
 
 class CommonChatWidget extends StatefulWidget {
 
@@ -55,6 +58,7 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
   ChatGeneralHandler get handler => widget.handler;
   ChatSessionModelISAR get session => handler.session;
   MessageDataController get dataController => handler.dataController;
+  ChatHighlightMessageHandler get highlightMessageHandler => handler.highlightMessageHandler;
 
   final pageConfig = ChatPageConfig();
 
@@ -62,7 +66,7 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
   final AutoScrollController scrollController = AutoScrollController();
   Duration scrollDuration = const Duration(milliseconds: 100);
 
-  bool isShowScrollToUnreadWidget = true;
+  bool isShowScrollToBottomWidget = false;
 
   @override
   void initState() {
@@ -89,7 +93,7 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
     final replyMessageId = session.replyMessageId ?? '';
     if (replyMessageId.isEmpty) return ;
 
-    final message = await dataController.getLocalMessageWithId(replyMessageId);
+    final message = (await dataController.getLocalMessageWithIds([replyMessageId])).firstOrNull;
     if (message == null) return ;
 
     handler.replyHandler.updateReplyMessage(message);
@@ -219,7 +223,7 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
                   message,
                   messageWidth: messageWidth,
                   onTap: (message) async {
-                    scrollToMessage(message);
+                    scrollToMessage(message?.id);
                   },
                 ),
             reactionViewBuilder: (types.Message message, {required int messageWidth}) =>
@@ -228,9 +232,18 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
                   messageWidth: messageWidth,
                   itemOnTap: (reaction) => handler.reactionPressHandler(context, message, reaction.content),
                 ),
-            scrollToUnreadWidget: buildScrollToUnreadWidget(),
+            highlightMessageWidget: ChatHighlightMessageWidget(
+              handler: highlightMessageHandler,
+              anchorMessageOnTap: scrollToMessage,
+              scrollToBottomOnTap: scrollToNewestMessage,
+              showScrollToBottomItem: isShowScrollToBottomWidget,
+            ),
             isShowScrollToBottomButton: dataController.hasMoreNewMessage,
-            scrollToBottomWidget: buildScrollToBottomWidget(),
+            isShowScrollToBottomButtonUpdateCallback: (value) {
+              setState(() {
+                isShowScrollToBottomWidget = value || dataController.hasMoreNewMessage;
+              });
+            },
             mentionUserListWidget: handler.mentionHandler?.buildMentionUserList(),
             onAudioDataFetched: (message) async {
               final (sourceFile, duration) = await ChatVoiceMessageHelper.populateMessageWithAudioDetails(
@@ -252,119 +265,15 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
               scrollToNewestMessage();
             },
             messageHasBuilder: (message, index) async {
-              if (!isShowScrollToUnreadWidget || index == null) return ;
+              if (index == null) return ;
 
-              final unreadMessage = await handler.unreadFirstMessage;
-              if (unreadMessage == null) return ;
-
-              if (unreadMessage.id == message.id) {
-                await WidgetsBinding.instance.waitUntilFirstFrameRasterized;
-                setState(() {
-                  isShowScrollToUnreadWidget = false;
-                });
-              }
+              highlightMessageHandler.tryRemoveMessageHighlightState(message.id);
             },
             replySwipeTriggerCallback: (message) {
               handler.replyHandler.quoteMenuItemPressHandler(message);
             },
           );
         }
-    );
-  }
-
-  Widget buildScrollToBottomWidget() {
-    return GestureDetector(
-      onTap: () {
-        scrollToNewestMessage();
-      },
-      child: Container(
-        width: 48.px,
-        height: 48.px,
-        decoration: BoxDecoration(
-          color: ThemeColor.color160,
-          borderRadius: BorderRadius.circular(24.px),
-        ),
-        alignment: Alignment.center,
-        child: CommonImage(
-          iconName: 'icon_arrow_down.png',
-          size: 24.px,
-          package: 'ox_chat',
-        ),
-      ),
-    );
-  }
-
-  Widget buildScrollToUnreadWidget() {
-    final unreadCount = handler.unreadMessageCount;
-    final unreadCountText = unreadCount > 9999 ? '9999+' : unreadCount.toString();
-    final fontSize = 12;
-    final numPadding = EdgeInsets.symmetric(
-      horizontal: 5.5.px,
-      vertical: 1.px,
-    );
-    return FutureBuilder(
-      future: handler.unreadFirstMessage,
-      builder: (context, snapshot) {
-        final message = snapshot.data;
-        return Visibility(
-          visible: isShowScrollToUnreadWidget && message != null,
-          child: GestureDetector(
-            onTap: () {
-              if (message == null) return ;
-              scrollToMessage(message);
-            },
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Container(
-                  width: 48.px,
-                  height: 48.px,
-                  decoration: BoxDecoration(
-                    color: ThemeColor.color160,
-                    borderRadius: BorderRadius.circular(24.px),
-                  ),
-                  alignment: Alignment.center,
-                  child: Transform.rotate(
-                    angle: pi,
-                    child: CommonImage(
-                      iconName: 'icon_arrow_down.png',
-                      size: 24.px,
-                      package: 'ox_chat',
-                    ),
-                  ),
-                ),
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  top: -fontSize.spWithTextScale / 2,
-                  child: Center(
-                    child: Container(
-                      padding: numPadding,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(100.px),
-                        gradient: LinearGradient(
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
-                          colors: [
-                            ThemeColor.gradientMainEnd,
-                            ThemeColor.gradientMainStart
-                          ],
-                        ),
-                      ),
-                      child: Text(
-                        unreadCountText,
-                        style: TextStyle(
-                          fontSize: fontSize.sp,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      }
     );
   }
 
@@ -391,11 +300,8 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
     );
   }
 
-  void scrollToMessage(types.Message? message) async {
-    if (message == null) return ;
-
-    final messageId = message.id;
-    if (messageId.isEmpty) return ;
+  void scrollToMessage(String? messageId) async {
+    if (messageId == null || messageId.isEmpty) return ;
 
     var index = dataController.getMessageIndex(messageId);
     if (index > -1) {
@@ -425,12 +331,19 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
     }
   }
 
-  void scrollTo(double offset) {
+  void scrollTo(double offset) async {
     if (!scrollController.hasClients) return ;
-    scrollController.animateTo(
+
+    await scrollController.animateTo(
       offset,
       duration: scrollDuration,
       curve: Curves.easeInQuad,
     );
+
+    if (mounted) {
+      setState(() {
+        isShowScrollToBottomWidget = false;
+      });
+    }
   }
 }

@@ -4,8 +4,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' as ui;
 
-// import 'package:ffmpeg_kit_flutter/return_code.dart';
-import 'package:ffmpeg_kit_flutter/return_code.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
@@ -73,11 +71,8 @@ import 'package:device_info/device_info.dart';
 import 'package:ox_common/widgets/zaps/zaps_action_handler.dart';
 
 import '../../manager/chat_data_manager_models.dart';
+import 'chat_highlight_message_handler.dart';
 import 'message_data_controller.dart';
-import 'package:file_picker/file_picker.dart' as filePickerUtils;
-import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
-import 'package:path_provider/path_provider.dart';
-
 
 part 'chat_send_message_handler.dart';
 
@@ -87,13 +82,14 @@ class ChatGeneralHandler {
     required this.session,
     types.User? author,
     this.anchorMsgId,
-    this.unreadMessageCount = 0,
+    int unreadMessageCount = 0,
   }) : author = author ?? _defaultAuthor(),
        fileEncryptionType = _fileEncryptionType(session) {
     setupDataController();
     setupOtherUserIfNeeded();
     setupReplyHandler();
     setupMentionHandlerIfNeeded();
+    setupHighlightMessageHandler(session, unreadMessageCount);
   }
 
   final types.User author;
@@ -105,14 +101,12 @@ class ChatGeneralHandler {
   late ChatReplyHandler replyHandler;
   ChatMentionHandler? mentionHandler;
   late MessageDataController dataController;
+  late ChatHighlightMessageHandler highlightMessageHandler;
 
   TextEditingController inputController = TextEditingController();
 
   final tempMessageSet = <types.Message>{};
 
-  int unreadMessageCount;
-  Completer<types.Message?> _unreadFirstMessageCmp = Completer();
-  Future<types.Message?> get unreadFirstMessage => _unreadFirstMessageCmp.future;
   bool isPreviewMode = false;
 
   static types.User _defaultAuthor() {
@@ -186,6 +180,14 @@ class ChatGeneralHandler {
     this.mentionHandler = mentionHandler;
   }
 
+  void setupHighlightMessageHandler(ChatSessionModelISAR session, int unreadMessageCount) {
+    highlightMessageHandler = ChatHighlightMessageHandler(session.chatId)
+      ..dataController = dataController
+      ..unreadMessageCount = unreadMessageCount;
+
+    highlightMessageHandler.initialize(session);
+  }
+
   Future initializeMessage() async {
     final anchorMsgId = this.anchorMsgId;
     if (anchorMsgId != null && anchorMsgId.isNotEmpty) {
@@ -213,19 +215,7 @@ class ChatGeneralHandler {
       }
     }
 
-    await initializeUnreadMessage();
     initializeImageGallery();
-  }
-
-  Future initializeUnreadMessage() async {
-    if (unreadMessageCount < 10) return ;
-
-    final messages = await dataController.getLocalMessage(
-      limit: unreadMessageCount,
-    );
-    if (!_unreadFirstMessageCmp.isCompleted) {
-      _unreadFirstMessageCmp.complete(messages.lastOrNull);
-    }
   }
 
   Future initializeImageGallery() async {
@@ -241,6 +231,7 @@ class ChatGeneralHandler {
 
   void dispose() {
     dataController.dispose();
+    highlightMessageHandler.dispose();
   }
 }
 

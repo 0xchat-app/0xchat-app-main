@@ -23,11 +23,6 @@ class ChatDataCache with OXChatObserver {
     OXChatBinding.sharedInstance.addObserver(this);
   }
 
-  Map<ChatTypeKey, List<types.Message>> _chatMessageMap = Map();
-  List<types.Message> get allMessage => _chatMessageMap.values.expand((list) => list).toList();
-
-  Set<String> messageIdCache = {};
-
   Completer setupCompleter = Completer();
 
   Completer offlinePrivateMessageFlag = Completer();
@@ -53,9 +48,6 @@ class ChatDataCache with OXChatObserver {
     final setupCompleter = Completer();
     this.setupCompleter = setupCompleter;
     setupAllCompleter();
-
-    messageIdCache.clear();
-    _chatMessageMap = Map();
 
     ChatDraftManager.shared.setup();
 
@@ -124,7 +116,14 @@ class ChatDataCache with OXChatObserver {
   }
 
   @override
-  void didMessageActionsCallBack(MessageDBISAR message) async { }
+  void didMessageActionsCallBack(MessageDBISAR message) async {
+    final sessionId = message.chatTypeKey?.sessionId;
+    final messageId = message.messageId;
+    if (sessionId == null || sessionId.isEmpty || messageId.isEmpty) return;
+    if (!OXUserInfoManager.sharedInstance.isCurrentUser(message.sender)) return;
+
+    OXChatBinding.sharedInstance.addReactionMessage(sessionId, messageId);
+  }
 
   @override
   void didMessageDeleteCallBack(List<MessageDBISAR> delMessages) async {
@@ -192,14 +191,12 @@ class ChatDataCache with OXChatObserver {
 
   Future receiveMessageHandler(MessageDBISAR message) async {
     final sessionId = message.chatTypeKey?.sessionId;
-    if (sessionId == null || sessionId.isEmpty) return null;
+    final messageId = message.messageId;
+    if (sessionId == null || sessionId.isEmpty || messageId.isEmpty) return null;
 
     await message.toChatUIMessage(
       isMentionMessageCallback: () {
-        OXChatBinding.sharedInstance.updateChatSession(
-          sessionId,
-          isMentioned: true,
-        );
+        OXChatBinding.sharedInstance.addMentionMessage(sessionId, messageId);
       },
     );
   }

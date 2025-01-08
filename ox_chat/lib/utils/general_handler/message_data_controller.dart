@@ -220,9 +220,26 @@ extension MessageDataControllerInterface on MessageDataController {
     return uiMessages.whereNotNull().toList();
   }
 
-  Future<types.Message?> getLocalMessageWithId(String messageId) async {
-    final dbModel = await Messages.sharedInstance.loadMessageDBFromDB(messageId);
-    return dbModel?.toChatUIMessage();
+  Future<List<types.Message>> getLocalMessageWithIds(List<String> messageIds) async {
+    if (messageIds.isEmpty) return [];
+
+    List<types.Message> result = [];
+    if (messageIds.length == 1) {
+      final message = await (await Messages.sharedInstance.loadMessageDBFromDB(messageIds.first))?.toChatUIMessage();
+      if (message != null) {
+        result.add(message);
+      }
+    } else {
+      final messages = await Messages.sharedInstance.loadMessageDBFromDBWithMsgIds(messageIds);
+      for (var message in messages) {
+        final uiMessage = await message.toChatUIMessage();
+        if (uiMessage != null) {
+          result.add(uiMessage);
+        }
+      }
+    }
+
+    return result;
   }
 
   bool isInCurrentSession(MessageDBISAR msg) {

@@ -175,6 +175,11 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     }
   }
 
+  @override
+  void didSessionInfoUpdate(List<ChatSessionModelISAR> updatedSession) {
+    setState(() {});
+  }
+
   onThemeStyleChange() {
     if (mounted) setState(() {});
   }
