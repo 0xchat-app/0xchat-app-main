@@ -216,10 +216,6 @@ class InputState extends State<Input>{
           },
           textController: _textController);
     } else if (inputType == InputType.inputTypeVoice){
-      if(PlatformUtils.isDesktop){
-        CommonToast.instance.show(context, 'The client does not support this function！');
-        return SizedBox();
-      }
       contentWidget = InputVoicePage(onPressed: (_path, duration) {
         if(widget.onVoiceSend != null){
           widget.onVoiceSend!(_path, duration);
@@ -321,16 +317,19 @@ class InputState extends State<Input>{
     );
   }
 
-  Widget _buildVoiceButton() =>
-      AttachmentButton(
-        isLoading: widget.isAttachmentUploading ?? false,
-        // onPressed: widget.onAttachmentPressed,
-        onPressed: (){
-          changeInputType(InputType.inputTypeVoice);
-        },
-        padding: EdgeInsets.symmetric(horizontal: _itemSpacing),
-        size: inputSuffixIconSize,
-      );
+  Widget _buildVoiceButton(){
+    if(PlatformUtils.isDesktop) return SizedBox().setPadding(EdgeInsets.symmetric(horizontal: _itemSpacing));
+    return AttachmentButton(
+      isLoading: widget.isAttachmentUploading ?? false,
+      // onPressed: widget.onAttachmentPressed,
+      onPressed: (){
+        changeInputType(InputType.inputTypeVoice);
+      },
+      padding: EdgeInsets.symmetric(horizontal: _itemSpacing),
+      size: inputSuffixIconSize,
+    );
+  }
+
 
   Widget _buildInputTextField() =>
       Container(
