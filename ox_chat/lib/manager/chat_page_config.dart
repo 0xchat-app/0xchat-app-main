@@ -42,22 +42,18 @@ class ChatPageConfig {
       );
 
   List<InputMoreItem> inputMoreItemsWithHandler(ChatGeneralHandler handler) {
-    bool isDesktop = PlatformUtils.isDesktop;
-    List<InputMoreItem> mobileList = [
-      InputMoreItemEx.camera(handler),
-      InputMoreItemEx.video(handler),
-    ];
+    bool isMobile = PlatformUtils.isMobile;
     final items = [
       InputMoreItemEx.album(handler),
+      if(isMobile) InputMoreItemEx.camera(handler),
+      if(isMobile) InputMoreItemEx.video(handler),
       InputMoreItemEx.ecash(handler),
     ];
-
-    if(!isDesktop) [...mobileList,...items];
 
     final otherUser = handler.otherUser;
     if (handler.session.chatType == ChatType.chatSingle && otherUser != null) {
       items.add(InputMoreItemEx.zaps(handler, otherUser));
-      if(!isDesktop){
+      if(isMobile){
         items.add(InputMoreItemEx.call(handler, otherUser));
       }
     }
