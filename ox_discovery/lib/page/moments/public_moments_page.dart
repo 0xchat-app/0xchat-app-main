@@ -127,6 +127,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
     OXUserInfoManager.sharedInstance.addObserver(this);
     OXMomentManager.sharedInstance.addObserver(this);
     ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
+    Moment.sharedInstance.updateSubscriptions();
     updateNotesList(true);
     _notificationUpdateNotes(OXMomentManager.sharedInstance.notes);
     _updateNotifications(OXMomentManager.sharedInstance.notifications);
@@ -145,6 +146,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
   @override
   void dispose() {
     refreshController.dispose();
+    Moment.sharedInstance.closeSubscriptions();
     OXUserInfoManager.sharedInstance.removeObserver(this);
     OXMomentManager.sharedInstance.removeObserver(this);
     super.dispose();
