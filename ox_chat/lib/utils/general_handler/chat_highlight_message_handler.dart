@@ -38,8 +38,6 @@ class ChatHighlightMessageHandler with OXChatObserver {
       initializeMentionMessage(session),
       initializeReactionMessage(session),
     ]);
-    OXChatBinding.sharedInstance.removeReactionMessage(session.chatId, false);
-    OXChatBinding.sharedInstance.removeMentionMessage(session.chatId, false);
     if (!_initializeCmp.isCompleted) _initializeCmp.complete();
   }
 

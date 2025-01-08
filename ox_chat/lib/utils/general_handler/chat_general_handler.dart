@@ -185,7 +185,12 @@ class ChatGeneralHandler {
       ..dataController = dataController
       ..unreadMessageCount = unreadMessageCount;
 
-    highlightMessageHandler.initialize(session);
+    highlightMessageHandler.initialize(session).then((_) {
+      if (!isPreviewMode) {
+        OXChatBinding.sharedInstance.removeReactionMessage(session.chatId, false);
+        OXChatBinding.sharedInstance.removeMentionMessage(session.chatId, false);
+      }
+    });
   }
 
   Future initializeMessage() async {
