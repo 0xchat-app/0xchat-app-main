@@ -286,7 +286,7 @@ class _DonatePageState extends State<DonatePage> {
         useLargeTitle: false,
         titleTextColor: ThemeColor.color0,
         backgroundColor: ThemeColor.color200,
-        actions: Platform.isAndroid ? null : [
+        actions: Platform.isAndroid || Platform.isMacOS ? null : [
            OXButton(
             highlightColor: Colors.transparent,
             color: Colors.transparent,
