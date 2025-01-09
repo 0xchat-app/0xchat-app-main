@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/cupertino.dart';
@@ -239,6 +240,7 @@ class _ContactUserOptionWidgetState extends State<ContactUserOptionWidget> with 
           iconName: 'icon_message.png',
           content:  Localized.text('ox_chat.message'),
         ),
+        if(PlatformUtils.isMobile)
         TabModel(
           onTap: _clickCall,
           iconName: 'icon_chat_call.png',
