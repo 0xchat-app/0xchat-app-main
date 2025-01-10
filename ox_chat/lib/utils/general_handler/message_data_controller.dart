@@ -467,6 +467,8 @@ extension MessageDataControllerPrivate on MessageDataController {
   }
 
   void _replaceMessages(List<types.Message> messages) {
+    messages = messages.removeDuplicates((e) => e.id);
+
     _messages = [...messages];
     _messageIdCache.clear();
     _messageIdCache.addAll(messages.map((e) => e.remoteId).whereNotNull());
