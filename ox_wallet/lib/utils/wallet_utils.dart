@@ -71,8 +71,12 @@ class WalletUtils {
     DateTime currentTime = DateTime.now();
     Duration diff = currentTime.difference(givenTime);
 
-    if (diff.inDays >= 1) {
-      return 'a day ago';
+    if (diff.inDays > 1) {
+      final isCurrentYear = givenTime.year == currentTime.year;
+      final formatter = DateFormat(isCurrentYear ? 'MM/dd' : 'yyyy/MM/dd');
+      return formatter.format(givenTime);
+    } else if (diff.inDays == 1) {
+      return '1 day ago';
     } else if (diff.inHours >= 12) {
       return '12 hours ago';
     } else if (diff.inHours >= 1) {
