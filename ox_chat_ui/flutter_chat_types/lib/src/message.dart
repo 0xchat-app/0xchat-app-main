@@ -201,6 +201,8 @@ abstract class Message extends Equatable {
       'sourceKey: $sourceKey, '
       'expiration: $expiration, '
       'reactions: $reactions, '
-      'zaps: $zapsInfoList'
+      'zaps: $zapsInfoList, '
+      'decryptKey: $decryptKey, '
+      'decryptNonce: $decryptNonce, '
       '}';
 }

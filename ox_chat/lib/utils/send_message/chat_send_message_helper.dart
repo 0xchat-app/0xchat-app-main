@@ -102,6 +102,8 @@ class ChatSendMessageHelper {
       type = MessageType.encryptedImage;
     } else if (message.isVideoSendingMessage || message.isVideoMessage) {
       type = MessageType.encryptedVideo;
+    } else if (message is types.AudioMessage) {
+      type = MessageType.encryptedAudio;
     }
     return EncryptedFile(
       message.content,
