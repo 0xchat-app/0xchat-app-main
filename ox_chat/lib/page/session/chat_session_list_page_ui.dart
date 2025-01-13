@@ -310,7 +310,7 @@ extension ChatSessionListPageUI on ChatSessionListPageState{
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              _buildReactionIcon(item),
+                              _buildReactionIcon(item).setPaddingOnly(right: 6.px),
                               _buildReadWidget(item),
                             ],
                           ),
@@ -503,6 +503,7 @@ extension ChatSessionListPageUI on ChatSessionListPageState{
 
   Widget _buildReactionIcon(ChatSessionModelISAR item) {
     final reactions = item.reactionMessageIds;
+    bool isMute = _getChatSessionMute(item);
     return AnimatedSwitcher(
       duration: const Duration(milliseconds:1000),
       transitionBuilder: (Widget child, Animation<double> animation) {
@@ -520,6 +521,7 @@ extension ChatSessionListPageUI on ChatSessionListPageState{
       child: reactions.isNotEmpty ? CommonImage(
         iconName: 'icon_session_reaction.png',
         size: 24.px,
+        color: isMute ? ThemeColor.color110 : null,
         package: 'ox_chat',
       ) : SizedBox(),
     );

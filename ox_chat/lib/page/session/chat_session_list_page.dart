@@ -338,9 +338,10 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
 
   void _updateReadStatus() {
     int readCount = 0;
-    for (ChatSessionModelISAR i in _msgDatas) {
-      if (i.unreadCount > 0) {
-        readCount += i.unreadCount;
+    for (ChatSessionModelISAR item in _msgDatas) {
+      final isMute = ChatSessionUtils.getChatMute(item);
+      if (!isMute && item.unreadCount > 0) {
+        readCount += item.unreadCount;
       }
     }
     _allUnreadCount = readCount;
