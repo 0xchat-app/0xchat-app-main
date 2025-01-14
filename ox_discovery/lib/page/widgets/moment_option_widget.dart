@@ -6,6 +6,7 @@ import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/mixin/common_navigator_observer_mixin.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/ox_default_emoji.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
@@ -17,13 +18,14 @@ import 'package:ox_localizable/ox_localizable.dart';
 import '../../enum/moment_enum.dart';
 import '../../model/moment_extension_model.dart';
 import '../../model/moment_ui_model.dart';
-import '../../utils/discovery_utils.dart';
 import '../moments/create_moments_page.dart';
 import '../moments/reply_moments_page.dart';
 
 import 'package:flutter/services.dart';
 import 'package:nostr_core_dart/nostr.dart';
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 
+import 'moment_emoji_reaction_widget.dart';
 
 class MomentOptionWidget extends StatefulWidget {
   final NotedUIModel? notedUIModel;
@@ -52,6 +54,17 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> with SingleTick
     EMomentOptionType.zaps,
   ];
 
+  List<Emoji> emojiData = oxDefaultEmoji;
+
+  void _init(){
+    notedUIModel = widget.notedUIModel;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
+
 
   @override
   void initState() {
@@ -66,11 +79,11 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> with SingleTick
     _updateNoteDB();
   }
 
-
   @override
   void didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.notedUIModel != oldWidget.notedUIModel) {
+      _reactionTag = false;
       _init();
     }
   }
@@ -124,6 +137,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> with SingleTick
       type: type,
       isSelect: _isClickByMe(type,model),
       onTap: () => _onTapCallback(type)(),
+      onLongPress: () => _onLongPress(type)(),
       clickNum: _getClickNum(type,model),
     );
     if(isZap){
@@ -151,7 +165,6 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> with SingleTick
             context: context,
             backgroundColor: Colors.transparent,
             builder: (context) => _buildBottomDialog());
-
       case EMomentOptionType.like:
         return () async {
           if (noteDB.reactionCountByMe > 0 || _reactionTag) return;
@@ -163,30 +176,59 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> with SingleTick
             OKEvent event = await RelayGroup.sharedInstance.sendGroupNoteReaction(noteDB.noteId);
             isSuccess = event.status;
           }
-
-          if (isSuccess) {
-            _reactionTag = true;
-            setState(() {});
-            _updateNoteDB();
-            CommonToast.instance.show(context, Localized.text('ox_discovery.like_success_tips'));
-          }else{
-            CommonToast.instance.show(context, Localized.text('ox_discovery.like_fail_tips'));
-          }
+          _dealWithReaction(isSuccess);
         };
       case EMomentOptionType.zaps:
         return _handleZap;
     }
   }
 
+  GestureLongPressCallback _onLongPress (EMomentOptionType type) {
+    NoteDBISAR? noteDB = notedUIModel?.noteDB;
+    if (noteDB == null || type != EMomentOptionType.like) return () => {};
+    return () async{
+      final status = await showModalBottomSheet(
+        context: context,
+        backgroundColor: Colors.transparent,
+        builder: (context) => MomentEmojiReactionWidget(notedUIModel:widget.notedUIModel!,reactionTag:_reactionTag),
+      );
+      if(status == null) return;
+      _dealWithReaction(status);
+    };
+  }
+
+  void _dealWithReaction(bool isSuccess){
+    if (isSuccess) {
+      _reactionTag = true;
+      setState(() {});
+      _updateNoteDB();
+      CommonToast.instance.show(context, Localized.text('ox_discovery.like_success_tips'));
+    }else{
+      CommonToast.instance.show(context, Localized.text('ox_discovery.like_fail_tips'));
+    }
+  }
+
+  Widget buildSessionHeader(String text) {
+    return Text(
+      text,
+      style: TextStyle(
+        fontSize: 12.sp,
+        color: ThemeColor.color100,
+      ),
+    );
+  }
+
   Widget _iconTextWidget({
     required EMomentOptionType type,
     required bool isSelect,
     GestureTapCallback? onTap,
+    GestureLongPressCallback? onLongPress,
     int? clickNum,
   }) {
     final content = clickNum == null || clickNum == 0 ? '' : clickNum.toString();
     Color textColors = isSelect ? ThemeColor.gradientMainStart : ThemeColor.color80;
     return GestureDetector(
+      onLongPress: onLongPress,
       behavior: HitTestBehavior.translucent,
       onTap: () => onTap?.call(),
       child: Row(
@@ -352,16 +394,6 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> with SingleTick
         return noteDB.replyCountByMe > 0;
     }
   }
-
-  void _init(){
-    notedUIModel = widget.notedUIModel;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        setState(() {});
-      }
-    });
-  }
-
 
   void _updateNoteDB() async {
     if(notedUIModel == null)  return;

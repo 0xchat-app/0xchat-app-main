@@ -20,6 +20,7 @@ dependencies:
   youtube_player_flutter: 9.0.0
   visibility_detector: ^0.3.3
   flutter_cache_manager: 3.3.1
+  emoji_picker_flutter: 1.5.4
 
   ox_module_service:
     path: ../../base_framework/ox_module_service

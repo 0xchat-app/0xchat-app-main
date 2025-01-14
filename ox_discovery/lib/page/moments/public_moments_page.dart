@@ -233,56 +233,63 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
   }
 
   Widget _getMomentListWidget() {
-    return ListView.builder(
-      primary: false,
-      controller: null,
-      shrinkWrap: false,
-      itemCount: notesList.length,
-      // addAutomaticKeepAlives: addAutomaticKeepAlives,
-      // addRepaintBoundaries: addRepaintBoundaries,
-      itemBuilder: (context, index) {
-        NotedUIModel? notedUIModel = notesList[index];
-        if (index == 0) {
-          return ValueListenableBuilder<double>(
-            valueListenable: tipContainerHeight,
-            builder: (context, value, child) {
-              return Container(
-                padding: EdgeInsets.only(top: value),
-                child: Column(
-                  children: [
-                    _groupNoteTips(),
-                    MomentWidget(
-                      isShowReplyWidget: true,
-                      notedUIModel: notedUIModel,
-                      clickMomentCallback:
-                          (NotedUIModel? notedUIModel) async {
-                        await OXNavigator.pushPage(
-                            context,
-                            (context) =>
-                                MomentsPage(notedUIModel: notedUIModel));
-                      },
-                    ).setPadding(EdgeInsets.symmetric(horizontal: 24.px)),
-                  ],
-                ),
-              );
-            },
-          );
+    return GestureDetector(
+      onHorizontalDragEnd: (DragEndDetails details) {
+        if (details.primaryVelocity != null && details.primaryVelocity! < 0) {
+          OXNavigator.pushPage(context, (context) => const NotificationsMomentsPage());
         }
-
-        return MomentWidget(
-          isShowReplyWidget: true,
-          notedUIModel: notedUIModel,
-          clickMomentCallback:
-              (NotedUIModel? notedUIModel) async {
-            await OXNavigator.pushPage(
-                context, (context) => MomentsPage(notedUIModel: notedUIModel));
-          },
-        ).setPadding(EdgeInsets.only(
-            left: 24.px,
-            right:24.px,
-            bottom: index == notesList.length - 1 ? 24.px : 0,
-        ));
       },
+      child: ListView.builder(
+        primary: false,
+        controller: null,
+        shrinkWrap: false,
+        itemCount: notesList.length,
+        // addAutomaticKeepAlives: addAutomaticKeepAlives,
+        // addRepaintBoundaries: addRepaintBoundaries,
+        itemBuilder: (context, index) {
+          NotedUIModel? notedUIModel = notesList[index];
+          if (index == 0) {
+            return ValueListenableBuilder<double>(
+              valueListenable: tipContainerHeight,
+              builder: (context, value, child) {
+                return Container(
+                  padding: EdgeInsets.only(top: value),
+                  child: Column(
+                    children: [
+                      _groupNoteTips(),
+                      MomentWidget(
+                        isShowReplyWidget: true,
+                        notedUIModel: notedUIModel,
+                        clickMomentCallback:
+                            (NotedUIModel? notedUIModel) async {
+                          await OXNavigator.pushPage(
+                              context,
+                              (context) =>
+                                  MomentsPage(notedUIModel: notedUIModel));
+                        },
+                      ).setPadding(EdgeInsets.symmetric(horizontal: 24.px)),
+                    ],
+                  ),
+                );
+              },
+            );
+          }
+
+          return MomentWidget(
+            isShowReplyWidget: true,
+            notedUIModel: notedUIModel,
+            clickMomentCallback:
+                (NotedUIModel? notedUIModel) async {
+              await OXNavigator.pushPage(
+                  context, (context) => MomentsPage(notedUIModel: notedUIModel));
+            },
+          ).setPadding(EdgeInsets.only(
+              left: 24.px,
+              right:24.px,
+              bottom: index == notesList.length - 1 ? 24.px : 0,
+          ));
+        },
+      ),
     );
   }
 

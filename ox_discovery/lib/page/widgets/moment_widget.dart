@@ -5,7 +5,6 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
-import 'package:ox_common/utils/platform_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/utils/widget_tool.dart';
@@ -538,6 +537,7 @@ class _MomentWidgetState extends State<MomentWidget> {
 
   void _dataInit() async {
     NotedUIModel? model = widget.notedUIModel;
+
     if(model == null) return;
     String? repostId = model.noteDB.repostId;
 
