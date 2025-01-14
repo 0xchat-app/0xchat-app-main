@@ -33,6 +33,8 @@ class OXChatBinding {
 
   bool isZapBadge = false;
 
+  Timer? _timer;
+
   factory OXChatBinding() {
     return sharedInstance;
   }
@@ -243,7 +245,10 @@ class OXChatBinding {
       //group chat
       _syncGroupChat(sessionModel, messageDB);
     }
-    sessionUpdate();
+    _timer?.cancel();
+    _timer = Timer(const Duration(milliseconds: 100), () async {
+      sessionUpdate();
+    });
     return sessionModel;
   }
 
