@@ -49,6 +49,10 @@ class ChatSessionModelISAR {
   // added @v5
   int? expiration;
 
+  List<String> reactionMessageIds = [];
+
+  List<String> mentionMessageIds = [];
+
   ChatSessionModelISAR({
     this.chatId = '',
     this.chatName,
@@ -67,7 +71,7 @@ class ChatSessionModelISAR {
     this.isMentioned = false,
     this.isZapsFromOther = false,
     this.messageKind,
-    this.expiration
+    this.expiration,
   });
 
   @ignore

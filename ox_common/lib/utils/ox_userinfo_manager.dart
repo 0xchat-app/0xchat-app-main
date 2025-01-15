@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:cashu_dart/business/wallet/cashu_manager.dart';
 import 'package:chatcore/chat-core.dart';
@@ -221,7 +222,7 @@ class OXUserInfoManager {
       OXChatBinding.sharedInstance.offlineGroupMessageFinishCallBack();
     };
     Contacts.sharedInstance.contactUpdatedCallBack = () {
-      LogUtil.d("Michael: init contactUpdatedCallBack");
+      LogUtil.d("Michael: init contactUpdatedCallBack  Contacts.sharedInstance.allContacts = ${Contacts.sharedInstance.allContacts.length}");
       _fetchFinishHandler(_ContactType.contacts);
       OXChatBinding.sharedInstance.contactUpdatedCallBack();
       OXChatBinding.sharedInstance.syncSessionTypesByContact();
@@ -289,9 +290,18 @@ class OXUserInfoManager {
   }
 
   Future<void> switchAccount(String selectedPubKey) async {
+    String currentUserPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
     await logout(needObserver: false);
     await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUBKEY, selectedPubKey);
     await OXUserInfoManager.sharedInstance.initLocalData();
+    if (currentUserInfo == null) {
+      Map<String, MultipleUserModel> currentUserMap = await UserConfigTool.getAllUser();
+      if (currentUserMap.isNotEmpty) {
+        await UserConfigTool.deleteUser(currentUserMap, selectedPubKey);
+      }
+      await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUBKEY, currentUserPubKey);
+      await OXUserInfoManager.sharedInstance.initLocalData();
+    }
     for (OXUserInfoObserver observer in _observers) {
       observer.didSwitchUser(currentUserInfo);
     }

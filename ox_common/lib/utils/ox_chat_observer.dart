@@ -1,5 +1,6 @@
 import 'package:chatcore/chat-core.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
@@ -50,6 +51,8 @@ abstract mixin class OXChatObserver {
   void didRelayGroupsUpdatedCallBack() {}
 
   void didSessionUpdate() {}
+
+  void didSessionInfoUpdate(List<ChatSessionModelISAR> updatedSession) {}
 
   void didSecretChatMessageCallBack(MessageDBISAR message) {}
 
