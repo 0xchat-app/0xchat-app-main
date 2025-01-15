@@ -233,13 +233,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
   }
 
   Widget _getMomentListWidget() {
-    return GestureDetector(
-      onHorizontalDragEnd: (DragEndDetails details) {
-        if (details.primaryVelocity != null && details.primaryVelocity! < 0) {
-          OXNavigator.pushPage(context, (context) => const NotificationsMomentsPage());
-        }
-      },
-      child: ListView.builder(
+    return ListView.builder(
         primary: false,
         controller: null,
         shrinkWrap: false,
@@ -289,7 +283,6 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
               bottom: index == notesList.length - 1 ? 24.px : 0,
           ));
         },
-      ),
     );
   }
 
