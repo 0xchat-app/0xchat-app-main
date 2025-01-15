@@ -94,7 +94,7 @@ class _DonatePageState extends State<DonatePage> {
 
   void _initData() async {
     _mCurrentUserInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
-    _isAppleOrGooglePay = Platform.isIOS;
+    _isAppleOrGooglePay = Platform.isIOS || Platform.isMacOS;
     if (!_isAppleOrGooglePay) {
       _setSatsData();
     }
@@ -286,7 +286,7 @@ class _DonatePageState extends State<DonatePage> {
         useLargeTitle: false,
         titleTextColor: ThemeColor.color0,
         backgroundColor: ThemeColor.color200,
-        actions: Platform.isAndroid ? null : [
+        actions: Platform.isAndroid || Platform.isMacOS ? null : [
            OXButton(
             highlightColor: Colors.transparent,
             color: Colors.transparent,

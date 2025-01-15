@@ -127,10 +127,10 @@ class Chat extends StatefulWidget {
     this.enableBottomWidget = true,
     this.bottomHintParam,
     this.textFieldHasFocus,
-    this.scrollToUnreadWidget,
-    this.scrollToBottomWidget,
+    this.highlightMessageWidget,
     this.messageHasBuilder,
     this.isShowScrollToBottomButton = false,
+    this.isShowScrollToBottomButtonUpdateCallback,
     this.replySwipeTriggerCallback,
   });
 
@@ -164,9 +164,7 @@ class Chat extends StatefulWidget {
 
   final Widget? mentionUserListWidget;
 
-  final Widget? scrollToUnreadWidget;
-
-  final Widget? scrollToBottomWidget;
+  final Widget? highlightMessageWidget;
 
   /// Allows you to replace the default Input widget e.g. if you want to create
   /// a channel view. If you're looking for the bottom widget added to the chat
@@ -409,6 +407,8 @@ class Chat extends StatefulWidget {
 
   final bool isShowScrollToBottomButton;
 
+  final Function(bool value)? isShowScrollToBottomButtonUpdateCallback;
+
   final Function(types.Message message)? replySwipeTriggerCallback;
 
   @override
@@ -601,18 +601,11 @@ class ChatState extends State<Chat> {
                 ),
               ),
               widget.customCenterWidget ?? SizedBox(),
-              if (widget.scrollToUnreadWidget != null)
-                Positioned(
-                  right: 12.px,
-                  top: 50.px,
-                  child: widget.scrollToUnreadWidget!,
-                ),
-              if (widget.scrollToBottomWidget != null &&
-                  (widget.isShowScrollToBottomButton || isShowScrollToBottomButton))
+              if (widget.highlightMessageWidget != null)
                 Positioned(
                   right: 12.px,
                   bottom: mentionUserListBottom,
-                  child: widget.scrollToBottomWidget!,
+                  child: widget.highlightMessageWidget!,
                 ),
               if (widget.mentionUserListWidget != null && mentionUserListBottom != null)
                 Positioned(
@@ -866,9 +859,8 @@ class ChatState extends State<Chat> {
   void checkIfShowUnreadAnchorButton(ScrollNotification notification) {
     final isShowScrollToBottomButton = notification.metrics.pixels > bottomThreshold;
     if (this.isShowScrollToBottomButton != isShowScrollToBottomButton) {
-      setState(() {
-        this.isShowScrollToBottomButton = isShowScrollToBottomButton;
-      });
+      this.isShowScrollToBottomButton = isShowScrollToBottomButton;
+      widget.isShowScrollToBottomButtonUpdateCallback?.call(isShowScrollToBottomButton);
     }
   }
 }

@@ -265,6 +265,11 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
     if(_typeList.elementAt(changeIndex) == HomeTabBarType.home && _typeList.elementAt(currentSelect) == HomeTabBarType.home) {
       homeGlobalKey.currentState?.updateHomeTabClickAction(1, false);
     }
+    if(_typeList.elementAt(changeIndex) == HomeTabBarType.discover) {
+      Moment.sharedInstance.updateSubscriptions();
+    }else{
+      Moment.sharedInstance.closeSubscriptions();
+    }
     _toPage(changeIndex);
   }
 

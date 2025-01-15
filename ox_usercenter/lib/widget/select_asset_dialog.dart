@@ -4,8 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/file_utils.dart';
 import 'package:ox_common/utils/image_picker_utils.dart';
 import 'package:ox_common/utils/permission_utils.dart';
+import 'package:ox_common/utils/platform_utils.dart';
+import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -43,14 +46,23 @@ class _SelectAssetDialogState extends State<SelectAssetDialog> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _buildItem(Localized.text('ox_usercenter.gallery'), onTap: () async {
-            File? imgFile = await openGallery();
+          _buildItem('str_album'.commonLocalized(), onTap: () async {
+            File? imgFile;
+            if(PlatformUtils.isDesktop){
+              List<Media>? list = await FileUtils.importClientFile(1);
+              if(list != null){
+                imgFile = File(list[0].path ?? '');
+              }
+            }else{
+              imgFile = await openGallery();
+            }
             OXNavigator.pop(context, {'action': SelectAssetAction.Gallery, 'result': imgFile});
           }),
           Divider(
             color: ThemeColor.color160,
             height: Adapt.px(0.5),
           ),
+          if(PlatformUtils.isMobile)
           _buildItem(Localized.text('ox_usercenter.camera'), onTap: () async {
             File? imgFile = await openCamera();
             OXNavigator.pop(context, {'action': SelectAssetAction.Camera, 'result': imgFile});

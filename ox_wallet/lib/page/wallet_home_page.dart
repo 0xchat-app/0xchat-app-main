@@ -263,8 +263,8 @@ class _WalletHomePageState extends State<WalletHomePage> with CommonStateViewMix
   }
 
   String _getTransactionItemSubtitle(IHistoryEntryIsar entry){
-    final time = WalletUtils.formatTimeAgo(entry.timestamp.toInt());
-    final memo = entry.memo?.isEmpty ?? true ? '-' : entry.memo;
+    final time = WalletUtils.formatTimestamp(entry.timestamp.toInt());
+    final memo = entry.memo.isEmpty? '-' : entry.memo;
     return '$time · $memo';
   }
 

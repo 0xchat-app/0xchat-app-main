@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -35,6 +37,8 @@ class _ContactViewGroupsState extends State<ContactViewGroups> with SingleTicker
   GlobalKey<GroupContactState> groupsWidgetKey = new GlobalKey<GroupContactState>();
   num imageV = 0;
   bool hasVibrator = false;
+
+  Timer? _timer;
 
   @override
   void initState() {
@@ -178,13 +182,19 @@ class _ContactViewGroupsState extends State<ContactViewGroups> with SingleTicker
   @override
   void didGroupsUpdatedCallBack() {
     LogUtil.e('Michael: ----didGroupsUpdatedCallBack----------');
-    _loadData();
+    _timer?.cancel();
+    _timer = Timer(const Duration(milliseconds: 300), () async {
+      _loadData();
+    });
   }
 
   @override
   void didRelayGroupsUpdatedCallBack() {
     LogUtil.e('Michael: ----didRelayGroupsUpdatedCallBack----------');
-    _loadData();
+    _timer?.cancel();
+    _timer = Timer(const Duration(milliseconds: 300), () async {
+      _loadData();
+    });
   }
 
   @override

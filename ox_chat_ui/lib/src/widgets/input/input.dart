@@ -8,6 +8,7 @@ import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
+import 'package:ox_common/utils/platform_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
@@ -316,16 +317,19 @@ class InputState extends State<Input>{
     );
   }
 
-  Widget _buildVoiceButton() =>
-      AttachmentButton(
-        isLoading: widget.isAttachmentUploading ?? false,
-        // onPressed: widget.onAttachmentPressed,
-        onPressed: (){
-          changeInputType(InputType.inputTypeVoice);
-        },
-        padding: EdgeInsets.symmetric(horizontal: _itemSpacing),
-        size: inputSuffixIconSize,
-      );
+  Widget _buildVoiceButton(){
+    if(PlatformUtils.isDesktop) return SizedBox().setPadding(EdgeInsets.symmetric(horizontal: _itemSpacing));
+    return AttachmentButton(
+      isLoading: widget.isAttachmentUploading ?? false,
+      // onPressed: widget.onAttachmentPressed,
+      onPressed: (){
+        changeInputType(InputType.inputTypeVoice);
+      },
+      padding: EdgeInsets.symmetric(horizontal: _itemSpacing),
+      size: inputSuffixIconSize,
+    );
+  }
+
 
   Widget _buildInputTextField() =>
       Container(
@@ -484,9 +488,9 @@ class InputState extends State<Input>{
   }
 
   void _handleSendPressed() async {
-    final trimmedText = _textController.text.trim();
-    if (trimmedText.isNotEmpty) {
-      final partialText = types.PartialText(text: trimmedText);
+    final text = _textController.text;
+    if (text.trim().isNotEmpty) {
+      final partialText = types.PartialText(text: text);
       final isSuccess = await widget.onSendPressed(partialText);
       if (!isSuccess) return ;
 

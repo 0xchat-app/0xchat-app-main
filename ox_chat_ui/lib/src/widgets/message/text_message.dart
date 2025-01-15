@@ -18,7 +18,7 @@ import '../state/inherited_user.dart';
 /// A class that represents text message widget with optional link preview.
 class TextMessage extends StatelessWidget {
   /// Creates a text message widget from a [types.TextMessage] class.
-  const TextMessage({
+  TextMessage({
     super.key,
     required this.emojiEnlargementBehavior,
     required this.hideBackgroundOnEmojiMessages,
@@ -30,7 +30,7 @@ class TextMessage extends StatelessWidget {
     required this.usePreviewData,
     this.userAgent,
     this.maxLimit,
-  });
+  }) : messageText = message.text.trim();
 
   /// See [Message.emojiEnlargementBehavior].
   final EmojiEnlargementBehavior emojiEnlargementBehavior;
@@ -40,6 +40,8 @@ class TextMessage extends StatelessWidget {
 
   /// [types.TextMessage].
   final types.TextMessage message;
+
+  final String messageText;
 
   /// This is to allow custom user name builder
   /// By using this we can fetch newest user info based on id
@@ -74,17 +76,17 @@ class TextMessage extends StatelessWidget {
 
     if (usePreviewData && onPreviewDataFetched != null) {
       var urlRegexp = RegExp(WebURLHelper.regexLink, caseSensitive: false);
-      var matches = urlRegexp.allMatches(message.text);
+      var matches = urlRegexp.allMatches(messageText);
 
       if (matches.isNotEmpty) {
         return _linkPreview(user, width, context);
       }
 
       urlRegexp = RegExp(WebURLHelper.regexNostr, caseSensitive: false);
-      matches = urlRegexp.allMatches(message.text);
+      matches = urlRegexp.allMatches(messageText);
 
       if (matches.isNotEmpty) {
-        final text = message.text.replaceFirst('nostr:', CommonConstant.njumpURL);
+        final text = messageText.replaceFirst('nostr:', CommonConstant.njumpURL);
         return _linkPreview(user, width, context, text: text);
       }
     }
@@ -126,7 +128,7 @@ class TextMessage extends StatelessWidget {
         vertical: InheritedChatTheme.of(context).theme.messageInsetsVertical,
       ),
       previewData: message.previewData,
-      text: text ?? message.text,
+      text: text ?? messageText,
       textWidget: _textWidgetBuilder(user, context, false),
       userAgent: userAgent,
       width: width,
@@ -171,9 +173,9 @@ class TextMessage extends StatelessWidget {
         //       UserName(author: message.author),
         if (enlargeEmojis)
           if (options.isTextSelectable)
-            SelectableText(message.text, style: emojiTextStyle)
+            SelectableText(messageText, style: emojiTextStyle)
           else
-            Text(message.text, style: emojiTextStyle)
+            Text(messageText, style: emojiTextStyle)
         else
           TextMessageText(
             bodyLinkTextStyle: bodyLinkTextStyle,
@@ -181,7 +183,7 @@ class TextMessage extends StatelessWidget {
             boldTextStyle: boldTextStyle,
             codeTextStyle: codeTextStyle,
             options: options,
-            text: message.text,
+            text: messageText,
             maxLines: 100,
             overflow: TextOverflow.ellipsis,
             maxLimit: maxLimit,

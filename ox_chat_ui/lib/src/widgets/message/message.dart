@@ -622,6 +622,7 @@ class MessageState extends State<Message> {
       flashDuration = flashDisplayDuration;
     });
     Future.delayed(flashDisplayDuration, () {
+      if (!mounted) return;
       setState(() {
         flashBackgroundColor = flashColor.withOpacity(0.0);
         flashDuration = flashDismissDuration;

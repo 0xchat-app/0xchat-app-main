@@ -612,12 +612,39 @@ extension ChatMessageBuilderCustomEx on ChatMessageBuilder {
     String? receiverPubkey,
     Function(types.Message newMessage)? messageUpdateCallback,
   ) {
-    return ChatVideoMessage(
+
+    Widget widget = ChatVideoMessage(
       message: message,
       messageWidth: messageWidth,
       reactionWidget: reactionWidget,
       receiverPubkey: receiverPubkey,
       messageUpdateCallback: messageUpdateCallback,
     );
+
+    if (message.hasReactions) {
+      widget = Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+            colors: [
+              ThemeColor.gradientMainEnd,
+              ThemeColor.gradientMainStart,
+            ],
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.all(10.px),
+              child: widget,
+            ),
+            reactionWidget,
+          ],
+        ),
+      );
+    }
+    return widget;
   }
 }

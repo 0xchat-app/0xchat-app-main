@@ -307,7 +307,13 @@ extension ChatSessionListPageUI on ChatSessionListPageState{
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: <Widget>[
-                          _buildReadWidget(item),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              _buildReactionIcon(item).setPaddingOnly(right: 6.px),
+                              _buildReadWidget(item),
+                            ],
+                          ),
                           SizedBox(height: 8.px),
                           Padding(
                             padding: EdgeInsets.only(bottom: 0),
@@ -432,7 +438,7 @@ extension ChatSessionListPageUI on ChatSessionListPageState{
   }
 
   Widget _buildItemSubtitle(ChatSessionModelISAR announceItem) {
-    final isMentioned = announceItem.isMentioned;
+    final isMentioned = announceItem.mentionMessageIds.isNotEmpty;
     if (isMentioned) {
       return RichText(
         textAlign: TextAlign.left,
@@ -493,6 +499,32 @@ extension ChatSessionListPageUI on ChatSessionListPageState{
       _muteCache[item.chatId] = isMute;
     }
     return isMute;
+  }
+
+  Widget _buildReactionIcon(ChatSessionModelISAR item) {
+    final reactions = item.reactionMessageIds;
+    bool isMute = _getChatSessionMute(item);
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds:1000),
+      transitionBuilder: (Widget child, Animation<double> animation) {
+        return FadeTransition(
+          opacity: animation,
+          child: SizeTransition(
+            sizeFactor: animation,
+            child: ScaleTransition(
+              scale: animation,
+              child: child,
+            ),
+          ),
+        );
+      },
+      child: reactions.isNotEmpty ? CommonImage(
+        iconName: 'icon_session_reaction.png',
+        size: 24.px,
+        color: isMute ? ThemeColor.color110 : null,
+        package: 'ox_chat',
+      ) : SizedBox(),
+    );
   }
 
   Widget _buildReadWidget(ChatSessionModelISAR item) {

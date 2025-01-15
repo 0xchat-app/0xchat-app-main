@@ -9,6 +9,7 @@ import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/platform_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_image_gallery.dart';
 import 'package:ox_common/widgets/common_toast.dart';
@@ -41,17 +42,20 @@ class ChatPageConfig {
       );
 
   List<InputMoreItem> inputMoreItemsWithHandler(ChatGeneralHandler handler) {
+    bool isMobile = PlatformUtils.isMobile;
     final items = [
       InputMoreItemEx.album(handler),
-      InputMoreItemEx.camera(handler),
-      InputMoreItemEx.video(handler),
+      if(isMobile) InputMoreItemEx.camera(handler),
+      if(isMobile) InputMoreItemEx.video(handler),
       InputMoreItemEx.ecash(handler),
     ];
 
     final otherUser = handler.otherUser;
     if (handler.session.chatType == ChatType.chatSingle && otherUser != null) {
       items.add(InputMoreItemEx.zaps(handler, otherUser));
-      items.add(InputMoreItemEx.call(handler, otherUser));
+      if(isMobile){
+        items.add(InputMoreItemEx.call(handler, otherUser));
+      }
     }
 
     return items;

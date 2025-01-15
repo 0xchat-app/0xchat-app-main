@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:chatcore/chat-core.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -8,7 +9,6 @@ import 'package:ox_common/utils/ox_moment_manager.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
-import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_pull_refresher.dart';
@@ -17,7 +17,6 @@ import 'package:ox_discovery/page/widgets/moment_tips.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_theme/ox_theme.dart';
-import 'package:ox_common/model/msg_notification_model.dart';
 
 import '../../enum/moment_enum.dart';
 import '../../model/moment_ui_model.dart';
@@ -126,9 +125,8 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
     isLogin = OXUserInfoManager.sharedInstance.isLogin;
     OXUserInfoManager.sharedInstance.addObserver(this);
     OXMomentManager.sharedInstance.addObserver(this);
-    Moment.sharedInstance.updateSubscriptions();
-
     ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
+    Moment.sharedInstance.updateSubscriptions();
     updateNotesList(true);
     _notificationUpdateNotes(OXMomentManager.sharedInstance.notes);
     _updateNotifications(OXMomentManager.sharedInstance.notifications);
@@ -162,14 +160,19 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
     if (!isLogin) return _noLoginWidget();
     return Stack(
       children: [
-        OXSmartRefresher(
-          scrollController: momentScrollController,
-          controller: refreshController,
-          enablePullDown: true,
-          enablePullUp: true,
-          onRefresh: () => updateNotesList(true),
-          onLoading: () => updateNotesList(false),
-          child: _getMomentListWidget(),
+        SwipeDetector(
+          onLeftSwipe: () {
+            OXNavigator.pushPage(context,(context) => const NotificationsMomentsPage());
+          },
+          child: OXSmartRefresher(
+            scrollController: momentScrollController,
+            controller: refreshController,
+            enablePullDown: true,
+            enablePullUp: true,
+            onRefresh: () => updateNotesList(true),
+            onLoading: () => updateNotesList(false),
+            child: _getMomentListWidget(),
+          ),
         ),
         Positioned(
           top: 0,
@@ -235,55 +238,55 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
 
   Widget _getMomentListWidget() {
     return ListView.builder(
-      primary: false,
-      controller: null,
-      shrinkWrap: false,
-      itemCount: notesList.length,
-      // addAutomaticKeepAlives: addAutomaticKeepAlives,
-      // addRepaintBoundaries: addRepaintBoundaries,
-      itemBuilder: (context, index) {
-        NotedUIModel? notedUIModel = notesList[index];
-        if (index == 0) {
-          return ValueListenableBuilder<double>(
-            valueListenable: tipContainerHeight,
-            builder: (context, value, child) {
-              return Container(
-                padding: EdgeInsets.only(top: value),
-                child: Column(
-                  children: [
-                    _groupNoteTips(),
-                    MomentWidget(
-                      isShowReplyWidget: true,
-                      notedUIModel: notedUIModel,
-                      clickMomentCallback:
-                          (NotedUIModel? notedUIModel) async {
-                        await OXNavigator.pushPage(
-                            context,
-                            (context) =>
-                                MomentsPage(notedUIModel: notedUIModel));
-                      },
-                    ).setPadding(EdgeInsets.symmetric(horizontal: 24.px)),
-                  ],
-                ),
-              );
-            },
-          );
-        }
+        primary: false,
+        controller: null,
+        shrinkWrap: false,
+        itemCount: notesList.length,
+        // addAutomaticKeepAlives: addAutomaticKeepAlives,
+        // addRepaintBoundaries: addRepaintBoundaries,
+        itemBuilder: (context, index) {
+          NotedUIModel? notedUIModel = notesList[index];
+          if (index == 0) {
+            return ValueListenableBuilder<double>(
+              valueListenable: tipContainerHeight,
+              builder: (context, value, child) {
+                return Container(
+                  padding: EdgeInsets.only(top: value),
+                  child: Column(
+                    children: [
+                      _groupNoteTips(),
+                      MomentWidget(
+                        isShowReplyWidget: true,
+                        notedUIModel: notedUIModel,
+                        clickMomentCallback:
+                            (NotedUIModel? notedUIModel) async {
+                          await OXNavigator.pushPage(
+                              context,
+                              (context) =>
+                                  MomentsPage(notedUIModel: notedUIModel));
+                        },
+                      ).setPadding(EdgeInsets.symmetric(horizontal: 24.px)),
+                    ],
+                  ),
+                );
+              },
+            );
+          }
 
-        return MomentWidget(
-          isShowReplyWidget: true,
-          notedUIModel: notedUIModel,
-          clickMomentCallback:
-              (NotedUIModel? notedUIModel) async {
-            await OXNavigator.pushPage(
-                context, (context) => MomentsPage(notedUIModel: notedUIModel));
-          },
-        ).setPadding(EdgeInsets.only(
-            left: 24.px,
-            right:24.px,
-            bottom: index == notesList.length - 1 ? 24.px : 0,
-        ));
-      },
+          return MomentWidget(
+            isShowReplyWidget: true,
+            notedUIModel: notedUIModel,
+            clickMomentCallback:
+                (NotedUIModel? notedUIModel) async {
+              await OXNavigator.pushPage(
+                  context, (context) => MomentsPage(notedUIModel: notedUIModel));
+            },
+          ).setPadding(EdgeInsets.only(
+              left: 24.px,
+              right:24.px,
+              bottom: index == notesList.length - 1 ? 24.px : 0,
+          ));
+        },
     );
   }
 
@@ -698,5 +701,48 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
         isLogin = true;
       });
     }
+  }
+}
+
+typedef SwipeCallback = void Function();
+
+class SwipeDetector extends StatefulWidget {
+  final Widget child;
+  final SwipeCallback onLeftSwipe;
+
+  SwipeDetector({required this.child, required this.onLeftSwipe});
+
+  @override
+  _SwipeDetectorState createState() => _SwipeDetectorState();
+}
+
+class _SwipeDetectorState extends State<SwipeDetector> {
+  Offset? _startDrag;
+  bool _isHorizontal = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onHorizontalDragStart: (details) {
+        _startDrag = details.globalPosition;
+        _isHorizontal = false;
+      },
+      onHorizontalDragUpdate: (details) {
+        if (_startDrag == null) return;
+
+        double deltaX = details.globalPosition.dx - _startDrag!.dx;
+        double deltaY = details.globalPosition.dy - _startDrag!.dy;
+
+        if (!_isHorizontal && deltaX.abs() > deltaY.abs()) {
+          _isHorizontal = true;
+        }
+
+        if (_isHorizontal && deltaX < -50) {
+          widget.onLeftSwipe();
+          _startDrag = null;
+        }
+      },
+      child: widget.child,
+    );
   }
 }

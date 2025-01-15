@@ -19,7 +19,7 @@
   "deposit_ecash_instruction": "Deposit Ecash by Paying a Lightning invoice",
   "send_ecash_title": "Send Ecash",
   "send_ecash_instruction": "Create a Cashu token and send.",
-  "withdraw_ecash_title": "Withdraw Ecash",
+  "withdraw_ecash_title": "Pay Lightning Invoice",
   "withdraw_ecash_instruction": "Withdraw your funds to a lightning node.",
   "valid_cashu_token_tips": "Not a valid cashu token, Please re-enter",
   "clipboard_no_content_tips": "The clipboard has no content",
