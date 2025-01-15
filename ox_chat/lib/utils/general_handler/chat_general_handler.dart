@@ -694,7 +694,7 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
   Future<bool> reactionPressHandler(
     BuildContext context,
     types.Message message,
-    String content,
+    types.Reaction reactionPress,
   ) async {
     ChatLogUtils.info(
       className: 'ChatMessagePage',
@@ -717,7 +717,7 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
     // Check if already sent it
     final reactions = [...message.reactions];
     for (var reaction in reactions) {
-      if (reaction.content != content) continue ;
+      if (reaction.content != reactionPress.content) continue ;
       final authors = [...reaction.authors];
       final haveSent = authors.any((authorPubkey) =>
           OXUserInfoManager.sharedInstance.isCurrentUser(authorPubkey));
@@ -727,9 +727,9 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
     }
 
     Messages.sharedInstance.sendMessageReaction(
-      messageId,
-      content,
-      groupId: session.groupId
+      messageId, reactionPress.content,
+      groupId: session.groupId, emojiURL: reactionPress.emojiURL,
+      emojiShotCode: reactionPress.emojiShotCode
     ).then((event) {
       if (!completer.isCompleted) {
         completer.complete(event.status);
@@ -742,7 +742,7 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
       final reactions = [...message.reactions];
       bool isNewContent = true;
       for (var reaction in reactions) {
-        if (reaction.content != content) continue ;
+        if (reaction.content != reactionPress.content) continue ;
         reaction.authors.add(author);
         isNewContent = false;
       }
@@ -750,7 +750,9 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
         reactions.add(
           UIMessage.Reaction(
             authors: [author],
-            content: content,
+            content: reactionPress.content,
+            emojiShotCode: reactionPress.emojiShotCode,
+            emojiURL: reactionPress.emojiURL
           )
         );
       }

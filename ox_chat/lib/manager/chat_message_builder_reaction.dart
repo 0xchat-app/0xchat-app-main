@@ -78,7 +78,7 @@ extension ChatMessageBuilderReactionEx on ChatMessageBuilder {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _builderReactionContent(reaction.content),
+            _builderReactionContent(reaction.emojiURL ?? reaction.content),
             SizedBox(width: 4.px,),
             Text(
               reactionNames.join(', ') + reactionNamesSuffix,

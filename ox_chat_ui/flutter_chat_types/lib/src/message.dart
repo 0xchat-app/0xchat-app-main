@@ -36,10 +36,14 @@ enum EncryptionType {
 class Reaction {
   String content = '';
   List<String> authors;
+  String? emojiShotCode;
+  String? emojiURL;
   Reaction({
     required this.content,
-    List<String>? authors
-  }) : authors = authors ?? [];
+    List<String>? authors,
+    String? emojiShotCode,
+    String? emojiURL
+  }) : authors = authors ?? [], emojiShotCode = emojiShotCode, emojiURL = emojiURL;
 }
 
 class ZapsInfo {

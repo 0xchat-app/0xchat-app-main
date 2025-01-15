@@ -230,7 +230,7 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
                 ChatMessageBuilder.buildReactionsView(
                   message,
                   messageWidth: messageWidth,
-                  itemOnTap: (reaction) => handler.reactionPressHandler(context, message, reaction.content),
+                  itemOnTap: (reaction) => handler.reactionPressHandler(context, message, reaction),
                 ),
             highlightMessageWidget: ChatHighlightMessageWidget(
               handler: highlightMessageHandler,

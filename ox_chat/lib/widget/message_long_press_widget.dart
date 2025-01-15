@@ -131,7 +131,7 @@ class MessageLongPressWidgetState extends State<MessageLongPressWidget> {
                   widget.handler.reactionPressHandler(
                     widget.pageContext,
                     widget.message,
-                    emojiEntry.emoji,
+                    types.Reaction(content: emojiEntry.emoji)
                   );
                   widget.controller.hideMenu();
                 },
