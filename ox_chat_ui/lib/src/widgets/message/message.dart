@@ -277,7 +277,7 @@ class MessageState extends State<Message> {
       ),
     );
 
-    if (!currentUserIsAuthor && widget.replySwipeTriggerCallback != null) {
+    if (widget.replySwipeTriggerCallback != null) {
       content = _SwipeToReply(
         revealIconBuilder: (progress) => Opacity(
           opacity: progress,
@@ -290,6 +290,7 @@ class MessageState extends State<Message> {
           widget.replySwipeTriggerCallback?.call(widget.message);
         },
         child: content,
+        offset: currentUserIsAuthor ? Offset(50.px, 0) : Offset.zero,
       );
     }
 
@@ -633,6 +634,7 @@ class MessageState extends State<Message> {
 
 class _SwipeToReply extends StatefulWidget {
   final Widget child;
+  final Offset offset;
   final Widget Function(double progress) revealIconBuilder;
   final VoidCallback onSwipeComplete;
 
@@ -641,6 +643,7 @@ class _SwipeToReply extends StatefulWidget {
     required this.child,
     required this.revealIconBuilder,
     required this.onSwipeComplete,
+    this.offset = Offset.zero,
   });
 
   @override
@@ -723,8 +726,8 @@ class _SwipeToReplyState extends State<_SwipeToReply>
         return Stack(
           children: [
             Positioned(
-              right: 10 - offset,
-              top: 0,
+              right: 10 - offset - widget.offset.dx,
+              top: widget.offset.dy,
               bottom: 0,
               child: Center(child: widget.revealIconBuilder(progress)),
             ),
