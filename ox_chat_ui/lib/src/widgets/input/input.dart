@@ -108,13 +108,13 @@ class InputState extends State<Input>{
               PhysicalKeyboardKey.shiftRight,
             }.contains(el),
           )) {
-        if (event is KeyDownEvent) {
+        final isComposing = _textController.value.composing.isValid;
+        if (event is KeyDownEvent && !isComposing) {
           _handleSendPressed();
+          return KeyEventResult.handled;
         }
-        return KeyEventResult.handled;
-      } else {
-        return KeyEventResult.ignored;
       }
+      return KeyEventResult.ignored;
     },
   );
   bool _sendButtonVisible = false;
