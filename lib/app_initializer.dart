@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:ox_calling/ox_calling.dart';
 import 'package:ox_chat/ox_chat.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
+import 'package:ox_common/desktop/window_manager.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/utils/error_utils.dart';
@@ -40,10 +41,13 @@ class AppInitializer {
   static final AppInitializer shared = AppInitializer();
   List<OXErrorInfo> initializeErrors = [];
 
+  OXWindowManager windowManager = OXWindowManager();
+
   Future initialize() async {
     await _safeHandle(() async {
       try {
         WidgetsFlutterBinding.ensureInitialized();
+        await windowManager.initWindow();
         HttpOverrides.global = OXHttpOverrides(); //ignore all ssl
         initializeReflectable();
         await ThemeManager.init();
