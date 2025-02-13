@@ -83,7 +83,7 @@ dependencies:
   screenshot: ^2.5.0
   ffmpeg_kit_flutter: ^5.0.0
   emoji_picker_flutter: 1.5.4
-
+  window_manager: ^0.4.3
 
   chatcore:
     path: ../../0xchat-core
