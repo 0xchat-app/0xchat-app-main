@@ -243,15 +243,15 @@ class TextMessageText extends StatelessWidget {
     var text = this.text;
     final maxLimit = this.maxLimit;
     final moreText = Localized.text('ox_chat.more');
-    final moreFlag = '\${$moreText}';
     if (maxLimit != null && text.length > maxLimit) {
+      final moreFlag = '\$\{0xchat_more_flag\}';
       text = this.text.substring(0, maxLimit) + '...' + moreFlag;
     }
     return ParsedText(
       parse: [
         ...options.matchers,
         MatchText(
-          pattern: r'\$\{(.*?)\}',
+          pattern: r'\$\{0xchat_more_flag\}',
           renderWidget: ({required String text, required String pattern,}) => IgnorePointer(
             child: Text(
               moreText,
