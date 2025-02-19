@@ -29,6 +29,7 @@ class LinkPreview extends StatefulWidget {
     this.openOnPreviewImageTap = false,
     this.openOnPreviewTitleTap = false,
     this.padding,
+    this.previewBuilder,
     required this.previewData,
     this.requestTimeout,
     required this.text,
@@ -86,8 +87,11 @@ class LinkPreview extends StatefulWidget {
   /// Padding around initial text widget.
   final EdgeInsets? padding;
 
+  /// Function that allows you to build a custom link preview.
+  final Widget Function(BuildContext, PreviewData)? previewBuilder;
+
   /// Pass saved [PreviewData] here so [LinkPreview] would not fetch preview
-  /// data again
+  /// data again.
   final PreviewData? previewData;
 
   /// Request timeout after which the request will be cancelled. Defaults to 5 seconds.
@@ -135,56 +139,6 @@ class _LinkPreviewState extends State<LinkPreview>
     );
 
     didUpdateWidget(widget);
-  }
-
-  @override
-  void didUpdateWidget(covariant LinkPreview oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    if (!isFetchingPreviewData && widget.previewData == null) {
-      _fetchData(widget.text);
-    }
-
-    if (widget.previewData != null && oldWidget.previewData == null) {
-      setState(() {
-        shouldAnimate = true;
-      });
-      _controller.reset();
-      _controller.forward();
-    } else if (widget.previewData != null) {
-      setState(() {
-        shouldAnimate = false;
-      });
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final previewData = widget.previewData;
-
-    if (previewData != null && _hasData(previewData)) {
-      final aspectRatio = previewData.image == null
-          ? null
-          : previewData.image!.width /
-          previewData.image!.height;
-
-      final width = aspectRatio == 1 ? widget.width : widget.width - 32;
-      return _containerWidget(
-        animate: shouldAnimate,
-        child: (aspectRatio == 1 && (previewData.title != null || previewData.description != null))
-            ? _minimizedBodyWidget(previewData)
-            : _bodyWidget(previewData, width),
-        withPadding: aspectRatio == 1,
-      );
-    } else {
-      return _containerWidget(animate: false);
-    }
   }
 
   Widget _animated(Widget child) => SizeTransition(
@@ -305,13 +259,13 @@ class _LinkPreviewState extends State<LinkPreview>
       requestTimeout: widget.requestTimeout,
       userAgent: widget.userAgent,
     );
-    if (previewData == null) return null;
-
-    _handlePreviewDataFetched(previewData);
+    if (previewData != null) {
+      await _handlePreviewDataFetched(previewData);
+    }
     return previewData;
   }
 
-  void _handlePreviewDataFetched(PreviewData previewData) async {
+  Future<void> _handlePreviewDataFetched(PreviewData previewData) async {
     await Future.delayed(
       widget.animationDuration ?? const Duration(milliseconds: 300),
     );
@@ -342,14 +296,12 @@ class _LinkPreviewState extends State<LinkPreview>
             maxHeight: width,
           ),
           width: width,
-          child: IntrinsicHeight(
-            child: widget.imageBuilder != null
-                ? widget.imageBuilder!(imageUrl)
-                : OXCachedNetworkImage(
-              imageUrl:imageUrl,
-              fit: BoxFit.contain,
-            ),
-          ),
+          child: widget.imageBuilder != null
+              ? widget.imageBuilder!(imageUrl)
+              : Image.network(
+                  imageUrl,
+                  fit: BoxFit.contain,
+                ),
         ),
       );
 
@@ -414,7 +366,10 @@ class _LinkPreviewState extends State<LinkPreview>
             width: 48,
             child: widget.imageBuilder != null
                 ? widget.imageBuilder!(imageUrl)
-                : Image.network(imageUrl),
+                : OXCachedNetworkImage(
+              imageUrl:imageUrl,
+              fit: BoxFit.contain,
+            ),
           ),
         ),
       );
@@ -442,5 +397,60 @@ class _LinkPreviewState extends State<LinkPreview>
       overflow: TextOverflow.ellipsis,
       style: style,
     );
+  }
+
+  @override
+  void didUpdateWidget(covariant LinkPreview oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (!isFetchingPreviewData && widget.previewData == null) {
+      _fetchData(widget.text);
+    }
+
+    if (widget.previewData != null && oldWidget.previewData == null) {
+      setState(() {
+        shouldAnimate = true;
+      });
+      _controller.reset();
+      _controller.forward();
+    } else if (widget.previewData != null) {
+      setState(() {
+        shouldAnimate = false;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final previewData = widget.previewData;
+
+    if (previewData != null && _hasData(previewData)) {
+      if (widget.previewBuilder != null) {
+        return widget.previewBuilder!(context, previewData);
+      } else {
+        final aspectRatio = widget.previewData!.image == null
+            ? null
+            : widget.previewData!.image!.width /
+                widget.previewData!.image!.height;
+
+        final width = aspectRatio == 1 ? widget.width : widget.width - 32;
+
+        return _containerWidget(
+          animate: shouldAnimate,
+          child: aspectRatio == 1
+              ? _minimizedBodyWidget(previewData)
+              : _bodyWidget(previewData, width),
+          withPadding: aspectRatio == 1,
+        );
+      }
+    } else {
+      return _containerWidget(animate: false);
+    }
   }
 }
