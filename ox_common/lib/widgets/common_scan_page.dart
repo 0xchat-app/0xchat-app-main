@@ -16,7 +16,7 @@ import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:flutter_zxing/flutter_zxing.dart';
 import 'common_image.dart';
-import 'package:device_info/device_info.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 
 class CommonScanPage extends StatefulWidget {
   @override

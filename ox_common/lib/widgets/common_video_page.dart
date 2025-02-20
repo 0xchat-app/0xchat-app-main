@@ -5,7 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
 import 'package:chewie/chewie.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -342,12 +342,12 @@ class _CustomControlsState extends State<CustomControls> {
                         .getFileFromCache(widget.videoUrl);
                     if (fileInfo != null) {
                       result =
-                          await ImageGallerySaver.saveFile(fileInfo.file.path);
+                          await ImageGallerySaverPlus.saveFile(fileInfo.file.path);
                     } else {
                       var appDocDir = await getTemporaryDirectory();
                       String savePath = appDocDir.path + "/temp.mp4";
                       await Dio().download(widget.videoUrl, savePath);
-                      result = await ImageGallerySaver.saveFile(savePath);
+                      result = await ImageGallerySaverPlus.saveFile(savePath);
                     }
 
                     if (result['isSuccess'] == true) {
@@ -356,7 +356,7 @@ class _CustomControlsState extends State<CustomControls> {
                     }
                   } else {
                     final result =
-                        await ImageGallerySaver.saveFile(widget.videoUrl);
+                        await ImageGallerySaverPlus.saveFile(widget.videoUrl);
                     if (result['isSuccess'] == true) {
                       await OXLoading.dismiss();
                       CommonToast.instance.show(context, 'Save successful');
