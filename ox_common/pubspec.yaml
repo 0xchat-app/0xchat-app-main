@@ -81,9 +81,9 @@ dependencies:
     path: ./minio
   bitsdojo_window: ^0.1.6
   screenshot: ^2.5.0
-  ffmpeg_kit_flutter: ^5.0.0
   emoji_picker_flutter: 1.5.4
   window_manager: ^0.4.3
+  fc_native_video_thumbnail: ^0.17.2
 
   chatcore:
     path: ../../0xchat-core

@@ -9,14 +9,11 @@ import 'dart:ui' as ui;
 import 'package:archive/archive.dart';
 import 'package:flutter/services.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/platform_utils.dart';
 import 'package:pick_or_save/pick_or_save.dart';
-import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
-
 import 'package:path_provider/path_provider.dart';
-
-import 'package:ffmpeg_kit_flutter/return_code.dart';
-
+import 'package:fc_native_video_thumbnail/fc_native_video_thumbnail.dart';
 
 import 'package:uuid/uuid.dart';
 import '../ox_common.dart';
@@ -178,22 +175,14 @@ class FileUtils {
       return null;
     }
 
-    final command = '-i "$videoPath" -vf "thumbnail,scale=640:360" -frames:v 1 "$outputPath"';
-    print('Executing command: $command');
+    final result = await FcNativeVideoThumbnail().getVideoThumbnail(
+      srcFile: videoPath,
+      destFile: outputPath,
+      width: Adapt.screenW.toInt(),
+      height: Adapt.screenH.toInt(),
+    );
 
-    final session = await FFmpegKit.execute(command);
-
-    final returnCode = await session.getReturnCode();
-    if (ReturnCode.isSuccess(returnCode)) {
-      print('Thumbnail created successfully at $outputPath');
-      return outputPath;
-    } else {
-      final log = await session.getAllLogsAsString();
-      final failStackTrace = await session.getFailStackTrace();
-      print('FFmpeg Error Log: $log');
-      print('Fail Stack Trace: $failStackTrace');
-      throw Exception('Failed to create thumbnail. Return code: $returnCode');
-    }
+    return result ? outputPath : null;
   }
 
   static FutureOr<bool?> exportFile(String filePath, [String? fileName]) async {
