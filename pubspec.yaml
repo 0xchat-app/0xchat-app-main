@@ -31,7 +31,7 @@ dependencies:
   cupertino_icons: ^1.0.0
   encrypt: ^5.0.3
   flutter_device_type: ^0.4.0
-  flutter_inappwebview: ^6.0.0
+  flutter_inappwebview: ^6.1.5
 
   # core
   chatcore:
@@ -94,13 +94,6 @@ dependency_overrides:
   logging: 1.2.0
   sqflite:
     path: packages/base_framework/sqflite
-  flutter_inappwebview_ios:
-    path: packages/base_framework/flutter_inappwebview_ios
-  flutter_inappwebview_macos:
-    git:
-      url: https://github.com/andychucs/flutter_inappwebview.git
-      ref: master
-      path: flutter_inappwebview_macos
   url_launcher_linux:
     git:
       url: https://github.com/flutter/packages.git
