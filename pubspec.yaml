@@ -32,14 +32,14 @@ dependencies:
   encrypt: ^5.0.3
   flutter_device_type: ^0.4.0
   flutter_inappwebview: ^6.1.5
+  image_picker_android: ^0.8.12+21
+  http_parser: 4.0.2
 
   # core
   chatcore:
     path: packages/0xchat-core
   nostr_core_dart:
     path: packages/nostr-dart
-  flutter_webrtc:
-    path: packages/flutter-webrtc
 
   # base framework
   ox_module_service:
