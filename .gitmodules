@@ -10,9 +10,6 @@
 [submodule "packages/nostr-dart"]
 	path = packages/nostr-dart
 	url = https://github.com/0xchat-app//nostr-dart.git
-[submodule "packages/flutter-webrtc"]
-	path = packages/flutter-webrtc
-	url = https://github.com/0xchat-app/flutter-webrtc.git
 [submodule "packages/cashu-dart"]
 	path = packages/cashu-dart
 	url = https://github.com/0xchat-app/cashu-dart.git
