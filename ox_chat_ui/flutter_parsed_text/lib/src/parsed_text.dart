@@ -157,14 +157,8 @@ class ParsedText extends StatelessWidget {
                 },
             );
           } else if (mapping.renderWidget != null) {
-            widget = WidgetSpan(
-              alignment: PlaceholderAlignment.middle,
-              child: GestureDetector(
-                onTap: () => mapping.onTap!(matchText),
-                child: mapping.renderWidget!(
-                    text: matchText, pattern: mapping.pattern!),
-              ),
-            );
+            widget = mapping.renderWidget!(
+                text: matchText, pattern: mapping.pattern!);
           } else {
             widget = TextSpan(
               text: "$matchText",
@@ -186,7 +180,7 @@ class ParsedText extends StatelessWidget {
       },
       onNonMatch: (String text) {
         widgets.add(TextSpan(
-          text: "$text",
+          text: text.trim(),
           style: this.style,
         ));
 

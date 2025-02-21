@@ -119,6 +119,7 @@ class Chat extends StatefulWidget {
     this.onVoiceSend,
     this.longPressWidgetBuilder,
     this.reactionViewBuilder,
+    this.codeBlockBuilder,
     this.onGifSend,
     this.inputBottomView,
     this.mentionUserListWidget,
@@ -396,6 +397,8 @@ class Chat extends StatefulWidget {
       longPressWidgetBuilder;
 
   final Widget Function(types.Message, {required int messageWidth})? reactionViewBuilder;
+
+  final Widget Function({required BuildContext context, required String codeText,})? codeBlockBuilder;
 
   final Widget? inputBottomView;
 
@@ -822,6 +825,7 @@ class ChatState extends State<Chat> {
           repliedMessageBuilder: widget.repliedMessageBuilder,
           longPressWidgetBuilder: widget.longPressWidgetBuilder,
           reactionViewBuilder: widget.reactionViewBuilder,
+          codeBlockBuilder: widget.codeBlockBuilder,
           replySwipeTriggerCallback: widget.replySwipeTriggerCallback,
         );
       }

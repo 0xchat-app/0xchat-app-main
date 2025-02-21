@@ -18,6 +18,7 @@ import 'package:ox_common/utils/num_utils.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
@@ -72,6 +73,55 @@ class ChatMessageBuilder {
       message,
       messageWidth: messageWidth,
       itemOnTap: itemOnTap,
+    );
+  }
+
+  static Widget buildCodeBlockWidget({
+    required BuildContext context,
+    required String codeText,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(5), // 圆角半径为 5
+        border: Border(
+          left: BorderSide(
+            color: Colors.white, // 边框颜色
+            width: 3, // 边框宽度为 3
+          ),
+        ),
+      ),
+      clipBehavior: Clip.hardEdge,
+      child: IntrinsicWidth(
+        child: Column(
+          children: [
+            GestureDetector(
+              onTap: () {
+                TookKit.copyKey(context, codeText);
+              },
+              child: Container(
+                color: Colors.red,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('copy'),
+                    CommonImage(
+                      iconName: 'icon_copy.png',
+                      package: 'ox_chat',
+                      size: 16.px,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Container(
+              color: Colors.blue,
+              child: Text(
+                codeText,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

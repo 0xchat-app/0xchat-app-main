@@ -34,7 +34,7 @@ class MatchText {
 
   /// A callback function that takes the [text] the matches the [pattern] and returns
   /// the [Widget] to be displayed inside a [WidgetSpan]
-  Widget Function({
+  InlineSpan Function({
     required String text,
     required String pattern,
   })? renderWidget;

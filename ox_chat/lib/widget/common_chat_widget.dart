@@ -232,6 +232,7 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
                   messageWidth: messageWidth,
                   itemOnTap: (reaction) => handler.reactionPressHandler(context, message, reaction),
                 ),
+            codeBlockBuilder: ChatMessageBuilder.buildCodeBlockWidget,
             highlightMessageWidget: ChatHighlightMessageWidget(
               handler: highlightMessageHandler,
               anchorMessageOnTap: scrollToMessage,

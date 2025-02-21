@@ -30,6 +30,7 @@ class TextMessage extends StatelessWidget {
     required this.usePreviewData,
     this.userAgent,
     this.maxLimit,
+    this.codeBlockBuilder,
   }) : messageText = message.text.trim();
 
   /// See [Message.emojiEnlargementBehavior].
@@ -64,6 +65,8 @@ class TextMessage extends StatelessWidget {
   final String? userAgent;
 
   final int? maxLimit;
+
+  final Widget Function({required BuildContext context, required String codeText,})? codeBlockBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -182,6 +185,7 @@ class TextMessage extends StatelessWidget {
             bodyTextStyle: bodyTextStyle,
             boldTextStyle: boldTextStyle,
             codeTextStyle: codeTextStyle,
+            codeBlockBuilder: codeBlockBuilder,
             options: options,
             text: messageText,
             maxLines: 100,
@@ -202,6 +206,7 @@ class TextMessageText extends StatelessWidget {
     required this.bodyTextStyle,
     this.boldTextStyle,
     this.codeTextStyle,
+    this.codeBlockBuilder,
     this.maxLines,
     this.options = const TextMessageOptions(),
     this.overflow = TextOverflow.clip,
@@ -221,6 +226,8 @@ class TextMessageText extends StatelessWidget {
 
   /// Style to apply to anything that matches code markdown.
   final TextStyle? codeTextStyle;
+  
+  final Widget Function({required BuildContext context, required String codeText,})? codeBlockBuilder;
 
   /// See [ParsedText.maxLines].
   final int? maxLines;
@@ -252,15 +259,17 @@ class TextMessageText extends StatelessWidget {
         ...options.matchers,
         MatchText(
           pattern: r'\$\{0xchat_more_flag\}',
-          renderWidget: ({required String text, required String pattern,}) => IgnorePointer(
-            child: Text(
-              moreText,
-              style: bodyTextStyle.copyWith(
-                color: moreBtnColor ?? Colors.blueAccent,
-                height: 1.1,
+          renderWidget: ({required String text, required String pattern,}) => WidgetSpan(
+            child: IgnorePointer(
+              child: Text(
+                moreText,
+                style: bodyTextStyle.copyWith(
+                  color: moreBtnColor ?? Colors.blueAccent,
+                  height: 1.1,
+                ),
               ),
             ),
-          )
+          ),
         ),
         MatchText(
           onTap: (mail) async {
@@ -270,33 +279,6 @@ class TextMessageText extends StatelessWidget {
             }
           },
           pattern: WebURLHelper.regexEmail,
-          style: bodyLinkTextStyle ??
-              bodyTextStyle.copyWith(
-                decoration: TextDecoration.underline,
-              ),
-        ),
-        MatchText(
-          onTap: (urlText) async {
-            final protocolIdentifierRegex = RegExp(
-              r'^((http|ftp|https):\/\/)',
-              caseSensitive: false,
-            );
-            if (!urlText.startsWith(protocolIdentifierRegex)) {
-              urlText = 'https://$urlText';
-            }
-            if (options.onLinkPressed != null) {
-              options.onLinkPressed!(urlText);
-            } else {
-              final url = Uri.tryParse(urlText);
-              if (url != null && await canLaunchUrl(url)) {
-                await launchUrl(
-                  url,
-                  mode: LaunchMode.externalApplication,
-                );
-              }
-            }
-          },
-          pattern: WebURLHelper.regexLink,
           style: bodyLinkTextStyle ??
               bodyTextStyle.copyWith(
                 decoration: TextDecoration.underline,
@@ -324,54 +306,51 @@ class TextMessageText extends StatelessWidget {
               ),
         ),
         MatchText(
-          pattern: PatternStyle.bold.pattern,
-          style: boldTextStyle ??
-              bodyTextStyle.merge(PatternStyle.bold.textStyle),
-          renderText: ({
-            required String str, required String pattern
-          }) => {
-            'display': str.replaceAll(
-              PatternStyle.bold.from,
-              PatternStyle.bold.replace,
-            ),
-          },
-        ),
-        MatchText(
-          pattern: PatternStyle.italic.pattern,
-          style: bodyTextStyle.merge(PatternStyle.italic.textStyle),
-          renderText: ({
-            required String str, required String pattern
-          }) => {
-            'display': str.replaceAll(
-              PatternStyle.italic.from,
-              PatternStyle.italic.replace,
-            ),
-          },
-        ),
-        MatchText(
-          pattern: PatternStyle.lineThrough.pattern,
-          style: bodyTextStyle.merge(PatternStyle.lineThrough.textStyle),
-          renderText: ({
-            required String str, required String pattern
-          }) => {
-            'display': str.replaceAll(
-              PatternStyle.lineThrough.from,
-              PatternStyle.lineThrough.replace,
-            ),
-          },
-        ),
-        MatchText(
           pattern: PatternStyle.code.pattern,
           style: codeTextStyle ??
               bodyTextStyle.merge(PatternStyle.code.textStyle),
-          renderText: ({
-            required String str, required String pattern
-          }) => {
-            'display': str.replaceAll(
-              PatternStyle.code.from,
-              PatternStyle.code.replace,
-            ),
+          renderWidget: ({required String text, required String pattern,}) {
+            final regex = RegExp(r'(?<=^|\s)```([\s\S]+?)```(?=\s|$)');
+            final match = regex.firstMatch(text);
+            final codeText = (match?.group(1) ?? text).trim();
+            return TextSpan(
+              children: [
+                if (!this.text.startsWith(text)) TextSpan(text: '\n'),
+                WidgetSpan(
+                  child: codeBlockBuilder?.call(context: context, codeText: codeText)
+                      ?? Text(codeText, style: bodyTextStyle,),
+                ),
+                if (!this.text.endsWith(text)) TextSpan(text: '\n'),
+              ],
+            );
           },
+        ),
+        MatchText(
+          onTap: (urlText) async {
+            final protocolIdentifierRegex = RegExp(
+              r'^((http|ftp|https):\/\/)',
+              caseSensitive: false,
+            );
+            if (!urlText.startsWith(protocolIdentifierRegex)) {
+              urlText = 'https://$urlText';
+            }
+            if (options.onLinkPressed != null) {
+              options.onLinkPressed!(urlText);
+            } else {
+              final url = Uri.tryParse(urlText);
+              if (url != null && await canLaunchUrl(url)) {
+                await launchUrl(
+                  url,
+                  mode: LaunchMode.externalApplication,
+                );
+              }
+            }
+          },
+          pattern: WebURLHelper.regexLink,
+          style: bodyLinkTextStyle ??
+              bodyTextStyle.copyWith(
+                decoration: TextDecoration.underline,
+              ),
         ),
       ],
       maxLines: maxLines,
