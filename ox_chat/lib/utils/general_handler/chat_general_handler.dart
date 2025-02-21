@@ -67,7 +67,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:path/path.dart' as Path;
 import 'package:flutter_chat_types/src/message.dart' as UIMessage;
-import 'package:device_info/device_info.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:ox_common/widgets/zaps/zaps_action_handler.dart';
 
 import '../../manager/chat_data_manager_models.dart';

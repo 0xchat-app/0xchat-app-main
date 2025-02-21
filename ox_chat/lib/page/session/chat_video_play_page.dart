@@ -1,7 +1,7 @@
 
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
 import 'package:video_player/video_player.dart';
 import 'dart:io';
 
@@ -65,12 +65,12 @@ class _ChatVideoPlayPageState extends State<ChatVideoPlayPage> {
                   var appDocDir = await getTemporaryDirectory();
                   String savePath = appDocDir.path + "/temp.mp4";
                   await Dio().download(widget.videoUrl, savePath);
-                  final result = await ImageGallerySaver.saveFile(savePath);
+                  final result = await ImageGallerySaverPlus.saveFile(savePath);
                   if(result['isSuccess'] == true){
                     CommonToast.instance.show(context, 'Save successful');
                   }
                 }else{
-                  final result = await ImageGallerySaver.saveFile(widget.videoUrl);
+                  final result = await ImageGallerySaverPlus.saveFile(widget.videoUrl);
                   if(result['isSuccess'] == true){
                     CommonToast.instance.show(context, 'Save successful');
                   }

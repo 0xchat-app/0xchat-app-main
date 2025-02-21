@@ -25,8 +25,7 @@ dependencies:
     path: ../../base_framework/ox_common
   ox_localizable:
     path: ../../base_framework/ox_localizable
-  flutter_webrtc:
-    path: ../../flutter-webrtc
+  flutter_webrtc: ^0.12.10
 
 dev_dependencies:
   flutter_test:
