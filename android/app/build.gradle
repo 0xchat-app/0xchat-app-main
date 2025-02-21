@@ -1,6 +1,7 @@
 plugins {
   id 'com.android.application'
   id 'com.google.gms.google-services'
+  id 'dev.flutter.flutter-gradle-plugin'
 }
 
 def localProperties = new Properties()
@@ -9,11 +10,6 @@ if (localPropertiesFile.exists()) {
   localPropertiesFile.withReader('UTF-8') { reader ->
     localProperties.load(reader)
   }
-}
-
-def flutterRoot = localProperties.getProperty('flutter.sdk')
-if (flutterRoot == null) {
-  throw new GradleException("Flutter SDK not found. Define location with flutter.sdk in the local.properties file.")
 }
 
 def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
@@ -26,8 +22,6 @@ if (flutterVersionName == null) {
   flutterVersionName = '1.0'
 }
 
-apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
-
 android {
   namespace 'com.oxchat.nostr'
   buildFeatures {
@@ -35,7 +29,7 @@ android {
   }
   compileSdk 34
   buildToolsVersion "34.0.0"
-  ndkVersion "25.1.8937393"
+  ndkVersion "27.0.12077973"
 
   //disable resource file check
   def version = parsePubspecVersion()
@@ -73,6 +67,7 @@ android {
   }
 
   compileOptions {
+    coreLibraryDesugaringEnabled true
     sourceCompatibility JavaVersion.VERSION_17
     targetCompatibility JavaVersion.VERSION_17
   }
@@ -91,6 +86,7 @@ dependencies {
   implementation 'androidx.appcompat:appcompat:1.2.0'
   implementation 'androidx.multidex:multidex:2.0.1'
   implementation platform('com.google.firebase:firebase-bom:32.0.0')
+  coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.3'
 }
 
 def parsePubspecVersion() {
