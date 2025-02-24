@@ -577,6 +577,9 @@ class MessageState extends State<Message> {
           userAgent: widget.userAgent,
           maxLimit: textMessage.maxLimit,
           codeBlockBuilder: widget.codeBlockBuilder,
+          onSecondaryTap: () {
+            _popController.showMenu();
+          },
         );
         break ;
       case types.MessageType.video:

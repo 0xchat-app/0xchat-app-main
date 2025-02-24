@@ -31,6 +31,7 @@ class TextMessage extends StatelessWidget {
     this.userAgent,
     this.maxLimit,
     this.codeBlockBuilder,
+    this.onSecondaryTap,
   }) : messageText = message.text.trim();
 
   /// See [Message.emojiEnlargementBehavior].
@@ -67,6 +68,8 @@ class TextMessage extends StatelessWidget {
   final int? maxLimit;
 
   final Widget Function({required BuildContext context, required String codeText,})? codeBlockBuilder;
+
+  final GestureTapCallback? onSecondaryTap;
 
   @override
   Widget build(BuildContext context) {
@@ -168,32 +171,25 @@ class TextMessage extends StatelessWidget {
     final moreBtnColor = user.id == message.author.id
         ? Colors.black.withOpacity(0.6)
         : ThemeColor.gradientMainStart;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // if (showName)
-        //   nameBuilder?.call(message.author.id) ??
-        //       UserName(author: message.author),
-        if (enlargeEmojis)
-          if (options.isTextSelectable)
-            SelectableText(messageText, style: emojiTextStyle)
-          else
-            Text(messageText, style: emojiTextStyle)
-        else
-          TextMessageText(
-            bodyLinkTextStyle: bodyLinkTextStyle,
-            bodyTextStyle: bodyTextStyle,
-            boldTextStyle: boldTextStyle,
-            codeTextStyle: codeTextStyle,
-            codeBlockBuilder: codeBlockBuilder,
-            options: options,
-            text: messageText,
-            maxLines: 100,
-            overflow: TextOverflow.ellipsis,
-            maxLimit: maxLimit,
-            moreBtnColor: moreBtnColor,
-          ),
-      ],
+
+    if (enlargeEmojis) {
+      if (options.isTextSelectable) {
+        return SelectableText(messageText, style: emojiTextStyle);
+      }
+      return Text(messageText, style: emojiTextStyle);
+    }
+    return TextMessageText(
+      bodyLinkTextStyle: bodyLinkTextStyle,
+      bodyTextStyle: bodyTextStyle,
+      boldTextStyle: boldTextStyle,
+      codeTextStyle: codeTextStyle,
+      codeBlockBuilder: codeBlockBuilder,
+      options: options,
+      text: messageText,
+      overflow: TextOverflow.ellipsis,
+      maxLimit: maxLimit,
+      moreBtnColor: moreBtnColor,
+      onSecondaryTap: onSecondaryTap,
     );
   }
 }
@@ -213,6 +209,7 @@ class TextMessageText extends StatelessWidget {
     required this.text,
     this.maxLimit,
     this.moreBtnColor,
+    this.onSecondaryTap,
   });
 
   /// Style to apply to anything that matches a link.
@@ -244,6 +241,8 @@ class TextMessageText extends StatelessWidget {
   final int? maxLimit;
 
   final Color? moreBtnColor;
+
+  final GestureTapCallback? onSecondaryTap;
 
   @override
   Widget build(BuildContext context) {
@@ -361,6 +360,7 @@ class TextMessageText extends StatelessWidget {
       text: text,
       textWidthBasis: TextWidthBasis.longestLine,
       textScaleFactor: MediaQuery.of(context).textScaleFactor,
+      onSecondaryTap: onSecondaryTap,
     );
   }
 }

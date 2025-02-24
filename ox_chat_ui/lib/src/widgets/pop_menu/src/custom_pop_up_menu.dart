@@ -166,9 +166,11 @@ class _CustomPopupMenuState extends State<CustomPopupMenu> {
         );
       },
     );
-    if (_overlayEntry != null) {
-      Overlay.of(context).insert(_overlayEntry!);
-    }
+    WidgetsBinding.instance.waitUntilFirstFrameRasterized.then((_) {
+      if (_overlayEntry != null) {
+        Overlay.of(context).insert(_overlayEntry!);
+      }
+    });
   }
 
   void _hideMenu() {
@@ -191,8 +193,7 @@ class _CustomPopupMenuState extends State<CustomPopupMenu> {
   @override
   void initState() {
     super.initState();
-    _controller = widget.controller;
-    if (_controller == null) _controller = CustomPopupMenuController();
+    _controller = widget.controller ?? CustomPopupMenuController();
     _controller?.addListener(_updateView);
     WidgetsBinding.instance.addPostFrameCallback((call) {
       if (mounted) {
@@ -231,7 +232,7 @@ class _CustomPopupMenuState extends State<CustomPopupMenu> {
             _controller?.showMenu();
           }
         },
-        onSecondaryTapDown: (_) {
+        onSecondaryTap: () {
           if (widget.pressType == PressType.longPress && _canResponse) {
             TookKit.vibrateEffect();
             _controller?.showMenu();

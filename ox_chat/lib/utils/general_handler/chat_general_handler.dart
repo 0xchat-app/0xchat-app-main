@@ -291,7 +291,7 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
 
   TextMessageOptions textMessageOptions(BuildContext context) =>
       TextMessageOptions(
-        isTextSelectable:false,
+        isTextSelectable: PlatformUtils.isDesktop,
         openOnPreviewTitleTap: true,
         onLinkPressed: (url) => _onLinkTextPressed(context, url),
       );

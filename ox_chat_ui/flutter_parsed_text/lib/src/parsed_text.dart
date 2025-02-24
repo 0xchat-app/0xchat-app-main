@@ -69,6 +69,8 @@ class ParsedText extends StatelessWidget {
   /// Note: Removed support for regexOptions for MatchText and now it uses global regex options.
   final RegexOptions regexOptions;
 
+  final GestureTapCallback? onSecondaryTap;
+
   /// Creates a parsedText widget
   ///
   /// [text] paramtere should not be null and is always required.
@@ -90,6 +92,7 @@ class ParsedText extends StatelessWidget {
     this.onTap,
     this.selectable = false,
     this.regexOptions = const RegexOptions(),
+    this.onSecondaryTap,
   }) : super(key: key);
 
   @override
@@ -196,7 +199,12 @@ class ParsedText extends StatelessWidget {
         textWidthBasis: textWidthBasis,
         textAlign: alignment,
         textDirection: textDirection,
-        onTap: onTap as void Function()?,
+        contextMenuBuilder: (_, editableState) {
+          editableState.widget.controller.selection = TextSelection.collapsed(offset: -1);
+          onSecondaryTap?.call();
+          return const SizedBox.shrink();
+        },
+        selectionControls: desktopTextSelectionHandleControls,
       );
     }
 
