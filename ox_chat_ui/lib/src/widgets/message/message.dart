@@ -64,6 +64,7 @@ class Message extends StatefulWidget {
     this.repliedMessageBuilder,
     this.longPressWidgetBuilder,
     this.reactionViewBuilder,
+    this.codeBlockBuilder,
     this.replySwipeTriggerCallback,
   });
 
@@ -195,6 +196,8 @@ class Message extends StatefulWidget {
 
   final Widget Function(types.Message, {required int messageWidth})?
   reactionViewBuilder;
+
+  final Widget Function({required BuildContext context, required String codeText,})? codeBlockBuilder;
 
   /// Create a widget that pops up when long pressing on a message
   final Widget Function(BuildContext context, types.Message, CustomPopupMenuController controller)? longPressWidgetBuilder;
@@ -573,6 +576,7 @@ class MessageState extends State<Message> {
           usePreviewData: widget.usePreviewData,
           userAgent: widget.userAgent,
           maxLimit: textMessage.maxLimit,
+          codeBlockBuilder: widget.codeBlockBuilder,
         );
         break ;
       case types.MessageType.video:
