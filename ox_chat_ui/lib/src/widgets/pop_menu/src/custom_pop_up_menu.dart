@@ -231,6 +231,12 @@ class _CustomPopupMenuState extends State<CustomPopupMenu> {
             _controller?.showMenu();
           }
         },
+        onSecondaryTapDown: (_) {
+          if (widget.pressType == PressType.longPress && _canResponse) {
+            TookKit.vibrateEffect();
+            _controller?.showMenu();
+          }
+        },
       ),
     );
     if (Platform.isIOS) {
