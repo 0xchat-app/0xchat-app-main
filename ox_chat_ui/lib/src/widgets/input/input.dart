@@ -330,7 +330,6 @@ class InputState extends State<Input>{
     );
   }
 
-
   Widget _buildInputTextField() =>
       Container(
         constraints: BoxConstraints(minHeight: inputSuffixIconSize),
@@ -385,6 +384,8 @@ class InputState extends State<Input>{
               }
             },
           ),
+          contextMenuBuilder: widget.options.contextMenuBuilder ?? (_, editableTextState) =>
+              AdaptiveTextSelectionToolbar.editableText(editableTextState: editableTextState),
         ),
       );
 
@@ -548,9 +549,7 @@ class InputState extends State<Input>{
 
 @immutable
 class InputOptions {
-  const InputOptions(
-     {
-
+  const InputOptions({
     this.inputClearMode = InputClearMode.always,
     this.keyboardType = TextInputType.multiline,
     this.onTextChanged,
@@ -560,6 +559,8 @@ class InputOptions {
     this.autocorrect = true,
     this.enableSuggestions = true,
     this.enabled = true,
+    this.contextMenuBuilder,
+    this.pasteTextAction,
   });
 
   /// Controls the [Input] clear behavior. Defaults to [InputClearMode.always].
@@ -597,6 +598,10 @@ class InputOptions {
 
   /// Controls the [TextInput] enabled behavior. Defaults to [true].
   final bool enabled;
+
+  final EditableTextContextMenuBuilder? contextMenuBuilder;
+
+  final Action<PasteTextIntent>? pasteTextAction;
 }
 
 

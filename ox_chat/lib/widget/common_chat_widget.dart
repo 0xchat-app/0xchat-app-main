@@ -18,6 +18,7 @@ import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/chat_prompt_tone.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
+import 'package:ox_common/utils/platform_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/web_url_helper.dart';
 import 'package:ox_common/widgets/avatar.dart';
@@ -63,6 +64,7 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
   final pageConfig = ChatPageConfig();
 
   final GlobalKey<ChatState> chatWidgetKey = GlobalKey<ChatState>();
+  final FocusNode pageFocusNode = FocusNode();
   final AutoScrollController scrollController = AutoScrollController();
   Duration scrollDuration = const Duration(milliseconds: 100);
 
@@ -79,6 +81,10 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
       PromptToneManager.sharedInstance.isCurrencyChatPage = dataController.isInCurrentSession;
       OXChatBinding.sharedInstance.msgIsReaded = dataController.isInCurrentSession;
     }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      handler.chatWidgetKey = chatWidgetKey;
+    });
   }
 
   void tryInitDraft() {
@@ -130,7 +136,9 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
       backgroundColor: ThemeColor.color200,
       resizeToAvoidBottomInset: false,
       appBar: widget.navBar,
-      body: buildChatContentWidget(),
+      body: pasteActionListenerWrapper(
+        child: buildChatContentWidget(),
+      ),
     );
   }
 
@@ -272,8 +280,26 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
             replySwipeTriggerCallback: (message) {
               handler.replyHandler.quoteMenuItemPressHandler(message);
             },
+            onBackgroundTap: () {
+              pageFocusNode.requestFocus();
+            },
           );
         }
+    );
+  }
+
+  Widget pasteActionListenerWrapper({required Widget child}) {
+    final pasteTextAction = handler.inputOptions.pasteTextAction;
+    if (!PlatformUtils.isDesktop || pasteTextAction == null) return child;
+    return Actions(
+      actions: {
+        PasteTextIntent: pasteTextAction
+      },
+      child: Focus(
+        autofocus: true,
+        focusNode: pageFocusNode,
+        child: child,
+      ),
     );
   }
 

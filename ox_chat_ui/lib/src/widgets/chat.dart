@@ -542,16 +542,14 @@ class ChatState extends State<Chat> {
                               child: GestureDetector(
                                 child: _emptyStateBuilder(),
                                 onTap: () {
-                                  _inputKey.currentState?.dissMissMoreView();
-                                  FocusManager.instance.primaryFocus?.unfocus();
+                                  inputUnFocus();
                                   widget.onBackgroundTap?.call();
                                 },
                               ),
                             )
                           : GestureDetector(
                               onTap: () {
-                                _inputKey.currentState?.dissMissMoreView();
-                                FocusManager.instance.primaryFocus?.unfocus();
+                                inputUnFocus();
                                 widget.onBackgroundTap?.call();
                               },
                               child: NotificationListener<ScrollNotification>(
@@ -866,5 +864,10 @@ class ChatState extends State<Chat> {
       this.isShowScrollToBottomButton = isShowScrollToBottomButton;
       widget.isShowScrollToBottomButtonUpdateCallback?.call(isShowScrollToBottomButton);
     }
+  }
+
+  void inputUnFocus() {
+    _inputKey.currentState?.dissMissMoreView();
+    FocusManager.instance.primaryFocus?.unfocus();
   }
 }
