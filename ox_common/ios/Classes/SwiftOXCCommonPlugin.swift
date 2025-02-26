@@ -99,6 +99,10 @@ public class SwiftOXCCommonPlugin: NSObject, FlutterPlugin, UINavigationControll
             OXCFileHelper.importFile(sender: controller) { filePath in
                 result(filePath)
             }
+        case "hasImages":
+            result(ClipboardHelper.hasImages())
+        case "getImages":
+            result(ClipboardHelper.getImages())
         default:
             break;
         }

@@ -151,6 +151,8 @@ flutter:
         pluginClass: OXCommonPlugin
       ios:
         pluginClass: OXCCommonPlugin
+      macos:
+        pluginClass: OXCCommonPlugin
 
   # To add assets to your plugin package, add an assets section, like this:
   # assets:
