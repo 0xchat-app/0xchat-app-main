@@ -1,6 +1,7 @@
 
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -8,6 +9,7 @@ import 'package:crypto/crypto.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/num_utils.dart';
 import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/widgets/common_file_cache_manager.dart';
 
@@ -108,24 +110,53 @@ extension OXCachedImageProviderEx on CachedNetworkImageProvider {
   static ImageProvider create(String uri, {
     double? width,
     double? height,
+    double? maxWidth,
+    double? maxHeight,
     Map<String, String>? headers,
     BaseCacheManager? cacheManager,
     String? decryptedKey,
     String? decryptedNonce,
   }) {
-    final ratio = Adapt.devicePixelRatio;
+    final pixelRatio = Adapt.devicePixelRatio;
+
+    // uri = ' https://nostr-chat-bucket.oss-cn-hongkong.aliyuncs.com/images/bdaa9320-f02a-11ef-b7a0-6125491236fb.jpeg';
+    // Initialize value
+    final defaultWidth = Adapt.screenW;
+    final defaultHeight = Adapt.screenH;
+    if (!width.isValid() && maxWidth != null) {
+      width = defaultWidth;
+    } else if (!height.isValid() && maxHeight != null) {
+      height = defaultHeight;
+    } else if (!width.isValid() && !height.isValid()) {
+      width = defaultWidth;
+    }
+
+    final maxPixelWidth = maxWidth * pixelRatio;
+    final maxPixelHeight = maxHeight * pixelRatio;
 
     int? resizeWidth;
-    if (width != null && width != double.infinity) {
-      resizeWidth = (width * ratio).round();
-    }
-
     int? resizeHeight;
+    double? widthFactor;
+    double? heightFactor;
+
+    if (width != null && width.isValid()) {
+      resizeWidth = (width * pixelRatio).round();
+      if (maxPixelWidth != null) {
+        widthFactor = maxPixelWidth / resizeWidth;
+      }
+    }
     if (height != null && height != double.infinity) {
-      resizeHeight = (height * ratio).round();
+      resizeHeight = (height * pixelRatio).round();
+      if (maxPixelHeight != null) {
+        heightFactor = maxPixelHeight / resizeHeight;
+      }
     }
 
-    resizeWidth ??= (500.px * ratio).round();
+    final factor = min(widthFactor ?? 1, heightFactor ?? 1);
+    if (factor > 0.0 && factor < 1.0) {
+      resizeWidth = (resizeWidth?.toDouble() * factor)?.toInt();
+      resizeHeight = (resizeHeight?.toDouble() * factor)?.toInt();
+    }
 
     ImageProvider provider;
     if (uri.isImageBase64) {
