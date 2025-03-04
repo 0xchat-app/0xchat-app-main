@@ -22,7 +22,6 @@ import 'package:ox_common/utils/platform_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/web_url_helper.dart';
 import 'package:ox_common/widgets/avatar.dart';
-import 'package:ox_common/widgets/common_image.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
 
 import '../utils/general_handler/chat_highlight_message_handler.dart';

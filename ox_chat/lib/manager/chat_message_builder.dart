@@ -132,7 +132,7 @@ class ChatMessageBuilder {
       uri: message.uri,
       imageWidth: message.width?.toInt(),
       imageHeight: message.height?.toInt(),
-      maxWidth: messageWidth,
+      maxWidth: messageWidth.toDouble(),
       decryptKey: message.decryptKey,
       decryptNonce: message.decryptNonce
     );

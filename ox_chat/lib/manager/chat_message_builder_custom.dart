@@ -570,7 +570,7 @@ extension ChatMessageBuilderCustomEx on ChatMessageBuilder {
         uri: uri,
         imageWidth: width,
         imageHeight: height,
-        maxWidth: messageWidth,
+        maxWidth: messageWidth.toDouble(),
         progressStream: stream,
         decryptKey: encryptedKey,
         decryptNonce: encryptedNonce,
