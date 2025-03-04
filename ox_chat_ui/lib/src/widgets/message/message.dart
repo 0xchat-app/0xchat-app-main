@@ -274,9 +274,8 @@ class MessageState extends State<Message> {
       duration: flashDuration,
       curve: Curves.easeIn,
       color: flashBackgroundColor,
-      child: Container(
+      child: Align(
         alignment: alignment,
-        margin: margin,
         child: _buildMessageContentView(),
       ),
     );
@@ -298,7 +297,10 @@ class MessageState extends State<Message> {
       );
     }
 
-    return content;
+    return Container(
+      margin: margin,
+      child: content,
+    );
   }
 
   Widget _buildSwipeQuoteIcon() => Container(
