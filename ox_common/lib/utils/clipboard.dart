@@ -44,4 +44,9 @@ class OXClipboard {
       return [];
     }
   }
+
+  static Future<String?> getText() async {
+    ClipboardData? data = await Clipboard.getData('text/plain');
+    return data?.text;
+  }
 }
