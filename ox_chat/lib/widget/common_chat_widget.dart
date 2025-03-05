@@ -224,7 +224,10 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
             enableBottomWidget: !handler.isPreviewMode,
             inputBottomView: handler.replyHandler.buildReplyMessageWidget(),
             bottomHintParam: widget.bottomHintParam,
-            onFocusNodeInitialized: handler.replyHandler.focusNodeSetter,
+            onFocusNodeInitialized: (focusNode) {
+              handler.inputFocusNode = focusNode;
+              handler.replyHandler.inputFocusNode = focusNode;
+            },
             repliedMessageBuilder: (types.Message message, {required int messageWidth}) =>
                 ChatMessageBuilder.buildRepliedMessageView(
                   message,
@@ -269,7 +272,9 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
             onInsertedContent: (KeyboardInsertedContent insertedContent) =>
                 handler.sendInsertedContentMessage(context, insertedContent),
             textFieldHasFocus: () async {
-              scrollToNewestMessage();
+              if (PlatformUtils.isMobile) {
+                scrollToNewestMessage();
+              }
             },
             messageHasBuilder: (message, index) async {
               if (index == null) return ;

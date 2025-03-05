@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -108,6 +109,7 @@ class ChatGeneralHandler {
   late ChatHighlightMessageHandler highlightMessageHandler;
 
   TextEditingController inputController = TextEditingController();
+  FocusNode? inputFocusNode;
 
   final tempMessageSet = <types.Message>{};
 
@@ -956,7 +958,7 @@ extension ChatInputHandlerEx on ChatGeneralHandler {
     onTextChanged: _onTextChanged,
     textEditingController: inputController,
     contextMenuBuilder: _inputContextMenuBuilder,
-    pasteTextAction: CallbackAction(onInvoke: (_) => _showImageClipboardDataHintIfNeeded())
+    pasteTextAction: CallbackAction(onInvoke: (_) => _pasteTextActionHandler())
   );
 
   void _onTextChanged(String text) {
@@ -1011,10 +1013,25 @@ extension ChatInputHandlerEx on ChatGeneralHandler {
     sendImageMessageWithFile(context, [imageFile]);
   }
 
-  void _showImageClipboardDataHintIfNeeded() async {
+  void _pasteTextActionHandler() async {
     final hasImages = await OXClipboard.hasImages();
     if (hasImages) {
       _showImageClipboardDataHint();
+      return;
+    }
+
+    final text = await OXClipboard.getText() ?? '';
+    if (text.isNotEmpty) {
+      TextSelection selection = inputController.selection;
+      if (!selection.isValid) {
+        selection = TextSelection.collapsed(offset: 0);
+      }
+      final int lastSelectionIndex = math.max(selection.baseOffset, selection.extentOffset);
+      final TextEditingValue collapsedTextEditingValue = inputController.value.copyWith(
+        selection: TextSelection.collapsed(offset: lastSelectionIndex),
+      );
+      inputController.value = collapsedTextEditingValue.replaced(selection, text);
+      inputFocusNode?.requestFocus();
     }
   }
 }
