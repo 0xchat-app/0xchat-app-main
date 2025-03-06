@@ -76,10 +76,62 @@ class _ContactGroupChatCreatePageState extends State<ContactGroupChatCreatePage>
         _buildAppBar(),
         _buildGroupNameEditText(),
         // _buildGroupRelayEditText(),
+        _buildSelectRelay(),
         SizedBox(height: 12.px),
         _buildGroupMemberList(),
       ],
     ).setPadding(EdgeInsets.symmetric(horizontal: Adapt.px(24)));
+  }
+
+  Widget _buildSelectRelay(){
+    return Column(children: [
+      Container(
+        padding: EdgeInsets.symmetric(
+          vertical: Adapt.px(12),
+        ),
+        width: double.infinity,
+        alignment: Alignment.centerLeft,
+        child: Text(
+          Localized.text('ox_chat.select_relay'),
+          style: TextStyle(
+            color: ThemeColor.color0,
+            fontSize: Adapt.px(16),
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+      Container(
+        child: _labelWidget(
+          title:  Localized.text('ox_chat.relay'),
+          content: _chatRelay,
+          onTap: () async {
+            var result = await OXNavigator.presentPage(
+              context,
+                  (context) => CommonSelectRelayPage(),
+            );
+            if (result != null) {
+              _chatRelay = result as String;
+              setState(() {});
+            }
+          },
+        ),
+      ),
+      Container(
+        padding: EdgeInsets.symmetric(
+          vertical: Adapt.px(12),
+        ),
+        width: double.infinity,
+        alignment: Alignment.centerLeft,
+        child: Text(
+          Localized.text('ox_chat.create_secret_chat_tips'),
+          style: TextStyle(
+            color: ThemeColor.color100,
+            fontSize: Adapt.px(12),
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+      ),
+    ],);
   }
 
   Widget _buildAppBar(){
@@ -316,8 +368,8 @@ class _ContactGroupChatCreatePageState extends State<ContactGroupChatCreatePage>
     };
     await OXLoading.show();
     List<String> members = userList.map((user) => user.pubKey).toList();
-    GroupDBISAR? groupDB = await Groups.sharedInstance
-        .createPrivateGroup(OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey, '', name, members);
+    GroupDBISAR? groupDB = await Groups.sharedInstance.createMLSGroup(name, '',
+        members, [OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey], [_chatRelay]);
     await OXLoading.dismiss();
     if (groupDB != null) {
       OXNavigator.pop(context);

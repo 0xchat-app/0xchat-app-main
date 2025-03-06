@@ -149,7 +149,7 @@
   "remove_member_fail_tips": "Remove members failed",
   "group_share_tips": "Are you sure you want to share a group chat link with your friends",
   "create_group_system_message": "Create New Group",
-  "create_group_fail_tips": "create group failed",
+  "create_group_fail_tips": "Failed to create group chat. Please check if the other party has used a client that supports NostrMLS.",
   "group_info": "Group Info",
   "group_name": "Group Name",
   "group_notice_default_hint": "no content",

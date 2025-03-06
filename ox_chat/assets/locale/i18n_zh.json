@@ -149,7 +149,7 @@
   "remove_member_fail_tips": "移除成员失败",
   "group_share_tips": "你确定要与朋友分享群聊链接吗？",
   "create_group_system_message": "创建新的群聊",
-  "create_group_fail_tips": "创建群聊失败",
+  "create_group_fail_tips": "创建群聊失败，检查对方是否有使用过支持NostrMLS的客户端",
   "group_info": "群聊信息",
   "group_name": "群名称",
   "group_notice_default_hint": "无内容",

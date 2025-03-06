@@ -93,49 +93,49 @@ class _ContactCreateSecret extends State<ContactCreateSecret> {
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         _appBar(),
-        Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: Adapt.px(24),
-            vertical: Adapt.px(12),
-          ),
-          width: double.infinity,
-          alignment: Alignment.centerLeft,
-          child: Text(
-            Localized.text('ox_chat.secret_chat_setting'),
-            style: TextStyle(
-              color: ThemeColor.color0,
-              fontSize: Adapt.px(16),
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-        Container(
-          margin: EdgeInsets.symmetric(
-            horizontal: Adapt.px(24),
-          ),
-          decoration: BoxDecoration(
-            color: ThemeColor.color180,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Column(
-            children: [
-              _labelWidget(
-                title: Localized.text('ox_chat.request_validity_period'),
-                content: _requestValidityPeriod.toText(),
-                onTap: () => _selectTimeDialog(_selectValidityPeriodWidget),
-              ),
-              Container(
-                height: Adapt.px(0.5),
-                color: ThemeColor.color160,
-              ),
-              _labelWidget(
-                title: Localized.text('ox_chat.key_update_time'),
-                content: _keyUpdateTime.toText(),
-                onTap: () => _selectTimeDialog(_selectKeyUpdateWidget),
-              ),
-            ],
-          ),
-        ),
+        // Container(
+        //   padding: EdgeInsets.symmetric(
+        //     horizontal: Adapt.px(24),
+        //     vertical: Adapt.px(12),
+        //   ),
+        //   width: double.infinity,
+        //   alignment: Alignment.centerLeft,
+        //   child: Text(
+        //     Localized.text('ox_chat.secret_chat_setting'),
+        //     style: TextStyle(
+        //       color: ThemeColor.color0,
+        //       fontSize: Adapt.px(16),
+        //       fontWeight: FontWeight.w600,
+        //     ),
+        //   ),
+        // ),
+        // Container(
+        //   margin: EdgeInsets.symmetric(
+        //     horizontal: Adapt.px(24),
+        //   ),
+        //   decoration: BoxDecoration(
+        //     color: ThemeColor.color180,
+        //     borderRadius: BorderRadius.circular(16),
+        //   ),
+        //   child: Column(
+        //     children: [
+        //       _labelWidget(
+        //         title: Localized.text('ox_chat.request_validity_period'),
+        //         content: _requestValidityPeriod.toText(),
+        //         onTap: () => _selectTimeDialog(_selectValidityPeriodWidget),
+        //       ),
+        //       Container(
+        //         height: Adapt.px(0.5),
+        //         color: ThemeColor.color160,
+        //       ),
+        //       _labelWidget(
+        //         title: Localized.text('ox_chat.key_update_time'),
+        //         content: _keyUpdateTime.toText(),
+        //         onTap: () => _selectTimeDialog(_selectKeyUpdateWidget),
+        //       ),
+        //     ],
+        //   ),
+        // ),
         Container(
           padding: EdgeInsets.symmetric(
             horizontal: Adapt.px(24),
@@ -305,8 +305,9 @@ class _ContactCreateSecret extends State<ContactCreateSecret> {
   void _createSecretChat() async {
     await OXLoading.show();
     var myPubkey = Account.sharedInstance.me!.pubKey;
+    String groupName = '${widget.userDB.name} & ${Account.sharedInstance.me!.name}';
     GroupDBISAR? groupDB = await Groups.sharedInstance
-        .createMLSGroup('', '', [widget.userDB.pubKey, myPubkey], [myPubkey], [_chatRelay]);
+        .createMLSGroup(groupName, '', [widget.userDB.pubKey, myPubkey], [myPubkey], [_chatRelay]);
     await OXLoading.dismiss();
     if (groupDB != null) {
       OXNavigator.pop(context);
