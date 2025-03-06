@@ -255,6 +255,7 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
               });
             },
             mentionUserListWidget: handler.mentionHandler?.buildMentionUserList(),
+            codeBlockBuilder: ChatMessageBuilder.buildCodeBlockWidget,
             onAudioDataFetched: (message) async {
               final (sourceFile, duration) = await ChatVoiceMessageHelper.populateMessageWithAudioDetails(
                 session: handler.session,
@@ -297,7 +298,7 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
     if (!PlatformUtils.isDesktop || pasteTextAction == null) return child;
     return Actions(
       actions: {
-        PasteTextIntent: pasteTextAction
+        PasteTextIntent: pasteTextAction,
       },
       child: Focus(
         autofocus: true,
