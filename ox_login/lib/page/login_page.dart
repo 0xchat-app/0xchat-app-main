@@ -251,15 +251,6 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  @override
-  void setState(VoidCallback fn) {
-    super.setState(fn);
-    if (_displayUri.length > 0) {
-      // final uri = loginSchema + "://wc?uri=" + _displayUri;
-      print("_displayUri ==== $_displayUri");
-    }
-  }
-
   void _createAccount() {
     Keychain keychain = Account.generateNewKeychain();
     OXNavigator.pushPage(context, (context) => CreateAccountPage(keychain: keychain));
