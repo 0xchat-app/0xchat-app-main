@@ -125,7 +125,7 @@
   "key_update_time": "Key update time",
   "select_relay": "SELECT RELAY",
   "relay": "Relay",
-  "create_secret_chat_tips": "For the sake of security and privacy, secret chat messages will only be sent to the relay you choose. Please select a relay you deem trustworthy.",
+  "create_secret_chat_tips": "Note:\n\n1.Secret chat is implemented based on NIP-104 Nostr MLS. Creating a secret chat will create a new MLS group.\n\n2.Each secret chat session is independent and cannot be recovered once deleted.\n\n3.For your safety and privacy, secret chat messages will only be sent to the relay you choose.\n\n4.This secret chat feature is still in beta. Please use it for testing purposes only.",
   "hour": "Hour",
   "enter_or_relay": "ENTER OR SELECT RELAY",
   "screen_record_hint_message" :"${user} attempted to screen record",

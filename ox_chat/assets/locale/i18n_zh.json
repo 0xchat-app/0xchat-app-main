@@ -125,7 +125,7 @@
   "key_update_time": "密钥更新时间",
   "select_relay": "选择中继",
   "relay": "中继",
-  "create_secret_chat_tips": "为了安全和隐私，密聊消息只会发送到你选择的中继。请选择你认为可靠的中继。",
+  "create_secret_chat_tips": "注:\n\n1、密聊基于NIP-104 Nostr MLS 实现，创建密聊将创建一个新的MLS群\n\n2、每个密聊会话都是独立的，删除之后不可恢复\n\n3、为了安全和隐私，密聊消息将只会发送到你选择的中继\n\n4、此密聊还在beta版本，请仅作为测试用途",
   "hour": "小时",
   "enter_or_relay": "输入或选择中继",
   "screen_record_hint_message" :"${user}试图录屏",

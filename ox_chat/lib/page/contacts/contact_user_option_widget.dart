@@ -351,7 +351,7 @@ class _ContactUserOptionWidgetState extends State<ContactUserOptionWidget> with 
         padding: const EdgeInsets.only(top: 0),
         physics: NeverScrollableScrollPhysics(),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 4,
+          crossAxisCount: 5,
           crossAxisSpacing: 4.px,
           childAspectRatio: 1.1,
         ),
