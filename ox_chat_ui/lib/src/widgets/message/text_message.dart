@@ -30,6 +30,8 @@ class TextMessage extends StatelessWidget {
     required this.usePreviewData,
     this.userAgent,
     this.maxLimit,
+    this.codeBlockBuilder,
+    this.onSecondaryTap,
   }) : messageText = message.text.trim();
 
   /// See [Message.emojiEnlargementBehavior].
@@ -64,6 +66,10 @@ class TextMessage extends StatelessWidget {
   final String? userAgent;
 
   final int? maxLimit;
+
+  final Widget Function({required BuildContext context, required String codeText,})? codeBlockBuilder;
+
+  final GestureTapCallback? onSecondaryTap;
 
   @override
   Widget build(BuildContext context) {
@@ -165,31 +171,25 @@ class TextMessage extends StatelessWidget {
     final moreBtnColor = user.id == message.author.id
         ? Colors.black.withOpacity(0.6)
         : ThemeColor.gradientMainStart;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // if (showName)
-        //   nameBuilder?.call(message.author.id) ??
-        //       UserName(author: message.author),
-        if (enlargeEmojis)
-          if (options.isTextSelectable)
-            SelectableText(messageText, style: emojiTextStyle)
-          else
-            Text(messageText, style: emojiTextStyle)
-        else
-          TextMessageText(
-            bodyLinkTextStyle: bodyLinkTextStyle,
-            bodyTextStyle: bodyTextStyle,
-            boldTextStyle: boldTextStyle,
-            codeTextStyle: codeTextStyle,
-            options: options,
-            text: messageText,
-            maxLines: 100,
-            overflow: TextOverflow.ellipsis,
-            maxLimit: maxLimit,
-            moreBtnColor: moreBtnColor,
-          ),
-      ],
+
+    if (enlargeEmojis) {
+      if (options.isTextSelectable) {
+        return SelectableText(messageText, style: emojiTextStyle);
+      }
+      return Text(messageText, style: emojiTextStyle);
+    }
+    return TextMessageText(
+      bodyLinkTextStyle: bodyLinkTextStyle,
+      bodyTextStyle: bodyTextStyle,
+      boldTextStyle: boldTextStyle,
+      codeTextStyle: codeTextStyle,
+      codeBlockBuilder: codeBlockBuilder,
+      options: options,
+      text: messageText,
+      overflow: TextOverflow.ellipsis,
+      maxLimit: maxLimit,
+      moreBtnColor: moreBtnColor,
+      onSecondaryTap: onSecondaryTap,
     );
   }
 }
@@ -202,12 +202,14 @@ class TextMessageText extends StatelessWidget {
     required this.bodyTextStyle,
     this.boldTextStyle,
     this.codeTextStyle,
+    this.codeBlockBuilder,
     this.maxLines,
     this.options = const TextMessageOptions(),
     this.overflow = TextOverflow.clip,
     required this.text,
     this.maxLimit,
     this.moreBtnColor,
+    this.onSecondaryTap,
   });
 
   /// Style to apply to anything that matches a link.
@@ -221,6 +223,8 @@ class TextMessageText extends StatelessWidget {
 
   /// Style to apply to anything that matches code markdown.
   final TextStyle? codeTextStyle;
+  
+  final Widget Function({required BuildContext context, required String codeText,})? codeBlockBuilder;
 
   /// See [ParsedText.maxLines].
   final int? maxLines;
@@ -238,29 +242,33 @@ class TextMessageText extends StatelessWidget {
 
   final Color? moreBtnColor;
 
+  final GestureTapCallback? onSecondaryTap;
+
   @override
   Widget build(BuildContext context) {
     var text = this.text;
     final maxLimit = this.maxLimit;
     final moreText = Localized.text('ox_chat.more');
-    final moreFlag = '\${$moreText}';
     if (maxLimit != null && text.length > maxLimit) {
+      final moreFlag = '\$\{0xchat_more_flag\}';
       text = this.text.substring(0, maxLimit) + '...' + moreFlag;
     }
     return ParsedText(
       parse: [
         ...options.matchers,
         MatchText(
-          pattern: r'\$\{(.*?)\}',
-          renderWidget: ({required String text, required String pattern,}) => IgnorePointer(
-            child: Text(
-              moreText,
-              style: bodyTextStyle.copyWith(
-                color: moreBtnColor ?? Colors.blueAccent,
-                height: 1.1,
+          pattern: r'\$\{0xchat_more_flag\}',
+          renderWidget: ({required String text, required String pattern,}) => WidgetSpan(
+            child: IgnorePointer(
+              child: Text(
+                moreText,
+                style: bodyTextStyle.copyWith(
+                  color: moreBtnColor ?? Colors.blueAccent,
+                  height: 1.1,
+                ),
               ),
             ),
-          )
+          ),
         ),
         MatchText(
           onTap: (mail) async {
@@ -274,6 +282,47 @@ class TextMessageText extends StatelessWidget {
               bodyTextStyle.copyWith(
                 decoration: TextDecoration.underline,
               ),
+        ),
+        MatchText(
+          onTap: (urlText) async {
+            urlText = urlText.replaceFirst('nostr:', CommonConstant.njumpURL);
+            if (options.onLinkPressed != null) {
+              options.onLinkPressed!(urlText);
+            } else {
+              final url = Uri.tryParse(urlText);
+              if (url != null && await canLaunchUrl(url)) {
+                await launchUrl(
+                  url,
+                  mode: LaunchMode.externalApplication,
+                );
+              }
+            }
+          },
+          pattern: WebURLHelper.regexNostr,
+          style: bodyLinkTextStyle ??
+              bodyTextStyle.copyWith(
+                decoration: TextDecoration.underline,
+              ),
+        ),
+        MatchText(
+          pattern: PatternStyle.code.pattern,
+          style: codeTextStyle ??
+              bodyTextStyle.merge(PatternStyle.code.textStyle),
+          renderWidget: ({required String text, required String pattern,}) {
+            final regex = RegExp(r'(?<=^|\s)```([\s\S]+?)```(?=\s|$)');
+            final match = regex.firstMatch(text);
+            final codeText = (match?.group(1) ?? text).trim();
+            return TextSpan(
+              children: [
+                if (!this.text.startsWith(text)) TextSpan(text: '\n'),
+                WidgetSpan(
+                  child: codeBlockBuilder?.call(context: context, codeText: codeText)
+                      ?? Text(codeText, style: bodyTextStyle,),
+                ),
+                if (!this.text.endsWith(text)) TextSpan(text: '\n'),
+              ],
+            );
+          },
         ),
         MatchText(
           onTap: (urlText) async {
@@ -302,77 +351,6 @@ class TextMessageText extends StatelessWidget {
                 decoration: TextDecoration.underline,
               ),
         ),
-        MatchText(
-          onTap: (urlText) async {
-            urlText = urlText.replaceFirst('nostr:', CommonConstant.njumpURL);
-            if (options.onLinkPressed != null) {
-              options.onLinkPressed!(urlText);
-            } else {
-              final url = Uri.tryParse(urlText);
-              if (url != null && await canLaunchUrl(url)) {
-                await launchUrl(
-                  url,
-                  mode: LaunchMode.externalApplication,
-                );
-              }
-            }
-          },
-          pattern: WebURLHelper.regexNostr,
-          style: bodyLinkTextStyle ??
-              bodyTextStyle.copyWith(
-                decoration: TextDecoration.underline,
-              ),
-        ),
-        MatchText(
-          pattern: PatternStyle.bold.pattern,
-          style: boldTextStyle ??
-              bodyTextStyle.merge(PatternStyle.bold.textStyle),
-          renderText: ({
-            required String str, required String pattern
-          }) => {
-            'display': str.replaceAll(
-              PatternStyle.bold.from,
-              PatternStyle.bold.replace,
-            ),
-          },
-        ),
-        MatchText(
-          pattern: PatternStyle.italic.pattern,
-          style: bodyTextStyle.merge(PatternStyle.italic.textStyle),
-          renderText: ({
-            required String str, required String pattern
-          }) => {
-            'display': str.replaceAll(
-              PatternStyle.italic.from,
-              PatternStyle.italic.replace,
-            ),
-          },
-        ),
-        MatchText(
-          pattern: PatternStyle.lineThrough.pattern,
-          style: bodyTextStyle.merge(PatternStyle.lineThrough.textStyle),
-          renderText: ({
-            required String str, required String pattern
-          }) => {
-            'display': str.replaceAll(
-              PatternStyle.lineThrough.from,
-              PatternStyle.lineThrough.replace,
-            ),
-          },
-        ),
-        MatchText(
-          pattern: PatternStyle.code.pattern,
-          style: codeTextStyle ??
-              bodyTextStyle.merge(PatternStyle.code.textStyle),
-          renderText: ({
-            required String str, required String pattern
-          }) => {
-            'display': str.replaceAll(
-              PatternStyle.code.from,
-              PatternStyle.code.replace,
-            ),
-          },
-        ),
       ],
       maxLines: maxLines,
       overflow: overflow,
@@ -382,6 +360,7 @@ class TextMessageText extends StatelessWidget {
       text: text,
       textWidthBasis: TextWidthBasis.longestLine,
       textScaleFactor: MediaQuery.of(context).textScaleFactor,
+      onSecondaryTap: onSecondaryTap,
     );
   }
 }

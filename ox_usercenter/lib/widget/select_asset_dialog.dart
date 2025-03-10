@@ -14,7 +14,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/common_loading.dart';
-import 'package:device_info/device_info.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 
 class SelectAssetDialog extends StatefulWidget {
   const SelectAssetDialog({Key? key}) : super(key: key);

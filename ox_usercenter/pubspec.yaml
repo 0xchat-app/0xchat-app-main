@@ -15,7 +15,6 @@ dependencies:
   keframe: ^3.0.0
   pull_to_refresh_notification: ^3.1.0
   awesome_select: ^6.0.0
-  file_picker: ^6.1.1
   flutter_cache_manager: 3.3.1
 
   ox_module_service:

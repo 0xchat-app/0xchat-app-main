@@ -119,6 +119,7 @@ class Chat extends StatefulWidget {
     this.onVoiceSend,
     this.longPressWidgetBuilder,
     this.reactionViewBuilder,
+    this.codeBlockBuilder,
     this.onGifSend,
     this.inputBottomView,
     this.mentionUserListWidget,
@@ -397,6 +398,8 @@ class Chat extends StatefulWidget {
 
   final Widget Function(types.Message, {required int messageWidth})? reactionViewBuilder;
 
+  final Widget Function({required BuildContext context, required String codeText,})? codeBlockBuilder;
+
   final Widget? inputBottomView;
 
   final ValueChanged<FocusNode>? onFocusNodeInitialized;
@@ -539,16 +542,14 @@ class ChatState extends State<Chat> {
                               child: GestureDetector(
                                 child: _emptyStateBuilder(),
                                 onTap: () {
-                                  _inputKey.currentState?.dissMissMoreView();
-                                  FocusManager.instance.primaryFocus?.unfocus();
+                                  inputUnFocus();
                                   widget.onBackgroundTap?.call();
                                 },
                               ),
                             )
                           : GestureDetector(
                               onTap: () {
-                                _inputKey.currentState?.dissMissMoreView();
-                                FocusManager.instance.primaryFocus?.unfocus();
+                                inputUnFocus();
                                 widget.onBackgroundTap?.call();
                               },
                               child: NotificationListener<ScrollNotification>(
@@ -822,6 +823,7 @@ class ChatState extends State<Chat> {
           repliedMessageBuilder: widget.repliedMessageBuilder,
           longPressWidgetBuilder: widget.longPressWidgetBuilder,
           reactionViewBuilder: widget.reactionViewBuilder,
+          codeBlockBuilder: widget.codeBlockBuilder,
           replySwipeTriggerCallback: widget.replySwipeTriggerCallback,
         );
       }
@@ -862,5 +864,10 @@ class ChatState extends State<Chat> {
       this.isShowScrollToBottomButton = isShowScrollToBottomButton;
       widget.isShowScrollToBottomButtonUpdateCallback?.call(isShowScrollToBottomButton);
     }
+  }
+
+  void inputUnFocus() {
+    _inputKey.currentState?.dissMissMoreView();
+    FocusManager.instance.primaryFocus?.unfocus();
   }
 }

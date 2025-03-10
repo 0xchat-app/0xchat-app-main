@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_vibrate/flutter_vibrate.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/platform_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/utils/web_url_helper.dart';
@@ -63,6 +64,7 @@ class Message extends StatefulWidget {
     this.repliedMessageBuilder,
     this.longPressWidgetBuilder,
     this.reactionViewBuilder,
+    this.codeBlockBuilder,
     this.replySwipeTriggerCallback,
   });
 
@@ -195,6 +197,8 @@ class Message extends StatefulWidget {
   final Widget Function(types.Message, {required int messageWidth})?
   reactionViewBuilder;
 
+  final Widget Function({required BuildContext context, required String codeText,})? codeBlockBuilder;
+
   /// Create a widget that pops up when long pressing on a message
   final Widget Function(BuildContext context, types.Message, CustomPopupMenuController controller)? longPressWidgetBuilder;
 
@@ -270,14 +274,13 @@ class MessageState extends State<Message> {
       duration: flashDuration,
       curve: Curves.easeIn,
       color: flashBackgroundColor,
-      child: Container(
+      child: Align(
         alignment: alignment,
-        margin: margin,
         child: _buildMessageContentView(),
       ),
     );
 
-    if (!currentUserIsAuthor && widget.replySwipeTriggerCallback != null) {
+    if (!PlatformUtils.isDesktop && widget.replySwipeTriggerCallback != null) {
       content = _SwipeToReply(
         revealIconBuilder: (progress) => Opacity(
           opacity: progress,
@@ -290,10 +293,14 @@ class MessageState extends State<Message> {
           widget.replySwipeTriggerCallback?.call(widget.message);
         },
         child: content,
+        offset: currentUserIsAuthor ? Offset(50.px, 0) : Offset.zero,
       );
     }
 
-    return content;
+    return Container(
+      margin: margin,
+      child: content,
+    );
   }
 
   Widget _buildSwipeQuoteIcon() => Container(
@@ -571,6 +578,10 @@ class MessageState extends State<Message> {
           usePreviewData: widget.usePreviewData,
           userAgent: widget.userAgent,
           maxLimit: textMessage.maxLimit,
+          codeBlockBuilder: widget.codeBlockBuilder,
+          onSecondaryTap: () {
+            _popController.showMenu();
+          },
         );
         break ;
       case types.MessageType.video:
@@ -633,6 +644,7 @@ class MessageState extends State<Message> {
 
 class _SwipeToReply extends StatefulWidget {
   final Widget child;
+  final Offset offset;
   final Widget Function(double progress) revealIconBuilder;
   final VoidCallback onSwipeComplete;
 
@@ -641,6 +653,7 @@ class _SwipeToReply extends StatefulWidget {
     required this.child,
     required this.revealIconBuilder,
     required this.onSwipeComplete,
+    this.offset = Offset.zero,
   });
 
   @override
@@ -723,8 +736,8 @@ class _SwipeToReplyState extends State<_SwipeToReply>
         return Stack(
           children: [
             Positioned(
-              right: 10 - offset,
-              top: 0,
+              right: 10 - offset - widget.offset.dx,
+              top: widget.offset.dy,
               bottom: 0,
               child: Center(child: widget.revealIconBuilder(progress)),
             ),

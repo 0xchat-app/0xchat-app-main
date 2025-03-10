@@ -4,7 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
 import 'package:ox_chat/model/option_model.dart';
 import 'package:ox_chat/model/search_chat_model.dart';
 import 'package:ox_chat/utils/group_share_utils.dart';
@@ -333,7 +333,7 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
       if (byteData != null) {
         Uint8List? pngBytes = byteData.buffer.asUint8List();
         final result =
-            await ImageGallerySaver.saveImage(Uint8List.fromList(pngBytes));
+            await ImageGallerySaverPlus.saveImage(Uint8List.fromList(pngBytes));
         if (result != null && result != "") {
           // LogUtil.e('Michael : result = ${result.toString()}');
           // Navigator.pop(context);

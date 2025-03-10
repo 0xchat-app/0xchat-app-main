@@ -22,7 +22,7 @@ class ChatImagePreviewWidget extends StatefulWidget {
   final String uri;
   final int? imageWidth;
   final int? imageHeight;
-  final int? maxWidth;
+  final double? maxWidth;
   final String? decryptKey;
   final String? decryptNonce;
   final Stream<double>? progressStream;
@@ -67,6 +67,7 @@ class ChatImagePreviewWidgetState extends State<ChatImagePreviewWidget> {
       uri,
       width: width,
       height: height,
+      maxWidth: widget.maxWidth,
       decryptedKey: widget.decryptKey,
       decryptedNonce: widget.decryptNonce
     );

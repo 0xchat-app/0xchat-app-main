@@ -13,11 +13,7 @@ class ChatReplyHandler {
 
   String chatId;
   types.Message? replyMessage;
-  FocusNode? focusNode;
-
-  void focusNodeSetter(FocusNode node) {
-    focusNode = node;
-  }
+  FocusNode? inputFocusNode;
 
   void updateReplyMessage(types.Message? message) async {
     if (replyMessage == message) return ;
@@ -30,7 +26,7 @@ class ChatReplyHandler {
   }
 
   void quoteMenuItemPressHandler(types.Message message) {
-    focusNode?.requestFocus();
+    inputFocusNode?.requestFocus();
     updateReplyMessage(message);
   }
 

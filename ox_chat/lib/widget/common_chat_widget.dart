@@ -18,10 +18,10 @@ import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/chat_prompt_tone.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
+import 'package:ox_common/utils/platform_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/web_url_helper.dart';
 import 'package:ox_common/widgets/avatar.dart';
-import 'package:ox_common/widgets/common_image.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
 
 import '../utils/general_handler/chat_highlight_message_handler.dart';
@@ -63,6 +63,7 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
   final pageConfig = ChatPageConfig();
 
   final GlobalKey<ChatState> chatWidgetKey = GlobalKey<ChatState>();
+  final FocusNode pageFocusNode = FocusNode();
   final AutoScrollController scrollController = AutoScrollController();
   Duration scrollDuration = const Duration(milliseconds: 100);
 
@@ -79,6 +80,10 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
       PromptToneManager.sharedInstance.isCurrencyChatPage = dataController.isInCurrentSession;
       OXChatBinding.sharedInstance.msgIsReaded = dataController.isInCurrentSession;
     }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      handler.chatWidgetKey = chatWidgetKey;
+    });
   }
 
   void tryInitDraft() {
@@ -130,7 +135,9 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
       backgroundColor: ThemeColor.color200,
       resizeToAvoidBottomInset: false,
       appBar: widget.navBar,
-      body: buildChatContentWidget(),
+      body: pasteActionListenerWrapper(
+        child: buildChatContentWidget(),
+      ),
     );
   }
 
@@ -217,7 +224,10 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
             enableBottomWidget: !handler.isPreviewMode,
             inputBottomView: handler.replyHandler.buildReplyMessageWidget(),
             bottomHintParam: widget.bottomHintParam,
-            onFocusNodeInitialized: handler.replyHandler.focusNodeSetter,
+            onFocusNodeInitialized: (focusNode) {
+              handler.inputFocusNode = focusNode;
+              handler.replyHandler.inputFocusNode = focusNode;
+            },
             repliedMessageBuilder: (types.Message message, {required int messageWidth}) =>
                 ChatMessageBuilder.buildRepliedMessageView(
                   message,
@@ -245,6 +255,7 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
               });
             },
             mentionUserListWidget: handler.mentionHandler?.buildMentionUserList(),
+            codeBlockBuilder: ChatMessageBuilder.buildCodeBlockWidget,
             onAudioDataFetched: (message) async {
               final (sourceFile, duration) = await ChatVoiceMessageHelper.populateMessageWithAudioDetails(
                 session: handler.session,
@@ -262,7 +273,9 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
             onInsertedContent: (KeyboardInsertedContent insertedContent) =>
                 handler.sendInsertedContentMessage(context, insertedContent),
             textFieldHasFocus: () async {
-              scrollToNewestMessage();
+              if (PlatformUtils.isMobile) {
+                scrollToNewestMessage();
+              }
             },
             messageHasBuilder: (message, index) async {
               if (index == null) return ;
@@ -272,8 +285,26 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
             replySwipeTriggerCallback: (message) {
               handler.replyHandler.quoteMenuItemPressHandler(message);
             },
+            onBackgroundTap: () {
+              pageFocusNode.requestFocus();
+            },
           );
         }
+    );
+  }
+
+  Widget pasteActionListenerWrapper({required Widget child}) {
+    final pasteTextAction = handler.inputOptions.pasteTextAction;
+    if (!PlatformUtils.isDesktop || pasteTextAction == null) return child;
+    return Actions(
+      actions: {
+        PasteTextIntent: pasteTextAction,
+      },
+      child: Focus(
+        autofocus: true,
+        focusNode: pageFocusNode,
+        child: child,
+      ),
     );
   }
 

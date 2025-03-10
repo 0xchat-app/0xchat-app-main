@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nostr_core_dart/nostr.dart';
+import 'package:ox_chat/page/contacts/contact_friend_remark_page.dart';
 import 'package:ox_chat/page/session/chat_message_page.dart';
 import 'package:ox_chat/page/session/single_search_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
@@ -74,6 +75,7 @@ enum EMoreOptionType {
   messageTimer,
   message,
   userOption,
+  remark,
 }
 
 enum EInformationType {
@@ -109,6 +111,8 @@ extension MoreOptionTypeEx on EMoreOptionType {
         return "Start secret chat";
       case EMoreOptionType.userOption:
         return 'Block user';
+      case EMoreOptionType.remark:
+        return 'Edit remark';
     }
   }
 
@@ -122,6 +126,8 @@ extension MoreOptionTypeEx on EMoreOptionType {
         return "chat_secret.png";
       case EMoreOptionType.userOption:
         return 'chat_block.png';
+      case EMoreOptionType.remark:
+        return 'chat_remark.png';
     }
   }
 }
@@ -181,6 +187,7 @@ class _ContactUserOptionWidgetState extends State<ContactUserOptionWidget> with 
   List<TabModel> modelList = [];
 
   List<EMoreOptionType> moreOptionList = [
+    EMoreOptionType.remark,
     EMoreOptionType.secretChat,
     EMoreOptionType.messageTimer,
     EMoreOptionType.message,
@@ -1148,6 +1155,11 @@ class _ContactUserOptionWidgetState extends State<ContactUserOptionWidget> with 
             OXNavigator.presentPage(
               context,
                   (context) => ContactCreateSecret(userDB: userDB),
+            );
+          case EMoreOptionType.remark:
+            OXNavigator.pushPage(
+              context,
+                  (context) => ContactFriendRemarkPage(userDB: userDB),
             );
             break;
         }

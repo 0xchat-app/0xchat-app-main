@@ -19,8 +19,8 @@ class PatternStyle {
       );
 
   static PatternStyle get code => PatternStyle(
-        '`',
-        RegExp('`[^`]+`'),
+        '```',
+        RegExp(r'(?<=^|\s)```([\s\S]+?)```(?=\s|$)'),
         '',
         TextStyle(
           fontFamily: defaultTargetPlatform == TargetPlatform.iOS

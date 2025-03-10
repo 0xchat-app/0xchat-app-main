@@ -173,6 +173,7 @@ class PrivateChatStrategy extends ChatStrategy {
     return await Contacts.sharedInstance.getSendMessageEvent(
       receiverId,
       replyId,
+      '',
       messageType,
       contentString,
       kind: session.messageKind,
@@ -195,6 +196,7 @@ class PrivateChatStrategy extends ChatStrategy {
     return await Contacts.sharedInstance.sendPrivateMessage(
       receiverId,
       replyId,
+      '',
       messageType,
       contentString,
       event: event,
@@ -224,6 +226,7 @@ class SecretChatStrategy extends ChatStrategy {
       receiverId,
       receiverPubkey,
       replyId,
+      '',
       messageType,
       contentString,
       session.expiration,
@@ -246,6 +249,7 @@ class SecretChatStrategy extends ChatStrategy {
       receiverId,
       receiverPubkey,
       replyId,
+      '',
       messageType,
       contentString,
       event: event,
@@ -278,7 +282,7 @@ class RelayGroupChatStrategy extends ChatStrategy {
       messageType,
       contentString,
       previous,
-      rootEvent: replyId,
+      replyEvent: replyId,
       source: source,
     );
   }
@@ -301,7 +305,7 @@ class RelayGroupChatStrategy extends ChatStrategy {
       previous,
       event: event,
       local: isLocal,
-      rootEvent: replyId,
+      replyEvent: replyId,
       replaceMessageId: replaceMessageId,
     );
   }

@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -17,6 +18,7 @@ import 'package:ox_chat/utils/general_handler/chat_mention_handler.dart';
 import 'package:ox_chat/utils/general_handler/chat_reply_handler.dart';
 import 'package:ox_chat/utils/message_parser/define.dart';
 import 'package:ox_chat/utils/send_message/chat_send_message_helper.dart';
+import 'package:ox_chat/widget/chat_send_image_prepare_dialog.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/business_interface/ox_wallet/interface.dart';
 import 'package:ox_common/log_util.dart';
@@ -24,9 +26,11 @@ import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/upload/file_type.dart';
 import 'package:ox_common/upload/upload_utils.dart';
 import 'package:ox_common/utils/aes_encrypt_utils.dart';
+import 'package:ox_common/utils/clipboard.dart';
 import 'package:ox_common/utils/encode_utils.dart';
 import 'package:ox_common/utils/file_utils.dart';
 import 'package:ox_common/utils/image_picker_utils.dart';
+import 'package:ox_common/utils/list_extension.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/platform_utils.dart';
 import 'package:ox_common/utils/string_utils.dart';
@@ -67,7 +71,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:path/path.dart' as Path;
 import 'package:flutter_chat_types/src/message.dart' as UIMessage;
-import 'package:device_info/device_info.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:ox_common/widgets/zaps/zaps_action_handler.dart';
 
 import '../../manager/chat_data_manager_models.dart';
@@ -98,12 +102,14 @@ class ChatGeneralHandler {
   final types.EncryptionType fileEncryptionType;
   final String? anchorMsgId;
 
+  GlobalKey<ChatState>? chatWidgetKey;
   late ChatReplyHandler replyHandler;
   ChatMentionHandler? mentionHandler;
   late MessageDataController dataController;
   late ChatHighlightMessageHandler highlightMessageHandler;
 
   TextEditingController inputController = TextEditingController();
+  FocusNode? inputFocusNode;
 
   final tempMessageSet = <types.Message>{};
 
@@ -291,7 +297,7 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
 
   TextMessageOptions textMessageOptions(BuildContext context) =>
       TextMessageOptions(
-        isTextSelectable:false,
+        isTextSelectable: PlatformUtils.isDesktop,
         openOnPreviewTitleTap: true,
         onLinkPressed: (url) => _onLinkTextPressed(context, url),
       );
@@ -951,12 +957,82 @@ extension ChatInputHandlerEx on ChatGeneralHandler {
   InputOptions get inputOptions => InputOptions(
     onTextChanged: _onTextChanged,
     textEditingController: inputController,
+    contextMenuBuilder: _inputContextMenuBuilder,
+    pasteTextAction: CallbackAction(onInvoke: (_) => _pasteTextActionHandler())
   );
 
   void _onTextChanged(String text) {
     final chatId = session.chatId;
     if (chatId.isEmpty) return ;
     ChatDraftManager.shared.updateTempDraft(chatId, text);
+  }
+
+  Widget _inputContextMenuBuilder(BuildContext context, EditableTextState editableTextState) {
+    final hasImagesFuture = OXClipboard.hasImages();
+    return FutureBuilder(
+      future: hasImagesFuture,
+      builder: (_, asyncSnapshot) {
+        if (asyncSnapshot.data == true) {
+          return AdaptiveTextSelectionToolbar.buttonItems(
+            buttonItems: [
+              ContextMenuButtonItem(
+                onPressed: () async {
+                  chatWidgetKey?.currentState?.inputUnFocus();
+                  _showImageClipboardDataHint();
+                },
+                type: ContextMenuButtonType.paste,
+              ),
+              ...editableTextState.contextMenuButtonItems.map(
+                      (item) => item.type != ContextMenuButtonType.paste ? item : null
+              ).whereNotNull(),
+            ],
+            anchors: editableTextState.contextMenuAnchors,
+          );
+        } else if (asyncSnapshot.data == false) {
+          return AdaptiveTextSelectionToolbar.editableText(editableTextState: editableTextState);
+        }
+        return const SizedBox.shrink();
+      },
+    );
+  }
+
+  void _showImageClipboardDataHint() async {
+
+    final context = OXNavigator.navigatorKey.currentContext;
+    if (context == null) return;
+
+    final imageFile = (await OXClipboard.getImages()).firstOrNull;
+    if (imageFile == null || !imageFile.existsSync()) {
+      CommonToast.instance.show(context, 'Get image from clipboard failure.');
+      return;
+    }
+
+    final isConfirm = await ChatSendImagePrepareDialog.show(context, imageFile);
+    if (!isConfirm) return;
+
+    sendImageMessageWithFile(context, [imageFile]);
+  }
+
+  void _pasteTextActionHandler() async {
+    final hasImages = await OXClipboard.hasImages();
+    if (hasImages) {
+      _showImageClipboardDataHint();
+      return;
+    }
+
+    final text = await OXClipboard.getText() ?? '';
+    if (text.isNotEmpty) {
+      TextSelection selection = inputController.selection;
+      if (!selection.isValid) {
+        selection = TextSelection.collapsed(offset: 0);
+      }
+      final int lastSelectionIndex = math.max(selection.baseOffset, selection.extentOffset);
+      final TextEditingValue collapsedTextEditingValue = inputController.value.copyWith(
+        selection: TextSelection.collapsed(offset: lastSelectionIndex),
+      );
+      inputController.value = collapsedTextEditingValue.replaced(selection, text);
+      inputFocusNode?.requestFocus();
+    }
   }
 }
 

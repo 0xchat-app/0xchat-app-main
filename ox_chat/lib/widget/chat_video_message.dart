@@ -127,7 +127,7 @@ class ChatVideoMessageState extends State<ChatVideoMessage> {
       uri: imagePath,
       imageWidth: width,
       imageHeight: height,
-      maxWidth: widget.messageWidth,
+      maxWidth: widget.messageWidth.toDouble(),
       progressStream: stream,
     );
   }

@@ -16,8 +16,10 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/date_utils.dart';
 import 'package:ox_common/utils/num_utils.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_common/utils/platform_utils.dart';
 import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
@@ -75,6 +77,85 @@ class ChatMessageBuilder {
     );
   }
 
+  static Widget buildCodeBlockWidget({
+    required BuildContext context,
+    required String codeText,
+  }) {
+    Widget codeTextWidget = Text(
+      codeText,
+      style: TextStyle(
+        fontSize: 14.sp,
+        color: ThemeColor.white,
+      ),
+    );
+
+    Widget widget =  GestureDetector(
+      onTap: () {
+        TookKit.copyKey(context, codeText);
+      },
+      child: Opacity(
+        opacity: 0.8,
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border(
+              left: BorderSide(
+                color: Colors.white,
+                width: 2,
+              ),
+            ),
+          ),
+          child: IntrinsicWidth(
+            child: Column(
+              children: [
+                Container(
+                  color: ThemeColor.color170,
+                  height: 20.px,
+                  padding: EdgeInsets.symmetric(horizontal: 8.px),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'copy',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          color: ThemeColor.white,
+                        ),
+                      ),
+                      SizedBox(width: 20.px,),
+                      CommonImage(
+                        iconName: 'icon_copy.png',
+                        package: 'ox_chat',
+                        size: 12.px,
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  color: ThemeColor.darkColor,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 8.px,
+                    vertical: 4.px,
+                  ),
+                  alignment: Alignment.centerLeft,
+                  child: codeTextWidget,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    if (PlatformUtils.isDesktop) {
+      widget = MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: widget,
+      );
+    }
+
+    return widget;
+  }
+
   static Widget buildImageMessage(types.ImageMessage message, {
     required int messageWidth,
   }) {
@@ -82,7 +163,7 @@ class ChatMessageBuilder {
       uri: message.uri,
       imageWidth: message.width?.toInt(),
       imageHeight: message.height?.toInt(),
-      maxWidth: messageWidth,
+      maxWidth: messageWidth.toDouble(),
       decryptKey: message.decryptKey,
       decryptNonce: message.decryptNonce
     );

@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
 import 'package:ox_common/utils/custom_uri_helper.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
@@ -324,7 +324,7 @@ class _MyIdCardDialogState extends BasePageState<MyIdCardDialog> {
       ByteData? byteData = await image.toByteData(format: ImageByteFormat.png);
       if (byteData != null) {
         Uint8List? pngBytes = byteData.buffer.asUint8List();
-        final result = await ImageGallerySaver.saveImage(Uint8List.fromList(pngBytes));
+        final result = await ImageGallerySaverPlus.saveImage(Uint8List.fromList(pngBytes));
         if (result != null && result != "") {
           // LogUtil.e('Michael : result = ${result.toString()}');
           Navigator.pop(context);
