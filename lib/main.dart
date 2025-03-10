@@ -98,12 +98,9 @@ class MainState extends State<MainApp>
       printMemoryUsage();
     });
     showErrorDialogIfNeeded();
-    if(PlatformUtils.isDesktop){
-      PlatformUtils.initWindowSize();
-      // Size windowSize = PlatformUtils.windowSize;
-      // int width = int.parse(windowSize.width.toString());
-      // int height = int.parse(windowSize.height.toString());
-      Adapt.init(standardW: 650, standardH: 800);
+
+    if (!Adapt.isInitialized) {
+      Adapt.init(standardW: 375, standardH: 812);
     }
   }
 
@@ -139,7 +136,8 @@ class MainState extends State<MainApp>
 
 
   @override
-  void didChangeMetrics() {
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     if (!Adapt.isInitialized) {
       Adapt.init(standardW: 375, standardH: 812);
       setState(() {});

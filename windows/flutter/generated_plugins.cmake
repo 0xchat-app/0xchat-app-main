@@ -7,19 +7,24 @@ list(APPEND FLUTTER_PLUGIN_LIST
   bitsdojo_window_windows
   connectivity_plus
   emoji_picker_flutter
+  fc_native_video_thumbnail
   file_selector_windows
+  flutter_inappwebview_windows
   flutter_webrtc
   isar_flutter_libs
   local_auth_windows
   ox_calling
   permission_handler_windows
   rive_common
+  screen_retriever_windows
   share_plus
   url_launcher_windows
+  window_manager
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST
   flutter_zxing
+  nostr_mls_package
 )
 
 set(PLUGIN_BUNDLED_LIBRARIES)
