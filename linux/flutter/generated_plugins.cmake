@@ -4,17 +4,21 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   audioplayers_linux
+  bitsdojo_window_linux
   emoji_picker_flutter
   file_selector_linux
   flutter_webrtc
   isar_flutter_libs
   ox_calling
   rive_common
+  screen_retriever_linux
   url_launcher_linux
+  window_manager
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST
   flutter_zxing
+  nostr_mls_package
 )
 
 set(PLUGIN_BUNDLED_LIBRARIES)

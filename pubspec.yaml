@@ -31,15 +31,15 @@ dependencies:
   cupertino_icons: ^1.0.0
   encrypt: ^5.0.3
   flutter_device_type: ^0.4.0
-  flutter_inappwebview: ^6.0.0
+  flutter_inappwebview: ^6.1.5
+  image_picker_android: ^0.8.12+21
+  http_parser: 4.0.2
 
   # core
   chatcore:
     path: packages/0xchat-core
   nostr_core_dart:
     path: packages/nostr-dart
-  flutter_webrtc:
-    path: packages/flutter-webrtc
 
   # base framework
   ox_module_service:
@@ -92,15 +92,6 @@ dependency_overrides:
   file_selector_linux: 0.9.2+1
   collection: 1.18.0
   logging: 1.2.0
-  sqflite:
-    path: packages/base_framework/sqflite
-  flutter_inappwebview_ios:
-    path: packages/base_framework/flutter_inappwebview_ios
-  flutter_inappwebview_macos:
-    git:
-      url: https://github.com/andychucs/flutter_inappwebview.git
-      ref: master
-      path: flutter_inappwebview_macos
   url_launcher_linux:
     git:
       url: https://github.com/flutter/packages.git

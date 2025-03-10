@@ -9,12 +9,6 @@
 //@import scan;
 //#endif
 
-#if __has_include(<sqflite/SqflitePlugin.h>)
-#import <sqflite/SqflitePlugin.h>
-#else
-@import sqflite;
-#endif
-
 #if __has_include(<ox_common/OXCCommonPlugin.h>)
 #import <ox_common/OXCCommonPlugin.h>
 #else
@@ -123,7 +117,6 @@ static NSString *_kReloadChannelName = @"reload";
     [OXPerferencePlugin registerWithRegistrar:[_engine registrarForPlugin:@"OXPerference"]];
     [GeneratedPluginRegistrant registerWithRegistry:_engine];
 //    [ScanPlugin registerWithRegistrar:[_engine registrarForPlugin:@"ScanPlugin"]];
-    [SqflitePlugin registerWithRegistrar:[_engine registrarForPlugin:@"SqflitePlugin"]];
     [OXCCommonPlugin registerWithRegistrar:[_engine registrarForPlugin:@"OXCCommonPlugin"]];
     [OXNetworkPlugin registerWithRegistrar:[_engine registrarForPlugin:@"OXNetworkPlugin"]];
     [OXPushPlugin registerWithRegistrar:[_engine registrarForPlugin:@"OXPushPlugin"]];
