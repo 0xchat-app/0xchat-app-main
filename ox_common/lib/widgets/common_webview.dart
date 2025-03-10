@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/widgets/common_webview+nostr.dart';
 import 'package:ox_common/widgets/common_webview_app_bar.dart';
@@ -11,6 +10,8 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_theme/ox_theme.dart';
 
+typedef JavascriptMessageHandler = void Function(JavaScriptMessage message);
+final RegExp _validChannelNames = RegExp(r'^[a-zA-Z_][a-zA-Z0-9_]*$');
 
 typedef UrlCallBack = void Function(String);
 
@@ -38,11 +39,9 @@ class CommonWebView extends StatefulWidget {
 
 class CommonWebViewState<T extends CommonWebView> extends State<T>
     with CommonJSMethodMixin<T> {
-  final Completer<WebViewController> _controller =
-      Completer<WebViewController>();
-  late WebViewController currentController;
 
-  Future<WebViewController> get controller => _controller.future;
+  final WebViewController currentController = WebViewController();
+  late NavigationDelegate webViewDelegate;
 
   double loadProgress = 0;
   bool showProgress = false;
@@ -51,11 +50,55 @@ class CommonWebViewState<T extends CommonWebView> extends State<T>
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    // Enable hybrid composition.
-    if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
+
+    prepareWebViewDelegate();
+    prepareWebViewController();
   }
+
+  void prepareWebViewDelegate() {
+    webViewDelegate = NavigationDelegate(
+      onPageFinished: (_) {
+        if (mounted) {
+          setState(() {
+            showProgress = false;
+          });
+        }
+        currentController.runJavaScript(windowNostrJavaScript);
+      },
+      onProgress: (progress) {
+        if (loadProgress != 1) {
+          if(mounted){
+            setState(() {
+              loadProgress = progress / 100;
+              showProgress = true;
+            });
+          }
+        }
+      },
+      onNavigationRequest: (request) {
+        widget.urlCallback?.call(request.url);
+        return NavigationDecision.navigate;
+      },
+    );
+  }
+
+  void prepareWebViewController() {
+    currentController.setNavigationDelegate(webViewDelegate);
+
+    final isLocalHtmlResource = widget.isLocalHtmlResource;
+    if (isLocalHtmlResource) {
+      currentController.loadFile(widget.url);
+    } else {
+      currentController.loadRequest(Uri.parse(formatUrl(widget.url)));
+    }
+
+    nostrChannels?.forEach((channel) => currentController.addJavaScriptChannel(
+      channel.name,
+      onMessageReceived: channel.onMessageReceived,
+    ),);
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -65,9 +108,8 @@ class CommonWebViewState<T extends CommonWebView> extends State<T>
         ? WillPopScope(
             child: _root(),
             onWillPop: () async {
-              WebViewController webViewController = await controller;
-              if (await webViewController.canGoBack()) {
-                webViewController.goBack();
+              if (await currentController.canGoBack()) {
+                currentController.goBack();
                 return false;
               }
               return true;
@@ -104,47 +146,15 @@ class CommonWebViewState<T extends CommonWebView> extends State<T>
   }
 
   Widget buildWebView() {
-    final isLocalHtmlResource = widget.isLocalHtmlResource;
-    return WebView(
-        debuggingEnabled: kDebugMode,
-        initialUrl: isLocalHtmlResource
-            ? widget.url
-            : Uri.encodeFull(formatUrl(widget.url)),
-        javascriptMode: JavascriptMode.unrestricted,
-        onWebViewCreated: (WebViewController webViewController) {
-          currentController = webViewController;
-          _controller.complete(webViewController);
-        },
-        javascriptChannels: nostrChannels,
-        onPageFinished: (url) {
-          if(mounted){
-            setState(() {
-              showProgress = false;
-            });
-          }
-
-          currentController.runJavascript(windowNostrJavaScript);
-        },
-        onProgress: (process) {
-          if (loadProgress != 1) {
-            if(mounted){
-              setState(() {
-                loadProgress = process / 100;
-                showProgress = true;
-              });
-            }
-          }
-        },
-        navigationDelegate: (navigationDelegate) async {
-          widget.urlCallback?.call(navigationDelegate.url);
-          return NavigationDecision.navigate;
-        });
+    return WebViewWidget(
+      controller: currentController,
+    );
   }
 
   _renderAppBar() {
     return CommonWebViewAppBar(
       title: Text('${widget.title ?? ""}'),
-      webViewControllerFuture: controller,
+      webViewControllerFuture: Future.value(currentController),
     );
   }
 
@@ -158,4 +168,32 @@ class CommonWebViewState<T extends CommonWebView> extends State<T>
           "?lang=${Localized.getCurrentLanguage().symbol()}&theme=${ThemeManager.getCurrentThemeStyle().value()}";
     }
   }
+}
+
+
+class JavascriptChannel {
+  /// Constructs a JavaScript channel.
+  ///
+  /// The parameters `name` and `onMessageReceived` must not be null.
+  JavascriptChannel({
+    required this.name,
+    required this.onMessageReceived,
+  })  : assert(name.isNotEmpty),
+        assert(_validChannelNames.hasMatch(name));
+
+  /// The channel's name.
+  ///
+  /// Passing this channel object as part of a [WebView.javascriptChannels] adds a channel object to
+  /// the JavaScript window object's property named `name`.
+  ///
+  /// The name must start with a letter or underscore(_), followed by any combination of those
+  /// characters plus digits.
+  ///
+  /// Note that any JavaScript existing `window` property with this name will be overriden.
+  ///
+  /// See also [WebView.javascriptChannels] for more details on the channel registration mechanism.
+  final String name;
+
+  /// A callback that's invoked when a message is received through the channel.
+  final JavascriptMessageHandler onMessageReceived;
 }

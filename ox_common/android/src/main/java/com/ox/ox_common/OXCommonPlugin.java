@@ -18,6 +18,7 @@ import androidx.core.content.FileProvider;
 import com.ox.ox_common.activitys.PermissionActivity;
 import com.ox.ox_common.activitys.SelectPicsActivity;
 import com.ox.ox_common.provides.CustomAnalyzeCallback;
+import com.ox.ox_common.utils.ClipboardHelper;
 import com.uuzuche.lib_zxing.activity.CodeUtils;
 
 import java.io.File;
@@ -114,6 +115,20 @@ public class OXCommonPlugin implements FlutterPlugin, MethodCallHandler, Activit
             case "request34MediaPermission":
                 int mediaType = call.argument("type");
                 request34MediaPermission(mediaType);
+                break;
+            case "hasImages":
+                if (mResult != null) {
+                    boolean hasImages = ClipboardHelper.hasImages(mContext);
+                    mResult.success(hasImages);
+                    mResult = null;
+                }
+                break;
+            case "getImages":
+                if (mResult != null) {
+                    List<String> imagePaths = ClipboardHelper.getImages(mContext);
+                    mResult.success(imagePaths);
+                    mResult = null;
+                }
                 break;
             default:
                 result.notImplemented();

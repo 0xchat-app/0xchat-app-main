@@ -8,7 +8,7 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -534,10 +534,10 @@ class _CommonImageGalleryState extends State<CommonImageGallery>
         });
 
         if (isGIF) {
-          result = await ImageGallerySaver.saveFile(imageFile.path, isReturnPathOfIOS: true);
+          result = await ImageGallerySaverPlus.saveFile(imageFile.path, isReturnPathOfIOS: true);
         } else {
           final imageData = await imageFile.readAsBytes();
-          result = await ImageGallerySaver.saveImage(Uint8List.fromList(imageData));
+          result = await ImageGallerySaverPlus.saveImage(Uint8List.fromList(imageData));
         }
       } catch (e) {
         unawaited(CommonToast.instance.show(context, e.toString()));
@@ -548,13 +548,13 @@ class _CommonImageGalleryState extends State<CommonImageGallery>
       if (decryptKey != null) {
         final completer = Completer();
         await DecryptedCacheManager.decryptFile(imageFile, decryptKey, nonce: decryptNonce,).then((decryptFile) async {
-          result = await ImageGallerySaver.saveImage(decryptFile.readAsBytesSync());
+          result = await ImageGallerySaverPlus.saveImage(decryptFile.readAsBytesSync());
           completer.complete();
         });
         await completer.future;
       } else {
         final imageData = await imageFile.readAsBytes();
-        result = await ImageGallerySaver.saveImage(Uint8List.fromList(imageData));
+        result = await ImageGallerySaverPlus.saveImage(Uint8List.fromList(imageData));
       }
     }
 

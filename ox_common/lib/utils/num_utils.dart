@@ -266,4 +266,12 @@ extension NullableNumOperators<T extends num> on T? {
       return (this! % value) as T;
     }
   }
+
+  bool isValid() {
+    if (this == null) {
+      return false;
+    } else {
+      return !this!.isNaN && this!.isFinite;
+    }
+  }
 }

@@ -69,7 +69,7 @@ window.nostr = {
   JavascriptChannel getPublicKeyChannel(BuildContext context) {
     return JavascriptChannel(
         name: 'JS_getPublicKey',
-        onMessageReceived: (JavascriptMessage message) async {
+        onMessageReceived: (JavaScriptMessage message) async {
           var jsonObj = jsonDecode(message.message);
           var resultId = jsonObj["resultId"];
           bool result = await getAgreement(
@@ -79,11 +79,11 @@ window.nostr = {
           if (result) {
             String pubkey = Account.sharedInstance.currentPubkey;
             var script = "window.nostr.resolve(\"$resultId\", \"$pubkey\");";
-            await currentController.runJavascript(script);
+            await currentController.runJavaScript(script);
           } else {
             var resultStr = 'User Rejected';
             var script = "window.nostr.reject(\"$resultId\", \"$resultStr\");";
-            await currentController.runJavascript(script);
+            await currentController.runJavaScript(script);
           }
         });
   }
@@ -91,7 +91,7 @@ window.nostr = {
   JavascriptChannel signEventChannel(BuildContext context) {
     return JavascriptChannel(
         name: 'JS_signEvent',
-        onMessageReceived: (JavascriptMessage message) async {
+        onMessageReceived: (JavaScriptMessage message) async {
           var jsonObj = jsonDecode(message.message);
           var resultId = jsonObj["resultId"];
           var content = jsonObj["msg"];
@@ -101,14 +101,14 @@ window.nostr = {
           String base64Json = base64.encode(utf8.encode(eventResultStr));
           var script =
               "window.nostr.resolve(\"$resultId\", JSON.parse(atob(\"$base64Json\")));";
-          await currentController.runJavascript(script);
+          await currentController.runJavaScript(script);
         });
   }
 
   JavascriptChannel encryptNIP04Channel(BuildContext context) {
     return JavascriptChannel(
         name: 'JS_nip04_encrypt',
-        onMessageReceived: (JavascriptMessage message) async {
+        onMessageReceived: (JavaScriptMessage message) async {
           var jsonObj = jsonDecode(message.message);
           var resultId = jsonObj["resultId"];
           bool result = await getAgreement(
@@ -124,12 +124,12 @@ window.nostr = {
                   await Account.sharedInstance.encryptNip04(plaintext, pubkey);
               var script =
                   "window.nostr.resolve(\"$resultId\", \"$resultStr\");";
-              await currentController.runJavascript(script);
+              await currentController.runJavaScript(script);
             }
           } else {
             var resultStr = 'User Rejected';
             var script = "window.nostr.reject(\"$resultId\", \"$resultStr\");";
-            await currentController.runJavascript(script);
+            await currentController.runJavaScript(script);
           }
         });
   }
@@ -137,7 +137,7 @@ window.nostr = {
   JavascriptChannel decryptNIP04Channel(BuildContext context) {
     return JavascriptChannel(
         name: 'JS_nip04_decrypt',
-        onMessageReceived: (JavascriptMessage message) async {
+        onMessageReceived: (JavaScriptMessage message) async {
           var jsonObj = jsonDecode(message.message);
           var resultId = jsonObj["resultId"];
           bool result = await getAgreement(
@@ -153,12 +153,12 @@ window.nostr = {
                   await Account.sharedInstance.decryptNip04(ciphertext, pubkey);
               var script =
                   "window.nostr.resolve(\"$resultId\", \"$resultStr\");";
-              await currentController.runJavascript(script);
+              await currentController.runJavaScript(script);
             }
           } else {
             var resultStr = 'User Rejected';
             var script = "window.nostr.reject(\"$resultId\", \"$resultStr\");";
-            await currentController.runJavascript(script);
+            await currentController.runJavaScript(script);
           }
         });
   }
@@ -166,7 +166,7 @@ window.nostr = {
   JavascriptChannel getRelaysChannel(BuildContext context) {
     return JavascriptChannel(
         name: 'JS_getRelays',
-        onMessageReceived: (JavascriptMessage message) async {
+        onMessageReceived: (JavaScriptMessage message) async {
           var jsonObj = jsonDecode(message.message);
           var resultId = jsonObj["resultId"];
           var relayMaps = {};
@@ -178,7 +178,7 @@ window.nostr = {
           resultStr = resultStr.replaceAll("\"", "\\\"");
           var script =
               "window.nostr.resolve(\"$resultId\", JSON.parse(\"$resultStr\"));";
-          await currentController.runJavascript(script);
+          await currentController.runJavaScript(script);
         });
   }
 

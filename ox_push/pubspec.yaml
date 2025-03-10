@@ -11,7 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  flutter_local_notifications: ^16.3.3
+  flutter_local_notifications: ^18.0.1
   unifiedpush: ^5.0.2
 
   ox_common:

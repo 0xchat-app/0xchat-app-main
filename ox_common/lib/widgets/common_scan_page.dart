@@ -16,7 +16,7 @@ import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:flutter_zxing/flutter_zxing.dart';
 import 'common_image.dart';
-import 'package:device_info/device_info.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 
 class CommonScanPage extends StatefulWidget {
   @override
@@ -61,8 +61,6 @@ class CommonScanPageState extends State<CommonScanPage> with SingleTickerProvide
 
   @override
   Widget build(BuildContext context) {
-
-
     return Scaffold(
       body: Stack(
         fit: StackFit.expand,
@@ -244,18 +242,19 @@ class CommonScanPageState extends State<CommonScanPage> with SingleTickerProvide
   }
 
   Widget _buildQrView(BuildContext context) {
-    return  ReaderWidget(
+    return ReaderWidget(
       onScan: _onScanSuccess,
       onScanFailure: _onScanFailure,
       scanDelay: Duration(milliseconds: 500),
       resolution: ResolutionPreset.high,
       lensDirection: CameraLensDirection.back,
-      scannerOverlay: CustomScannerOverlay(
-        cutOutSize: _scanArea,
+      scannerOverlay: FixedScannerOverlay(
         borderColor: Colors.white,
-        borderRadius: 0,
+        overlayColor: Colors.black45,
+        borderRadius: 1,
         borderLength: 20,
-        borderWidth: Adapt.px(4),
+        borderWidth: 4.px,
+        cutOutSize: _scanArea,
       ),
       showFlashlight: false,
       showGallery: false,

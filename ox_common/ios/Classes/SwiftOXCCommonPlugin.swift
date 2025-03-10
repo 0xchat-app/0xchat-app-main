@@ -21,14 +21,12 @@ public class SwiftOXCCommonPlugin: NSObject, FlutterPlugin, UINavigationControll
     }
     
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        print("=====>ox_common \(call.method)")
         self.result = result
         switch call.method {
         case "getPlatformVersion":
             result("iOS " + UIDevice.current.systemVersion)
         case "getImageFromCamera":
             do {
-                print("=====>getImageFromCamera")
                 let params = call.arguments as? [String : Any]
                 var allowEditing = false
                 if let isNeedTailor = params?["isNeedTailor"] as? Bool {
@@ -99,6 +97,10 @@ public class SwiftOXCCommonPlugin: NSObject, FlutterPlugin, UINavigationControll
             OXCFileHelper.importFile(sender: controller) { filePath in
                 result(filePath)
             }
+        case "hasImages":
+            result(ClipboardHelper.hasImages())
+        case "getImages":
+            result(ClipboardHelper.getImages())
         default:
             break;
         }
