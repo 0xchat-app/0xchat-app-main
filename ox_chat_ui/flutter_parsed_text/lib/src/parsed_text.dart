@@ -194,7 +194,7 @@ class ParsedText extends StatelessWidget {
     if (selectable) {
       return SelectableText.rich(
         TextSpan(children: <InlineSpan>[...widgets], style: style),
-        maxLines: maxLines,
+        // maxLines: maxLines,
         strutStyle: strutStyle,
         textWidthBasis: textWidthBasis,
         textAlign: alignment,
