@@ -545,12 +545,26 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
   }
 
   /// Handles the press event for the "Copy" button in a menu item.
-  void _copyMenuItemPressHandler(types.Message message) {
+  void _copyMenuItemPressHandler(types.Message message) async {
     if (message is types.TextMessage) {
       Clipboard.setData(ClipboardData(text: message.text));
     } else if (message.isSingleEcashMessage) {
       final token = EcashV2MessageEx(message as types.CustomMessage).tokenList.first;
       Clipboard.setData(ClipboardData(text: token));
+    } else if (message is types.CustomMessage && message.customType == CustomMessageType.imageSending) {
+      var path = ImageSendingMessageEx(message).path;
+      final url = ImageSendingMessageEx(message).url;
+      if (path.isEmpty && url.isNotEmpty) {
+        final manager = OXFileCacheManager.get(
+          encryptKey: message.decryptKey,
+          encryptNonce: message.decryptNonce,
+        );
+        final file = await manager.getFileFromCache(url);
+        path = file?.file.path ?? '';
+      }
+      if (path.isNotEmpty) {
+        OXClipboard.copyImageToClipboard(path);
+      }
     }
   }
 
