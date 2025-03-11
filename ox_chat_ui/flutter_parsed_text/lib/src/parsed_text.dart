@@ -40,7 +40,7 @@ class ParsedText extends StatelessWidget {
   ///
   /// For example, if the text scale factor is 1.5, text will be 50% larger than
   /// the specified font size.
-  final double textScaleFactor;
+  final TextScaler textScaler;
 
   /// An optional maximum number of lines for the text to span, wrapping if necessary.
   /// If the text exceeds the given number of lines, it will be truncated according
@@ -85,7 +85,7 @@ class ParsedText extends StatelessWidget {
     this.textDirection,
     this.softWrap = true,
     this.overflow = TextOverflow.clip,
-    this.textScaleFactor = 1.0,
+    this.textScaler = TextScaler.noScaling,
     this.strutStyle,
     this.textWidthBasis = TextWidthBasis.parent,
     this.maxLines,
@@ -211,7 +211,7 @@ class ParsedText extends StatelessWidget {
     return RichText(
       softWrap: softWrap,
       overflow: overflow,
-      textScaleFactor: textScaleFactor,
+      textScaler: textScaler,
       maxLines: maxLines,
       strutStyle: strutStyle,
       textWidthBasis: textWidthBasis,

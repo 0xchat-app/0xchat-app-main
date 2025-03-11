@@ -1,4 +1,3 @@
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
@@ -13,6 +12,7 @@ import 'package:scroll_to_index/scroll_to_index.dart';
 
 import '../chat_l10n.dart';
 import '../chat_theme.dart';
+import '../chat_ui_config.dart';
 import '../models/bubble_rtl_alignment.dart';
 import '../models/date_header.dart';
 import '../models/emoji_enlargement_behavior.dart';
@@ -45,9 +45,9 @@ class Chat extends StatefulWidget {
   /// Creates a chat widget.
   const Chat({
     super.key,
+    this.uiConfig = const ChatUIConfig(),
     this.isContentInteractive = true,
     this.audioMessageBuilder,
-    this.avatarBuilder,
     this.chatId,
     this.anchorMsgId,
     this.bubbleBuilder,
@@ -56,8 +56,6 @@ class Chat extends StatefulWidget {
     this.customCenterWidget,
     this.customBottomWidget,
     this.customDateHeaderText,
-    this.customMessageBuilder,
-    this.customStatusBuilder,
     this.dateFormat,
     this.dateHeaderBuilder,
     this.dateHeaderThreshold = 900000,
@@ -83,7 +81,6 @@ class Chat extends StatefulWidget {
     this.l10n = const ChatL10nEn(),
     this.listBottomWidget,
     required this.messages,
-    this.nameBuilder,
     this.onAttachmentPressed,
     this.onAvatarTap,
     this.onBackgroundTap,
@@ -115,11 +112,7 @@ class Chat extends StatefulWidget {
     this.userAgent,
     this.useTopSafeAreaInset,
     this.videoMessageBuilder,
-    this.repliedMessageBuilder,
     this.onVoiceSend,
-    this.longPressWidgetBuilder,
-    this.reactionViewBuilder,
-    this.codeBlockBuilder,
     this.onGifSend,
     this.inputBottomView,
     this.mentionUserListWidget,
@@ -135,15 +128,14 @@ class Chat extends StatefulWidget {
     this.replySwipeTriggerCallback,
   });
 
+  final ChatUIConfig uiConfig;
+
   final bool isContentInteractive;
   final ChatHintParam? bottomHintParam;
   final bool enableBottomWidget;
 
   /// See [Message.audioMessageBuilder].
   final Widget Function(types.AudioMessage, {required int messageWidth})? audioMessageBuilder;
-
-  /// See [Message.avatarBuilder].
-  final Widget Function(types.Message message)? avatarBuilder;
 
   final String? chatId;
 
@@ -180,17 +172,6 @@ class Chat extends StatefulWidget {
   /// for example today, yesterday and before. Or you can just return the same
   /// date header for any message.
   final String Function(DateTime)? customDateHeaderText;
-
-  /// See [Message.customMessageBuilder].
-  final Widget Function({
-    required types.CustomMessage message,
-    required int messageWidth,
-    required Widget reactionWidget,
-  })? customMessageBuilder;
-
-  /// See [Message.customStatusBuilder].
-  final Widget Function(types.Message message, {required BuildContext context})?
-      customStatusBuilder;
 
   /// Allows you to customize the date format. IMPORTANT: only for the date,
   /// do not return time here. See [timeFormat] to customize the time format.
@@ -273,9 +254,6 @@ class Chat extends StatefulWidget {
 
   /// List of [types.Message] to render in the chat widget.
   final List<types.Message> messages;
-
-  /// See [Message.nameBuilder].
-  final Widget Function(String userId)? nameBuilder;
 
   /// See [Input.onAttachmentPressed].
   final VoidCallback? onAttachmentPressed;
@@ -387,18 +365,6 @@ class Chat extends StatefulWidget {
 
   /// See [Message.videoMessageBuilder].
   final Widget Function(types.VideoMessage, {required int messageWidth})? videoMessageBuilder;
-
-  /// See [Message.repliedMessageBuilder].
-  final Widget Function(types.Message, {required int messageWidth})? repliedMessageBuilder;
-
-  /// Create a widget that pops up when long pressing on a message
-  final Widget Function(
-          BuildContext context, types.Message message, CustomPopupMenuController controller)?
-      longPressWidgetBuilder;
-
-  final Widget Function(types.Message, {required int messageWidth})? reactionViewBuilder;
-
-  final Widget Function({required BuildContext context, required String codeText,})? codeBlockBuilder;
 
   final Widget? inputBottomView;
 
@@ -787,12 +753,10 @@ class ChatState extends State<Chat> {
 
         messageWidget = Message(
           key: widgetKey,
+          uiConfig: widget.uiConfig,
           audioMessageBuilder: widget.audioMessageBuilder,
-          avatarBuilder: widget.avatarBuilder,
           bubbleBuilder: widget.bubbleBuilder,
           bubbleRtlAlignment: widget.bubbleRtlAlignment,
-          customMessageBuilder: widget.customMessageBuilder,
-          customStatusBuilder: widget.customStatusBuilder,
           emojiEnlargementBehavior: widget.emojiEnlargementBehavior,
           fileMessageBuilder: widget.fileMessageBuilder,
           hideBackgroundOnEmojiMessages: widget.hideBackgroundOnEmojiMessages,
@@ -800,7 +764,6 @@ class ChatState extends State<Chat> {
           imageMessageBuilder: widget.imageMessageBuilder,
           message: message,
           messageWidth: messageWidth,
-          nameBuilder: widget.nameBuilder,
           onAvatarTap: widget.onAvatarTap,
           onMessageDoubleTap: widget.onMessageDoubleTap,
           onMessageLongPress: widget.onMessageLongPress,
@@ -820,10 +783,6 @@ class ChatState extends State<Chat> {
           usePreviewData: widget.usePreviewData,
           userAgent: widget.userAgent,
           videoMessageBuilder: widget.videoMessageBuilder,
-          repliedMessageBuilder: widget.repliedMessageBuilder,
-          longPressWidgetBuilder: widget.longPressWidgetBuilder,
-          reactionViewBuilder: widget.reactionViewBuilder,
-          codeBlockBuilder: widget.codeBlockBuilder,
           replySwipeTriggerCallback: widget.replySwipeTriggerCallback,
         );
       }

@@ -349,12 +349,12 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
       }
     } else if (message is types.TextMessage && message.text.length > message.maxLimit) {
       final text = message.text;
-      OXNavigator.presentPage(context, (context) =>
-          CommonLongContentPage(
-            content: text,
-            author: message.author.sourceObject,
-            timeStamp: message.createdAt,
-          ));
+      CommonLongContentPage.present(
+        context: context,
+        content: text,
+        author: message.author.sourceObject,
+        timeStamp: message.createdAt,
+      );
     }
   }
 

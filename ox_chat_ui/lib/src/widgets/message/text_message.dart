@@ -9,6 +9,7 @@ import 'package:ox_common/utils/web_url_helper.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../chat_ui_config.dart';
 import '../../models/emoji_enlargement_behavior.dart';
 import '../../models/pattern_style.dart';
 import '../../util.dart';
@@ -23,14 +24,13 @@ class TextMessage extends StatelessWidget {
     required this.emojiEnlargementBehavior,
     required this.hideBackgroundOnEmojiMessages,
     required this.message,
-    this.nameBuilder,
+    required this.uiConfig,
     this.onPreviewDataFetched,
     this.options = const TextMessageOptions(),
     required this.showName,
     required this.usePreviewData,
     this.userAgent,
     this.maxLimit,
-    this.codeBlockBuilder,
     this.onSecondaryTap,
   }) : messageText = message.text.trim();
 
@@ -44,10 +44,6 @@ class TextMessage extends StatelessWidget {
   final types.TextMessage message;
 
   final String messageText;
-
-  /// This is to allow custom user name builder
-  /// By using this we can fetch newest user info based on id
-  final Widget Function(String userId)? nameBuilder;
 
   /// See [LinkPreview.onPreviewDataFetched].
   final void Function(types.TextMessage, PreviewData)?
@@ -67,7 +63,7 @@ class TextMessage extends StatelessWidget {
 
   final int? maxLimit;
 
-  final Widget Function({required BuildContext context, required String codeText,})? codeBlockBuilder;
+  final ChatUIConfig uiConfig;
 
   final GestureTapCallback? onSecondaryTap;
 
@@ -153,24 +149,19 @@ class TextMessage extends StatelessWidget {
     bool enlargeEmojis,
   ) {
     final theme = InheritedChatTheme.of(context).theme;
-    final bodyLinkTextStyle = user.id == message.author.id
+    final isMessageSender = user.id == message.author.id;
+    final bodyLinkTextStyle = isMessageSender
         ? InheritedChatTheme.of(context).theme.sentMessageBodyLinkTextStyle
         : InheritedChatTheme.of(context).theme.receivedMessageBodyLinkTextStyle;
-    final bodyTextStyle = user.id == message.author.id
+    final bodyTextStyle = isMessageSender
         ? theme.sentMessageBodyTextStyle
         : theme.receivedMessageBodyTextStyle;
-    final boldTextStyle = user.id == message.author.id
+    final boldTextStyle = isMessageSender
         ? theme.sentMessageBodyBoldTextStyle
         : theme.receivedMessageBodyBoldTextStyle;
-    final codeTextStyle = user.id == message.author.id
-        ? theme.sentMessageBodyCodeTextStyle
-        : theme.receivedMessageBodyCodeTextStyle;
-    final emojiTextStyle = user.id == message.author.id
+    final emojiTextStyle = isMessageSender
         ? theme.sentEmojiMessageTextStyle
         : theme.receivedEmojiMessageTextStyle;
-    final moreBtnColor = user.id == message.author.id
-        ? Colors.black.withOpacity(0.6)
-        : ThemeColor.gradientMainStart;
 
     if (enlargeEmojis) {
       if (options.isTextSelectable) {
@@ -179,16 +170,15 @@ class TextMessage extends StatelessWidget {
       return Text(messageText, style: emojiTextStyle);
     }
     return TextMessageText(
+      uiConfig: uiConfig,
       bodyLinkTextStyle: bodyLinkTextStyle,
       bodyTextStyle: bodyTextStyle,
       boldTextStyle: boldTextStyle,
-      codeTextStyle: codeTextStyle,
-      codeBlockBuilder: codeBlockBuilder,
       options: options,
-      text: messageText,
+      message: message,
       overflow: TextOverflow.ellipsis,
       maxLimit: maxLimit,
-      moreBtnColor: moreBtnColor,
+      isMessageSender: isMessageSender,
       onSecondaryTap: onSecondaryTap,
       maxLines: 100,
     );
@@ -197,21 +187,22 @@ class TextMessage extends StatelessWidget {
 
 /// Widget to reuse the markdown capabilities, e.g., for previews.
 class TextMessageText extends StatelessWidget {
-  const TextMessageText({
+  TextMessageText({
     super.key,
     this.bodyLinkTextStyle,
     required this.bodyTextStyle,
+    required this.uiConfig,
     this.boldTextStyle,
-    this.codeTextStyle,
-    this.codeBlockBuilder,
     this.maxLines,
     this.options = const TextMessageOptions(),
     this.overflow = TextOverflow.clip,
-    required this.text,
+    required this.message,
     this.maxLimit,
-    this.moreBtnColor,
+    required this.isMessageSender,
     this.onSecondaryTap,
-  });
+  }) : messageText = message.text.trim();
+
+  final ChatUIConfig uiConfig;
 
   /// Style to apply to anything that matches a link.
   final TextStyle? bodyLinkTextStyle;
@@ -222,11 +213,6 @@ class TextMessageText extends StatelessWidget {
   /// Style to apply to anything that matches bold markdown.
   final TextStyle? boldTextStyle;
 
-  /// Style to apply to anything that matches code markdown.
-  final TextStyle? codeTextStyle;
-  
-  final Widget Function({required BuildContext context, required String codeText,})? codeBlockBuilder;
-
   /// See [ParsedText.maxLines].
   final int? maxLines;
 
@@ -236,35 +222,44 @@ class TextMessageText extends StatelessWidget {
   /// See [ParsedText.overflow].
   final TextOverflow overflow;
 
+  final types.TextMessage message;
+
   /// Text that is shown as markdown.
-  final String text;
+  final String messageText;
 
   final int? maxLimit;
 
-  final Color? moreBtnColor;
+  final bool isMessageSender;
 
   final GestureTapCallback? onSecondaryTap;
 
   @override
   Widget build(BuildContext context) {
-    var text = this.text;
+    var text = messageText;
     final maxLimit = this.maxLimit;
     final moreText = Localized.text('ox_chat.more');
     if (maxLimit != null && text.length > maxLimit) {
       final moreFlag = '\$\{0xchat_more_flag\}';
-      text = this.text.substring(0, maxLimit) + '...' + moreFlag;
+      text = text.substring(0, maxLimit) + '...' + moreFlag;
     }
     return ParsedText(
       parse: [
         ...options.matchers,
         MatchText(
           pattern: r'\$\{0xchat_more_flag\}',
-          renderWidget: ({required String text, required String pattern,}) => WidgetSpan(
+          renderWidget: ({required String text, required String pattern,}) =>
+          uiConfig.moreButtonBuilder?.call(
+            context: context,
+            message: message,
+            moreText: moreText,
+            isMessageSender: isMessageSender,
+            bodyTextStyle: bodyTextStyle,
+          ) ?? WidgetSpan(
             child: IgnorePointer(
               child: Text(
                 moreText,
                 style: bodyTextStyle.copyWith(
-                  color: moreBtnColor ?? Colors.blueAccent,
+                  color: Colors.blueAccent,
                   height: 1.1,
                 ),
               ),
@@ -307,20 +302,19 @@ class TextMessageText extends StatelessWidget {
         ),
         MatchText(
           pattern: PatternStyle.code.pattern,
-          style: codeTextStyle ??
-              bodyTextStyle.merge(PatternStyle.code.textStyle),
+          style: bodyTextStyle.merge(PatternStyle.code.textStyle),
           renderWidget: ({required String text, required String pattern,}) {
             final regex = RegExp(r'(?<=^|\s)```([\s\S]+?)```(?=\s|$)');
             final match = regex.firstMatch(text);
             final codeText = (match?.group(1) ?? text).trim();
             return TextSpan(
               children: [
-                if (!this.text.startsWith(text)) TextSpan(text: '\n'),
+                if (!messageText.startsWith(text)) TextSpan(text: '\n'),
                 WidgetSpan(
-                  child: codeBlockBuilder?.call(context: context, codeText: codeText)
+                  child: uiConfig.codeBlockBuilder?.call(context: context, codeText: codeText)
                       ?? Text(codeText, style: bodyTextStyle,),
                 ),
-                if (!this.text.endsWith(text)) TextSpan(text: '\n'),
+                if (!messageText.endsWith(text)) TextSpan(text: '\n'),
               ],
             );
           },
@@ -360,7 +354,7 @@ class TextMessageText extends StatelessWidget {
       style: bodyTextStyle,
       text: text,
       textWidthBasis: TextWidthBasis.longestLine,
-      textScaleFactor: MediaQuery.of(context).textScaleFactor,
+      textScaler: MediaQuery.of(context).textScaler,
       onSecondaryTap: onSecondaryTap,
     );
   }

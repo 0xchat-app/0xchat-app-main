@@ -1,9 +1,6 @@
 
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import 'package:flutter_vibrate/flutter_vibrate.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/platform_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -14,6 +11,7 @@ import 'package:ox_common/widgets/common_image.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../../ox_chat_ui.dart';
+import '../../chat_ui_config.dart';
 import '../../util.dart';
 import '../pop_menu/custom_pop_up_menu.dart';
 import '../state/inherited_chat_theme.dart';
@@ -29,12 +27,10 @@ import 'video_message.dart';
 class Message extends StatefulWidget {
   Message({
     super.key,
+    required this.uiConfig,
     this.audioMessageBuilder,
-    this.avatarBuilder,
     this.bubbleBuilder,
     this.bubbleRtlAlignment,
-    this.customMessageBuilder,
-    this.customStatusBuilder,
     required this.emojiEnlargementBehavior,
     this.fileMessageBuilder,
     required this.hideBackgroundOnEmojiMessages,
@@ -42,7 +38,6 @@ class Message extends StatefulWidget {
     this.imageMessageBuilder,
     required this.message,
     required this.messageWidth,
-    this.nameBuilder,
     this.onAvatarTap,
     this.onMessageDoubleTap,
     this.onMessageLongPress,
@@ -61,21 +56,14 @@ class Message extends StatefulWidget {
     required this.usePreviewData,
     this.userAgent,
     this.videoMessageBuilder,
-    this.repliedMessageBuilder,
-    this.longPressWidgetBuilder,
-    this.reactionViewBuilder,
-    this.codeBlockBuilder,
     this.replySwipeTriggerCallback,
   });
+
+  final ChatUIConfig uiConfig;
 
   /// Build an audio message inside predefined bubble.
   final Widget Function(types.AudioMessage, {required int messageWidth})?
   audioMessageBuilder;
-
-  /// Represents a widget for a user's avatar.
-  ///
-  /// If [avatarWidget] is `null`, the avatar will be hidden.
-  final Widget Function(types.Message message)? avatarBuilder;
 
   /// Customize the default bubble using this function. `child` is a content
   /// you should render inside your bubble, `message` is a current message
@@ -91,17 +79,6 @@ class Message extends StatefulWidget {
   /// Determine the alignment of the bubble for RTL languages. Has no effect
   /// for the LTR languages.
   final BubbleRtlAlignment? bubbleRtlAlignment;
-
-  /// Build a custom message inside predefined bubble.
-  final Widget Function({
-    required types.CustomMessage message,
-    required int messageWidth,
-    required Widget reactionWidget,
-  })? customMessageBuilder;
-
-  /// Build a custom status widgets.
-  final Widget Function(types.Message message, {required BuildContext context})?
-  customStatusBuilder;
 
   /// Controls the enlargement behavior of the emojis in the
   /// [types.TextMessage].
@@ -127,9 +104,6 @@ class Message extends StatefulWidget {
 
   /// Maximum message width.
   final int messageWidth;
-
-  /// See [TextMessage.nameBuilder].
-  final Widget Function(String userId)? nameBuilder;
 
   /// See [UserAvatar.onAvatarTap].
   final void Function(types.User)? onAvatarTap;
@@ -190,17 +164,6 @@ class Message extends StatefulWidget {
   /// Build an audio message inside predefined bubble.
   final Widget Function(types.VideoMessage, {required int messageWidth})?
   videoMessageBuilder;
-
-  final Widget Function(types.Message, {required int messageWidth})?
-  repliedMessageBuilder;
-
-  final Widget Function(types.Message, {required int messageWidth})?
-  reactionViewBuilder;
-
-  final Widget Function({required BuildContext context, required String codeText,})? codeBlockBuilder;
-
-  /// Create a widget that pops up when long pressing on a message
-  final Widget Function(BuildContext context, types.Message, CustomPopupMenuController controller)? longPressWidgetBuilder;
 
   final Function(types.Message)? replySwipeTriggerCallback;
 
@@ -322,7 +285,7 @@ class MessageState extends State<Message> {
   Widget _buildMessageContentView() {
     final user = InheritedUser.of(context).user;
     final currentUserIsAuthor = user.id == widget.message.author.id;
-    final avatarBuilder = widget.avatarBuilder;
+    final avatarBuilder = widget.uiConfig.avatarBuilder;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -432,11 +395,14 @@ class MessageState extends State<Message> {
       child: child,
     );
 
-  Widget _buildLongPressMenu() =>
-      widget.longPressWidgetBuilder?.call(context, widget.message, _popController) ?? const SizedBox();
+  Widget _buildLongPressMenu() => widget.uiConfig.longPressWidgetBuilder?.call(
+    context,
+    widget.message,
+    _popController,
+  ) ?? const SizedBox();
 
   Widget _avatarBuilder(Widget child) {
-    final avatarBuilder = widget.avatarBuilder;
+    final avatarBuilder = widget.uiConfig.avatarBuilder;
     if (avatarBuilder == null) return SizedBox();
     return avatarBuilder(widget.message);
   }
@@ -494,7 +460,7 @@ class MessageState extends State<Message> {
                   bubble,
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: widget.repliedMessageBuilder?.call(
+                    child: widget.uiConfig.repliedMessageBuilder?.call(
                       widget.message,
                       messageWidth: contentMaxWidth,
                     ),
@@ -515,7 +481,7 @@ class MessageState extends State<Message> {
     onTap: () {
       widget.onMessageStatusTap?.call(context, widget.message);
     },
-    child: widget.customStatusBuilder?.call(widget.message, context: context)
+    child: widget.uiConfig.customStatusBuilder?.call(widget.message, context: context)
         ?? MessageStatus(size: statusSize, status: widget.message.status),
   );
 
@@ -537,7 +503,7 @@ class MessageState extends State<Message> {
         break ;
       case types.MessageType.custom:
         final customMessage = widget.message as types.CustomMessage;
-        messageContentWidget = widget.customMessageBuilder?.call(
+        messageContentWidget = widget.uiConfig.customMessageBuilder?.call(
           message: customMessage,
           messageWidth: contentMaxWidth,
           reactionWidget: _reactionViewBuilder(),
@@ -568,17 +534,16 @@ class MessageState extends State<Message> {
           messageWidth: contentMaxWidth,
           showName: widget.showName,
         ) ?? TextMessage(
+          uiConfig: widget.uiConfig,
           emojiEnlargementBehavior: widget.emojiEnlargementBehavior,
           hideBackgroundOnEmojiMessages: widget.hideBackgroundOnEmojiMessages,
           message: textMessage,
-          nameBuilder: widget.nameBuilder,
           onPreviewDataFetched: widget.onPreviewDataFetched,
           options: widget.textMessageOptions,
           showName: widget.showName,
           usePreviewData: widget.usePreviewData,
           userAgent: widget.userAgent,
           maxLimit: textMessage.maxLimit,
-          codeBlockBuilder: widget.codeBlockBuilder,
           onSecondaryTap: () {
             _popController.showMenu();
           },
@@ -622,7 +587,7 @@ class MessageState extends State<Message> {
     ],
   );
 
-  Widget _reactionViewBuilder() => widget.reactionViewBuilder?.call(
+  Widget _reactionViewBuilder() => widget.uiConfig.reactionViewBuilder?.call(
     widget.message,
     messageWidth: contentMaxWidth,
   ) ?? const SizedBox();
