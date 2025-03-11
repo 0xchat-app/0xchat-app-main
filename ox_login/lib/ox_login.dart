@@ -34,7 +34,7 @@ class OXLogin extends OXFlutterModule {
       case 'LoginPage':
         bool isLoginShow = params?['isLoginShow'] ?? false;
 
-       return Navigator.push(context, FadeRouteCustom<T>(page: LoginPage(isLoginShow: isLoginShow)));
+       return Navigator.push(context, FadeRouteCustom<T>(page: LoginPage()));
     }
     return null;
   }
@@ -42,7 +42,7 @@ class OXLogin extends OXFlutterModule {
 
 
   Widget loginWidget(BuildContext context, bool? isLoginShow) {
-    return LoginPage(isLoginShow: isLoginShow);
+    return LoginPage();
   }
 }
 
