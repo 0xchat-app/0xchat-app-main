@@ -190,6 +190,7 @@ class TextMessage extends StatelessWidget {
       maxLimit: maxLimit,
       moreBtnColor: moreBtnColor,
       onSecondaryTap: onSecondaryTap,
+      maxLines: 100,
     );
   }
 }
