@@ -101,6 +101,12 @@ public class SwiftOXCCommonPlugin: NSObject, FlutterPlugin, UINavigationControll
             result(ClipboardHelper.hasImages())
         case "getImages":
             result(ClipboardHelper.getImages())
+        case "copyImageToClipboard":
+            guard let imagePath = (call.arguments as? [String: String])?["imagePath"] else {
+                result(false)
+                return
+            }
+            result(ClipboardHelper.copyImageToClipboard(imagePath: imagePath))
         default:
             break;
         }

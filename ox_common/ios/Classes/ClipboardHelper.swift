@@ -34,4 +34,13 @@ class ClipboardHelper {
         }
         return []
     }
+    
+    static func copyImageToClipboard(imagePath: String) -> Bool {
+        if let uiImage = UIImage(contentsOfFile: imagePath) {
+            UIPasteboard.general.image = uiImage
+            return true
+        } else {
+            return false
+        }
+    }
 }
