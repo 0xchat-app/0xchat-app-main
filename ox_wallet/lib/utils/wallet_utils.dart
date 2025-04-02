@@ -40,7 +40,7 @@ class WalletUtils {
   static Future<void> takeScreen(GlobalKey<ScreenshotWidgetState> screenshotKey) async {
     String? imagePath = await screenshotKey.currentState?.saveScreenshotToFile();
     if (imagePath != null) {
-      Share.shareFiles([imagePath]);
+      Share.shareXFiles([XFile(imagePath)]);
     }
   }
 

@@ -117,7 +117,7 @@ class _ChatVideoPlayPageState extends State<ChatVideoPlayPage> {
           OptionItem(
             iconData: Icons.live_tv_sharp,
             title: 'Toggle Video Src',
-            onTap: () async {
+            onTap: (BuildContext ctx) async {
               await _videoPlayerController.pause();
             },
           ),
