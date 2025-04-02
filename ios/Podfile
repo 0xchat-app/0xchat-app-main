@@ -34,8 +34,7 @@ target 'Runner' do
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
   
   pod 'Zip', '~> 2.1'
-  pod 'FMDB/SQLCipher', '2.7.10'
-  
+  pod 'FMDB/SQLCipher', :git => 'https://github.com/wcat7/fmdb.git', :branch => 'master'
 end
 
 post_install do |installer|
