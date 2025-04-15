@@ -1,13 +1,17 @@
 
 // plugin
+import 'dart:io';
+
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:nostr_core_dart/nostr.dart';
+import 'package:ox_common/const/common_constant.dart';
 // ox_common
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
@@ -21,6 +25,7 @@ import 'package:ox_login/page/create_account_page.dart';
 import 'package:ox_login/page/login_with_qrcode_page.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:rich_text_widget/rich_text_widget.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class LoginPage extends StatefulWidget {
 
@@ -31,7 +36,6 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -217,32 +221,35 @@ class _LoginPageState extends State<LoginPage> {
     ),
   );
 
-  Widget buildAmberLoginWidget() => Visibility(
-      visible: true, //Platform.isAndroid,
-      child: GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onTap: _loginWithAmber,
-        child: Container(
-          height: 70.px,
-          child: Stack(
-            children: [
-              Positioned(top: 24.px, left: 0, right: 0, child: Container(width: double.infinity, height: 0.5.px, color: ThemeColor.color160)),
-              Align(alignment: Alignment.topCenter, child: CommonImage(iconName: 'icon_login_amber.png', width: 48.px, height: 48.px, package: 'ox_login')),
-              Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Text(
-                    Localized.text('ox_login.login_with_amber'),
-                    style: TextStyle(
-                        color: ThemeColor.color120,
-                        fontSize: Adapt.px(12)
-                    ),
-                  )
-              ),
-            ],
-          ),
+  Widget buildAmberLoginWidget() {
+    bool isAndroid = Platform.isAndroid;
+    String text = isAndroid ? Localized.text('ox_login.login_with_amber') : Localized.text('ox_login.login_with_aegis');
+    GestureTapCallback? onTap = isAndroid ? _loginWithAmber : _loginWithNostrAegis;
+    String iconName = isAndroid ? "icon_login_amber.png" : "icon_login_aegis.png";
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: onTap,
+      child: Container(
+        height: 70.px,
+        child: Stack(
+          children: [
+            Positioned(top: 24.px, left: 0, right: 0, child: Container(width: double.infinity, height: 0.5.px, color: ThemeColor.color160)),
+            Align(alignment: Alignment.topCenter, child: CommonImage(iconName: iconName, width: 48.px, height: 48.px, package: 'ox_login')),
+            Align(
+                alignment: Alignment.bottomCenter,
+                child: Text(
+                  text,
+                  style: TextStyle(
+                      color: ThemeColor.color120,
+                      fontSize: Adapt.px(12)
+                  ),
+                )
+            ),
+          ],
         ),
       ),
     );
+  }
 
   void _createAccount() {
     Keychain keychain = Account.generateNewKeychain();
@@ -251,6 +258,37 @@ class _LoginPageState extends State<LoginPage> {
 
   void _login() {
     OXNavigator.pushPage(context, (context) => AccountKeyLoginPage());
+  }
+
+  void _loginWithNostrAegis() async{
+    String loginQRCodeUrl = AccountNIP46.createNostrConnectURI(relays:['ws://127.0.0.1:8081']);
+    loginWithNostrConnect(loginQRCodeUrl);
+    print('aegis://${"${loginQRCodeUrl}&scheme=oxchat://"}');
+    final appScheme = '${CommonConstant.APP_SCHEME}://';
+    final uri = Uri.tryParse('aegis://${Uri.encodeComponent("${loginQRCodeUrl}&scheme=${appScheme}")}');
+    print('=====uri===$uri');
+    await launchUrl(uri!);
+  }
+
+  void loginWithNostrConnect(String loginQRCodeUrl)async{
+    String pubkey = "";
+    UserDBISAR? userDB;
+    String currentUserPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
+    pubkey = await Account.getPublicKeyWithNIP46URI(loginQRCodeUrl);
+    await OXUserInfoManager.sharedInstance.initDB(pubkey);
+    userDB = await Account.sharedInstance.loginWithNip46URI(loginQRCodeUrl);
+    userDB = await OXUserInfoManager.sharedInstance.handleSwitchFailures(userDB, currentUserPubKey);
+    if (userDB == null) {
+      CommonToast.instance.show(context, Localized.text('ox_login.private_key_regular_failed'));
+      return;
+    }
+    Account.sharedInstance.reloadProfileFromRelay(userDB.pubKey).then((value) {
+      UserConfigTool.saveUser(value);
+      UserConfigTool.updateSettingFromDB(value.settings);
+    });
+
+    OXUserInfoManager.sharedInstance.loginSuccess(userDB);
+    OXNavigator.popToRoot(context);
   }
 
   void _loginWithAmber() async {
