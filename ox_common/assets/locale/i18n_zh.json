@@ -118,5 +118,10 @@
   "str_permission_audio_call_hint": "请手动前往“设置”，打开麦克风权限",
   "str_permission_call_hint": "请手动前往“设置”，打开麦克风/照相机权限",
   "str_singer_app_verify_failed_hint": "签名验证不通过，请重新登录",
-  "str_succeed_hint": "成功"
+  "str_succeed_hint": "成功",
+  "signer_connected": "签名器已连接",
+  "signer_disconnected": "签名器已断开连接，请确保签名器应用已打开",
+  "signer_connecting": "正在连接签名器...",
+  "signer_waiting": "等待签名确认...",
+  "signer_signature": "签名已确认"
 }
