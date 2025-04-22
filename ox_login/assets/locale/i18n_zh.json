@@ -39,5 +39,5 @@
   "str_login_with_account": "通过输入 \"bunker://\" URI 登录",
   "str_login_with_copy_url": "复制URI",
   "login_with_aegis" : "使用Aegis登录",
-  "wait_link_service" : "等待链接服务，或者检查签名app是否提示需要授权！"
+  "wait_link_service" : "等待链接中，或者检查签名app是否提示需要授权！"
 }

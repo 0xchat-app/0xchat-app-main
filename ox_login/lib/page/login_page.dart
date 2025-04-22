@@ -266,10 +266,8 @@ class _LoginPageState extends State<LoginPage> {
     if(!result) return;
     String loginQRCodeUrl = AccountNIP46.createNostrConnectURI(relays:['ws://127.0.0.1:8081']);
     loginWithNostrConnect(loginQRCodeUrl);
-    print('aegis://${"${loginQRCodeUrl}&scheme=oxchat://"}');
     final appScheme = '${CommonConstant.APP_SCHEME}://';
     final uri = Uri.tryParse('aegis://${Uri.encodeComponent("${loginQRCodeUrl}&scheme=${appScheme}")}');
-    print('=====uri===$uri');
     await launchUrl(uri!);
   }
 
