@@ -10,15 +10,15 @@ extension NIP46ConnectionStatusEx on NIP46ConnectionStatus {
   String get text {
     switch (this) {
       case NIP46ConnectionStatus.connected:
-        return 'connected';
+        return 'Signer connected';
       case NIP46ConnectionStatus.disconnected:
-        return 'disconnected';
+        return 'Signer disconnected. Please make sure the signer app is open.';
       case NIP46ConnectionStatus.connecting:
-        return 'connecting';
+        return 'Connecting to signer...';
       case NIP46ConnectionStatus.waitingForSigning:
-        return 'waitingForSigning';
+        return 'Waiting for signature approval...';
       case NIP46ConnectionStatus.approvedSigning:
-        return 'approvedSigning';
+        return 'Signature approved.';
     }
   }
 }
