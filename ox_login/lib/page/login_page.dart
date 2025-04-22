@@ -268,7 +268,16 @@ class _LoginPageState extends State<LoginPage> {
     loginWithNostrConnect(loginQRCodeUrl);
     final appScheme = '${CommonConstant.APP_SCHEME}://';
     final uri = Uri.tryParse('aegis://${Uri.encodeComponent("${loginQRCodeUrl}&scheme=${appScheme}")}');
-    await launchUrl(uri!);
+    await _launchAppOrSafari(uri!);
+  }
+
+  Future<void> _launchAppOrSafari(Uri uri) async {
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    } else {
+      final Uri fallbackUri = Uri.parse('https://testflight.apple.com/join/DUzVMDMK');
+      await launchUrl(fallbackUri, mode: LaunchMode.externalApplication);
+    }
   }
 
   void loginWithNostrConnect(String loginQRCodeUrl)async{
