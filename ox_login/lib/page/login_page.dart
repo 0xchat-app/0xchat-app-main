@@ -9,6 +9,7 @@ import 'package:ox_common/const/common_constant.dart';
 // ox_common
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/nip46_status_notifier.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/took_kit.dart';
@@ -261,6 +262,8 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _loginWithNostrAegis() async{
+    bool result = await NIP46StatusNotifier.remoteSignerTips(Localized.text('ox_login.wait_link_service'));
+    if(!result) return;
     String loginQRCodeUrl = AccountNIP46.createNostrConnectURI(relays:['ws://127.0.0.1:8081']);
     loginWithNostrConnect(loginQRCodeUrl);
     print('aegis://${"${loginQRCodeUrl}&scheme=oxchat://"}');
