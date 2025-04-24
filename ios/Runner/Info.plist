@@ -262,6 +262,7 @@
 		<string>bitcoinbeach</string>
 		<string>muun</string>
 		<string>zebedee</string>
+		<string>aegis</string>
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
