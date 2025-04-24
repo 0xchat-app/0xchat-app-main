@@ -578,7 +578,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MACOSX_DEPLOYMENT_TARGET = 12.4;
 				NEW_SETTING = "";
 				PRODUCT_NAME = 0xchat;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -713,7 +713,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MACOSX_DEPLOYMENT_TARGET = 12.4;
 				NEW_SETTING = "";
 				PRODUCT_NAME = 0xchat;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -736,7 +736,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MACOSX_DEPLOYMENT_TARGET = 12.4;
 				NEW_SETTING = "";
 				PRODUCT_NAME = 0xchat;
 				PROVISIONING_PROFILE_SPECIFIER = "";

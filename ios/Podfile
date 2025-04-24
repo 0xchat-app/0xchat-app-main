@@ -34,13 +34,28 @@ target 'Runner' do
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
   
   pod 'Zip', '~> 2.1'
-  pod 'FMDB/SQLCipher', '2.7.10'
-  
+  pod 'FMDB/SQLCipher', :git => 'https://github.com/wcat7/fmdb.git', :branch => 'master'
 end
 
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
+    
+    privacy_file_path = File.join(File.dirname(__FILE__), 'PrivacyInfo.xcprivacy')
+
+    if File.exist?(privacy_file_path)
+      target.build_phases.each do |build_phase|
+        if build_phase.is_a? Xcodeproj::Project::Object::PBXResourcesBuildPhase
+          resources_folder = File.join(target.project.project_dir, 'Resources')
+          FileUtils.mkdir_p(resources_folder) unless File.directory?(resources_folder)
+          
+          file_in_resources = File.join(resources_folder, 'PrivacyInfo.xcprivacy')
+          FileUtils.cp(privacy_file_path, file_in_resources) unless File.exist?(file_in_resources)
+        end
+      end
+    else
+      puts "Warning: PrivacyInfo.xcprivacy file not found at #{privacy_file_path}"
+    end
     
     # Start of the permission_handler configuration
     target.build_configurations.each do |config|
