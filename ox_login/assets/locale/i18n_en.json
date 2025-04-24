@@ -37,5 +37,7 @@
   "str_login_with_qrcode_hint": "Log in to 0xChat using the QR code",
   "str_login_with_qrcode_description": "1. Select custom remote signer relays\n2. Open the Amber app or nsec.app website\n3. Scan the QR code or copy the URI to log in",
   "str_login_with_account": "Login by entering \"bunker://\" URI",
-  "str_login_with_copy_url": "Copy URI"
+  "str_login_with_copy_url": "Copy URI",
+  "login_with_aegis": "Login with Aegis",
+  "wait_link_service": "Waiting to connect to the service, or please check if the signing app is prompting for authorization!"
 }

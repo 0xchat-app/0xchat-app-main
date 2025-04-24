@@ -1,6 +1,4 @@
 
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_chat/manager/chat_data_cache.dart';
@@ -147,6 +145,57 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
         builder: (BuildContext context, messages, Widget? child) {
           return Chat(
             key: chatWidgetKey,
+            uiConfig: ChatUIConfig(
+              avatarBuilder: (message) => OXUserAvatar(
+                user: message.author.sourceObject,
+                size: 40.px,
+                isCircular: false,
+                isClickable: true,
+                onReturnFromNextPage: () {
+                  setState(() { });
+                },
+                onLongPress: () {
+                  final user = message.author.sourceObject;
+                  if (user != null)
+                    handler.mentionHandler?.addMentionText(user);
+                },
+              ),
+              longPressWidgetBuilder: (context, message, controller) => pageConfig.longPressWidgetBuilder(
+                context: context,
+                message: message,
+                controller: controller,
+                handler: handler,
+              ),
+              customMessageBuilder: ({
+                required types.CustomMessage message,
+                required int messageWidth,
+                required Widget reactionWidget,
+              }) => ChatMessageBuilder.buildCustomMessage(
+                message: message,
+                messageWidth: messageWidth,
+                reactionWidget: reactionWidget,
+                receiverPubkey: handler.otherUser?.pubKey,
+                messageUpdateCallback: (newMessage) {
+                  dataController.updateMessage(newMessage);
+                },
+              ),
+              repliedMessageBuilder: (types.Message message, {required int messageWidth}) =>
+                  ChatMessageBuilder.buildRepliedMessageView(
+                    message,
+                    messageWidth: messageWidth,
+                    onTap: (message) async {
+                      scrollToMessage(message?.id);
+                    },
+                  ),
+              reactionViewBuilder: (types.Message message, {required int messageWidth}) =>
+                  ChatMessageBuilder.buildReactionsView(
+                    message,
+                    messageWidth: messageWidth,
+                    itemOnTap: (reaction) => handler.reactionPressHandler(context, message, reaction),
+                  ),
+              codeBlockBuilder: ChatMessageBuilder.buildCodeBlockWidget,
+              moreButtonBuilder: ChatMessageBuilder.moreButtonBuilder,
+            ),
             scrollController: scrollController,
             isContentInteractive: !handler.isPreviewMode,
             chatId: handler.session.chatId,
@@ -172,20 +221,6 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
             onMessageTap: handler.messagePressHandler,
             onPreviewDataFetched: _handlePreviewDataFetched,
             onSendPressed: (msg) => handler.sendTextMessage(context, msg.text),
-            avatarBuilder: (message) => OXUserAvatar(
-              user: message.author.sourceObject,
-              size: 40.px,
-              isCircular: false,
-              isClickable: true,
-              onReturnFromNextPage: () {
-                setState(() { });
-              },
-              onLongPress: () {
-                final user = message.author.sourceObject;
-                if (user != null)
-                  handler.mentionHandler?.addMentionText(user);
-              },
-            ),
             showUserNames: handler.session.showUserNames,
             //Group chat display nickname
             user: handler.author,
@@ -194,31 +229,12 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
             onVoiceSend: (String path, Duration duration) => handler.sendVoiceMessage(context, path, duration),
             onGifSend: (GiphyImage image) => handler.sendGifImageMessage(context, image),
             onAttachmentPressed: () {},
-            longPressWidgetBuilder: (context, message, controller) => pageConfig.longPressWidgetBuilder(
-              context: context,
-              message: message,
-              controller: controller,
-              handler: handler,
-            ),
             onMessageStatusTap: handler.messageStatusPressHandler,
             textMessageOptions: handler.textMessageOptions(context),
             imageGalleryOptions: pageConfig.imageGalleryOptions,
             customTopWidget: widget.customTopWidget,
             customCenterWidget: widget.customCenterWidget,
             customBottomWidget: widget.customBottomWidget,
-            customMessageBuilder: ({
-              required types.CustomMessage message,
-              required int messageWidth,
-              required Widget reactionWidget,
-            }) => ChatMessageBuilder.buildCustomMessage(
-              message: message,
-              messageWidth: messageWidth,
-              reactionWidget: reactionWidget,
-              receiverPubkey: handler.otherUser?.pubKey,
-              messageUpdateCallback: (newMessage) {
-                dataController.updateMessage(newMessage);
-              },
-            ),
             imageMessageBuilder: ChatMessageBuilder.buildImageMessage,
             inputOptions: handler.inputOptions,
             enableBottomWidget: !handler.isPreviewMode,
@@ -228,20 +244,6 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
               handler.inputFocusNode = focusNode;
               handler.replyHandler.inputFocusNode = focusNode;
             },
-            repliedMessageBuilder: (types.Message message, {required int messageWidth}) =>
-                ChatMessageBuilder.buildRepliedMessageView(
-                  message,
-                  messageWidth: messageWidth,
-                  onTap: (message) async {
-                    scrollToMessage(message?.id);
-                  },
-                ),
-            reactionViewBuilder: (types.Message message, {required int messageWidth}) =>
-                ChatMessageBuilder.buildReactionsView(
-                  message,
-                  messageWidth: messageWidth,
-                  itemOnTap: (reaction) => handler.reactionPressHandler(context, message, reaction),
-                ),
             highlightMessageWidget: ChatHighlightMessageWidget(
               handler: highlightMessageHandler,
               anchorMessageOnTap: scrollToMessage,
@@ -255,7 +257,6 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
               });
             },
             mentionUserListWidget: handler.mentionHandler?.buildMentionUserList(),
-            codeBlockBuilder: ChatMessageBuilder.buildCodeBlockWidget,
             onAudioDataFetched: (message) async {
               final (sourceFile, duration) = await ChatVoiceMessageHelper.populateMessageWithAudioDetails(
                 session: handler.session,

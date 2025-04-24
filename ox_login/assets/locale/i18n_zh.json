@@ -37,5 +37,7 @@
   "str_login_with_qrcode_hint": "通过二维码登录到0xchat",
   "str_login_with_qrcode_description": "1 选择远程签名relay\n2 打开Amber App或者nsec.app网页\n3 扫二维码或者拷贝URI进行登陆",
   "str_login_with_account": "通过输入 \"bunker://\" URI 登录",
-  "str_login_with_copy_url": "复制URI"
+  "str_login_with_copy_url": "复制URI",
+  "login_with_aegis" : "使用Aegis登录",
+  "wait_link_service" : "等待链接中，或者检查签名app是否提示需要授权！"
 }

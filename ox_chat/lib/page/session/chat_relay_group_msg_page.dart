@@ -122,7 +122,7 @@ class _ChatRelayGroupMsgPageState extends State<ChatRelayGroupMsgPage> with OXCh
     } else if (status == 1) {
       bottomHintParam = ChatHintParam(
         Localized.text('ox_chat_ui.group_join'),
-        _onJoinGroupTap,
+        _onRequestGroupTap,
       );
       return;
     }

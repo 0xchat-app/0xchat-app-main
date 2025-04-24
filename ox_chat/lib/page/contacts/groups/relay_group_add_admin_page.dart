@@ -15,7 +15,9 @@ import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_menu_dialog.dart';
+import 'package:ox_common/widgets/common_toast.dart';
 
 ///Title: relay_group_add_admin_page
 ///Description: TODO(Fill in by oneself)
@@ -209,9 +211,15 @@ class _RelayGroupAddAdminPageState extends State<RelayGroupAddAdminPage> {
     });
   }
 
-  void _gotoAdminRightsFn(UserDBISAR userDB) {
-    OXNavigator.pushPage(context, (context) => RelayGroupSetAdminRightsPage(relayGroupDB: widget.relayGroupDB, userDB: userDB)).then((value) {
+  Future<void> _gotoAdminRightsFn(UserDBISAR userDB) async {
+    await OXLoading.show();
+    final okEvent = await RelayGroup.sharedInstance.addAdmin(widget.relayGroupDB.groupId, userDB.pubKey, '');
+    await OXLoading.dismiss();
+    if (okEvent.status) {
+      CommonToast.instance.show(context, 'str_group_admin_permission_success_toast'.localized());
       OXNavigator.pop(context);
-    });
+    } else {
+      CommonToast.instance.show(context, okEvent.message);
+    }
   }
 }

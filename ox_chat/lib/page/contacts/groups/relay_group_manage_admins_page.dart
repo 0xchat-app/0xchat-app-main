@@ -180,10 +180,10 @@ class _RelayGroupManageAdminsPageState extends State<RelayGroupManageAdminsPage>
     final offset = renderBox.localToGlobal(Offset.zero);
     final size = renderBox.size;
     List<OXMenuItem> menuList = [
-      OXMenuItem(
-        identify: 0,
-        text: 'str_group_edit_admin_right'.localized(),
-      ),
+      // OXMenuItem(
+      //   identify: 0,
+      //   text: 'str_group_edit_admin_right'.localized(),
+      // ),
       if(_hasRemoveAdminPermission)
         OXMenuItem(
           identify: 1,
@@ -209,7 +209,7 @@ class _RelayGroupManageAdminsPageState extends State<RelayGroupManageAdminsPage>
         });
       } else if (oxMenuItem.identify == 1) {
         await OXLoading.show();
-        final okEvent = await RelayGroup.sharedInstance.setPermissions(widget.relayGroupDB.groupId, userDB.pubKey, [], '');
+        final okEvent = await RelayGroup.sharedInstance.removeAdmin(widget.relayGroupDB.groupId, userDB.pubKey, '');
         await OXLoading.dismiss();
         if (okEvent.status) {
           CommonToast.instance.show(context, Localized.text('ox_common.str_succeed_hint'));

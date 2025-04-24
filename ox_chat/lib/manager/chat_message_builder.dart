@@ -22,6 +22,7 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_long_content_page.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
@@ -156,6 +157,45 @@ class ChatMessageBuilder {
     return widget;
   }
 
+  static InlineSpan moreButtonBuilder({
+    required BuildContext context,
+    required types.TextMessage message,
+    required String moreText,
+    required bool isMessageSender,
+    TextStyle? bodyTextStyle,
+  }) {
+    final moreBtnColor = isMessageSender
+        ? Colors.black.withValues(alpha: 0.6)
+        : ThemeColor.gradientMainStart;
+    bodyTextStyle ;
+    Widget textWidget = Text(
+      moreText,
+      style: bodyTextStyle?.copyWith(
+        color: moreBtnColor,
+        height: 1.1,
+      ),
+    );
+
+    if (PlatformUtils.isDesktop) {
+      textWidget = MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          onTap: () => CommonLongContentPage.present(
+            context: context,
+            content: message.text.trim(),
+            author: message.author.sourceObject,
+            timeStamp: message.createdAt,
+          ),
+          child: textWidget,
+        ),
+      );
+    }
+
+    return WidgetSpan(
+      child: textWidget,
+    );
+  }
+
   static Widget buildImageMessage(types.ImageMessage message, {
     required int messageWidth,
   }) {
@@ -209,8 +249,6 @@ extension CallMessageTypeEx on CallMessageType {
         return 'icon_message_call.png';
       case CallMessageType.video:
         return 'icon_message_camera.png';
-      default:
-        return '';
     }
   }
 }

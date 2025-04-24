@@ -11,7 +11,7 @@ import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/common_loading.dart';
-import 'package:ox_common/utils/app_relay_hint_dialog.dart';
+import 'package:ox_common/utils/nip46_status_notifier.dart';
 
 // component
 import '../component/common_input.dart';
@@ -180,6 +180,10 @@ class _AccountKeyLoginPageState extends State<AccountKeyLoginPage> {
     UserDBISAR? userDB;
     String currentUserPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
     if (_accountKeyInput.startsWith('bunker://')){
+      await OXLoading.dismiss();
+      bool result = await NIP46StatusNotifier.remoteSignerTips(Localized.text('ox_login.wait_link_service'));
+      if(!result) return;
+      await OXLoading.show();
       pubkey = await Account.getPublicKeyWithNIP46URI(_accountKeyInput);
       await OXUserInfoManager.sharedInstance.initDB(pubkey);
       userDB = await Account.sharedInstance.loginWithNip46URI(_accountKeyInput);

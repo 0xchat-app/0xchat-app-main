@@ -156,6 +156,7 @@ class _RelayGroupCreatePageState extends State<RelayGroupCreatePage> {
           style: TextStyle(
             fontSize: Adapt.px(16),
             fontWeight: FontWeight.w600,
+            color: ThemeColor.color0
             // height: Adapt.px(22.4),
           ),
         ),
