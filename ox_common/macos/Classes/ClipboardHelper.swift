@@ -28,6 +28,17 @@ class ClipboardHelper {
         }
         return filePaths
     }
+    
+    static func copyImageToClipboard(imagePath: String) -> Bool {
+        if let nsImage = NSImage(contentsOfFile: imagePath) {
+            let pasteboard = NSPasteboard.general
+            pasteboard.clearContents()
+            pasteboard.writeObjects([nsImage])
+            return true
+        } else {
+            return false
+        }
+    }
 }
 
 extension ClipboardHelper {

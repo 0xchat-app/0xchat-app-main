@@ -1,6 +1,7 @@
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/business_interface/ox_chat/utils.dart';
+import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_module_service/ox_module_service.dart';
@@ -36,6 +37,19 @@ class CommonLongContentPage extends StatefulWidget {
 
   @override
   CommonLongContentPageState createState() => CommonLongContentPageState();
+
+  static present({
+    BuildContext? context,
+    String? content,
+    UserDBISAR? author,
+    int? timeStamp,
+  }) {
+    OXNavigator.presentPage(context, (context) => CommonLongContentPage(
+      content: content,
+      author: author,
+      timeStamp: timeStamp,
+    ));
+  }
 }
 
 class CommonLongContentPageState extends State<CommonLongContentPage> {
@@ -178,7 +192,7 @@ class CommonLongContentPageState extends State<CommonLongContentPage> {
 
   Widget _contentWidget() {
     if (widget.isShowOriginalText) {
-      return Text(
+      return SelectableText(
         widget.content ?? '',
         style: TextStyle(
           fontSize: contentFontSize.px,

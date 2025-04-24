@@ -3,6 +3,8 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:ox_common/utils/list_extension.dart';
+import 'package:ox_common/utils/string_utils.dart';
+import 'package:ox_common/widgets/common_toast.dart';
 
 import '../ox_common.dart';
 
@@ -48,5 +50,18 @@ class OXClipboard {
   static Future<String?> getText() async {
     ClipboardData? data = await Clipboard.getData('text/plain');
     return data?.text;
+  }
+
+  /// Copy an image (specified by a file path) to the system clipboard.
+  ///
+  /// [filePath] is the absolute file path of the image on disk.
+  static Future<void> copyImageToClipboard(String filePath) async {
+    const copyImageToClipboardMethodName = 'copyImageToClipboard';
+    final result = await channel.invokeMethod(copyImageToClipboardMethodName, {
+      'imagePath': filePath,
+    });
+    if (result == true) {
+      await CommonToast.instance.show(null, 'copied_to_clipboard'.commonLocalized());
+    }
   }
 }
