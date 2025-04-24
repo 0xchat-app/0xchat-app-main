@@ -15,6 +15,7 @@ import 'package:ox_common/utils/font_size_notifier.dart';
 import 'package:ox_common/utils/platform_utils.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/user_config_tool.dart';
+import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ox_common/event_bus.dart';
@@ -26,9 +27,12 @@ import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/boot_config.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/ox_common.dart';
+import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/nip46_status_notifier.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_chat_project/multi_route_utils.dart';
 import 'package:ox_theme/ox_theme.dart';
+import 'package:nostr_core_dart/nostr.dart';
 
 import 'app_initializer.dart';
 
@@ -102,6 +106,7 @@ class MainState extends State<MainApp>
     if (!Adapt.isInitialized) {
       Adapt.init(standardW: 375, standardH: 812);
     }
+    nip46ConnectStatusInit();
   }
 
   void showErrorDialogIfNeeded() async {
@@ -251,6 +256,19 @@ class MainState extends State<MainApp>
     final memoryUsage = ProcessInfo.currentRss;
     print('Current RSS memory usage: ${memoryUsage / (1024 * 1024)} MB');
     print('Max RSS memory usage: ${ProcessInfo.maxRss / (1024 * 1024)} MB');
+  }
+
+  void nip46ConnectStatusInit(){
+    Future.delayed(const Duration(seconds: 3), () {
+      Account.sharedInstance.nip46connectionStatusCallback = (status) => _nip46connectionStatusCallback(status);
+    });
+  }
+
+  void _nip46connectionStatusCallback(NIP46ConnectionStatus status){
+    print('🔗connectStatus: ${status}');
+    UserDBISAR? user = OXUserInfoManager.sharedInstance.currentUserInfo;
+    if(user == null) return;
+    NIP46StatusNotifier.sharedInstance.notify(status,user);
   }
 }
 

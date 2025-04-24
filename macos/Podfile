@@ -34,7 +34,7 @@ target 'Runner' do
   target 'RunnerTests' do
     inherit! :search_paths
   end
-  pod 'FMDB/SQLCipher', '2.7.10'
+    pod 'FMDB/SQLCipher', :git => 'https://github.com/wcat7/fmdb.git', :branch => 'master'
 end
 
 post_install do |installer|
@@ -51,14 +51,6 @@ post_install do |installer|
   end
 
   framework_paths = [
-    "Pods/ffmpeg-kit-macos-https/ffmpegkit.xcframework/macos-arm64_x86_64/ffmpegkit.framework/ffmpegkit",
-    "Pods/ffmpeg-kit-macos-https/libavfilter.xcframework/macos-arm64_x86_64/libavfilter.framework/libavfilter",
-    "Pods/ffmpeg-kit-macos-https/libswscale.xcframework/macos-arm64_x86_64/libswscale.framework/libswscale",
-    "Pods/ffmpeg-kit-macos-https/libswresample.xcframework/macos-arm64_x86_64/libswresample.framework/libswresample",
-    "Pods/ffmpeg-kit-macos-https/libavcodec.xcframework/macos-arm64_x86_64/libavcodec.framework/libavcodec",
-    "Pods/ffmpeg-kit-macos-https/libavutil.xcframework/macos-arm64_x86_64/libavutil.framework/libavutil",
-    "Pods/ffmpeg-kit-macos-https/libavformat.xcframework/macos-arm64_x86_64/libavformat.framework/libavformat",
-    "Pods/ffmpeg-kit-macos-https/libavdevice.xcframework/macos-arm64_x86_64/libavdevice.framework/libavdevice",
   ]
 
   framework_paths.each do |framework_path|

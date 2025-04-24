@@ -38,8 +38,6 @@ dependencies:
   # core
   chatcore:
     path: packages/0xchat-core
-  nostr_core_dart:
-    path: packages/nostr-dart
 
   # base framework
   ox_module_service:
@@ -97,6 +95,10 @@ dependency_overrides:
       url: https://github.com/flutter/packages.git
       ref: url_launcher_linux-v3.1.1
       path: packages/url_launcher/url_launcher_linux
+  nostr_core_dart:
+    path: packages/nostr-dart
+  nostr_mls_package:
+    path: packages/nostr-mls-package
 
 
 # For information on the generic Dart part of this file, see the
