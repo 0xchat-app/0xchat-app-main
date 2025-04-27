@@ -119,7 +119,7 @@ class MainState extends State<MainApp>
         builder: (context) {
           return AlertDialog(
             title: Text(entry.error.toString()),
-            content: Text(entry.stack.toString()),
+            content: SingleChildScrollView(child: Text(entry.stack.toString())),
             actions: <Widget>[
               TextButton(
                 child: Text('OK'),
