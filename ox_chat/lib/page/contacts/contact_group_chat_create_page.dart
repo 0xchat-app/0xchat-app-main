@@ -316,8 +316,15 @@ class _ContactGroupChatCreatePageState extends State<ContactGroupChatCreatePage>
     };
     await OXLoading.show();
     List<String> members = userList.map((user) => user.pubKey).toList();
-    GroupDBISAR? groupDB = await Groups.sharedInstance
-        .createPrivateGroup(OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey, '', name, members);
+    GroupDBISAR? groupDB;
+    if(widget.groupType == GroupType.privateGroup){
+      groupDB = await Groups.sharedInstance
+          .createPrivateGroup(OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey, '', name, members);
+    }
+    else if(widget.groupType == GroupType.privateMLSGroup){
+      groupDB = await Groups.sharedInstance
+          .createMLSGroup(name, '', members,  [OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey], []);
+    }
     await OXLoading.dismiss();
     if (groupDB != null) {
       OXNavigator.pop(context);
