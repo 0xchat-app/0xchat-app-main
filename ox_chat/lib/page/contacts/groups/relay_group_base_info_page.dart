@@ -266,7 +266,7 @@ class _RelayGroupBaseInfoPageState extends State<RelayGroupBaseInfoPage> {
         filename: fileName,
       );
       if (result.isSuccess && result.url.isNotEmpty) {
-        OKEvent event = await RelayGroup.sharedInstance.editMetadata(widget.groupId, _groupDBInfo?.name??'', _groupDBInfo?.about??'', result.url, '');
+        OKEvent event = await RelayGroup.sharedInstance.editMetadata(widget.groupId, _groupDBInfo?.name??'', _groupDBInfo?.about??'', result.url, _groupDBInfo?.closed ?? false, _groupDBInfo?.private ?? false, '');
         if (!event.status) {
           CommonToast.instance.show(context, event.message);
           await OXLoading.dismiss();

@@ -106,6 +106,7 @@ class CommunityMenuOptionModel {
       case GroupType.channel:
         OXNavigator.pushPage(context, (context) => ChatChannelCreate());
         break;
+      case GroupType.privateMLSGroup:
       case GroupType.privateGroup:
         showModalBottomSheet(
           context: OXNavigator.navigatorKey.currentContext!,

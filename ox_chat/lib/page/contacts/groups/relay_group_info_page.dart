@@ -477,7 +477,8 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
     if (result != null && result is ChatHistoryForNewMembersType) {
       await OXLoading.show();
       bool privateType = result == ChatHistoryForNewMembersType.show ? false : true;
-      OKEvent event = await RelayGroup.sharedInstance.editGroupStatus(widget.groupId, groupDBInfo?.closed ?? false, privateType, '');
+      OKEvent event = await RelayGroup.sharedInstance
+          .editMetadata(widget.groupId, groupDBInfo?.name ?? '', groupDBInfo?.about ?? '', groupDBInfo?.picture ?? '', groupDBInfo?.closed ?? false, privateType, '');
       await OXLoading.dismiss();
       if (!event.status) return CommonToast.instance.show(context, event.message);
       setState(() {
@@ -500,7 +501,8 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
     if (result != null && result is GroupType) {
       await OXLoading.show();
       bool privateType = result == GroupType.openGroup ? false : true;
-      OKEvent event = await RelayGroup.sharedInstance.editGroupStatus(widget.groupId, privateType, groupDBInfo?.private ?? false, '');
+      OKEvent event = await RelayGroup.sharedInstance
+          .editMetadata(widget.groupId, groupDBInfo?.name ?? '', groupDBInfo?.about ?? '', groupDBInfo?.picture ?? '', privateType, groupDBInfo?.private ?? false, '');
       await OXLoading.dismiss();
       if (!event.status) return CommonToast.instance.show(context, event.message);
       setState(() {

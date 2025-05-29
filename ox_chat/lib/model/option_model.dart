@@ -47,6 +47,7 @@ enum GroupType{
   openGroup,
   closeGroup,
   privateGroup,
+  privateMLSGroup,
   channel,
 }
 
@@ -59,6 +60,8 @@ extension GroupTypeEx on GroupType{
         return 'str_group_type_close'.localized();
       case GroupType.privateGroup:
         return 'str_group_type_private'.localized();
+      case GroupType.privateMLSGroup:
+        return 'str_group_type_mls'.localized();
       case GroupType.channel:
         return 'create_channel'.localized();
     }
@@ -71,6 +74,8 @@ extension GroupTypeEx on GroupType{
       case GroupType.closeGroup:
         return 'icon_group_close.png';
       case GroupType.privateGroup:
+        return 'icon_group_private.png';
+      case GroupType.privateMLSGroup:
         return 'icon_group_private.png';
       case GroupType.channel:
         return 'icon_group_channel.png';
@@ -85,6 +90,8 @@ extension GroupTypeEx on GroupType{
         return 'str_group_close_description'.localized();
       case GroupType.privateGroup:
         return 'str_group_private_description'.localized();
+      case GroupType.privateMLSGroup:
+        return 'str_group_MLS_description'.localized();
       case GroupType.channel:
         return 'str_public_channel_description'.localized();
     }
