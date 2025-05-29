@@ -272,7 +272,7 @@ class _RelayGroupEditPageState extends State<RelayGroupEditPage> {
       CommonToast.instance.show(context, Localized.text('ox_chat.edit_group_name_not_empty_toast'));
     }
     OKEvent event = await RelayGroup.sharedInstance
-        .editMetadata(widget.groupId, groupNameContent, _groupDBInfo?.about ?? '', _groupDBInfo?.picture ?? '', '');
+        .editMetadata(widget.groupId, groupNameContent, _groupDBInfo?.about ?? '', _groupDBInfo?.picture ?? '', _groupDBInfo?.closed ?? false, _groupDBInfo?.private ?? false, '');
     if (!event.status) {
       CommonToast.instance.show(context, event.message);
       return;
@@ -286,7 +286,7 @@ class _RelayGroupEditPageState extends State<RelayGroupEditPage> {
     if (groupAboutContent.isEmpty)
       return CommonToast.instance.show(context, Localized.text('ox_chat.edit_group_notice_not_empty_toast'));
     OKEvent event = await RelayGroup.sharedInstance.editMetadata(
-        widget.groupId, _groupDBInfo?.name ?? '', groupAboutContent, _groupDBInfo?.picture ?? '', '');
+        widget.groupId, _groupDBInfo?.name ?? '', groupAboutContent, _groupDBInfo?.picture ?? '', _groupDBInfo?.closed ?? false, _groupDBInfo?.private ?? false, '');
     if (!event.status) return CommonToast.instance.show(context, event.message);
     OXNavigator.pop(context, true);
   }
