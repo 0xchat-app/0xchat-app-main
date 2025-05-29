@@ -70,9 +70,11 @@ class AppInitializer {
           }
         };
         improveErrorWidget();
-        getApplicationDocumentsDirectory().then((value) {
-          LogUtil.d('[App start] Application Documents Path: $value');
-        });
+        if (kDebugMode) {
+          getApplicationDocumentsDirectory().then((value) {
+            LogUtil.d('[App start] Application Documents Path: $value');
+          });
+        }
       } catch (error, stack) {
         initializeErrors.add(OXErrorInfo(error, stack));
       }
