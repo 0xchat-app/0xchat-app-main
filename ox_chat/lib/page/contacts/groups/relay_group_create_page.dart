@@ -27,7 +27,6 @@ import 'package:ox_localizable/ox_localizable.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 
-
 ///Title: relay_group_create_page
 ///Description: TODO(Fill in by oneself)
 ///Copyright: Copyright (c) 2021
@@ -79,7 +78,10 @@ class _RelayGroupCreatePageState extends State<RelayGroupCreatePage> {
                       ],
                     ).createShader(Offset.zero & bounds.size);
                   },
-                  child: Text(Localized.text('ox_common.create'), style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16.sp),)),
+                  child: Text(
+                    Localized.text('ox_common.create'),
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16.sp),
+                  )),
             ),
             onTap: () {
               _createGroup();
@@ -107,8 +109,7 @@ class _RelayGroupCreatePageState extends State<RelayGroupCreatePage> {
               _listItem(Localized.text('ox_chat.description'),
                   childView: _buildTextEditing(
                       controller: _descriptionController,
-                      hintText:
-                      Localized.text('ox_chat.description_hint_text'),
+                      hintText: Localized.text('ox_chat.description_hint_text'),
                       maxLines: null)),
               SizedBox(height: 16.px),
               _buildGroupRelayEditText(),
@@ -147,6 +148,7 @@ class _RelayGroupCreatePageState extends State<RelayGroupCreatePage> {
       ),
     );
   }
+
   Widget _listItem(String label, {Widget? childView}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -154,11 +156,9 @@ class _RelayGroupCreatePageState extends State<RelayGroupCreatePage> {
         Text(
           label,
           style: TextStyle(
-            fontSize: Adapt.px(16),
-            fontWeight: FontWeight.w600,
-            color: ThemeColor.color0
-            // height: Adapt.px(22.4),
-          ),
+              fontSize: Adapt.px(16), fontWeight: FontWeight.w600, color: ThemeColor.color0
+              // height: Adapt.px(22.4),
+              ),
         ),
         SizedBox(
           height: Adapt.px(12),
@@ -192,9 +192,7 @@ class _RelayGroupCreatePageState extends State<RelayGroupCreatePage> {
         decoration: InputDecoration(
           hintText: hintText ?? Localized.text('ox_chat.confirm_join_dialog_hint'),
           hintStyle: TextStyle(
-              color: ThemeColor.color160,
-              fontWeight: FontWeight.w400,
-              fontSize: Adapt.px(16)),
+              color: ThemeColor.color160, fontWeight: FontWeight.w400, fontSize: Adapt.px(16)),
           border: InputBorder.none,
         ),
         style: TextStyle(
@@ -208,17 +206,32 @@ class _RelayGroupCreatePageState extends State<RelayGroupCreatePage> {
   }
 
   Widget _buildGroupRelayEditText() {
-    return _labelWidget(
-      title: Localized.text('ox_chat.relay'),
-      content: _chatRelay,
-      onTap: () async {
-        var result = await OXNavigator.presentPage(context, (context) => CommonSelectRelayPage(defaultRelayList: Relays.sharedInstance.recommendGroupRelays));
-        if (result != null) {
-          _chatRelay = result as String;
-          setState(() {});
-        }
-      },
-    );
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Text(
+        'Enter a relay URL or pick from the list',
+        style: TextStyle(
+          fontSize: 14.px,
+          fontWeight: FontWeight.w600,
+          color: ThemeColor.color100,
+        ),
+        textAlign: TextAlign.left,
+      ),
+      SizedBox(height: Adapt.px(12),),
+      _labelWidget(
+        title: Localized.text('ox_chat.relay'),
+        content: _chatRelay,
+        onTap: () async {
+          var result = await OXNavigator.presentPage(
+              context,
+              (context) => CommonSelectRelayPage(
+                  defaultRelayList: Relays.sharedInstance.recommendGroupRelays));
+          if (result != null) {
+            _chatRelay = result as String;
+            setState(() {});
+          }
+        },
+      )
+    ]);
   }
 
   Widget _labelWidget({
@@ -330,7 +343,8 @@ class _RelayGroupCreatePageState extends State<RelayGroupCreatePage> {
       _imgFile = (res[0].path == null) ? null : File(res[0].path ?? '');
       _uploadAndRefresh(_imgFile);
     } else {
-      CommonToast.instance.show(context, Localized.text('ox_common.str_grant_permission_photo_hint'));
+      CommonToast.instance
+          .show(context, Localized.text('ox_common.str_grant_permission_photo_hint'));
       return;
     }
   }
@@ -338,7 +352,7 @@ class _RelayGroupCreatePageState extends State<RelayGroupCreatePage> {
   void _uploadAndRefresh(File? imgFile) async {
     if (imgFile != null) {
       await OXLoading.show();
-      UploadResult result  = await UploadUtils.uploadFile(
+      UploadResult result = await UploadUtils.uploadFile(
         fileType: FileType.image,
         file: imgFile,
         filename: _groupNameController.text +
