@@ -79,7 +79,7 @@ class _LoginPageState extends State<LoginPage> {
               buildLoginButton().setPaddingOnly(bottom: 18.px),
               buildQrCodeLoginWidget().setPaddingOnly(bottom: 18.px),
               buildPrivacyWidget().setPaddingOnly(bottom: 18.px),
-              buildAmberLoginWidget(),
+              Platform.isAndroid ? buildAmberLoginWidget() : Container(),
             ],
           ),
         ],

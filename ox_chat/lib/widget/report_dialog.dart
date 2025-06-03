@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:ox_chat/utils/message_report.dart';
 import 'package:ox_chat/widget/radio_list_tile.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -25,12 +26,12 @@ class ReportDialog extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => ReportDialogState();
 
-  static Future<bool?> show(BuildContext context, {required ReportTarget target}) {
+  static Future<bool?> show(BuildContext context, {ReportTarget? target}) {
     return showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (BuildContext context) => ReportDialog(target),
+      builder: (BuildContext context) => ReportDialog(target ?? MessageReportTarget(null)),
     );
   }
 }
