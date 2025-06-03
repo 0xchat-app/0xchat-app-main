@@ -16,6 +16,7 @@ import 'package:ox_common/utils/platform_utils.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
+import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ox_common/event_bus.dart';
@@ -238,6 +239,9 @@ class MainState extends State<MainApp>
         if (OXUserInfoManager.sharedInstance.isLogin) NotificationHelper.sharedInstance.setOffline();
         lastUserInteractionTime = DateTime.now().millisecondsSinceEpoch;
         if (CallManager.instance.getInCallIng && CallManager.instance.isAudioVoice){
+          if (OXNavigator.navigatorKey.currentContext != null && Platform.isAndroid) {
+            _showForegroundServiceNotification();
+          }
           OXCommon.channelPreferences.invokeMethod('startVoiceCallService', {'notice_voice_title': CallManager.instance.otherName, 'notice_voice_content': Localized.text('ox_calling.str_voice_call_in_use')});
         }
         break;
@@ -269,6 +273,15 @@ class MainState extends State<MainApp>
     UserDBISAR? user = OXUserInfoManager.sharedInstance.currentUserInfo;
     if(user == null) return;
     NIP46StatusNotifier.sharedInstance.notify(status,user);
+  }
+
+  void _showForegroundServiceNotification() {
+    // Show a clear notification to user about foreground service
+    CommonToast.instance.show(
+      OXNavigator.navigatorKey.currentContext!, 
+      Localized.text('ox_calling.str_foreground_service_notification'),
+      duration: 4000
+    );
   }
 }
 
