@@ -1,4 +1,11 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="main_app_name">0xChat</string>
     <string name="default_notification_channel_id">10000</string>
+    
+    <!-- Foreground Service Strings -->
+    <string name="voice_call_service_name">Voice Call Service</string>
+    <string name="voice_call_service_description">Foreground service for maintaining voice calls when app is in background</string>
+    <string name="voice_call_notification_title">Voice Call Active</string>
+    <string name="voice_call_notification_text">Foreground service running - Tap to return to call</string>
+    <string name="voice_call_notification_subtext">Background service keeps call active</string>
 </resources>
