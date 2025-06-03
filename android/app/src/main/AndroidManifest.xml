@@ -164,7 +164,9 @@
         </provider>
 
         <service android:name=".VoiceCallService"
-            android:foregroundServiceType="mediaPlayback"/>
+            android:foregroundServiceType="mediaPlayback"
+            android:description="@string/voice_call_service_description"
+            android:exported="false"/>
 
     </application>
  
