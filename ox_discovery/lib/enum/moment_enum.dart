@@ -6,6 +6,7 @@ enum EMomentMoreOptionType {
   copyNotedText,
   shareNoted,
   block,
+  report
 }
 
 extension EMomentMoreOptionTypeEx on EMomentMoreOptionType{
@@ -19,6 +20,8 @@ extension EMomentMoreOptionTypeEx on EMomentMoreOptionType{
         return 'Share Note';
       case EMomentMoreOptionType.block:
         return 'Block User';
+      case EMomentMoreOptionType.report:
+        return 'Report';
     }
   }
 }

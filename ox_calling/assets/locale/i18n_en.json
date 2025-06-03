@@ -10,5 +10,7 @@
   "str_invite_you_to_a_video_call": "Invites you to a video call...",
   "str_call_connecting": "Connecting...",
   "str_call_busy": "Line busy",
-  "str_voice_call_in_use": "Voice call in use"
+  "str_voice_call_in_use": "Voice call in use",
+  "str_foreground_service_notification": "Background service will keep your call active when you switch apps",
+  "str_foreground_service_active": "Background service is running to maintain your call"
 }

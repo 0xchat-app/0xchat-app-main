@@ -15,6 +15,9 @@ import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/contact_choose_page.dart';
 import 'package:ox_common/utils/font_size_notifier.dart';
 import 'package:ox_discovery/enum/moment_enum.dart';
+import 'package:ox_chat/utils/message_report.dart';
+import 'package:ox_chat/utils/widget_tool.dart';
+import 'package:ox_chat/widget/report_dialog.dart';
 import 'package:ox_discovery/page/widgets/moment_article_widget.dart';
 import 'package:ox_discovery/page/widgets/reply_contact_widget.dart';
 import 'package:ox_discovery/page/widgets/video_moment_widget.dart';
@@ -69,6 +72,7 @@ class _MomentWidgetState extends State<MomentWidget> {
     EMomentMoreOptionType.shareNoted,
     EMomentMoreOptionType.copyNotedID,
     EMomentMoreOptionType.copyNotedText,
+    EMomentMoreOptionType.report,
   ];
 
   @override
@@ -428,6 +432,10 @@ class _MomentWidgetState extends State<MomentWidget> {
           break;
         case EMomentMoreOptionType.block:
           _blockOptionFn(noteAuthor);
+          break;
+        case EMomentMoreOptionType.report:
+          await ReportDialog.show(context, target: MomentReportTarget(noteDB.encodedNoteId));
+          CommonToast.instance.show(context, "Report successfully");
           break;
       }
     });

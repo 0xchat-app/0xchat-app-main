@@ -6,19 +6,29 @@ import 'package:nostr_core_dart/nostr.dart';
 
 class MessageReportTarget implements ReportTarget {
 
-  MessageReportTarget(this.message);
+  MessageReportTarget(this.messageId);
 
-  final types.Message message;
+  final String? messageId;
 
   Future<String> reportAction(String reason) async {
-    var messageId = message.remoteId;
     if (messageId == null)
       return 'message not found';
-    OKEvent event = await Channels.sharedInstance.hideMessage(messageId, reason,);
+    OKEvent event = await Channels.sharedInstance.hideMessage(messageId!, reason,);
     if (event.status) {
       return '';
     } else {
       return event.message;
     }
+  }
+}
+
+class MomentReportTarget implements ReportTarget {
+
+  MomentReportTarget(this.momentId);
+
+  final String? momentId;
+
+  Future<String> reportAction(String reason) async {
+      return '';
   }
 }

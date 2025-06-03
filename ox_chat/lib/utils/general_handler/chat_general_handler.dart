@@ -680,7 +680,7 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
       message: 'id: ${message.id}, content: ${message.content}',
     );
 
-    final reportSuccess = await ReportDialog.show(context, target: MessageReportTarget(message));
+    final reportSuccess = await ReportDialog.show(context, target: MessageReportTarget(message.remoteId));
     final messageDeleteHandler = this.messageDeleteHandler;
     if (reportSuccess == true) {
       messageDeleteHandler(message);
