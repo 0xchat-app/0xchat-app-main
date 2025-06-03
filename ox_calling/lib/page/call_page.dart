@@ -450,10 +450,27 @@ class CallPageState extends State<CallPage> {
       CallManager.instance.initiativeHangUp = true;
       if (mounted) OXNavigator.pop(context);
     }
+    
+    // Show foreground service notification when call is connected
+    if (callState == CallState.CallStateConnected && Platform.isAndroid) {
+      _showForegroundServiceToast();
+    }
+    
     if (mounted) {
       setState(() {});
     }
+  }
 
+  void _showForegroundServiceToast() {
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (mounted) {
+        CommonToast.instance.show(
+          context,
+          'str_foreground_service_notification'.localized(),
+          duration: 4000
+        );
+      }
+    });
   }
 
   Future<SpeakerType?> showCustomDialog(BuildContext context, GlobalKey buttonKey) async {
