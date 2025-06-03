@@ -286,7 +286,7 @@ extension UserCenterPageUI on UserCenterPageState{
                   ),
                   SizedBox(height: Adapt.px(24)),
                   const SettingsPage(),
-                  if (Platform.isMacOS) _buildDeleteButton(),
+                  if (Platform.isIOS || Platform.isMacOS) _buildDeleteButton(),
                   // SizedBox(height: Adapt.px(24)),
                   // Container(
                   //   width: double.infinity,
