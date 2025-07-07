@@ -1,28 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources
     xmlns:tools="http://schemas.android.com/tools">
-    <!-- Theme applied to the Android Window while the process is starting when the OS's Dark Mode setting is off -->
-    <style name="transparentTheme" parent="@android:style/Theme.Black.NoTitleBar">
-        <!-- Show a splash screen on the activity. Automatically removed when
-             Flutter draws its first frame -->
-<!--        <item name="android:windowContentTransitions">true</item>-->
-        <item name="android:navigationBarColor">@color/yl_color_202630</item>
-        <item name="custom_attr_theme_color">@color/yl_color_202630</item>
-<!--        <item name="android:windowBackground">@android:color/transparent</item>-->
-        <item name="android:windowTranslucentStatus">true</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
-    </style>
-
-
+    <!-- Theme applied to the Android Application as soon as it is created.
+         This theme is visible to the user while the Flutter UI initializes.
+         After that, this theme continues to determine the Window background
+         behind the Flutter UI. -->
     <style name="LaunchTheme_night" parent="@android:style/Theme.Black.NoTitleBar">
         <!-- Show a splash screen on the activity. Automatically removed when
              Flutter draws its first frame -->
-<!--        <item name="android:windowContentTransitions">true</item>-->
-        <item name="android:navigationBarColor">@color/yl_color_202630</item>
-        <item name="custom_attr_theme_color">@color/yl_color_202630</item>
-<!--        <item name="android:windowBackground">@android:color/transparent</item>-->
-        <item name="android:windowTranslucentStatus">true</item>
-        <item name="android:statusBarColor">@color/yl_color_0E0E10</item>
-        <item name="android:windowLayoutInDisplayCutoutMode" tools:ignore="NewApi">shortEdges</item>
+        <item name="android:windowBackground">@drawable/launch_background</item>
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">false</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+        <!-- Support for Android 15 memory protection -->
+        <item name="android:windowSoftInputMode">adjustResize</item>
+        <item name="android:hardwareAccelerated">true</item>
+    </style>
+    
+    <!-- Theme for transparent activities -->
+    <style name="transparentTheme" parent="@android:style/Theme.Translucent">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:hardwareAccelerated">true</item>
     </style>
 </resources>

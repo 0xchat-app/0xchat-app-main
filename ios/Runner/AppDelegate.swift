@@ -3,7 +3,7 @@ import Flutter
 import ox_push
 
 
-@UIApplicationMain
+@main
 @objc class AppDelegate: FlutterAppDelegate {
     override func application(
         _ application: UIApplication,
