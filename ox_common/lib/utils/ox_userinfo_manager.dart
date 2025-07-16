@@ -423,7 +423,7 @@ class OXUserInfoManager {
     await UserConfigTool.migrateSharedPreferencesData();
     await EventCache.sharedInstance.loadAllEventsFromDB();
     Relays.sharedInstance.init().then((value) {
-      Contacts.sharedInstance.initContacts(Contacts.sharedInstance.contactUpdatedCallBack);
+      Contacts.sharedInstance.init(callBack: Contacts.sharedInstance.contactUpdatedCallBack);
       Channels.sharedInstance.init(callBack: Channels.sharedInstance.myChannelsUpdatedCallBack);
       Groups.sharedInstance.init(callBack: Groups.sharedInstance.myGroupsUpdatedCallBack);
       RelayGroup.sharedInstance.init(callBack: RelayGroup.sharedInstance.myGroupsUpdatedCallBack);
