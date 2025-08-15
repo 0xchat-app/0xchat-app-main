@@ -1,0 +1,23 @@
+{
+  "record_hint": "ریکارڈ کرنے کے لیے دبائے رکھیں، ${durationInSeconds} سیکنڈ کے بعد بھیجنے کے لیے چھوڑ دیں",
+  "input_more_album": "البم",
+  "input_more_camera": "کیمرہ",
+  "input_more_video": "ویڈیو",
+  "input_more_call": "کال",
+  "input_more_zaps": "‏Zaps",
+  "input_more_nuts": "‏Cashu Nuts",
+  "channel_join": "چینل میں شامل ہوں",
+  "group_join": "گروپ میں شامل ہوں",
+  "group_request": "گروپ میں شامل ہونے کی درخواست کریں",
+  "channel_badge_requirements": "اس چینل میں پیغامات بھیجنے کے لیے بیج کی ضروریات ہیں",
+  "friend_requirements": "پیغام بھیجنے سے قاصر، کیونکہ اب وہ دوست نہیں رہے",
+  "giphy_emoji": "ایموجیز",
+  "giphy_gif": "‏GIFs",
+  "giphy_sticker": "اسٹیکرز",
+  "giphy_collect": "جمع کریں",
+  "giphy_search": "تلاش کریں",
+  "giphy_tips": "‏Powered By GIPHY",
+  "chat_input_hint_text": "ایک پیغام لکھیں...",
+  "giphy_use_hint": "‏GIF تصاویر بھیجنے میں مدد کے لیے Giphy فیچر کو فعال کریں اور چیٹنگ میں مزید لطف اٹھائیں۔ تاہم، چونکہ ہم Giphy کے API انٹرفیس کا استعمال کرتے ہیں، Giphy API کی درخواست آپ کے IP ایڈریس کو Giphy سروس کے سامنے ظاہر کر دے گی۔ کیا آپ اسے فعال کرنے پر راضی ہیں؟",
+  "giphy_continue": "جاری رکھیں"
+}
