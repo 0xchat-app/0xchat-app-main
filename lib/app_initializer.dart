@@ -28,7 +28,7 @@ import 'package:ox_wallet/ox_wallet.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_socks_proxy/socks_proxy.dart';
 import 'package:dart_ping_ios/dart_ping_ios.dart';
-import 'package:nostr_mls_package/nostr_mls_package.dart';
+// import 'package:nostr_mls_package/nostr_mls_package.dart'; // MLS package temporarily disabled
 
 import 'main.reflectable.dart';
 
@@ -51,7 +51,7 @@ class AppInitializer {
         await windowManager.initWindow();
         HttpOverrides.global = OXHttpOverrides(); //ignore all ssl
         initializeReflectable();
-        await RustLib.init();
+        // await RustLib.init(); // MLS RustLib initialization temporarily disabled
         await ThemeManager.init();
         await Localized.init();
         await _setupModules();
