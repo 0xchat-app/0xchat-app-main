@@ -188,7 +188,7 @@ class _ContactUserOptionWidgetState extends State<ContactUserOptionWidget> with 
 
   List<EMoreOptionType> moreOptionList = [
     EMoreOptionType.remark,
-    EMoreOptionType.secretChat,
+    // EMoreOptionType.secretChat, // Secret chat temporarily disabled
     EMoreOptionType.messageTimer,
     EMoreOptionType.message,
   ];
