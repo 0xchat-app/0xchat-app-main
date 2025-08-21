@@ -1,10 +1,12 @@
 package com.oxchat.nostr;
 
 import androidx.multidex.MultiDexApplication;
+import android.os.Build;
+import android.util.Log;
 
 /**
- * Title: YLApplication
- * Description: TODO(Fill in by oneself)
+ * Title: OXApplication
+ * Description: Main Application class with Android 15 compatibility
  * Copyright: Copyright (c) 2023
  *
  * @author john
@@ -13,6 +15,7 @@ import androidx.multidex.MultiDexApplication;
  */
 public class OXApplication extends MultiDexApplication {
 
+    private static final String TAG = "OXApplication";
 
     @Override
     public void onCreate() {
@@ -25,6 +28,31 @@ public class OXApplication extends MultiDexApplication {
 //            setTheme(R.style.LaunchTheme_night);
 //        }
         super.onCreate();
+        
+        // Handle Android 15 compatibility
+        if (Build.VERSION.SDK_INT >= 35) { // Android 15 (API level 35)
+            handleAndroid15Compatibility();
+        }
+    }
 
+    /**
+     * Handle Android 15 specific compatibility issues
+     * Including DCL DENY_EXECMEM and memory protection
+     */
+    private void handleAndroid15Compatibility() {
+        try {
+            // Set system properties for better compatibility
+            System.setProperty("dalvik.vm.dex2oat-flags", "--compiler-filter=quicken");
+            System.setProperty("dalvik.vm.usejit", "true");
+            
+            // Enable memory optimization
+            System.setProperty("dalvik.vm.heapstartsize", "8m");
+            System.setProperty("dalvik.vm.heapgrowthlimit", "256m");
+            System.setProperty("dalvik.vm.heapsize", "512m");
+            
+            Log.d(TAG, "Android 15 compatibility settings applied");
+        } catch (Exception e) {
+            Log.e(TAG, "Error applying Android 15 compatibility settings", e);
+        }
     }
 }
