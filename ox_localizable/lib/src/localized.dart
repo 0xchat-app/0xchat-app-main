@@ -39,6 +39,7 @@ enum LocaleType {
     th,//Thai
     tr,//Turkish
     uk,//Ukrainian
+    ur,//Urdu
     vi,//Vietnamese
     zh_tw,//Traditional Chinese
     en,//English
@@ -111,6 +112,8 @@ extension LocaleTypeExtension on LocaleType{
                 return 'ca';
             case LocaleType.fa:
                 return 'fa';
+            case LocaleType.ur:
+                return 'ur';
         }
     }
 
@@ -180,6 +183,8 @@ extension LocaleTypeExtension on LocaleType{
                 return 30;
             case LocaleType.fa:
                 return 31;
+            case LocaleType.ur:
+                return 32;
         }
     }
 
@@ -247,6 +252,8 @@ extension LocaleTypeExtension on LocaleType{
                 return 'ca';
             case LocaleType.fa:
                 return 'fa';
+            case LocaleType.ur:
+                return 'ur';
         }
     }
 
@@ -314,6 +321,8 @@ extension LocaleTypeExtension on LocaleType{
                 return 'Català';
             case LocaleType.fa:
                 return 'فارسی';
+            case LocaleType.ur:
+                return 'اردو';
         }
     }
 }
@@ -345,7 +354,7 @@ class Localized {
     }
 
     static TextDirection getTextDirectionForLang() {
-        if (localized.localeType == LocaleType.ar || localized.localeType == LocaleType.fa) {
+        if (localized.localeType == LocaleType.ar || localized.localeType == LocaleType.fa || localized.localeType == LocaleType.ur) {
             return TextDirection.rtl;
         } else {
             return TextDirection.ltr;
