@@ -238,7 +238,7 @@ extension CLongPressOptionTypeEx on CLongPressOptionType {
         chatSessionModelISAR.chatType == ChatType.chatSecretStranger) {
       return [
         CLongPressOptionType.sendMessage,
-        CLongPressOptionType.startSecretChat,
+        // CLongPressOptionType.startSecretChat, // Secret chat temporarily disabled
         CLongPressOptionType.voiceCall,
         CLongPressOptionType.videoCall,
         CLongPressOptionType.deleteContact,

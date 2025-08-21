@@ -63,7 +63,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>
   List<TabModel> modelList = [];
 
   List<EMoreOptionType> moreOptionList = [
-    EMoreOptionType.secretChat,
+    // EMoreOptionType.secretChat, // Secret chat temporarily disabled
     EMoreOptionType.messageTimer,
     EMoreOptionType.message,
   ];
