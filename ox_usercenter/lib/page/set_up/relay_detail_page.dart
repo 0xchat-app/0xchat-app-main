@@ -11,6 +11,7 @@ import 'package:ox_common/widgets/common_pull_refresher.dart';
 import 'package:ox_common/widgets/common_status_view.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_module_service/ox_module_service.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 class RelayDetailPage extends StatefulWidget {
 
@@ -52,7 +53,7 @@ class _RelayDetailPageState extends State<RelayDetailPage> {
       },
       child: Scaffold(
         appBar: CommonAppBar(
-          title: "Relay Detail",
+          title: Localized.text('ox_usercenter.str_relay_detail'),
           useLargeTitle: false,
           centerTitle: true,
           backCallback: () async {

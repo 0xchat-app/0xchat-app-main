@@ -233,5 +233,19 @@
   "str_set_new_photo": "Đặt ảnh mới",
   "str_font_size": "Kích thước chữ",
   "str_settings_chat": "Kích thước chữ",
-  "str_settings_chat_set": "Cài đặt"
+  "str_settings_chat_set": "Cài đặt",
+  "str_set_default_wallet_first": "Vui lòng đặt ví mặc định trước",
+  "str_permanently_delete_account": "Xóa tài khoản vĩnh viễn",
+  "str_type_delete_to_confirm": "Nhập DELETE để xác nhận xóa",
+  "str_import_success": "Nhập thành công",
+  "str_import_failure": "Nhập thất bại",
+  "str_enable_fingerprint_system": "Vui lòng bật hệ thống nhận dạng vân tay của điện thoại.",
+  "str_enable_faceid_system": "Vui lòng bật hệ thống nhận dạng FaceID của điện thoại.",
+  "str_selected_item": "Mục đã chọn",
+  "str_dm_relay_description": "Tin nhắn riêng tư và tin nhắn trò chuyện nhóm riêng tư của bạn sẽ được gửi đến rơle DM của bạn. Khuyến nghị thiết lập 1-3 rơle hộp thư đến DM.",
+  "str_local_relay_description": "Những rơle này được lưu trữ cục bộ và được sử dụng để tải xuống hồ sơ người dùng, danh sách và bài đăng cho bạn",
+  "str_inbox_relay_description": "Những rơle này được sử dụng bởi những người dùng khác để gửi ghi chú, thích và zaps cho bạn. Khuyến nghị thiết lập 2-4 rơle hộp thư đến.",
+  "str_relay_detail": "Chi tiết rơle",
+  "str_text_size_instruction": "Xin chào, Jack.\nĐi đến \"Tôi - Kích thước chữ\" và kéo thanh trượt bên dưới để đặt kích thước chữ.",
+  "str_manual_donation_tip": "Vui lòng nhập sats thủ công hoặc chọn bất kỳ tùy chọn nào để quyên góp."
 }

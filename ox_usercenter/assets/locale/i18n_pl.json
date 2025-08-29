@@ -233,5 +233,19 @@
   "str_set_new_photo": "Ustaw nowe zdjęcie",
   "str_font_size": "Rozmiar tekstu",
   "str_settings_chat": "Rozmiar tekstu",
-  "str_settings_chat_set": "Ustaw"
+  "str_settings_chat_set": "Ustaw",
+  "str_set_default_wallet_first": "Najpierw ustaw domyślny portfel",
+  "str_permanently_delete_account": "Trwale usuń konto",
+  "str_type_delete_to_confirm": "Wpisz DELETE, aby potwierdzić usunięcie",
+  "str_import_success": "Import udany",
+  "str_import_failure": "Import nieudany",
+  "str_enable_fingerprint_system": "Włącz system rozpoznawania odcisków palców w telefonie.",
+  "str_enable_faceid_system": "Włącz system rozpoznawania FaceID w telefonie.",
+  "str_selected_item": "Wybrany element",
+  "str_dm_relay_description": "Twoje prywatne wiadomości i wiadomości prywatnych czatów grupowych zostaną wysłane do twojego przekaźnika DM. Zaleca się skonfigurowanie 1-3 przekaźników skrzynki odbiorczej DM.",
+  "str_local_relay_description": "Te przekaźniki są przechowywane lokalnie i służą do pobierania profili użytkowników, list i postów dla ciebie",
+  "str_inbox_relay_description": "Te przekaźniki są używane przez innych użytkowników do wysyłania ci notatek, polubień i zaps. Zaleca się skonfigurowanie 2-4 przekaźników skrzynki odbiorczej.",
+  "str_relay_detail": "Szczegóły przekaźnika",
+  "str_text_size_instruction": "Cześć, Jack.\nPrzejdź do \"Ja - Rozmiar tekstu\" i przeciągnij suwak poniżej, aby ustawić rozmiar tekstu.",
+  "str_manual_donation_tip": "Wprowadź ręcznie sats lub wybierz dowolną opcję, aby dokonać darowizny."
 }

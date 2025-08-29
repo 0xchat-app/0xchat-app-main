@@ -233,5 +233,19 @@
   "str_set_new_photo": "Ställ in nytt foto",
   "str_font_size": "Textstorlek",
   "str_settings_chat": "Textstorlek",
-  "str_settings_chat_set": "Ange"
+  "str_settings_chat_set": "Ange",
+  "str_set_default_wallet_first": "Ställ in standardplånboken först",
+  "str_permanently_delete_account": "Radera konto permanent",
+  "str_type_delete_to_confirm": "Skriv DELETE för att bekräfta radering",
+  "str_import_success": "Import lyckades",
+  "str_import_failure": "Import misslyckades",
+  "str_enable_fingerprint_system": "Aktivera telefonens fingeravtrycksigenkänningssystem.",
+  "str_enable_faceid_system": "Aktivera telefonens FaceID-igenkänningssystem.",
+  "str_selected_item": "Valt objekt",
+  "str_dm_relay_description": "Dina privata meddelanden och privata gruppchattmeddelanden kommer att skickas till din DM-relä. Det rekommenderas att ställa in 1-3 DM-inbox-reläer.",
+  "str_local_relay_description": "Dessa reläer lagras lokalt och används för att ladda ner användarprofiler, listor och inlägg för dig",
+  "str_inbox_relay_description": "Dessa reläer används av andra användare för att skicka anteckningar, gilla-markeringar och zaps till dig. Det rekommenderas att ställa in 2-4 inbox-reläer.",
+  "str_relay_detail": "Relädetaljer",
+  "str_text_size_instruction": "Hej, Jack.\nGå till \"Jag - Textstorlek\" och dra reglaget nedan för att ställa in textstorleken.",
+  "str_manual_donation_tip": "Ange sats manuellt eller välj ett alternativ för att göra en donation."
 }

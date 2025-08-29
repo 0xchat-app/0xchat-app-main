@@ -233,5 +233,19 @@
   "str_set_new_photo": "Indstil nyt foto",
   "str_font_size": "Tekststørrelse",
   "str_settings_chat": "Tekststørrelse",
-  "str_settings_chat_set": "Indstil"
+  "str_settings_chat_set": "Indstil",
+  "str_set_default_wallet_first": "Indstil venligst først standardpungen",
+  "str_permanently_delete_account": "Slet konto permanent",
+  "str_type_delete_to_confirm": "Skriv DELETE for at bekræfte sletning",
+  "str_import_success": "Import lykkedes",
+  "str_import_failure": "Import mislykkedes",
+  "str_enable_fingerprint_system": "Aktiver venligst telefonens fingeraftryksgenkendelsessystem.",
+  "str_enable_faceid_system": "Aktiver venligst telefonens FaceID-genkendelsessystem.",
+  "str_selected_item": "Valgt element",
+  "str_dm_relay_description": "Dine private beskeder og private gruppechatbeskeder vil blive sendt til din DM-relæ. Det anbefales at indstille 1-3 DM-indbakke-relæer.",
+  "str_local_relay_description": "Disse relæer gemmes lokalt og bruges til at downloade brugerprofiler, lister og indlæg for dig",
+  "str_inbox_relay_description": "Disse relæer bruges af andre brugere til at sende noter, likes og zaps til dig. Det anbefales at indstille 2-4 indbakke-relæer.",
+  "str_relay_detail": "Relædetaljer",
+  "str_text_size_instruction": "Hej, Jack.\nGå til \"Mig - Tekststørrelse\" og træk skyderen nedenfor for at indstille tekststørrelsen.",
+  "str_manual_donation_tip": "Indtast venligst sats manuelt eller vælg en mulighed for at give en donation."
 }

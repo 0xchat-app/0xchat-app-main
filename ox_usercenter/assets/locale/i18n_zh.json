@@ -233,5 +233,19 @@
   "str_set_new_photo": "设置新头像",
   "str_font_size": "字体大小",
   "str_settings_chat": "字体大小",
-  "str_settings_chat_set": "设置"
+  "str_settings_chat_set": "设置",
+  "str_set_default_wallet_first": "请先设置默认钱包",
+  "str_permanently_delete_account": "永久删除账号",
+  "str_type_delete_to_confirm": "输入DELETE确认删除",
+  "str_import_success": "导入成功",
+  "str_import_failure": "导入失败",
+  "str_enable_fingerprint_system": "请启用手机的指纹识别系统。",
+  "str_enable_faceid_system": "请启用手机的FaceID识别系统。",
+  "str_selected_item": "已选择项目",
+  "str_dm_relay_description": "您的私信和私密群聊消息将发送到您的DM中继器。建议设置1-3个DM收件箱中继器。",
+  "str_local_relay_description": "这些中继器存储在本地，用于为您下载用户资料、列表和帖子",
+  "str_inbox_relay_description": "其他用户通过这些中继器向您发送笔记、点赞和打闪。建议设置2-4个收件箱中继器。",
+  "str_relay_detail": "中继器详情",
+  "str_text_size_instruction": "你好，Jack。\n前往\"我 - 字体大小\"，拖动下面的滑块来设置字体大小。",
+  "str_manual_donation_tip": "请手动输入聪数或选择任意选项进行捐赠。"
 }

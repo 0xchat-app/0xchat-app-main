@@ -233,5 +233,19 @@
   "str_set_new_photo": "Iestatīt jaunu fotoattēlu",
   "str_font_size": "Teksta lielums",
   "str_settings_chat": "Teksta lielums",
-  "str_settings_chat_set": "Iestatīt"
+  "str_settings_chat_set": "Iestatīt",
+  "str_set_default_wallet_first": "Lūdzu, vispirms iestatiet noklusējuma makskatu",
+  "str_permanently_delete_account": "Pastāvīgi dzēst kontu",
+  "str_type_delete_to_confirm": "Ievadiet DELETE, lai apstiprinātu dzēšanu",
+  "str_import_success": "Importēšana veiksmīga",
+  "str_import_failure": "Importēšana neizdevās",
+  "str_enable_fingerprint_system": "Lūdzu, iespējojiet tālruņa pirkstu nospiedumu atpazīšanas sistēmu.",
+  "str_enable_faceid_system": "Lūdzu, iespējojiet tālruņa FaceID atpazīšanas sistēmu.",
+  "str_selected_item": "Izvēlētais elements",
+  "str_dm_relay_description": "Jūsu privātie ziņojumi un privātās grupu tērzēšanas ziņojumi tiks nosūtīti uz jūsu DM releju. Ieteicams iestatīt 1-3 DM iesūtnes relejus.",
+  "str_local_relay_description": "Šie releji tiek saglabāti lokāli un tiek izmantoti, lai lejupielādētu lietotāju profilus, sarakstus un ierakstus jums",
+  "str_inbox_relay_description": "Šos relejus izmanto citi lietotāji, lai jums nosūtītu piezīmes, patīk un zaps. Ieteicams iestatīt 2-4 iesūtnes relejus.",
+  "str_relay_detail": "Releja detaļas",
+  "str_text_size_instruction": "Sveiki, Jack.\nDodieties uz \"Es - Teksta lielums\" un velciet slīdni zemāk, lai iestatītu teksta lielumu.",
+  "str_manual_donation_tip": "Lūdzu, manuāli ievadiet sats vai izvēlieties jebkuru opciju ziedojumam."
 }

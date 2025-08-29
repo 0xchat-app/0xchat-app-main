@@ -614,11 +614,11 @@ extension RelayTypeExtension on RelayType {
   String tips() {
     switch (this) {
       case RelayType.dm:
-        return "Your private messages and private group chat messages will be sent to your DM relay. It is recommended to set up 1-3 DM inbox relays.";
+        return Localized.text('ox_usercenter.str_dm_relay_description');
       case RelayType.general:
-        return "These relays are stored locally and are used to download user profiles, lists, and posts for you";
+        return Localized.text('ox_usercenter.str_local_relay_description');
       case RelayType.inbox:
-        return "These relays are used by other users to send notes, likes, zaps to you. It is recommended to set up 2-4 inbox relays.";
+        return Localized.text('ox_usercenter.str_inbox_relay_description');
       case RelayType.outbox:
         return "0xchat will send your posts to these relays so other users can find your content. It is recommended to set up 2-4 outbox relays.";
     }

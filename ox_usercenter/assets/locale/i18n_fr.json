@@ -233,5 +233,19 @@
   "str_set_new_photo": "Définir une nouvelle photo",
   "str_font_size": "Taille du texte",
   "str_settings_chat": "Taille du texte",
-  "str_settings_chat_set": "Définir"
+  "str_settings_chat_set": "Définir",
+  "str_set_default_wallet_first": "Veuillez d'abord définir le portefeuille par défaut",
+  "str_permanently_delete_account": "Supprimer définitivement le compte",
+  "str_type_delete_to_confirm": "Tapez DELETE pour confirmer la suppression",
+  "str_import_success": "Importation réussie",
+  "str_import_failure": "Échec de l'importation",
+  "str_enable_fingerprint_system": "Veuillez activer le système de reconnaissance d'empreintes digitales du téléphone.",
+  "str_enable_faceid_system": "Veuillez activer le système de reconnaissance FaceID du téléphone.",
+  "str_selected_item": "Élément sélectionné",
+  "str_dm_relay_description": "Vos messages privés et messages de chat de groupe privé seront envoyés à votre relais DM. Il est recommandé de configurer 1-3 relais de boîte de réception DM.",
+  "str_local_relay_description": "Ces relais sont stockés localement et utilisés pour télécharger les profils utilisateur, listes et publications pour vous",
+  "str_inbox_relay_description": "Ces relais sont utilisés par d'autres utilisateurs pour vous envoyer des notes, des likes et des zaps. Il est recommandé de configurer 2-4 relais de boîte de réception.",
+  "str_relay_detail": "Détails du relais",
+  "str_text_size_instruction": "Bonjour, Jack.\nAllez dans \"Moi - Taille du texte\" et faites glisser le curseur ci-dessous pour définir la taille du texte.",
+  "str_manual_donation_tip": "Veuillez saisir manuellement les sats ou sélectionner une option pour faire un don."
 }

@@ -219,9 +219,9 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
               final success = await ImportDataTools.unzipAndProcessFile(file);
               OXLoading.dismiss();
               if (success) {
-                CommonToast.instance.show(context, 'Import successfully');
+                CommonToast.instance.show(context, Localized.text('ox_usercenter.str_import_success'));
               } else {
-                CommonToast.instance.show(context, 'Import failure');
+                CommonToast.instance.show(context, Localized.text('ox_usercenter.str_import_failure'));
               }
             }
             break;

@@ -233,5 +233,19 @@
   "str_set_new_photo": "Establecer nueva foto",
   "str_font_size": "Tamaño de texto",
   "str_settings_chat": "Tamaño de texto",
-  "str_settings_chat_set": "Establecer"
+  "str_settings_chat_set": "Establecer",
+  "str_set_default_wallet_first": "Por favor, configure primero la billetera predeterminada",
+  "str_permanently_delete_account": "Eliminar cuenta permanentemente",
+  "str_type_delete_to_confirm": "Escriba DELETE para confirmar la eliminación",
+  "str_import_success": "Importación exitosa",
+  "str_import_failure": "Fallo en la importación",
+  "str_enable_fingerprint_system": "Por favor, active el sistema de reconocimiento de huellas dactilares del teléfono.",
+  "str_enable_faceid_system": "Por favor, active el sistema de reconocimiento FaceID del teléfono.",
+  "str_selected_item": "Elemento seleccionado",
+  "str_dm_relay_description": "Sus mensajes privados y mensajes de chat de grupo privado se enviarán a su relé DM. Se recomienda configurar 1-3 relés de bandeja de entrada DM.",
+  "str_local_relay_description": "Estos relés se almacenan localmente y se utilizan para descargar perfiles de usuario, listas y publicaciones para usted",
+  "str_inbox_relay_description": "Estos relés son utilizados por otros usuarios para enviarle notas, me gusta y zaps. Se recomienda configurar 2-4 relés de bandeja de entrada.",
+  "str_relay_detail": "Detalle del relé",
+  "str_text_size_instruction": "Hola, Jack.\nVe a \"Yo - Tamaño de texto\" y arrastra el deslizador de abajo para establecer el tamaño del texto.",
+  "str_manual_donation_tip": "Por favor, ingrese manualmente los sats o seleccione cualquier opción para hacer una donación."
 }

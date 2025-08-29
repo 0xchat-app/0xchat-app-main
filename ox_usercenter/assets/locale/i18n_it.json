@@ -233,5 +233,19 @@
   "str_set_new_photo": "Imposta nuova foto",
   "str_font_size": "Dimensione testo",
   "str_settings_chat": "Dimensione testo",
-  "str_settings_chat_set": "Imposta"
+  "str_settings_chat_set": "Imposta",
+  "str_set_default_wallet_first": "Per favore, imposta prima il portafoglio predefinito",
+  "str_permanently_delete_account": "Elimina account permanentemente",
+  "str_type_delete_to_confirm": "Scrivi DELETE per confermare l'eliminazione",
+  "str_import_success": "Importazione riuscita",
+  "str_import_failure": "Importazione fallita",
+  "str_enable_fingerprint_system": "Per favore, abilita il sistema di riconoscimento delle impronte digitali del telefono.",
+  "str_enable_faceid_system": "Per favore, abilita il sistema di riconoscimento FaceID del telefono.",
+  "str_selected_item": "Elemento selezionato",
+  "str_dm_relay_description": "I tuoi messaggi privati e messaggi di chat di gruppo privato saranno inviati al tuo relay DM. Si consiglia di configurare 1-3 relay di casella di posta in arrivo DM.",
+  "str_local_relay_description": "Questi relay sono memorizzati localmente e utilizzati per scaricare profili utente, elenchi e post per te",
+  "str_inbox_relay_description": "Questi relay sono utilizzati da altri utenti per inviarti note, mi piace e zaps. Si consiglia di configurare 2-4 relay di casella di posta in arrivo.",
+  "str_relay_detail": "Dettagli relay",
+  "str_text_size_instruction": "Ciao, Jack.\nVai a \"Io - Dimensione testo\" e trascina il cursore qui sotto per impostare la dimensione del testo.",
+  "str_manual_donation_tip": "Per favore, inserisci manualmente i sats o seleziona qualsiasi opzione per fare una donazione."
 }

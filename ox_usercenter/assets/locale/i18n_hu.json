@@ -233,5 +233,19 @@
   "str_set_new_photo": "Új fotó beállítása",
   "str_font_size": "Betűméret",
   "str_settings_chat": "Betűméret",
-  "str_settings_chat_set": "Beállítás"
+  "str_settings_chat_set": "Beállítás",
+  "str_set_default_wallet_first": "Kérjük, először állítsa be az alapértelmezett pénztárcát",
+  "str_permanently_delete_account": "Fiók végleges törlése",
+  "str_type_delete_to_confirm": "Írja be a DELETE szöveget a törlés megerősítéséhez",
+  "str_import_success": "Importálás sikeres",
+  "str_import_failure": "Importálás sikertelen",
+  "str_enable_fingerprint_system": "Kérjük, engedélyezze a telefon ujjlenyomat-felismerő rendszerét.",
+  "str_enable_faceid_system": "Kérjük, engedélyezze a telefon FaceID-felismerő rendszerét.",
+  "str_selected_item": "Kiválasztott elem",
+  "str_dm_relay_description": "A privát üzenetei és privát csoportcsevegési üzenetei a DM reléjére kerülnek elküldésre. Javasolt 1-3 DM postafiók relé beállítása.",
+  "str_local_relay_description": "Ezek a relék helyileg tárolódnak és a felhasználói profilok, listák és bejegyzések letöltésére szolgálnak az Ön számára",
+  "str_inbox_relay_description": "Ezeket a reléket más felhasználók használják jegyzetek, kedvelések és zaps küldésére az Ön számára. Javasolt 2-4 postafiók relé beállítása.",
+  "str_relay_detail": "Relé részletek",
+  "str_text_size_instruction": "Üdvözöllek, Jack.\nMenj a \"Én - Betűméret\" menübe és húzd az alábbi csúszkát a szöveg méretének beállításához.",
+  "str_manual_donation_tip": "Kérjük, írja be manuálisan a sats-okat, vagy válasszon bármelyik opciót adományozáshoz."
 }

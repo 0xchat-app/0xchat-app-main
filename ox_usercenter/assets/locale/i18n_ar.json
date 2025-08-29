@@ -233,5 +233,19 @@
   "str_set_new_photo": "تعيين صورة جديدة",
   "str_font_size": "حجم النص",
   "str_settings_chat": "إعدادات النص",
-  "str_settings_chat_set": "تعيين"
+  "str_settings_chat_set": "تعيين",
+  "str_set_default_wallet_first": "يرجى تعيين المحفظة الافتراضية أولاً",
+  "str_permanently_delete_account": "حذف الحساب نهائياً",
+  "str_type_delete_to_confirm": "اكتب DELETE لتأكيد الحذف",
+  "str_import_success": "تم الاستيراد بنجاح",
+  "str_import_failure": "فشل الاستيراد",
+  "str_enable_fingerprint_system": "يرجى تمكين نظام التعرف على البصمة في الهاتف.",
+  "str_enable_faceid_system": "يرجى تمكين نظام التعرف على FaceID في الهاتف.",
+  "str_selected_item": "العنصر المحدد",
+  "str_dm_relay_description": "سيتم إرسال رسائلك الخاصة ورسائل الدردشة الجماعية الخاصة إلى محطة الترحيل DM الخاصة بك. يُنصح بإعداد 1-3 محطات ترحيل صندوق الوارد DM.",
+  "str_local_relay_description": "تتم تخزين محطات الترحيل هذه محلياً وتُستخدم لتنزيل ملفات تعريف المستخدمين والقوائم والمنشورات لك",
+  "str_inbox_relay_description": "يستخدم المستخدمون الآخرون محطات الترحيل هذه لإرسال الملاحظات والإعجابات والزابس لك. يُنصح بإعداد 2-4 محطات ترحيل صندوق الوارد.",
+  "str_relay_detail": "تفاصيل محطة الترحيل",
+  "str_text_size_instruction": "مرحباً، Jack.\nاذهب إلى \"أنا - حجم النص\" واسحب شريط التمرير أدناه لتعيين حجم النص.",
+  "str_manual_donation_tip": "يرجى إدخال الساتوشي يدوياً أو اختيار أي خيار للتبرع."
 }

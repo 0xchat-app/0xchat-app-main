@@ -233,5 +233,19 @@
   "str_set_new_photo": "Nieuwe foto instellen",
   "str_font_size": "Tekstgrootte",
   "str_settings_chat": "Tekstgrootte",
-  "str_settings_chat_set": "Instellen"
+  "str_settings_chat_set": "Instellen",
+  "str_set_default_wallet_first": "Stel eerst de standaard portemonnee in",
+  "str_permanently_delete_account": "Account permanent verwijderen",
+  "str_type_delete_to_confirm": "Typ DELETE om het verwijderen te bevestigen",
+  "str_import_success": "Importeren succesvol",
+  "str_import_failure": "Importeren mislukt",
+  "str_enable_fingerprint_system": "Schakel het vingerafdrukherkenningssysteem van de telefoon in.",
+  "str_enable_faceid_system": "Schakel het FaceID-herkenningssysteem van de telefoon in.",
+  "str_selected_item": "Geselecteerd item",
+  "str_dm_relay_description": "Uw privéberichten en privé groepsgesprekberichten worden naar uw DM-relay gestuurd. Het wordt aanbevolen om 1-3 DM-inbox-relays in te stellen.",
+  "str_local_relay_description": "Deze relays worden lokaal opgeslagen en gebruikt om gebruikersprofielen, lijsten en berichten voor u te downloaden",
+  "str_inbox_relay_description": "Deze relays worden door andere gebruikers gebruikt om u notities, likes en zaps te sturen. Het wordt aanbevolen om 2-4 inbox-relays in te stellen.",
+  "str_relay_detail": "Relay details",
+  "str_text_size_instruction": "Hallo, Jack.\nGa naar \"Ik - Tekstgrootte\" en sleep de schuifregelaar hieronder om de tekstgrootte in te stellen.",
+  "str_manual_donation_tip": "Voer handmatig sats in of selecteer een optie om te doneren."
 }

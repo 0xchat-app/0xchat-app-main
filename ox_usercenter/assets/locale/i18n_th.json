@@ -233,5 +233,19 @@
   "str_set_new_photo": "ตั้งค่ารูปภาพใหม่",
   "str_font_size": "ขนาดตัวอักษร",
   "str_settings_chat": "ขนาดตัวอักษร",
-  "str_settings_chat_set": "ตั้งค่า"
+  "str_settings_chat_set": "ตั้งค่า",
+  "str_set_default_wallet_first": "กรุณาตั้งค่ากระเป๋าเงินเริ่มต้นก่อน",
+  "str_permanently_delete_account": "ลบบัญชีอย่างถาวร",
+  "str_type_delete_to_confirm": "พิมพ์ DELETE เพื่อยืนยันการลบ",
+  "str_import_success": "นำเข้าสำเร็จ",
+  "str_import_failure": "นำเข้าล้มเหลว",
+  "str_enable_fingerprint_system": "กรุณาเปิดใช้งานระบบจดจำลายนิ้วมือของโทรศัพท์",
+  "str_enable_faceid_system": "กรุณาเปิดใช้งานระบบจดจำ FaceID ของโทรศัพท์",
+  "str_selected_item": "รายการที่เลือก",
+  "str_dm_relay_description": "ข้อความส่วนตัวและข้อความแชทกลุ่มส่วนตัวของคุณจะถูกส่งไปยังรีเลย์ DM ของคุณ แนะนำให้ตั้งค่ารีเลย์กล่องจดหมาย DM 1-3 ตัว",
+  "str_local_relay_description": "รีเลย์เหล่านี้ถูกเก็บไว้ในเครื่องและใช้สำหรับดาวน์โหลดโปรไฟล์ผู้ใช้ รายการ และโพสต์สำหรับคุณ",
+  "str_inbox_relay_description": "รีเลย์เหล่านี้ถูกใช้โดยผู้ใช้อื่นเพื่อส่งบันทึก การกดไลค์ และ zaps ให้คุณ แนะนำให้ตั้งค่ารีเลย์กล่องจดหมาย 2-4 ตัว",
+  "str_relay_detail": "รายละเอียดรีเลย์",
+  "str_text_size_instruction": "สวัสดี Jack\nไปที่ \"ฉัน - ขนาดตัวอักษร\" และลากแถบเลื่อนด้านล่างเพื่อตั้งค่าขนาดตัวอักษร",
+  "str_manual_donation_tip": "กรุณาป้อน sats ด้วยตนเองหรือเลือกตัวเลือกใดๆ เพื่อทำการบริจาค"
 }

@@ -233,5 +233,19 @@
   "str_set_new_photo": "नया फ़ोटो सेट करें",
   "str_font_size": "पाठ का आकार",
   "str_settings_chat": "पाठ का आकार",
-  "str_settings_chat_set": "सेट करें"
+  "str_settings_chat_set": "सेट करें",
+  "str_set_default_wallet_first": "कृपया पहले डिफ़ॉल्ट वॉलेट सेट करें",
+  "str_permanently_delete_account": "खाते को स्थायी रूप से हटाएं",
+  "str_type_delete_to_confirm": "हटाने की पुष्टि के लिए DELETE टाइप करें",
+  "str_import_success": "आयात सफल",
+  "str_import_failure": "आयात विफल",
+  "str_enable_fingerprint_system": "कृपया फोन की फिंगरप्रिंट पहचान प्रणाली को सक्षम करें।",
+  "str_enable_faceid_system": "कृपया फोन की FaceID पहचान प्रणाली को सक्षम करें।",
+  "str_selected_item": "चयनित आइटम",
+  "str_dm_relay_description": "आपके निजी संदेश और निजी समूह चैट संदेश आपके DM रिले पर भेजे जाएंगे। 1-3 DM इनबॉक्स रिले सेट करने की अनुशंसा की जाती है।",
+  "str_local_relay_description": "ये रिले स्थानीय रूप से संग्रहीत किए जाते हैं और आपके लिए उपयोगकर्ता प्रोफाइल, सूचियां और पोस्ट डाउनलोड करने के लिए उपयोग किए जाते हैं",
+  "str_inbox_relay_description": "ये रिले अन्य उपयोगकर्ताओं द्वारा आपको नोट्स, लाइक्स और zaps भेजने के लिए उपयोग किए जाते हैं। 2-4 इनबॉक्स रिले सेट करने की अनुशंसा की जाती है।",
+  "str_relay_detail": "रिले विवरण",
+  "str_text_size_instruction": "नमस्ते, Jack।\n\"मैं - पाठ का आकार\" पर जाएं और पाठ का आकार सेट करने के लिए नीचे स्लाइडर खींचें।",
+  "str_manual_donation_tip": "कृपया sats को मैन्युअल रूप से दर्ज करें या दान करने के लिए कोई विकल्प चुनें।"
 }

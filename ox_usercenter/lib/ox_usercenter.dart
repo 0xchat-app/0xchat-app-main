@@ -26,6 +26,7 @@ import 'package:ox_usercenter/page/usercenter_page.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:ox_usercenter/utils/zaps_helper.dart';
 import 'package:ox_common/launch/launch_third_party_app.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 class OXUserCenter extends OXFlutterModule {
 
@@ -116,9 +117,8 @@ class OXUserCenter extends OXFlutterModule {
        WalletModel walletModel = WalletModel.wallets.where((element) => element.title == defaultWalletName).toList().first;
        walletOnPress?.call(walletModel);
        _onTap(context, invoice, walletModel);
-     }
-     else{
-       CommonToast.instance.show(context, "Please set the default wallet first");
+     } else {
+       CommonToast.instance.show(context, Localized.text('ox_usercenter.str_set_default_wallet_first'));
      }
   }
 

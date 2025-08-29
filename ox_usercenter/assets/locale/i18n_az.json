@@ -233,5 +233,19 @@
   "str_set_new_photo": "Yeni şəkil təyin et",
   "str_font_size": "Mətn ölçüsü",
   "str_settings_chat": "Mətn tənzimləmələri",
-  "str_settings_chat_set": "Təyin et"
+  "str_settings_chat_set": "Təyin et",
+  "str_set_default_wallet_first": "Zəhmət olmasa əvvəlcə default cüzdanı təyin edin",
+  "str_permanently_delete_account": "Hesabı daimi olaraq silin",
+  "str_type_delete_to_confirm": "Silinməni təsdiqləmək üçün DELETE yazın",
+  "str_import_success": "Idxal uğurlu oldu",
+  "str_import_failure": "Idxal uğursuz oldu",
+  "str_enable_fingerprint_system": "Zəhmət olmasa telefonun barmaq izi tanıma sistemini aktivləşdirin.",
+  "str_enable_faceid_system": "Zəhmət olmasa telefonun FaceID tanıma sistemini aktivləşdirin.",
+  "str_selected_item": "Seçilmiş element",
+  "str_dm_relay_description": "Şəxsi mesajlarınız və şəxsi qrup söhbət mesajlarınız DM relay-inizə göndəriləcək. 1-3 DM gələn qutusu relay-ləri qurmaq tövsiyə olunur.",
+  "str_local_relay_description": "Bu relay-lər lokal olaraq saxlanılır və sizin üçün istifadəçi profilləri, siyahılar və yazıları yükləmək üçün istifadə olunur",
+  "str_inbox_relay_description": "Bu relay-lər digər istifadəçilər tərəfindən sizə qeydlər, bəyənmələr və zaps göndərmək üçün istifadə olunur. 2-4 gələn qutusu relay-ləri qurmaq tövsiyə olunur.",
+  "str_relay_detail": "Relay detalları",
+  "str_text_size_instruction": "Salam, Jack.\n\"Mən - Mətn ölçüsü\" bölməsinə gedin və mətn ölçüsünü təyin etmək üçün aşağıdakı sürüşdürücünü sürükləyin.",
+  "str_manual_donation_tip": "Zəhmət olmasa sats-ları əl ilə daxil edin və ya hədiyyə vermək üçün hər hansı seçim edin."
 }

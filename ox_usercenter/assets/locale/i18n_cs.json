@@ -233,5 +233,19 @@
   "str_set_new_photo": "Nastavit novou fotografii",
   "str_font_size": "Velikost textu",
   "str_settings_chat": "Velikost textu",
-  "str_settings_chat_set": "Nastavit"
+  "str_settings_chat_set": "Nastavit",
+  "str_set_default_wallet_first": "Prosím, nejprve nastavte výchozí peněženku",
+  "str_permanently_delete_account": "Trvale smazat účet",
+  "str_type_delete_to_confirm": "Zadejte DELETE pro potvrzení smazání",
+  "str_import_success": "Import úspěšný",
+  "str_import_failure": "Import selhal",
+  "str_enable_fingerprint_system": "Prosím, povolte systém rozpoznávání otisků prstů telefonu.",
+  "str_enable_faceid_system": "Prosím, povolte systém rozpoznávání FaceID telefonu.",
+  "str_selected_item": "Vybraná položka",
+  "str_dm_relay_description": "Vaše soukromé zprávy a zprávy soukromých skupinových chatů budou odeslány na váš DM relé. Doporučuje se nastavit 1-3 DM příchozí relé.",
+  "str_local_relay_description": "Tyto relé jsou uloženy lokálně a používají se ke stažení uživatelských profilů, seznamů a příspěvků pro vás",
+  "str_inbox_relay_description": "Tyto relé používají jiní uživatelé k odesílání poznámek, lajků a zaps vám. Doporučuje se nastavit 2-4 příchozí relé.",
+  "str_relay_detail": "Detail relé",
+  "str_text_size_instruction": "Ahoj, Jack.\nJděte na \"Já - Velikost textu\" a přetáhněte posuvník níže pro nastavení velikosti textu.",
+  "str_manual_donation_tip": "Prosím, zadejte sats ručně nebo vyberte jakoukoliv možnost pro darování."
 }

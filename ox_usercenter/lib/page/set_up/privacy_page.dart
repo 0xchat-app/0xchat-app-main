@@ -354,7 +354,7 @@ class _PrivacyPageState extends State<PrivacyPage> {
               CommonToast.instance.show(context, 'Not Authorized, try again.');
             }
           } else {
-            if (mounted) CommonToast.instance.show(context, "Please enable the phone's FaceID recognition system.");
+            if (mounted) CommonToast.instance.show(context, Localized.text('ox_usercenter.str_enable_faceid_system'));
           }
         }
         break;
@@ -378,7 +378,7 @@ class _PrivacyPageState extends State<PrivacyPage> {
               CommonToast.instance.show(context, 'Not Authorized, try again.');
             }
           } else {
-            if (mounted) CommonToast.instance.show(context, "Please enable the phone's fingerprint recognition system.");
+            if (mounted) CommonToast.instance.show(context, Localized.text('ox_usercenter.str_enable_fingerprint_system'));
           }
         }
         break;

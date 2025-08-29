@@ -233,5 +233,19 @@
   "str_set_new_photo": "Atur Foto Baru",
   "str_font_size": "Ukuran Teks",
   "str_settings_chat": "Ukuran Teks",
-  "str_settings_chat_set": "Atur"
+  "str_settings_chat_set": "Atur",
+  "str_set_default_wallet_first": "Silakan atur dompet default terlebih dahulu",
+  "str_permanently_delete_account": "Hapus akun secara permanen",
+  "str_type_delete_to_confirm": "Ketik DELETE untuk mengkonfirmasi penghapusan",
+  "str_import_success": "Impor berhasil",
+  "str_import_failure": "Impor gagal",
+  "str_enable_fingerprint_system": "Silakan aktifkan sistem pengenalan sidik jari ponsel.",
+  "str_enable_faceid_system": "Silakan aktifkan sistem pengenalan FaceID ponsel.",
+  "str_selected_item": "Item yang dipilih",
+  "str_dm_relay_description": "Pesan pribadi dan pesan obrolan grup pribadi Anda akan dikirim ke relay DM Anda. Disarankan untuk mengatur 1-3 relay kotak masuk DM.",
+  "str_local_relay_description": "Relay ini disimpan secara lokal dan digunakan untuk mengunduh profil pengguna, daftar, dan posting untuk Anda",
+  "str_inbox_relay_description": "Relay ini digunakan oleh pengguna lain untuk mengirim catatan, suka, dan zaps kepada Anda. Disarankan untuk mengatur 2-4 relay kotak masuk.",
+  "str_relay_detail": "Detail relay",
+  "str_text_size_instruction": "Halo, Jack.\nPergi ke \"Saya - Ukuran Teks\" dan seret slider di bawah untuk mengatur ukuran teks.",
+  "str_manual_donation_tip": "Silakan masukkan sats secara manual atau pilih opsi apa pun untuk melakukan donasi."
 }

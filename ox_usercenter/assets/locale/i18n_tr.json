@@ -233,5 +233,19 @@
   "str_set_new_photo": "Yeni Fotoğraf Ayarla",
   "str_font_size": "Yazı Tipi Boyutu",
   "str_settings_chat": "Yazı Tipi Boyutu",
-  "str_settings_chat_set": "Ayarla"
+  "str_settings_chat_set": "Ayarla",
+  "str_set_default_wallet_first": "Lütfen önce varsayılan cüzdanı ayarlayın",
+  "str_permanently_delete_account": "Hesabı kalıcı olarak sil",
+  "str_type_delete_to_confirm": "Silmeyi onaylamak için DELETE yazın",
+  "str_import_success": "İçe aktarma başarılı",
+  "str_import_failure": "İçe aktarma başarısız",
+  "str_enable_fingerprint_system": "Lütfen telefonun parmak izi tanıma sistemini etkinleştirin.",
+  "str_enable_faceid_system": "Lütfen telefonun FaceID tanıma sistemini etkinleştirin.",
+  "str_selected_item": "Seçilen öğe",
+  "str_dm_relay_description": "Özel mesajlarınız ve özel grup sohbet mesajlarınız DM rölenize gönderilecektir. 1-3 DM gelen kutusu rölesi kurmanız önerilir.",
+  "str_local_relay_description": "Bu röleler yerel olarak saklanır ve sizin için kullanıcı profilleri, listeler ve gönderiler indirmek için kullanılır",
+  "str_inbox_relay_description": "Bu röleler diğer kullanıcılar tarafından size not, beğeni ve zap göndermek için kullanılır. 2-4 gelen kutusu rölesi kurmanız önerilir.",
+  "str_relay_detail": "Röle detayı",
+  "str_text_size_instruction": "Merhaba, Jack.\n\"Ben - Yazı Tipi Boyutu\" bölümüne gidin ve metin boyutunu ayarlamak için aşağıdaki kaydırıcıyı sürükleyin.",
+  "str_manual_donation_tip": "Lütfen sats'ı manuel olarak girin veya bağış yapmak için herhangi bir seçeneği seçin."
 }

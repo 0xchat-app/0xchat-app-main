@@ -413,7 +413,7 @@ class _DonatePageState extends State<DonatePage> {
                 _buyConsumable();
               } else {
                 if (_selectIndex == -1 && _customStasTextController.text.isEmpty) {
-                  CommonToast.instance.show(context, "Please manually enter stas or select any option to make a donation.");
+                  CommonToast.instance.show(context, Localized.text('ox_usercenter.str_manual_donation_tip'));
                   return;
                 } else if (_selectIndex == -1 && _customStasTextController.text.isNotEmpty) {
                   await _getInvoice(double.parse(_customStasTextController.text).toInt());

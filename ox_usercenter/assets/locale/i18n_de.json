@@ -233,5 +233,19 @@
   "str_set_new_photo": "Neues Foto festlegen",
   "str_font_size": "Textgröße",
   "str_settings_chat": "Textgröße",
-  "str_settings_chat_set": "Festlegen"
+  "str_settings_chat_set": "Festlegen",
+  "str_set_default_wallet_first": "Bitte legen Sie zuerst die Standard-Wallet fest",
+  "str_permanently_delete_account": "Konto dauerhaft löschen",
+  "str_type_delete_to_confirm": "Geben Sie DELETE ein, um zu löschen",
+  "str_import_success": "Import erfolgreich",
+  "str_import_failure": "Import fehlgeschlagen",
+  "str_enable_fingerprint_system": "Bitte aktivieren Sie das Fingerabdruck-Erkennungssystem des Telefons.",
+  "str_enable_faceid_system": "Bitte aktivieren Sie das FaceID-Erkennungssystem des Telefons.",
+  "str_selected_item": "Ausgewähltes Element",
+  "str_dm_relay_description": "Ihre privaten Nachrichten und privaten Gruppenchat-Nachrichten werden an Ihr DM-Relais gesendet. Es wird empfohlen, 1-3 DM-Posteingang-Relais einzurichten.",
+  "str_local_relay_description": "Diese Relais werden lokal gespeichert und dienen zum Herunterladen von Benutzerprofilen, Listen und Beiträgen für Sie",
+  "str_inbox_relay_description": "Diese Relais werden von anderen Benutzern verwendet, um Ihnen Notizen, Likes und Zaps zu senden. Es wird empfohlen, 2-4 Posteingang-Relais einzurichten.",
+  "str_relay_detail": "Relais-Details",
+  "str_text_size_instruction": "Hallo, Jack.\nGehen Sie zu \"Ich - Textgröße\" und ziehen Sie den Schieberegler unten, um die Textgröße einzustellen.",
+  "str_manual_donation_tip": "Bitte geben Sie manuell Sats ein oder wählen Sie eine beliebige Option für eine Spende."
 }

@@ -233,5 +233,19 @@
   "str_set_new_photo": "新しい写真を設定",
   "str_font_size": "文字サイズ",
   "str_settings_chat": "文字サイズ",
-  "str_settings_chat_set": "設定"
+  "str_settings_chat_set": "設定",
+  "str_set_default_wallet_first": "まずデフォルトのウォレットを設定してください",
+  "str_permanently_delete_account": "アカウントを永久に削除",
+  "str_type_delete_to_confirm": "削除を確認するためDELETEと入力",
+  "str_import_success": "インポート成功",
+  "str_import_failure": "インポート失敗",
+  "str_enable_fingerprint_system": "携帯電話の指紋認識システムを有効にしてください。",
+  "str_enable_faceid_system": "携帯電話のFaceID認識システムを有効にしてください。",
+  "str_selected_item": "選択済みアイテム",
+  "str_dm_relay_description": "プライベートメッセージとプライベートグループチャットメッセージはDMリレーに送信されます。1-3個のDM受信箱リレーの設定をお勧めします。",
+  "str_local_relay_description": "これらのリレーはローカルに保存され、ユーザープロフィール、リスト、投稿をダウンロードするために使用されます",
+  "str_inbox_relay_description": "他のユーザーがこれらのリレーを通じて、ノート、いいね、ザップを送信します。2-4個の受信箱リレーの設定をお勧めします。",
+  "str_relay_detail": "リレー詳細",
+  "str_text_size_instruction": "こんにちは、Jack。\n「私 - 文字サイズ」に移動し、下のスライダーをドラッグして文字サイズを設定してください。",
+  "str_manual_donation_tip": "手動でサトシを入力するか、任意のオプションを選択して寄付を行ってください。"
 }

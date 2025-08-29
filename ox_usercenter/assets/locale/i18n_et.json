@@ -233,5 +233,19 @@
   "str_set_new_photo": "Määra uus foto",
   "str_font_size": "Teksti suurus",
   "str_settings_chat": "Teksti suurus",
-  "str_settings_chat_set": "Määra"
+  "str_settings_chat_set": "Määra",
+  "str_set_default_wallet_first": "Palun seadistage esmalt vaikimisi rahakott",
+  "str_permanently_delete_account": "Kustuta konto jäädavalt",
+  "str_type_delete_to_confirm": "Sisestage DELETE kustutamise kinnitamiseks",
+  "str_import_success": "Import õnnestus",
+  "str_import_failure": "Import ebaõnnestus",
+  "str_enable_fingerprint_system": "Palun lubage telefoni sõrmejälje tuvastamise süsteem.",
+  "str_enable_faceid_system": "Palun lubage telefoni FaceID tuvastamise süsteem.",
+  "str_selected_item": "Valitud objekt",
+  "str_dm_relay_description": "Teie privaatsõnumid ja privaatse grupi vestlussõnumid saadetakse teie DM edastusse. Soovitame seadistada 1-3 DM postkasti edastust.",
+  "str_local_relay_description": "Need edastused salvestatakse kohapeal ja kasutatakse kasutajaprofiilide, nimekirjade ja postituste allalaadimiseks teie jaoks",
+  "str_inbox_relay_description": "Neid edastusi kasutavad teised kasutajad teile märkmete, meeldimiste ja zapide saatmiseks. Soovitame seadistada 2-4 postkasti edastust.",
+  "str_relay_detail": "Edastuse üksikasjad",
+  "str_text_size_instruction": "Tere, Jack.\nMinge \"Mina - Teksti suurus\" ja lohistage allpool olev liugur teksti suuruse seadistamiseks.",
+  "str_manual_donation_tip": "Palun sisestage sats käsitsi või valige suvaline valik annetamiseks."
 }

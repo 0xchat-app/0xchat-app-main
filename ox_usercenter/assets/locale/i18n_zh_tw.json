@@ -233,5 +233,19 @@
   "str_set_new_photo": "設定新照片",
   "str_font_size": "文字大小",
   "str_settings_chat": "文字大小",
-  "str_settings_chat_set": "設定"
+  "str_settings_chat_set": "設定",
+  "str_set_default_wallet_first": "請先設置預設錢包",
+  "str_permanently_delete_account": "永久刪除帳號",
+  "str_type_delete_to_confirm": "輸入DELETE確認刪除",
+  "str_import_success": "匯入成功",
+  "str_import_failure": "匯入失敗",
+  "str_enable_fingerprint_system": "請啟用手機的指紋識別系統。",
+  "str_enable_faceid_system": "請啟用手機的FaceID識別系統。",
+  "str_selected_item": "已選擇項目",
+  "str_dm_relay_description": "您的私信和私密群聊消息將發送到您的DM中繼器。建議設置1-3個DM收件箱中繼器。",
+  "str_local_relay_description": "這些中繼器存儲在本地，用於為您下載用戶資料、列表和帖子",
+  "str_inbox_relay_description": "其他用戶通過這些中繼器向您發送筆記、點讚和打閃。建議設置2-4個收件箱中繼器。",
+  "str_relay_detail": "中繼器詳情",
+  "str_text_size_instruction": "你好，Jack。\n前往\"我 - 文字大小\"，拖動下面的滑塊來設置文字大小。",
+  "str_manual_donation_tip": "請手動輸入聰數或選擇任意選項進行捐贈。"
 }

@@ -233,5 +233,19 @@
   "str_set_new_photo": "تنظیم عکس جدید",
   "str_font_size": "اندازه متن",
   "str_settings_chat": "اندازه متن",
-  "str_settings_chat_set": "تنظیم"
+  "str_settings_chat_set": "تنظیم",
+  "str_set_default_wallet_first": "لطفاً ابتدا کیف پول پیش‌فرض را تنظیم کنید",
+  "str_permanently_delete_account": "حذف دائمی حساب",
+  "str_type_delete_to_confirm": "برای تأیید حذف، DELETE را تایپ کنید",
+  "str_import_success": "وارد کردن موفقیت‌آمیز",
+  "str_import_failure": "وارد کردن ناموفق",
+  "str_enable_fingerprint_system": "لطفاً سیستم تشخیص اثر انگشت تلفن را فعال کنید.",
+  "str_enable_faceid_system": "لطفاً سیستم تشخیص FaceID تلفن را فعال کنید.",
+  "str_selected_item": "مورد انتخاب شده",
+  "str_dm_relay_description": "پیام‌های خصوصی و پیام‌های چت گروهی خصوصی شما به رله DM شما ارسال خواهند شد. توصیه می‌شود 1-3 رله صندوق ورودی DM تنظیم کنید.",
+  "str_local_relay_description": "این رله‌ها به صورت محلی ذخیره می‌شوند و برای دانلود پروفایل‌های کاربران، لیست‌ها و پست‌ها برای شما استفاده می‌شوند",
+  "str_inbox_relay_description": "این رله‌ها توسط کاربران دیگر برای ارسال یادداشت‌ها، لایک‌ها و زپ‌ها به شما استفاده می‌شوند. توصیه می‌شود 2-4 رله صندوق ورودی تنظیم کنید.",
+  "str_relay_detail": "جزئیات رله",
+  "str_text_size_instruction": "سلام، Jack.\nبه \"من - اندازه متن\" بروید و اسلایدر زیر را بکشید تا اندازه متن را تنظیم کنید.",
+  "str_manual_donation_tip": "لطفاً sats را به صورت دستی وارد کنید یا گزینه‌ای را برای اهدا انتخاب کنید."
 }

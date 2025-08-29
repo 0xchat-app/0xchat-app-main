@@ -233,5 +233,19 @@
   "str_set_new_photo": "Defineix una nova foto",
   "str_font_size": "Mida del text",
   "str_settings_chat": "Mida del text",
-  "str_settings_chat_set": "Defineix"
+  "str_settings_chat_set": "Defineix",
+  "str_set_default_wallet_first": "Si us plau, configura primer la cartera per defecte",
+  "str_permanently_delete_account": "Elimina el compte permanentment",
+  "str_type_delete_to_confirm": "Escriu DELETE per confirmar l'eliminació",
+  "str_import_success": "Importació exitosa",
+  "str_import_failure": "Importació fallida",
+  "str_enable_fingerprint_system": "Si us plau, activa el sistema de reconeixement d'empremtes dactilars del telèfon.",
+  "str_enable_faceid_system": "Si us plau, activa el sistema de reconeixement FaceID del telèfon.",
+  "str_selected_item": "Element seleccionat",
+  "str_dm_relay_description": "Els teus missatges privats i missatges de xat de grup privat seran enviats al teu relé DM. Es recomana configurar 1-3 relés de safata d'entrada DM.",
+  "str_local_relay_description": "Aquests relés s'emmagatzemen localment i s'utilitzen per descarregar perfils d'usuari, llistes i publicacions per a tu",
+  "str_inbox_relay_description": "Aquests relés són utilitzats per altres usuaris per enviar-te notes, m'agrada i zaps. Es recomana configurar 2-4 relés de safata d'entrada.",
+  "str_relay_detail": "Detall del relé",
+  "str_text_size_instruction": "Hola, Jack.\nVes a \"Jo - Mida del text\" i arrossega el control lliscant de sota per configurar la mida del text.",
+  "str_manual_donation_tip": "Si us plau, introdueix manualment els sats o selecciona qualsevol opció per fer una donació."
 }
