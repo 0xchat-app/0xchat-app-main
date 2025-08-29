@@ -200,7 +200,7 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
         } else {
           await OXLoading.dismiss();
           String errorMsg = result.errorMsg != null ? ": ${result.errorMsg}" : "";
-          CommonToast.instance.show(context, 'Upload Failed$errorMsg');
+          CommonToast.instance.show(context, '${Localized.text('ox_usercenter.str_upload_failed')}$errorMsg');
           return;
         }
       }

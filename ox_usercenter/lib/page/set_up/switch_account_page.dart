@@ -15,6 +15,7 @@ import 'package:ox_theme/ox_theme.dart';
 import 'package:ox_usercenter/utils/widget_tool.dart';
 import 'package:ox_usercenter/widget/clear_account_selector_dialog.dart';
 import 'package:ox_common/utils/app_relay_hint_dialog.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 ///Title: switch_account_page
 ///Description: TODO(Fill in by oneself)
@@ -128,7 +129,7 @@ class _SwitchAccountPageState extends State<SwitchAccountPage> with OXUserInfoOb
         } else {
           String pubKey = multipleUserModel?.pubKey ?? '';
           if (pubKey.isEmpty) {
-            CommonToast.instance.show(context, 'PubKey is empty, try other.');
+            CommonToast.instance.show(context, Localized.text('ox_usercenter.str_pubkey_empty_try_other'));
             return;
           }
           await OXLoading.show();

@@ -433,11 +433,11 @@ class _RelaysForLoginPageState extends State<RelaysForLoginPage> with WidgetsBin
     }
 
     if (!isWssWithValidURL(upcomingRelay)) {
-      CommonToast.instance.show(context, 'Please input the right wss');
+      CommonToast.instance.show(context, Localized.text('ox_usercenter.str_please_input_right_wss'));
       return;
     }
     if (_relayList.contains(upcomingRelay)) {
-      CommonToast.instance.show(context, 'This Relay already exists');
+      CommonToast.instance.show(context, Localized.text('ox_usercenter.str_relay_already_exists'));
     } else {
       _recommendRelayList.removeWhere((element) => element.url == upcomingRelay);
       setState(() {

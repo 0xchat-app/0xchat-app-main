@@ -279,13 +279,13 @@ class _PrivacyBlockedPageState extends State<PrivacyBlockedPage> with CommonStat
       OKEvent okEvent = await Contacts.sharedInstance.removeBlockList(blockPubKeys);
       await OXLoading.dismiss();
       if(okEvent.status) {
-        CommonToast.instance.show(context, 'Unblock successful');
+        CommonToast.instance.show(context, Localized.text('ox_usercenter.str_unblock_successful'));
         OXNavigator.pop(context,true);
       } else {
-        CommonToast.instance.show(context, 'Unblock failed, please try again later.');
+        CommonToast.instance.show(context, Localized.text('ox_usercenter.str_unblock_failed_try_later'));
       }
     }catch(e,s){
-      CommonToast.instance.show(context, 'Unblock failed, please try again later.');
+      CommonToast.instance.show(context, Localized.text('ox_usercenter.str_unblock_failed_try_later'));
       await OXLoading.dismiss();
       LogUtil.e('Unblock failed: $e\r\n$s');
     }

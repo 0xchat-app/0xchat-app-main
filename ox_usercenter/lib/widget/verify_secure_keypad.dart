@@ -175,7 +175,7 @@ class VerifySecureKeypadState extends State<VerifySecureKeypad> {
       if (authResult) {
         widget.onAuthResult(true);
       } else {
-        CommonToast.instance.show(context, 'Not Authorized, try again.');
+        CommonToast.instance.show(context, Localized.text('ox_usercenter.str_not_authorized_try_again'));
       }
     } else {
       if (mounted) CommonToast.instance.show(context, Localized.text('ox_usercenter.str_enable_fingerprint_system'));
@@ -190,7 +190,7 @@ class VerifySecureKeypadState extends State<VerifySecureKeypad> {
       if (authResult) {
         widget.onAuthResult(true);
       } else {
-        CommonToast.instance.show(context, 'Not Authorized, try again.');
+        CommonToast.instance.show(context, Localized.text('ox_usercenter.str_not_authorized_try_again'));
       }
     } else {
       if (mounted) CommonToast.instance.show(context, Localized.text('ox_usercenter.str_enable_faceid_system'));

@@ -6,6 +6,7 @@ import 'package:ox_common/utils/platform_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/took_kit.dart';
 import 'package:flutter_vibrate/flutter_vibrate.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 class TextScaleSlider extends StatefulWidget {
   final ValueChanged<double>? onChanged;
@@ -41,31 +42,31 @@ class _TextScaleSliderState extends State<TextScaleSlider> {
       ),
       child: Stack(
         children: [
-          Positioned(
+          PositionedDirectional(
             child: _buildLabel(
-              'Text Size',
+              Localized.text('ox_usercenter.str_text_size'),
               color: ThemeColor.color0,
             ),
-            left: 24.px,
+            start: 24.px,
             top: 12.px,
           ),
           if (_currentValue == 1.0)
-            Positioned(
-              child: _buildLabel(
-                'Default',
-                color: ThemeColor.color0,
-              ),
-              right: 24.px,
+            PositionedDirectional(
+                          child: _buildLabel(
+              Localized.text('ox_usercenter.str_default'),
+              color: ThemeColor.color0,
+            ),
+              end: 24.px,
               top: 12.px,
             ),
-          Positioned(
+          PositionedDirectional(
             child: _buildLabel('A',scale: min),
-            left: 24.px,
+            start: 24.px,
             bottom: 12.px,
           ),
-          Positioned(
+          PositionedDirectional(
             child: _buildLabel('A', scale: max),
-            right: 24.px,
+            end: 24.px,
             bottom: 4.px,
           ),
           SliderTheme(

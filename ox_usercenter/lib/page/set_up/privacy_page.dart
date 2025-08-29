@@ -346,12 +346,12 @@ class _PrivacyPageState extends State<PrivacyPage> {
             bool authResult = await SecurityAuthUtils.authenticateWithBiometrics('FaceID');
             if (!mounted) return;
             if (authResult) {
-              CommonToast.instance.show(context, 'Authorized');
+              CommonToast.instance.show(context, Localized.text('ox_usercenter.str_authorized'));
               UserConfigTool.saveSetting(StorageSettingKey.KEY_FACEID.name, true);
               model.switchValue = true;
               setState(() {});
             } else {
-              CommonToast.instance.show(context, 'Not Authorized, try again.');
+              CommonToast.instance.show(context, Localized.text('ox_usercenter.str_not_authorized_try_again'));
             }
           } else {
             if (mounted) CommonToast.instance.show(context, Localized.text('ox_usercenter.str_enable_faceid_system'));
@@ -370,12 +370,12 @@ class _PrivacyPageState extends State<PrivacyPage> {
             bool authResult = await SecurityAuthUtils.authenticateWithBiometrics('Fingerprint');
             if (!mounted) return;
             if (authResult) {
-              CommonToast.instance.show(context, 'Authorized');
+              CommonToast.instance.show(context, Localized.text('ox_usercenter.str_authorized'));
               model.switchValue = true;
               UserConfigTool.saveSetting(StorageSettingKey.KEY_FINGERPRINT.name, true);
               setState(() {});
             } else {
-              CommonToast.instance.show(context, 'Not Authorized, try again.');
+              CommonToast.instance.show(context, Localized.text('ox_usercenter.str_not_authorized_try_again'));
             }
           } else {
             if (mounted) CommonToast.instance.show(context, Localized.text('ox_usercenter.str_enable_fingerprint_system'));
@@ -386,7 +386,7 @@ class _PrivacyPageState extends State<PrivacyPage> {
         ProxySettings proxyInfo = Config.sharedInstance.getProxy();
         final text = await OXCommonHintDialog.showInputDialog(
           context,
-          title: 'Set port',
+          title: Localized.text('ox_usercenter.str_set_port'),
           maxLength: 6,
           keyboardType: TextInputType.number,
           defaultText: proxyInfo.socksProxyPort.toString(),
@@ -401,7 +401,7 @@ class _PrivacyPageState extends State<PrivacyPage> {
         ProxySettings proxyInfo = Config.sharedInstance.getProxy();
         final text = await OXCommonHintDialog.showInputDialog(
           context,
-          title: 'Set host',
+          title: Localized.text('ox_usercenter.str_set_host'),
           keyboardType: TextInputType.text,
           defaultText: proxyInfo.socksProxyHost.toString(),
         );
@@ -432,7 +432,7 @@ class _PrivacyPageState extends State<PrivacyPage> {
               vertical: 8.px,
             ),
             child: Text(
-              'use .onion hosts',
+              Localized.text('ox_usercenter.str_use_onion_hosts'),
               style: TextStyle(
                 color: ThemeColor.color100,
                 fontSize: 14.px,

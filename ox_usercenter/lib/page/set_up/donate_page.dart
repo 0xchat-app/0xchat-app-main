@@ -264,7 +264,7 @@ class _DonatePageState extends State<DonatePage> {
       _selectIndex = 1;
       setState(() {});
     } else {
-      CommonToast.instance.show(context, 'Network error, please try again later.');
+      CommonToast.instance.show(context, Localized.text('ox_usercenter.str_network_error_try_later'));
     }
   }
 
@@ -541,11 +541,11 @@ class _DonatePageState extends State<DonatePage> {
 
   void _buyConsumable() async {
     if (_productDetails == null) {
-      CommonToast.instance.show(context, 'Anomaly occurred while retrieving the payment bill from the network.');
+      CommonToast.instance.show(context, Localized.text('ox_usercenter.str_anomaly_retrieving_payment_bill'));
       return;
     }
     if (_productList == null || _productList!.length < _selectIndex) {
-      CommonToast.instance.show(context, 'Payment anomaly, please use Sats payment.');
+      CommonToast.instance.show(context, Localized.text('ox_usercenter.str_payment_anomaly_use_sats'));
       return;
     }
     _clickProductEntity = _productList![_selectIndex];
@@ -555,7 +555,7 @@ class _DonatePageState extends State<DonatePage> {
     } else if (Platform.isAndroid && _clickProductEntity!.inPurchasingIdAndroid != null) {
       consumableId = _clickProductEntity!.inPurchasingIdAndroid!;
     } else {
-      CommonToast.instance.show(context, 'Payment anomaly, please use Sats payment.');
+      CommonToast.instance.show(context, Localized.text('ox_usercenter.str_payment_anomaly_use_sats'));
       return;
     }
     await OXLoading.show(status: Localized.text('ox_usercenter.buy_not_leave'));
