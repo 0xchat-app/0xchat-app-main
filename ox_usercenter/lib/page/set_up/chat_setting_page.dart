@@ -62,7 +62,7 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
             SizedBox(height: 16.px),
             _buildChatWidget(
               name: '0xchat',
-              content: 'Hello, Jack.\nGo to "Me - Text Size", and drag the slider below to set the text size.',
+              content: Localized.text('ox_usercenter.str_text_size_instruction'),
               picture: 'icon_chat_settings_left.png',
             ),
           ],

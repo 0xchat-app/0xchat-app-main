@@ -442,7 +442,7 @@ class _UserCenterBadgeDetailPageState extends State<UserCenterBadgeDetailPage> {
                   OXNavigator.pushPage(context, (context) => const DonatePage());
                 }else{
                   if(widget.isSelected!){
-                    CommonToast.instance.show(context, "Selected item");
+                    CommonToast.instance.show(context, Localized.text('ox_usercenter.str_selected_item'));
                   }else{
                     OXNavigator.pop(context,widget.badgeModel);
                   }

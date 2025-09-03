@@ -196,7 +196,7 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
                     alignment: Alignment.centerLeft,
                     child: Text(
                       // Localized.text('ox_usercenter.connect_relay'),
-                      'CONNECT TO ${_relayType.sign()} RELAY',
+                      '${Localized.text('ox_usercenter.str_connect_to_relay')} ${_relayType.sign()}',
                       style: TextStyle(
                         color: ThemeColor.color0,
                         fontSize: Adapt.px(14),
@@ -258,7 +258,7 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
                                   ),
                                   alignment: Alignment.center,
                                   child: Text(
-                                    'Add',
+                                    Localized.text('ox_usercenter.str_add'),
                                     style: TextStyle(
                                       fontSize: Adapt.px(14),
                                       color: ThemeColor.color0,
@@ -277,7 +277,7 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
                       alignment: Alignment.centerLeft,
                       child: Text(
                         // Localized.text('ox_usercenter.connected_relay'),
-                        'CONNECTED TO ${_relayType.sign()} RELAY',
+                        '${Localized.text('ox_usercenter.str_connected_to_relay')} ${_relayType.sign()}',
                         style: TextStyle(
                           color: ThemeColor.color0,
                           fontSize: Adapt.px(16),
@@ -494,11 +494,11 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
     List<RelayDBISAR> recommendRelayList = _recommendRelayListMap[_relayType]!;
     final upcomingRelays = relayList.map((e) => e.url).toList();
     if (!isWssWithValidURL(upcomingRelay)) {
-      CommonToast.instance.show(context, 'Please input the right wss');
+      CommonToast.instance.show(context, Localized.text('ox_usercenter.str_please_input_right_wss'));
       return;
     }
     if (upcomingRelays.contains(upcomingRelay)) {
-      CommonToast.instance.show(context, 'This Relay already exists');
+      CommonToast.instance.show(context, Localized.text('ox_usercenter.str_relay_already_exists'));
     } else {
       switch (_relayType) {
         case RelayType.general:
@@ -588,39 +588,39 @@ extension RelayTypeExtension on RelayType {
   String name() {
     switch (this) {
       case RelayType.dm:
-        return 'DM Relays';
+        return Localized.text('ox_usercenter.str_dm_relays');
       case RelayType.general:
-        return 'App Relays';
+        return Localized.text('ox_usercenter.str_app_relays');
       case RelayType.inbox:
-        return 'Inbox Relays';
+        return Localized.text('ox_usercenter.str_inbox_relays');
       case RelayType.outbox:
-        return 'Outbox Relays';
+        return Localized.text('ox_usercenter.str_outbox_relays');
     }
   }
 
   String sign() {
     switch (this) {
       case RelayType.dm:
-        return 'DM';
+        return Localized.text('ox_usercenter.str_dm_relays');
       case RelayType.general:
-        return 'APP';
+        return Localized.text('ox_usercenter.str_app');
       case RelayType.inbox:
-        return 'INBOX';
+        return Localized.text('ox_usercenter.str_inbox');
       case RelayType.outbox:
-        return 'OUTBOX';
+        return Localized.text('ox_usercenter.str_outbox');
     }
   }
 
   String tips() {
     switch (this) {
       case RelayType.dm:
-        return "Your private messages and private group chat messages will be sent to your DM relay. It is recommended to set up 1-3 DM inbox relays.";
+        return Localized.text('ox_usercenter.str_dm_relay_description');
       case RelayType.general:
-        return "These relays are stored locally and are used to download user profiles, lists, and posts for you";
+        return Localized.text('ox_usercenter.str_local_relay_description');
       case RelayType.inbox:
-        return "These relays are used by other users to send notes, likes, zaps to you. It is recommended to set up 2-4 inbox relays.";
+        return Localized.text('ox_usercenter.str_inbox_relay_description');
       case RelayType.outbox:
-        return "0xchat will send your posts to these relays so other users can find your content. It is recommended to set up 2-4 outbox relays.";
+        return Localized.text('ox_usercenter.str_outbox_relay_description');
     }
   }
 }

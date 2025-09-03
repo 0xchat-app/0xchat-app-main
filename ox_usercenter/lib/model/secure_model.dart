@@ -6,6 +6,7 @@ import 'package:local_auth/local_auth.dart';
 import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_usercenter/utils/security_auth_utils.dart';
 import 'package:chatcore/chat-core.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 ///Title: security_model
 ///Description: TODO(Fill in by oneself)
@@ -124,11 +125,11 @@ extension EOnionHostOptionEx on EOnionHostOption{
   String get text {
     switch (this) {
       case EOnionHostOption.required:
-        return 'Required';
+        return Localized.text('ox_usercenter.str_required');
       case EOnionHostOption.no:
         return 'No';
       case EOnionHostOption.whenAvailable:
-        return 'When available';
+        return Localized.text('ox_usercenter.str_when_available');
     }
   }
 }

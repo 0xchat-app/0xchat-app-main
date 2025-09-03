@@ -288,22 +288,22 @@ class UserCenterPageState extends State<UserCenterPage>
 
   void showDeleteAccountDialog() {
     String userInput = '';
-    const matchWord = 'DELETE';
+    final matchWord = Localized.text('ox_usercenter.str_delete');
     OXCommonHintDialog.show(
       context,
-      title: 'Permanently delete account',
+      title: Localized.text('ox_usercenter.str_permanently_delete_account'),
       contentView: TextField(
         onChanged: (value) {
           userInput = value;
         },
-        decoration: const InputDecoration(hintText: 'Type $matchWord to delete'),
+        decoration: InputDecoration(hintText: Localized.text('ox_usercenter.str_type_delete_to_confirm')),
       ),
       actionList: [
         OXCommonHintAction.cancel(onTap: () {
           OXNavigator.pop(context);
         }),
         OXCommonHintAction(
-          text: () => 'Delete',
+          text: () => Localized.text('ox_usercenter.str_delete'),
           style: OXHintActionStyle.red,
           onTap: () async {
             OXNavigator.pop(context);

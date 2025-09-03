@@ -9,6 +9,7 @@ import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_usercenter/utils/security_auth_utils.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 ///Title: verify_secure_keypad
 ///Description: TODO(Fill in by oneself)
@@ -174,10 +175,10 @@ class VerifySecureKeypadState extends State<VerifySecureKeypad> {
       if (authResult) {
         widget.onAuthResult(true);
       } else {
-        CommonToast.instance.show(context, 'Not Authorized, try again.');
+        CommonToast.instance.show(context, Localized.text('ox_usercenter.str_not_authorized_try_again'));
       }
     } else {
-      if (mounted) CommonToast.instance.show(context, "Please enable the phone's fingerprint recognition system.");
+      if (mounted) CommonToast.instance.show(context, Localized.text('ox_usercenter.str_enable_fingerprint_system'));
     }
   }
 
@@ -189,10 +190,10 @@ class VerifySecureKeypadState extends State<VerifySecureKeypad> {
       if (authResult) {
         widget.onAuthResult(true);
       } else {
-        CommonToast.instance.show(context, 'Not Authorized, try again.');
+        CommonToast.instance.show(context, Localized.text('ox_usercenter.str_not_authorized_try_again'));
       }
     } else {
-      if (mounted) CommonToast.instance.show(context, "Please enable the phone's FaceID recognition system.");
+      if (mounted) CommonToast.instance.show(context, Localized.text('ox_usercenter.str_enable_faceid_system'));
     }
   }
 }
