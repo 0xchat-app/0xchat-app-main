@@ -27,8 +27,8 @@ android {
   buildFeatures {
     buildConfig true
   }
-  compileSdk 34
-  buildToolsVersion "34.0.0"
+  compileSdk 35
+  buildToolsVersion "35.0.0"
   ndkVersion "27.0.12077973"
 
   // Add support for 16KB page sizes
@@ -44,7 +44,7 @@ android {
   defaultConfig {
     applicationId "com.oxchat.nostr"
     minSdk 28
-    targetSdk 34
+    targetSdk 35
     multiDexEnabled true
     versionCode versionParts[1] as Integer
     versionName versionParts[0]
