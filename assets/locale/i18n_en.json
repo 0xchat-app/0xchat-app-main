@@ -1,3 +1,32 @@
 {
-
+  "ox_common": {
+    "upload_queue_title": "Upload Queue",
+    "upload_active": "uploading",
+    "upload_completed": "completed",
+    "upload_failed": "failed",
+    "upload_queue_empty": "No uploads",
+    "clear_completed": "Clear",
+    "recommended": "Recommended",
+    "requires_setup": "Setup Required",
+    "select_upload_service": "Select Upload Service",
+    "select_upload_service_desc": "Choose where to upload your files",
+    "upload_service_nip96_desc": "Standard Nostr file storage protocol",
+    "upload_service_blossom_desc": "Decentralized file storage for Nostr",
+    "upload_service_pomf2_desc": "Simple image hosting service",
+    "upload_service_voidcat_desc": "Anonymous file hosting",
+    "upload_service_nostore_desc": "Nostr-native file storage",
+    "need_configure_services": "Some services require configuration",
+    "configure": "Configure",
+    "upload_files": "Upload Files",
+    "upload_files_desc": "Upload {count} selected files",
+    "upload_queue_desc": "View and manage your uploads",
+    "upload_new": "New Upload",
+    "upload_queue": "Queue",
+    "selected_files": "Selected Files",
+    "files": "files",
+    "and_more_files": "and {count} more...",
+    "cancel": "Cancel",
+    "start_upload": "Start Upload",
+    "uploading": "Uploading"
+  }
 }
