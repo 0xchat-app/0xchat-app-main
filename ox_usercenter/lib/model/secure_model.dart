@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:ox_common/utils/user_config_tool.dart';
@@ -75,6 +74,18 @@ class SecureModel {
     }
 
     ProxySettings proxyInfo = Config.sharedInstance.getProxy();
+    
+    // Add Tor Network switch first
+    settingModelList.add(SecureModel(
+      iconName: 'icon_privacy_tor.png',
+      title: 'ox_usercenter.use_tor_network',
+      isShowSwitch: true,
+      switchValue: proxyInfo.turnOnTor,
+      showArrow: false,
+      settingItemType: SecureItemType.useTorNetwork,
+    ));
+
+    // Add SOCKS Proxy switch
     settingModelList.add(SecureModel(
       iconName: 'icon_privacy_socks.png',
       title: 'ox_usercenter.use_socks_proxy',
@@ -84,8 +95,8 @@ class SecureModel {
       settingItemType: SecureItemType.useSocksProxy,
     ));
 
-
-    if(proxyInfo.turnOnProxy){
+    // Show SOCKS proxy settings only when SOCKS is enabled and Tor is disabled
+    if(proxyInfo.turnOnProxy && !proxyInfo.turnOnTor){
       settingModelList.add(SecureModel(
         iconName: 'icon_privacy_host.png',
         title:  'ox_usercenter.use_socks_proxy_host',
@@ -113,6 +124,7 @@ class SecureModel {
 enum SecureItemType {
   block,
   useSocksProxy,
+  useTorNetwork,
   useSocksProxyPort,
   useSocksProxyHost,
   useSocksProxyOnionHost,
