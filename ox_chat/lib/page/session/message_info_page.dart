@@ -32,6 +32,7 @@ class _MessageInfoPageState extends State<MessageInfoPage> {
   EventDBISAR? eventDB;
   MessageDBISAR? messageDB;
   bool isLoading = true;
+  Map<String, bool> resendingRelays = {}; // Track loading state for each relay
 
   @override
   void initState() {
@@ -184,21 +185,33 @@ class _MessageInfoPageState extends State<MessageInfoPage> {
               if (!isSuccess &&
                   messageDB?.giftwrappedEventJson != null &&
                   messageDB!.giftwrappedEventJson!.isNotEmpty)
-                TextButton(
-                  onPressed: () => _handleResend(status.relay),
-                  style: TextButton.styleFrom(
-                    padding: EdgeInsets.symmetric(horizontal: 12.px, vertical: 4.px),
-                    minimumSize: Size(0, 0),
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ),
-                  child: Text(
-                    Localized.text('ox_chat.message_info_resend'),
-                    style: TextStyle(
-                      color: ThemeColor.color0,
-                      fontSize: 12.sp,
-                    ),
-                  ),
-                ),
+                (resendingRelays[status.relay] ?? false)
+                    ? Container(
+                        padding: EdgeInsets.symmetric(horizontal: 12.px, vertical: 4.px),
+                        child: SizedBox(
+                          width: 16.px,
+                          height: 16.px,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: ThemeColor.color0,
+                          ),
+                        ),
+                      )
+                    : TextButton(
+                        onPressed: () => _handleResend(status.relay),
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.symmetric(horizontal: 12.px, vertical: 4.px),
+                          minimumSize: Size(0, 0),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: Text(
+                          Localized.text('ox_chat.message_info_resend'),
+                          style: TextStyle(
+                            color: ThemeColor.color0,
+                            fontSize: 12.sp,
+                          ),
+                        ),
+                      ),
             ],
           ),
           if (status.message.isNotEmpty) ...[
@@ -221,8 +234,18 @@ class _MessageInfoPageState extends State<MessageInfoPage> {
       return;
     }
 
+    // Set loading state
+    setState(() {
+      resendingRelays[relay] = true;
+    });
+
     OKCallBack? sendCallBack = (ok, relay) {
       if (!mounted) return;
+      
+      // Clear loading state
+      setState(() {
+        resendingRelays[relay] = false;
+      });
       
       if (ok.status) {
         CommonToast.instance.show(
@@ -248,6 +271,9 @@ class _MessageInfoPageState extends State<MessageInfoPage> {
       await EventCache.resendEventToRelays(messageDB!.giftwrappedEventJson!, [relay], sendCallBack);
     } catch (e) {
       if (mounted) {
+        setState(() {
+          resendingRelays[relay] = false;
+        });
         CommonToast.instance.show(
           context,
           Localized.text('ox_chat.message_info_resend_failed'),
