@@ -3,6 +3,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:isar/isar.dart';
 
@@ -222,20 +223,21 @@ class _MessageInfoPageState extends State<MessageInfoPage> {
 
     OKCallBack? sendCallBack = (ok, relay) {
       if (!mounted) return;
-
+      
       if (ok.status) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(Localized.text('ox_chat.message_info_resend_success')),
-            duration: Duration(seconds: 2),
-          ),
+        CommonToast.instance.show(
+          context,
+          Localized.text('ox_chat.message_info_resend_success'),
+          toastType: ToastType.success,
         );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${Localized.text('ox_chat.message_info_resend_failed')}: ${ok.message}'),
-            duration: Duration(seconds: 2),
-          ),
+        String errorMessage = ok.message.isNotEmpty
+            ? '${Localized.text('ox_chat.message_info_resend_failed')}: ${ok.message}'
+            : Localized.text('ox_chat.message_info_resend_failed');
+        CommonToast.instance.show(
+          context,
+          errorMessage,
+          toastType: ToastType.failed,
         );
       }
       // Reload event data to refresh status
@@ -246,11 +248,10 @@ class _MessageInfoPageState extends State<MessageInfoPage> {
       await EventCache.resendEventToRelays(messageDB!.giftwrappedEventJson!, [relay], sendCallBack);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(Localized.text('ox_chat.message_info_resend_failed')),
-            duration: Duration(seconds: 2),
-          ),
+        CommonToast.instance.show(
+          context,
+          Localized.text('ox_chat.message_info_resend_failed'),
+          toastType: ToastType.failed,
         );
       }
     }
