@@ -50,6 +50,7 @@ import 'package:ox_chat/manager/chat_data_cache.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_chat/page/contacts/contact_user_info_page.dart';
+import 'package:ox_chat/page/session/message_info_page.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_chat/utils/message_report.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
@@ -539,6 +540,9 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
       case MessageLongPressEventType.zaps:
         _zapMenuItemPressHandler(context, message);
         break;
+      case MessageLongPressEventType.info:
+        _infoMenuItemPressHandler(context, message);
+        break;
       default:
         break;
     }
@@ -704,6 +708,69 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
       groupId: session.hasMultipleUsers ? session.groupId : null,
     );
     await handler.handleZap(context: context, eventId: eventId);
+  }
+
+  /// Handles the press event for the "Info" button in a menu item.
+  void _infoMenuItemPressHandler(BuildContext context, types.Message message) async {
+    // Try message.remoteId first, then fallback to message.id
+    String? messageId = message.remoteId;
+    if (messageId == null || messageId.isEmpty) {
+      messageId = message.id;
+    }
+
+    if (messageId.isEmpty) {
+      ChatLogUtils.error(
+        className: 'ChatGeneralHandler',
+        funcName: '_infoMenuItemPressHandler',
+        message: 'Message ID is empty: id=${message.id}, remoteId=${message.remoteId}',
+      );
+      return;
+    }
+
+    ChatLogUtils.info(
+      className: 'ChatGeneralHandler',
+      funcName: '_infoMenuItemPressHandler',
+      message: 'Loading message info for messageId: $messageId',
+    );
+
+    // Load MessageDBISAR to get giftwrappedEventId (if exists)
+    final messageDB = await Messages.sharedInstance.loadMessageDBFromDB(messageId);
+    if (messageDB == null) {
+      ChatLogUtils.error(
+        className: 'ChatGeneralHandler',
+        funcName: '_infoMenuItemPressHandler',
+        message: 'MessageDBISAR not found for messageId: $messageId',
+      );
+      CommonToast.instance.show(context, Localized.text('ox_chat.message_info_not_found'));
+      return;
+    }
+
+    // For gift-wrapped messages, use giftwrappedEventId; for normal messages, use messageId
+    String eventId;
+    if (messageDB.giftwrappedEventId != null && messageDB.giftwrappedEventId!.isNotEmpty) {
+      eventId = messageDB.giftwrappedEventId!;
+      ChatLogUtils.info(
+        className: 'ChatGeneralHandler',
+        funcName: '_infoMenuItemPressHandler',
+        message: 'Using giftwrappedEventId: $eventId',
+      );
+    } else {
+      eventId = messageId;
+      ChatLogUtils.info(
+        className: 'ChatGeneralHandler',
+        funcName: '_infoMenuItemPressHandler',
+        message: 'Using messageId as eventId: $eventId',
+      );
+    }
+
+    ChatLogUtils.info(
+      className: 'ChatGeneralHandler',
+      funcName: '_infoMenuItemPressHandler',
+      message: 'Navigating to message info page with eventId: $eventId',
+    );
+
+    // Navigate to message info page
+    MessageInfoPage.show(context, giftwrappedEventId: eventId);
   }
 
   void messageDeleteHandler(types.Message message) {
