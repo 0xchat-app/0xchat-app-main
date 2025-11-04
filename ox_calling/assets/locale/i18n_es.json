@@ -10,5 +10,7 @@
   "str_invite_you_to_a_video_call": "Te invita a una llamada de video...",
   "str_call_connecting": "Conectando...",
   "str_call_busy": "Línea ocupada",
-  "str_voice_call_in_use": "Llamada de voz en uso"
+  "str_voice_call_in_use": "Llamada de voz en uso",
+  "str_foreground_service_notification": "El servicio en segundo plano mantendrá tu llamada activa cuando cambies de aplicación",
+  "str_foreground_service_active": "El servicio en segundo plano está activo para mantener tu llamada"
 }
