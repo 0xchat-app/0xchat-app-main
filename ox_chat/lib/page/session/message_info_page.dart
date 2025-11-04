@@ -4,6 +4,7 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_localizable/ox_localizable.dart';
+import 'package:isar/isar.dart';
 
 class MessageInfoPage extends StatefulWidget {
   /// Event ID to query - can be giftwrappedEventId for gift-wrapped messages
@@ -28,6 +29,7 @@ class MessageInfoPage extends StatefulWidget {
 
 class _MessageInfoPageState extends State<MessageInfoPage> {
   EventDBISAR? eventDB;
+  MessageDBISAR? messageDB;
   bool isLoading = true;
 
   @override
@@ -39,8 +41,23 @@ class _MessageInfoPageState extends State<MessageInfoPage> {
   Future<void> _loadEventData() async {
     try {
       final event = await EventCache.sharedInstance.loadEventFromDB(widget.giftwrappedEventId);
+
+      // Try to load messageDB using giftwrappedEventId as messageId
+      // If not found, try to find by giftwrappedEventId field
+      MessageDBISAR? msgDB =
+          await Messages.sharedInstance.loadMessageDBFromDB(widget.giftwrappedEventId);
+      if (msgDB == null) {
+        // Try to find messageDB by giftwrappedEventId field
+        final isar = DBISAR.sharedInstance.isar;
+        msgDB = await isar.messageDBISARs
+            .filter()
+            .giftwrappedEventIdEqualTo(widget.giftwrappedEventId)
+            .findFirst();
+      }
+
       setState(() {
         eventDB = event;
+        messageDB = msgDB;
         isLoading = false;
       });
     } catch (e) {
@@ -85,7 +102,7 @@ class _MessageInfoPageState extends State<MessageInfoPage> {
 
   Widget _buildContent() {
     final sendStatuses = eventDB!.eventSendStatus;
-    
+
     if (sendStatuses.isEmpty) {
       return Center(
         child: Text(
@@ -163,6 +180,24 @@ class _MessageInfoPageState extends State<MessageInfoPage> {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
+              if (!isSuccess &&
+                  messageDB?.giftwrappedEventJson != null &&
+                  messageDB!.giftwrappedEventJson!.isNotEmpty)
+                TextButton(
+                  onPressed: () => _handleResend(status.relay),
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.symmetric(horizontal: 12.px, vertical: 4.px),
+                    minimumSize: Size(0, 0),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: Text(
+                    Localized.text('ox_chat.message_info_resend'),
+                    style: TextStyle(
+                      color: ThemeColor.color0,
+                      fontSize: 12.sp,
+                    ),
+                  ),
+                ),
             ],
           ),
           if (status.message.isNotEmpty) ...[
@@ -179,5 +214,45 @@ class _MessageInfoPageState extends State<MessageInfoPage> {
       ),
     );
   }
-}
 
+  Future<void> _handleResend(String relay) async {
+    if (messageDB?.giftwrappedEventJson == null || messageDB!.giftwrappedEventJson!.isEmpty) {
+      return;
+    }
+
+    OKCallBack? sendCallBack = (ok, relay) {
+      if (!mounted) return;
+
+      if (ok.status) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(Localized.text('ox_chat.message_info_resend_success')),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${Localized.text('ox_chat.message_info_resend_failed')}: ${ok.message}'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+      // Reload event data to refresh status
+      _loadEventData();
+    };
+
+    try {
+      await EventCache.resendEventToRelays(messageDB!.giftwrappedEventJson!, [relay], sendCallBack);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(Localized.text('ox_chat.message_info_resend_failed')),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    }
+  }
+}
