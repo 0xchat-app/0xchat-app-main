@@ -42,7 +42,7 @@ android {
   def version = parsePubspecVersion()
   def versionParts = version.split("\\+")
   defaultConfig {
-    applicationId "com.oxchat.global"
+    applicationId "com.oxchat.nostr"
     minSdk 28
     targetSdk 35
     multiDexEnabled true
