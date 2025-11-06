@@ -227,7 +227,7 @@
   "nuts_zaps": "Nuts Zaps",
   "use_socks_proxy": "SOCKS proxy istifadə et",
   "use_socks_proxy_port": "Port",
-  "use_socks_proxy_onion_host": ".onion hostlarını istifadə et",
+  "use_system_proxy": "Sistem proksi istifadə et",
   "use_socks_proxy_host": "Host",
   "str_add_other_account": "Başqa hesab əlavə et",
   "str_set_new_photo": "Yeni şəkil təyin et",

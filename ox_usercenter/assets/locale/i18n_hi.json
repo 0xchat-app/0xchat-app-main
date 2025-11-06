@@ -227,7 +227,7 @@
   "nuts_zaps": "नट्स जैप्स",
   "use_socks_proxy": "SOCKS प्रॉक्सी का उपयोग करें",
   "use_socks_proxy_port": "पोर्ट",
-  "use_socks_proxy_onion_host": ".onion होस्ट का उपयोग करें",
+  "use_system_proxy": "सिस्टम प्रॉक्सी का उपयोग करें",
   "use_socks_proxy_host": "होस्ट",
   "str_add_other_account": "दूसरा खाता जोड़ें",
   "str_set_new_photo": "नया फ़ोटो सेट करें",

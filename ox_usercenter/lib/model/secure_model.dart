@@ -1,12 +1,10 @@
 import 'dart:io';
 
-import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_usercenter/utils/security_auth_utils.dart';
 import 'package:chatcore/chat-core.dart';
-import 'package:ox_localizable/ox_localizable.dart';
 
 ///Title: security_model
 ///Description: TODO(Fill in by oneself)
@@ -75,6 +73,18 @@ class SecureModel {
     }
 
     ProxySettings proxyInfo = Config.sharedInstance.getProxy();
+    
+    // Add Tor Network switch first
+    settingModelList.add(SecureModel(
+      iconName: 'icon_privacy_tor.png',
+      title: 'ox_usercenter.use_tor_network',
+      isShowSwitch: true,
+      switchValue: proxyInfo.turnOnTor,
+      showArrow: false,
+      settingItemType: SecureItemType.useTorNetwork,
+    ));
+
+    // Add SOCKS Proxy switch
     settingModelList.add(SecureModel(
       iconName: 'icon_privacy_socks.png',
       title: 'ox_usercenter.use_socks_proxy',
@@ -84,8 +94,16 @@ class SecureModel {
       settingItemType: SecureItemType.useSocksProxy,
     ));
 
-
+    // Show SOCKS proxy settings only when SOCKS is enabled and Tor is disabled
     if(proxyInfo.turnOnProxy){
+      // settingModelList.add(SecureModel(
+      //   iconName: 'icon_privacy_onion_host.png',
+      //   title:  'ox_usercenter.use_system_proxy',
+      //   isShowSwitch: true,
+      //   switchValue: proxyInfo.useSystemProxy,
+      //   showArrow: false,
+      //   settingItemType: SecureItemType.useSystemProxy,
+      // ));
       settingModelList.add(SecureModel(
         iconName: 'icon_privacy_host.png',
         title:  'ox_usercenter.use_socks_proxy_host',
@@ -98,12 +116,6 @@ class SecureModel {
         showArrow: false,
         settingItemType: SecureItemType.useSocksProxyPort,
       ));
-      settingModelList.add(SecureModel(
-        iconName: 'icon_privacy_onion_host.png',
-        title:  'ox_usercenter.use_socks_proxy_onion_host',
-        showArrow: false,
-        settingItemType: SecureItemType.useSocksProxyOnionHost,
-      ));
     }
 
     return settingModelList;
@@ -113,23 +125,11 @@ class SecureModel {
 enum SecureItemType {
   block,
   useSocksProxy,
+  useTorNetwork,
   useSocksProxyPort,
   useSocksProxyHost,
-  useSocksProxyOnionHost,
+  useSystemProxy,
   secureWithPasscode,
   secureWithFaceID,
   secureWithFingerprint,
-}
-
-extension EOnionHostOptionEx on EOnionHostOption{
-  String get text {
-    switch (this) {
-      case EOnionHostOption.required:
-        return Localized.text('ox_usercenter.str_required');
-      case EOnionHostOption.no:
-        return 'No';
-      case EOnionHostOption.whenAvailable:
-        return Localized.text('ox_usercenter.str_when_available');
-    }
-  }
 }

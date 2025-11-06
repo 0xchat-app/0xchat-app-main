@@ -81,11 +81,11 @@ class MessageLongPressWidgetState extends State<MessageLongPressWidget> {
           AssetImageData('icon_copy.png', package: 'ox_chat'),
           MessageLongPressEventType.copy,
         ),
-      ItemModel(
-        Localized.text('ox_chat.message_menu_report'),
-        AssetImageData('icon_report.png', package: 'ox_chat'),
-        MessageLongPressEventType.report,
-      ),
+      // ItemModel(
+      //   Localized.text('ox_chat.message_menu_report'),
+      //   AssetImageData('icon_report.png', package: 'ox_chat'),
+      //   MessageLongPressEventType.report,
+      // ),
       ItemModel(
         Localized.text('ox_chat.message_menu_quote'),
         AssetImageData('icon_quote.png', package: 'ox_chat'),
@@ -96,6 +96,13 @@ class MessageLongPressWidgetState extends State<MessageLongPressWidget> {
         AssetImageData('icon_zaps.png', package: 'ox_chat'),
         MessageLongPressEventType.zaps,
       ),
+      // Show info option for private chat messages
+      if (widget.handler.session.chatType == ChatType.chatSingle || widget.handler.session.chatType == ChatType.chatStranger)
+        ItemModel(
+          Localized.text('ox_chat.message_menu_info'),
+          AssetImageData('icon_report.png', package: 'ox_chat'),
+          MessageLongPressEventType.info,
+        ),
       if (widget.handler.session.chatType == ChatType.chatRelayGroup || OXUserInfoManager.sharedInstance.isCurrentUser(message.author.id))
         ItemModel(
           Localized.text('ox_chat.message_menu_delete'),

@@ -227,7 +227,7 @@
   "nuts_zaps": "Nuts Zaps",
   "use_socks_proxy": "Izmantot SOCKS starpniekserveri",
   "use_socks_proxy_port": "Ports",
-  "use_socks_proxy_onion_host": "Izmantot .onion saimniekus",
+  "use_system_proxy": "Izmantot sistēmas starpniekserveri",
   "use_socks_proxy_host": "Saimnieks",
   "str_add_other_account": "Pievienot citu kontu",
   "str_set_new_photo": "Iestatīt jaunu fotoattēlu",

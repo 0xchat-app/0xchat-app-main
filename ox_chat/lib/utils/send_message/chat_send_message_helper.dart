@@ -10,8 +10,7 @@ import 'package:ox_chat/utils/send_message/chat_strategy_factory.dart';
 import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:chatcore/chat-core.dart';
 
-typedef MessageContentCreator = FutureOr<String?> Function(
-    types.Message message);
+typedef MessageContentCreator = FutureOr<String?> Function(types.Message message);
 
 class ChatSendMessageHelper {
   static Future<String?> sendMessage({
@@ -26,8 +25,7 @@ class ChatSendMessageHelper {
   }) async {
     // prepare data
     final type = message.dbMessageType;
-    final contentString = (await contentEncoder?.call(message)) ??
-        message.contentString();
+    final contentString = (await contentEncoder?.call(message)) ?? message.contentString();
     final replyId = message.repliedMessage?.id ?? '';
     EncryptedFile? encryptedFile = _createEncryptedFileIfNeeded(message);
 
@@ -59,8 +57,7 @@ class ChatSendMessageHelper {
         sourceKey: sourceKey,
         expiration: senderStrategy.session.expiration == null
             ? null
-            : senderStrategy.session.expiration! +
-                currentUnixTimestampSeconds(),
+            : senderStrategy.session.expiration! + currentUnixTimestampSeconds(),
       );
 
       ChatLogUtils.info(

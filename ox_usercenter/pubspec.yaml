@@ -32,6 +32,8 @@ dependencies:
   waterfall_flow: ^3.0.2
   ox_push:
     path: ../../base_framework/ox_push
+  chatcore:
+    path: ../../0xchat-core
 
 dev_dependencies:
   flutter_test:

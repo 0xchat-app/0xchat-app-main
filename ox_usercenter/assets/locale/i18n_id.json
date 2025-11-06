@@ -227,7 +227,7 @@
   "nuts_zaps": "Nuts Zaps",
   "use_socks_proxy": "Gunakan proxy SOCKS",
   "use_socks_proxy_port": "Port",
-  "use_socks_proxy_onion_host": "Gunakan host .onion",
+  "use_system_proxy": "Gunakan proxy sistem",
   "use_socks_proxy_host": "Host",
   "str_add_other_account": "Tambahkan Akun Lain",
   "str_set_new_photo": "Atur Foto Baru",
