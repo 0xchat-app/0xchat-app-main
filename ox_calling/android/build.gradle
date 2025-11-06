@@ -28,7 +28,6 @@ android {
     if (project.android.hasProperty("namespace")) {
         namespace 'com.ox.ox_calling'
     }
-
     compileSdkVersion 34
 
     compileOptions {
