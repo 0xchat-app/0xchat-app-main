@@ -125,8 +125,6 @@ class PermissionUtils{
       permissionFailedContent = Localized.text('ox_common.str_permission_call_hint');
     }
     Map<Permission, PermissionStatus> statuses = await requestList.request();
-    LogUtil.e('Michael: --mediaType =${mediaType}-----');
-    LogUtil.e('Michael: --statuses[Permission.camera]?.isGranted =${statuses[Permission.camera]?.isGranted}-- statuses[Permission.microphone]?.isGranted = ${statuses[Permission.microphone]?.isGranted}');
     if ((mediaType == CallMessageType.audio.text && statuses[Permission.microphone]!.isGranted)
     || (mediaType == CallMessageType.video.text && statuses[Permission.camera]!.isGranted && statuses[Permission.microphone]!.isGranted)) {
       cmPermission = true;

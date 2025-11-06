@@ -13,6 +13,7 @@ import 'package:ox_network/network_manager.dart';
 import 'package:ox_network/src/db_tools.dart';
 import 'package:ox_network/src/utils/log_util.dart';
 import 'package:ox_network/src/widgets/common_loading.dart';
+import 'package:chatcore/chat-core.dart';
 import 'dart:convert' as convert;
 
 import 'package:ox_network/src/widgets/common_toast.dart';
@@ -111,7 +112,6 @@ class OXNetwork {
     };
     _dio.httpClientAdapter = adapter;
   }
-
 
   /// Initiates a network request
   ///
