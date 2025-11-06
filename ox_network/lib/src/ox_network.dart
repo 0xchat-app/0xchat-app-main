@@ -113,27 +113,6 @@ class OXNetwork {
     _dio.httpClientAdapter = adapter;
   }
 
-  /// Setup Dio with Tor proxy support
-  void setupDioWithTor(String url) {
-    final torManager = TorNetworkManager.instance;
-    if (!torManager.shouldUseTor(url)) {
-      return;
-    }
-
-    IOHttpClientAdapter adapter = IOHttpClientAdapter();
-    adapter.onHttpClientCreate = (HttpClient client) {
-      client.findProxy = (Uri uri) {
-        final proxyConfig = torManager.getProxyConfig(uri.toString());
-        return proxyConfig ?? 'DIRECT';
-      };
-      client.authenticateProxy = (String host, int port, String scheme, String? realm) => Future.value(true);
-      client.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
-      return null;
-    };
-    _dio.httpClientAdapter = adapter;
-  }
-
-
   /// Initiates a network request
   ///
   /// url: Request URL
@@ -182,9 +161,6 @@ class OXNetwork {
     if (address.isNotEmpty || Platform.isMacOS) {
       setupDio(address);
     }
-    
-    // Setup Tor proxy if needed
-    setupDioWithTor(url);
 
     final _showLoading = showLoading && (context != null);
     final _showError = showError && (context != null);
@@ -317,9 +293,6 @@ class OXNetwork {
     if (address.isNotEmpty || Platform.isMacOS) {
       setupDio(address);
     }
-    
-    // Setup Tor proxy if needed
-    setupDioWithTor(url);
 
     final _showLoading = showLoading && (context != null);
     final _showError = showError && (context != null);
