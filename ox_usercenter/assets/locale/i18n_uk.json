@@ -227,7 +227,7 @@
   "nuts_zaps": "Nuts Zaps",
   "use_socks_proxy": "Використовувати SOCKS-проксі",
   "use_socks_proxy_port": "Порт",
-  "use_socks_proxy_onion_host": "Використовувати .onion-хости",
+  "use_system_proxy": "Використовувати системний проксі",
   "use_socks_proxy_host": "Хост",
   "str_add_other_account": "Додати інший обліковий запис",
   "str_set_new_photo": "Встановити нове фото",

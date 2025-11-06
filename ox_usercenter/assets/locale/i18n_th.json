@@ -227,7 +227,7 @@
   "nuts_zaps": "Nuts Zaps",
   "use_socks_proxy": "ใช้พร็อกซี SOCKS",
   "use_socks_proxy_port": "พอร์ต",
-  "use_socks_proxy_onion_host": "ใช้โฮสต์ .onion",
+  "use_system_proxy": "ใช้พร็อกซีระบบ",
   "use_socks_proxy_host": "โฮสต์",
   "str_add_other_account": "เพิ่มบัญชีอื่น",
   "str_set_new_photo": "ตั้งค่ารูปภาพใหม่",

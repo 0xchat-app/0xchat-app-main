@@ -227,7 +227,7 @@
   "nuts_zaps": "Nuts Zaps",
   "use_socks_proxy": "Kasuta SOCKS proksit",
   "use_socks_proxy_port": "Port",
-  "use_socks_proxy_onion_host": "Kasuta .onion hoste",
+  "use_system_proxy": "Kasuta süsteemi puhverserverit",
   "use_socks_proxy_host": "Host",
   "str_add_other_account": "Lisa teine konto",
   "str_set_new_photo": "Määra uus foto",

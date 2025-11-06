@@ -5,7 +5,6 @@ import 'package:local_auth/local_auth.dart';
 import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_usercenter/utils/security_auth_utils.dart';
 import 'package:chatcore/chat-core.dart';
-import 'package:ox_localizable/ox_localizable.dart';
 
 ///Title: security_model
 ///Description: TODO(Fill in by oneself)
@@ -96,7 +95,15 @@ class SecureModel {
     ));
 
     // Show SOCKS proxy settings only when SOCKS is enabled and Tor is disabled
-    if(proxyInfo.turnOnProxy && !proxyInfo.turnOnTor){
+    if(proxyInfo.turnOnProxy){
+      // settingModelList.add(SecureModel(
+      //   iconName: 'icon_privacy_onion_host.png',
+      //   title:  'ox_usercenter.use_system_proxy',
+      //   isShowSwitch: true,
+      //   switchValue: proxyInfo.useSystemProxy,
+      //   showArrow: false,
+      //   settingItemType: SecureItemType.useSystemProxy,
+      // ));
       settingModelList.add(SecureModel(
         iconName: 'icon_privacy_host.png',
         title:  'ox_usercenter.use_socks_proxy_host',
@@ -108,12 +115,6 @@ class SecureModel {
         title:  'ox_usercenter.use_socks_proxy_port',
         showArrow: false,
         settingItemType: SecureItemType.useSocksProxyPort,
-      ));
-      settingModelList.add(SecureModel(
-        iconName: 'icon_privacy_onion_host.png',
-        title:  'ox_usercenter.use_socks_proxy_onion_host',
-        showArrow: false,
-        settingItemType: SecureItemType.useSocksProxyOnionHost,
       ));
     }
 
@@ -127,21 +128,8 @@ enum SecureItemType {
   useTorNetwork,
   useSocksProxyPort,
   useSocksProxyHost,
-  useSocksProxyOnionHost,
+  useSystemProxy,
   secureWithPasscode,
   secureWithFaceID,
   secureWithFingerprint,
-}
-
-extension EOnionHostOptionEx on EOnionHostOption{
-  String get text {
-    switch (this) {
-      case EOnionHostOption.required:
-        return Localized.text('ox_usercenter.str_required');
-      case EOnionHostOption.no:
-        return 'No';
-      case EOnionHostOption.whenAvailable:
-        return Localized.text('ox_usercenter.str_when_available');
-    }
-  }
 }

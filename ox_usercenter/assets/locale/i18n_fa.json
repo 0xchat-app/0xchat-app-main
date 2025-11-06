@@ -227,7 +227,7 @@
   "nuts_zaps": "Nuts Zaps",
   "use_socks_proxy": "استفاده از پروکسی SOCKS",
   "use_socks_proxy_port": "پورت",
-  "use_socks_proxy_onion_host": "استفاده از میزبان‌های .onion",
+  "use_system_proxy": "استفاده از پراکسی سیستم",
   "use_socks_proxy_host": "میزبان",
   "str_add_other_account": "اضافه کردن حساب دیگر",
   "str_set_new_photo": "تنظیم عکس جدید",

@@ -227,7 +227,7 @@
   "nuts_zaps": "Nuts Zaps",
   "use_socks_proxy": "Použít SOCKS proxy",
   "use_socks_proxy_port": "Port",
-  "use_socks_proxy_onion_host": "Použít .onion hosty",
+  "use_system_proxy": "Použít systémový proxy",
   "use_socks_proxy_host": "Hostitel",
   "str_add_other_account": "Přidat jiný účet",
   "str_set_new_photo": "Nastavit novou fotografii",

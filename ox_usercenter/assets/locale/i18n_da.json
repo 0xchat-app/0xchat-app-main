@@ -227,7 +227,7 @@
   "nuts_zaps": "Nuts Zaps",
   "use_socks_proxy": "Brug SOCKS proxy",
   "use_socks_proxy_port": "Port",
-  "use_socks_proxy_onion_host": "Brug .onion værter",
+  "use_system_proxy": "Brug systemproxy",
   "use_socks_proxy_host": "Vært",
   "str_add_other_account": "Tilføj anden konto",
   "str_set_new_photo": "Indstil nyt foto",

@@ -227,7 +227,7 @@
   "nuts_zaps": "넛츠잽스",
   "use_socks_proxy": "SOCKS 프록시 사용",
   "use_socks_proxy_port": "포트",
-  "use_socks_proxy_onion_host": ".onion 호스트 사용",
+  "use_system_proxy": "시스템 프록시 사용",
   "use_socks_proxy_host": "호스트",
   "str_add_other_account": "다른 계정 추가",
   "str_set_new_photo": "새 사진 설정",

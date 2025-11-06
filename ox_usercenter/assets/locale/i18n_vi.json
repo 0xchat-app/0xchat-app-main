@@ -227,7 +227,7 @@
   "nuts_zaps": "Nuts Zaps",
   "use_socks_proxy": "Sử dụng proxy SOCKS",
   "use_socks_proxy_port": "Cổng",
-  "use_socks_proxy_onion_host": "Sử dụng máy chủ .onion",
+  "use_system_proxy": "Sử dụng proxy hệ thống",
   "use_socks_proxy_host": "Máy chủ",
   "str_add_other_account": "Thêm tài khoản khác",
   "str_set_new_photo": "Đặt ảnh mới",

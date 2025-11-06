@@ -330,7 +330,6 @@ class CallPageState extends State<CallPage> {
           key: _speakerButtonKey,
           onTap: () async {
             final selectedSpeakerType = await showCustomDialog(context, _speakerButtonKey);
-            LogUtil.e('Michael: speakerClick-----selectedSpeakerType =${selectedSpeakerType?.name}');
             if (selectedSpeakerType != null) {
               _speakerType = selectedSpeakerType;
             }

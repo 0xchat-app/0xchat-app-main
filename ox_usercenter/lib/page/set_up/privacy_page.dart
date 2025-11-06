@@ -18,6 +18,7 @@ import 'package:ox_usercenter/model/secure_model.dart';
 import 'package:ox_usercenter/page/set_up/passcode_page.dart';
 import 'package:ox_usercenter/page/set_up/privacy_blocked_page.dart';
 import 'package:ox_usercenter/utils/security_auth_utils.dart';
+// import 'package:tor/tor.dart';
 
 class PrivacyPage extends StatefulWidget {
   const PrivacyPage({super.key});
@@ -134,13 +135,12 @@ class _PrivacyPageState extends State<PrivacyPage> {
         intervalHeight = model.switchValue ? 0 : 24.px;
         isShowUnderline = model.switchValue;
         break;
+      case SecureItemType.useSystemProxy:
+        isShowUnderline = true;
+        break;
       case SecureItemType.useSocksProxyHost:
         isShowUnderline = true;
         rightContent = proxyInfo.socksProxyHost;
-        break;
-      case SecureItemType.useSocksProxyOnionHost:
-        rightContent = proxyInfo.onionHostOption.text;
-        isShowUnderline = true;
         break;
       case SecureItemType.useSocksProxyPort:
         isShowUnderline = true;
@@ -149,19 +149,24 @@ class _PrivacyPageState extends State<PrivacyPage> {
       case SecureItemType.useTorNetwork:
         topLeft = 16.px;
         topRight = 16.px;
-        bottomLeft = model.switchValue ? 0 : 16.px;
-        bottomRight = model.switchValue ? 0 : 16.px;
-        intervalHeight = model.switchValue ? 0 : 24.px;
-        isShowUnderline = model.switchValue;
+        bottomLeft = 16.px;
+        bottomRight = 16.px;
+        intervalHeight = 24.px;
         break;
     }
     if (index == _secureModelList.length-1){
       bottomLeft = 16.px;
       bottomRight = 16.px;
     }
+    
+    // Check if item should be disabled (when system proxy is enabled and item is host/port)
+    bool isDisabled = proxyInfo.useSystemProxy && 
+                      (model.settingItemType == SecureItemType.useSocksProxyHost || 
+                       model.settingItemType == SecureItemType.useSocksProxyPort);
+    
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: () {
+      onTap: isDisabled ? null : () {
         _itemOnTap(model);
       },
       child: Column(
@@ -184,16 +189,18 @@ class _PrivacyPageState extends State<PrivacyPage> {
                 package: 'ox_usercenter',
               ),
               content: Localized.text(model.title),
+              contentColor: isDisabled ? ThemeColor.color100 : null,
               actions: model.isShowSwitch ? _buildSwitchWithLoading(model) : Row(
                 children: [
                   Text(
                     rightContent,
-                    style: TextStyle(fontSize: Adapt.px(16), fontWeight: FontWeight.w400, color: ThemeColor.color100),
+                    style: TextStyle(fontSize: Adapt.px(16), fontWeight: FontWeight.w400, color: isDisabled ? ThemeColor.color160 : ThemeColor.color100),
                   ),
                   CommonImage(
                     iconName: 'icon_arrow_more.png',
                     width: Adapt.px(24),
                     height: Adapt.px(24),
+                    color: isDisabled ? ThemeColor.color160 : null,
                   ),
                 ],
               ),
@@ -208,7 +215,6 @@ class _PrivacyPageState extends State<PrivacyPage> {
               color: ThemeColor.color160,
             ),
           ),
-          _proxyTurnOnTipsWidget(model.settingItemType),
         ],
       ),
     );
@@ -218,10 +224,9 @@ class _PrivacyPageState extends State<PrivacyPage> {
     // Check if this is Tor Network switch and if it's connecting
     if (model.settingItemType == SecureItemType.useTorNetwork && model.switchValue) {
       final proxyInfo = Config.sharedInstance.getProxy();
-      final torManager = TorNetworkManager.instance;
-      
+
       // Show loading animation if Tor is enabled but not yet connected
-      if (proxyInfo.turnOnTor && !torManager.isEnabled) {
+      if (proxyInfo.turnOnTor && !TorNetworkHelper.isTorEnabled) {
         return Container(
           height: 20.px,
           child: Row(
@@ -293,45 +298,6 @@ class _PrivacyPageState extends State<PrivacyPage> {
     ]);
   }
 
-  Widget _proxyTurnOnTipsWidget(SecureItemType type){
-    if(type != SecureItemType.useSocksProxyOnionHost) return const SizedBox();
-    return SizedBox(
-      width: double.infinity,
-      child: RichText(
-        textAlign: TextAlign.start,
-        text: TextSpan(
-          style: TextStyle(
-            color: ThemeColor.color100,
-            fontSize: 12.px,
-          ),
-          children: const [
-            TextSpan(
-              text: 'No: ',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            TextSpan(
-              text: 'Never use .onion hosts\n\n',
-            ),
-            TextSpan(
-              text: 'When available(default): ',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            TextSpan(
-              text: 'Uses .onion hosts when available\n\n',
-            ),
-            TextSpan(
-              text: 'Required: ',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            TextSpan(
-              text: 'Always use .onion hosts',
-            ),
-          ],
-        ),
-      ),
-
-    ).setPaddingOnly(top: 8.px);
-  }
 
   void _getBlockedUserPubkeys() {
     List<String>? blockResult = Contacts.sharedInstance.blockList;
@@ -443,8 +409,67 @@ class _PrivacyPageState extends State<PrivacyPage> {
           }
         }
         break;
+      case SecureItemType.useSystemProxy:
+        // ProxySettings systemProxyInfo = Config.sharedInstance.getProxy();
+        //
+        // // If turning on system proxy, check if available
+        // if (!model.switchValue) {
+        //   // Show loading dialog
+        //   OXCommonHintDialog.show(
+        //     context,
+        //     showCancelButton: false,
+        //     isRowAction: false,
+        //     content: Localized.text('ox_common.loading'),
+        //   );
+        //
+        //   try {
+        //     // Check system proxy
+        //     await Tor.instance.checkSystemProxy();
+        //
+        //     // Get system proxy
+        //     final systemProxy = Tor.instance.currentSystemProxy();
+        //
+        //     // Close loading dialog
+        //     if (mounted) OXNavigator.pop(context);
+        //
+        //     if (systemProxy == null) {
+        //       // No system proxy available
+        //       if (mounted) {
+        //         CommonToast.instance.show(
+        //           context,
+        //           Localized.text('ox_usercenter.system_proxy_not_available')
+        //         );
+        //       }
+        //       return;
+        //     }
+        //
+        //     // System proxy available, enable it
+        //     systemProxyInfo.useSystemProxy = true;
+        //     await Config.sharedInstance.setProxy(systemProxyInfo);
+        //     _initData();
+        //   } catch (e) {
+        //     // Close loading dialog
+        //     if (mounted) OXNavigator.pop(context);
+        //
+        //     // Show error
+        //     if (mounted) {
+        //       CommonToast.instance.show(
+        //         context,
+        //         Localized.text('ox_usercenter.system_proxy_check_failed')
+        //       );
+        //     }
+        //     LogUtil.e('[SystemProxy] Check failed: $e');
+        //   }
+        // } else {
+        //   // Turning off system proxy
+        //   systemProxyInfo.useSystemProxy = false;
+        //   await Config.sharedInstance.setProxy(systemProxyInfo);
+        //   _initData();
+        // }
+        break;
       case SecureItemType.useSocksProxyPort:
         ProxySettings proxyInfo = Config.sharedInstance.getProxy();
+        if (proxyInfo.useSystemProxy) return;
         final text = await OXCommonHintDialog.showInputDialog(
           context,
           title: Localized.text('ox_usercenter.str_set_port'),
@@ -460,6 +485,7 @@ class _PrivacyPageState extends State<PrivacyPage> {
         break;
       case SecureItemType.useSocksProxyHost:
         ProxySettings proxyInfo = Config.sharedInstance.getProxy();
+        if (proxyInfo.useSystemProxy) return;
         final text = await OXCommonHintDialog.showInputDialog(
           context,
           title: Localized.text('ox_usercenter.str_set_host'),
@@ -472,142 +498,37 @@ class _PrivacyPageState extends State<PrivacyPage> {
           _initData();
         }
         break;
-      case SecureItemType.useSocksProxyOnionHost:
-        showModalBottomSheet(context: context, backgroundColor: Colors.transparent, builder: (context) => _buildSetProxyBottomDialog());
-        break;
       case SecureItemType.useSocksProxy:
-        ProxySettings socksProxyInfo = Config.sharedInstance.getProxy();
-        if (!model.switchValue) {
-          // Turning on SOCKS proxy - disable Tor if enabled
-          if (socksProxyInfo.turnOnTor) {
-            socksProxyInfo.turnOnTor = false;
-            TorNetworkManager.instance.disable();
-          }
-          socksProxyInfo.turnOnProxy = true;
-          await Config.sharedInstance.setProxy(socksProxyInfo);
-          _initData();
-        } else {
-          // Turning off SOCKS proxy
-          socksProxyInfo.turnOnProxy = false;
-          await Config.sharedInstance.setProxy(socksProxyInfo);
-          _initData();
-        }
+        ProxySettings proxy = Config.sharedInstance.getProxy();
+        final newValue = !model.switchValue;
+        if (proxy.turnOnProxy == newValue) return;
+
+        proxy.turnOnProxy = newValue;
+        await Config.sharedInstance.setProxy(proxy);
+
+        _initData();
         break;
       case SecureItemType.useTorNetwork:
-        ProxySettings torProxyInfo = Config.sharedInstance.getProxy();
-        if (!model.switchValue) {
-          // Turning on Tor - disable SOCKS proxy if enabled
-          if (torProxyInfo.turnOnProxy) {
-            torProxyInfo.turnOnProxy = false;
+        final proxy = Config.sharedInstance.getProxy();
+        final isUseTor = proxy.turnOnTor;
+        final newValue = !model.switchValue;
+        if (newValue == isUseTor) return;
+
+        if (newValue) {
+          try {
+            await TorNetworkHelper.start();
+            proxy.turnOnTor = true;
+            await Config.sharedInstance.setProxy(proxy);
+          } catch (err) {
+            CommonToast.instance.show(context, 'Failed to enable Tor: $err');
           }
-          torProxyInfo.turnOnTor = true;
-          await Config.sharedInstance.setProxy(torProxyInfo);
-          
-          // Start Tor in background without waiting
-          TorNetworkManager.instance.enable().then((_) {
-            CommonToast.instance.show(context, Localized.text('ox_usercenter.tor_enabled'));
-          }).catchError((e) {
-            CommonToast.instance.show(context, 'Failed to enable Tor: $e');
-            // Revert config on failure
-            final proxyInfo = Config.sharedInstance.getProxy();
-            proxyInfo.turnOnTor = false;
-            Config.sharedInstance.setProxy(proxyInfo);
-          });
-          
-          _initData();
         } else {
-          // Turning off Tor
-          torProxyInfo.turnOnTor = false;
-          await Config.sharedInstance.setProxy(torProxyInfo);
-          TorNetworkManager.instance.disable();
-          _initData();
+          proxy.turnOnTor = false;
+          await Config.sharedInstance.setProxy(proxy);
         }
+
+        _initData();
         break;
     }
-  }
-  Widget _buildSetProxyBottomDialog() {
-    ProxySettings proxyInfo = Config.sharedInstance.getProxy();
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(Adapt.px(12)),
-        color: ThemeColor.color180,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            padding: EdgeInsets.symmetric(
-              vertical: 8.px,
-            ),
-            child: Text(
-              Localized.text('ox_usercenter.str_use_onion_hosts'),
-              style: TextStyle(
-                color: ThemeColor.color100,
-                fontSize: 14.px,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-          ),
-          Divider(
-            color: ThemeColor.color170,
-            height: Adapt.px(0.5),
-          ),
-          ...EOnionHostOption.values.map((EOnionHostOption type){
-            return Column(
-              children: [
-                _buildProxyItem(
-                  isSelect: type == proxyInfo.onionHostOption,
-                  type.text,
-                  onTap: () => _setProxyOnionHost(type),
-                ),
-                Divider(
-                  color: ThemeColor.color170,
-                  height: Adapt.px(0.5),
-                ),
-              ],
-            );
-          }),
-          Container(
-            height: Adapt.px(8),
-            color: ThemeColor.color190,
-          ),
-          _buildProxyItem(Localized.text('ox_common.cancel'), onTap: () {
-            OXNavigator.pop(context);
-          }),
-          SizedBox(
-            height: Adapt.px(21),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProxyItem(String title,
-      {GestureTapCallback? onTap,bool isSelect = false}) {
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      child: Container(
-        alignment: Alignment.center,
-        width: double.infinity,
-        height: Adapt.px(56),
-        child: Text(
-          title,
-          style: TextStyle(
-            color: isSelect ? ThemeColor.purple1 : ThemeColor.color0,
-            fontSize: Adapt.px(16),
-            fontWeight: FontWeight.w400,
-          ),
-        ),
-      ),
-      onTap: onTap,
-    );
-  }
-
-  void _setProxyOnionHost(EOnionHostOption type) async {
-    ProxySettings proxyInfo = Config.sharedInstance.getProxy();
-    proxyInfo.onionHostOption = type;
-    await Config.sharedInstance.setProxy(proxyInfo);
-    _initData();
-    OXNavigator.pop(context);
   }
 }
