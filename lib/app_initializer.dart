@@ -1,6 +1,7 @@
 import 'dart:io';
+import 'dart:async';
 
-import 'package:chatcore/chat-core.dart';
+import 'package:chatcore/chat-core.dart' hide ProxySettings;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,8 +16,8 @@ import 'package:ox_common/utils/font_size_notifier.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
-import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_discovery/ox_discovery.dart';
 import 'package:ox_home/ox_home.dart';
 import 'package:ox_localizable/ox_localizable.dart';
@@ -26,10 +27,9 @@ import 'package:ox_theme/ox_theme.dart';
 import 'package:ox_usercenter/ox_usercenter.dart';
 import 'package:ox_wallet/ox_wallet.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:flutter_socks_proxy/socks_proxy.dart';
 import 'package:dart_ping_ios/dart_ping_ios.dart';
-// import 'package:nostr_mls_package/nostr_mls_package.dart'; // MLS package temporarily disabled
 
+import 'http_overrides.dart';
 import 'main.reflectable.dart';
 
 class OXErrorInfo {
@@ -56,6 +56,18 @@ class AppInitializer {
         await Localized.init();
         await _setupModules();
         await OXUserInfoManager.sharedInstance.initLocalData();
+        
+        // Initialize Tor network manager
+        Future.microtask(() async {
+          try {
+            await TorNetworkHelper.initialize();
+            await TorNetworkHelper.start();
+            LogUtil.d('[App start] Tor network manager initialized');
+          } catch (e) {
+            LogUtil.e('[App start] Failed to initialize Tor network manager: $e');
+          }
+        });
+        
         SystemChrome.setSystemUIOverlayStyle(ThemeManager.getCurrentThemeStyle().toOverlayStyle());
         ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
         double fontSize = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.APP_FONT_SIZE, defaultValue: 1.0);
@@ -151,37 +163,4 @@ extension ThemeStyleOverlayEx on ThemeStyle {
       this == ThemeStyle.dark ? Brightness.light : Brightness.dark;
 
   Color get statusBarColor => Colors.transparent;
-}
-
-class OXHttpOverrides extends HttpOverrides {
-  @override
-  HttpClient createHttpClient(SecurityContext? context) {
-    final client = createProxyHttpClient(context: context)
-      ..findProxy = (Uri uri) {
-        ProxySettings? settings = Config.sharedInstance.proxySettings;
-        if (settings == null) {
-          return 'DIRECT';
-        }
-        if (settings.turnOnProxy) {
-          bool onionURI = uri.host.contains(".onion");
-          switch (settings.onionHostOption) {
-            case EOnionHostOption.no:
-              return onionURI ? '' : 'SOCKS5 ${settings.socksProxyHost}:${settings.socksProxyPort}';
-            case EOnionHostOption.whenAvailable:
-              return !onionURI
-                  ? 'DIRECT'
-                  : 'SOCKS5 ${settings.socksProxyHost}:${settings.socksProxyPort}';
-            case EOnionHostOption.required:
-              return !onionURI ? '' : 'SOCKS5 ${settings.socksProxyHost}:${settings.socksProxyPort}';
-            default:
-              break;
-          }
-        }
-        return "DIRECT";
-      }
-      ..badCertificateCallback = (X509Certificate cert, String host, int port) {
-        return true;
-      }; // add your localhost detection logic here if you want;
-    return client;
-  }
 }

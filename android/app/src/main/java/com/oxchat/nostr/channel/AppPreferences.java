@@ -79,7 +79,6 @@ public class AppPreferences implements MethodChannel.MethodCallHandler, FlutterP
         }
         switch (call.method) {
             case "isAppInBackground" -> {
-                Log.e("Michael:" ,"----onMethodCall----isAppInBackground  ");
                 boolean isAppInBackground = isAppInBackground();
                 result.success(isAppInBackground);
             }
