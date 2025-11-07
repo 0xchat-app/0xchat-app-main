@@ -24,6 +24,7 @@ class CommonCategoryTitleView extends StatelessWidget {
         this.unSelectedFontSize = 20,
         this.gradient,
         this.gradientWidth = 16,
+        this.itemSpacing = 24.0,
         required this.selectedGradientColors,
         required this.unselectedGradientColors,
     })  : assert(items.length >= 2),
@@ -64,6 +65,8 @@ class CommonCategoryTitleView extends StatelessWidget {
 
     final double gradientWidth;
 
+    final double itemSpacing;
+
     final Color bgColor;
 
     @override
@@ -93,7 +96,7 @@ class CommonCategoryTitleView extends StatelessWidget {
                     onTap!.call(items.indexOf(item));
                   },
                   child: Padding(
-                    padding: EdgeInsets.only(right: Adapt.px(24)),
+                    padding: EdgeInsets.only(right: Adapt.px(itemSpacing)),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
