@@ -1,51 +1,402 @@
 [
   {
-    "id": "damus",
-    "url": "https://damus.io",
-    "name": "Damus",
-    "icon": "",
-    "description": "A popular social client for iOS",
+    "id": "nests",
+    "url": "https://nostrnests.com/",
+    "name": "Nests",
+    "icon": "https://cdn.satellite.earth/b28e30a02c235d81d6daa1ef8e58b12be886941760e55b4ac23527c8568d3d06.svg",
+    "description": "Audio rooms",
     "metadata": {}
   },
   {
-    "id": "snort",
-    "url": "https://snort.social",
-    "name": "Snort",
+    "id": "bouquet",
+    "url": "https://bouquet.slidestr.net/",
+    "name": "Bouquet",
+    "icon": "https://bouquet.slidestr.net/bouquet.png",
+    "description": "A personal manager for Blossom media servers",
+    "metadata": {}
+  },
+  {
+    "id": "nstart",
+    "url": "https://nstart.me",
+    "name": "Nstart.me",
+    "icon": "https://chronicle.dtonon.com/e2f87ddc7bf2f11f6b72fe83b53f8d649ce79272fc0a0264c079fdce3bacd73c.png",
+    "description": "An easy onboarding wizard to guide new users to Nostr",
+    "metadata": {}
+  },
+  {
+    "id": "alphaama",
+    "url": "https://alphaama.com",
+    "name": "alphaama",
+    "icon": "https://cdn.satellite.earth/be4ade6d02e650923fdbbe4dfa2a5e5c9d1c06a606ff1385fe7c65518721588f.png",
+    "description": "just a nostr fucking client",
+    "metadata": {}
+  },
+  {
+    "id": "nostrudel",
+    "url": "https://nostrudel.ninja/",
+    "name": "noStrudel",
+    "icon": "https://cdn.satellite.earth/c8d939904dbe80b2a36badace31914984b9459794550b1a557c43936f779af13.png",
+    "description": "The jack of all trades",
+    "metadata": {}
+  },
+  {
+    "id": "openvibe",
+    "url": "https://openvibe.social/",
+    "name": "Openvibe",
+    "icon": "https://cdn.satellite.earth/8e1a5dc395a0146061da2f41433c9e04f9a98cd12a2bd95218fc7a0f9fd85b56.png",
+    "description": "Interact with anyone on the open internet.",
+    "metadata": {}
+  },
+  {
+    "id": "badges",
+    "url": "https://badges.page/",
+    "name": "Badges Page",
+    "icon": "https://cdn.satellite.earth/f3d1586f50b7fa832e27f568d102c0c059db9d61377c234e5435650380a76ecf.svg",
+    "description": "A manager for your nostr badges",
+    "metadata": {}
+  },
+  {
+    "id": "primal_web",
+    "url": "https://primal.net",
+    "name": "Primal Web",
+    "icon": "https://blossom.primal.net/39256996dc4eac829b041c6f33750fd403dd100898283d5d912b834db1fec03c.png",
+    "description": "Discover the best of Nostr",
+    "metadata": {}
+  },
+  {
+    "id": "olas",
+    "url": "https://olas.app/",
+    "name": "Olas",
+    "icon": "https://cdn.satellite.earth/62fdebd3175157e8225df94bb02de012e4259f5170a0cee8ab5656d04c62489e.png",
+    "description": "Olas is a client for publishing and looking at photos",
+    "metadata": {}
+  },
+  {
+    "id": "nosotros",
+    "url": "https://nosotros.app",
+    "name": "Nosotros",
+    "icon": "https://blossom.nosotros.app/9e1d7871fdbdc626307541070ac6f98dfd0e30e4f4f521da0533e483caceef1b.png",
+    "description": "A weirdly fast nostr web client",
+    "metadata": {}
+  },
+  {
+    "id": "flotilla",
+    "url": "https://flotilla.social",
+    "name": "Flotilla",
+    "icon": "https://cdn.satellite.earth/24b356d645f7c0eb64c0cb1f6bf7f1b224dbf583296cb1cc29f83c5810ab1e66.png",
+    "description": "Relay chat client",
+    "metadata": {}
+  },
+  {
+    "id": "nostr_app_manager",
+    "url": "https://nostrapp.link/",
+    "name": "Nostr App Manager",
+    "icon": "https://cdn.satellite.earth/0a901b92a7456714b319d32f7798ffcfa47aaedc17bb612cce62e1ce78448683.svg",
+    "description": "Discover nostr apps",
+    "metadata": {}
+  },
+  {
+    "id": "coracle",
+    "url": "https://coracle.social",
+    "name": "Coracle",
+    "icon": "https://cdn.satellite.earth/621067dcc446cdb6bda35b798d9a13652f90240b2af723e96fb3437c39065a96.png",
+    "description": "Nostr, the easy way.",
+    "metadata": {}
+  },
+  {
+    "id": "wikifreedia",
+    "url": "https://wikifreedia.xyz/",
+    "name": "Wikifreedia",
+    "icon": "https://cdn.satellite.earth/064536fe832f87eb16e113ff227b61eb34ae4cd8e4ece3ef2b67d71257e52c71.png",
+    "description": "a client for the wikipedia idea built on Nostr",
+    "metadata": {}
+  },
+  {
+    "id": "plebeian_market",
+    "url": "https://plebeian.market/",
+    "name": "Plebeian Market",
+    "icon": "https://cdn.satellite.earth/792280c1ef9699589aa713692b727f2865630d8104a5fb04e4e40c9bddca54ec.png",
+    "description": "Buy and sell stuff for sats",
+    "metadata": {}
+  },
+  {
+    "id": "wikistr",
+    "url": "https://wikistr.com/",
+    "name": "Wikistr",
+    "icon": "https://cdn.satellite.earth/5cc7feeacfa0433d221e6412cb723f0cefc5023dcfa0a459e1ca990731abca21.png",
+    "description": "A NIP-54 'wiki' client with multi-article view",
+    "metadata": {}
+  },
+  {
+    "id": "oracolo",
+    "url": "https://oracolo.me",
+    "name": "Oracolo.me",
+    "icon": "https://chronicle.dtonon.com/ec2fe859200c662a5d4294ace03dad332056bf4f988be5e9a5f53767b571453c.png",
+    "description": "A minimalist Nostr blog that consists of a single html file",
+    "metadata": {}
+  },
+  {
+    "id": "primal_studio",
+    "url": "https://studio.primal.net",
+    "name": "Primal Studio",
+    "icon": "https://blossom.primal.net/2d3fa445b7df5e214cb5bf7ea80dc9a220f6d132d3e8e16d1fd6907a91dd3f29.png",
+    "description": "Empowering Nostr Creators",
+    "metadata": {}
+  },
+  {
+    "id": "jumble",
+    "url": "https://jumble.social/",
+    "name": "Jumble",
+    "icon": "https://cdn.satellite.earth/2466ba2a09a44b9788394f9e82fef04c61b9d8899cd6e4e1ebf4f1ec7bd1814b.png",
+    "description": "Jumble is a client focused on browsing relay feeds",
+    "metadata": {}
+  },
+  {
+    "id": "wired",
+    "url": "https://www.getwired.app/",
+    "name": "Wired",
+    "icon": "https://cdn.satellite.earth/93e7059163148050b8906a3f7afa1cdcf145c9c731bd30a0dd4357794c0926d1.png",
+    "description": "An anonymous-first agora",
+    "metadata": {}
+  },
+  {
+    "id": "yondar",
+    "url": "https://go.yondar.me/",
+    "name": "Yondar",
+    "icon": "https://cdn.satellite.earth/7780bdeea69b4062e8e559285c75b9a68cb41dc857ff0660845d999772152cc2.svg",
+    "description": "The social map",
+    "metadata": {}
+  },
+  {
+    "id": "zap_stream",
+    "url": "https://zap.stream/",
+    "name": "zap.stream",
+    "icon": "https://cdn.satellite.earth/71dcbdc1413713d148c18d92e3b66ceaef78919cba4bfbab6086d42f9cc12a96.svg",
+    "description": "Live stream and zap",
+    "metadata": {}
+  },
+  {
+    "id": "nostr_band",
+    "url": "https://nostr.band/",
+    "name": "Nostr Band",
+    "icon": "https://cdn.satellite.earth/f3088e283f25a4542417178a9f8906296ff9117b9a29c55d1caf793b618ae19c.svg",
+    "description": "Nostr data and statistics advanced search.",
+    "metadata": {}
+  },
+  {
+    "id": "yakihonne",
+    "url": "https://yakihonne.com",
+    "name": "YakiHonne",
+    "icon": "https://cdn.satellite.earth/4c63603f9e9539a230d0cdb3657f9d2185830209056b7c2b38f95bfd603cca79.svg",
+    "description": "A Nostr social client for posting, engaging, and managing all types of content with built-in Bitcoin support.",
+    "metadata": {}
+  },
+  {
+    "id": "emojito",
+    "url": "https://emojito.meme/",
+    "name": "Emojito",
+    "icon": "https://cdn.satellite.earth/fac90a5973650cd728396e39d55a6b7b994fb91c7ad289b213195285285560b9.png",
+    "description": "Create custom emoji sets",
+    "metadata": {}
+  },
+  {
+    "id": "oddbean",
+    "url": "https://oddbean.com/",
+    "name": "Oddbean",
+    "icon": "https://cdn.satellite.earth/edca834d3b87bceb516bec386ad300b05ab36e74a352fd2c1f1a8e3078b2deb7.svg",
+    "description": "Hacker News style client",
+    "metadata": {}
+  },
+  {
+    "id": "coolr",
+    "url": "https://coolr.chat/",
+    "name": "Coolr",
     "icon": "",
+    "description": "A minimalist, IRC like chat app built on Nostr. Fast and temporary.",
+    "metadata": {}
+  },
+  {
+    "id": "listr",
+    "url": "https://listr.lol/",
+    "name": "Listr",
+    "icon": "https://cdn.satellite.earth/b6225467a0cdf710d77b69e7fc82af692a758263f7f5cee31c8e5ccf72b54d95.png",
+    "description": "Create nostr lists",
+    "metadata": {}
+  },
+  {
+    "id": "nostree",
+    "url": "https://nostree.me/",
+    "name": "Nostree",
+    "icon": "https://cdn.satellite.earth/93c90f7833cb0649fe6a04dd8c6eb9a22798497e299ee3f7c03349306aa2827c.svg",
+    "description": "List and link aggregator.",
+    "metadata": {}
+  },
+  {
+    "id": "nsec_app",
+    "url": "https://nsec.app/",
+    "name": "Nsec App",
+    "icon": "https://cdn.satellite.earth/601a58f69b180265ac2571a74777d13d95a34318c04ef2a9829c1584fcfb9eed.png",
+    "description": "Use Nostr apps safely",
+    "metadata": {}
+  },
+  {
+    "id": "shosho",
+    "url": "https://shosho.live/",
+    "name": "Shosho",
+    "icon": "https://cdn.satellite.earth/42d704c9c602ce75f5e34eb97d7f5ebcccd47d99bb7a6cb1a01b5480df513325.png",
+    "description": "Stream your camera and chat with your friends and followers on Nostr live!",
+    "metadata": {}
+  },
+  {
+    "id": "phoenix",
+    "url": "https://phoenix.social/",
+    "name": "Phoenix",
+    "icon": "https://cdn.satellite.earth/d3be3ed192261daea42076632f6ee81f025d35ce6ac15738668ee60152a89788.png",
     "description": "Make Nostr sexy",
+    "metadata": {}
+  },
+  {
+    "id": "nostter",
+    "url": "https://nostter.app/",
+    "name": "Nostter",
+    "icon": "https://cdn.satellite.earth/5ffa60e1d900cdaf31fca109eb7f18e715b692cf8d941b16a639a01389a8847b.svg",
+    "description": "Calm social client",
+    "metadata": {}
+  },
+  {
+    "id": "treasures",
+    "url": "https://treasures.to/",
+    "name": "Treasures",
+    "icon": "https://cdn.satellite.earth/24d7e869d19be9444531df8f77bd3fb5dff8ffd27bdf67a86fa5c35ec235f44c.png",
+    "description": "Geocaching adventures",
+    "metadata": {}
+  },
+  {
+    "id": "ostrich_work",
+    "url": "https://ostrich.work/",
+    "name": "Ostrich Work",
+    "icon": "https://cdn.satellite.earth/a333ac9cf4784ae3db3dd126dea1132e93a5433d66b34622e7f984a369b9979e.svg",
+    "description": "Job Board over Nostr",
+    "metadata": {}
+  },
+  {
+    "id": "zapplepay",
+    "url": "https://www.zapplepay.com/",
+    "name": "Zapplepay",
+    "icon": "https://cdn.satellite.earth/c98f7615f9b43184b524530f26809c9d6a52d637277a47c6a2700ee3949ae62c.png",
+    "description": "Zap from any client 🖕",
+    "metadata": {}
+  },
+  {
+    "id": "alby",
+    "url": "https://getalby.com/",
+    "name": "Alby",
+    "icon": "https://cdn.satellite.earth/c37b7a44906ee3450b96e3b66e7320af08a5487f0e7b6b39728fdf5eb2ae57ea.png",
+    "description": "Your bitcoin and nostr companion for the web",
+    "metadata": {}
+  },
+  {
+    "id": "yakbak",
+    "url": "https://yakbak.app/",
+    "name": "YakBak",
+    "icon": "https://cdn.satellite.earth/82a492f8ede9c8bac65eb433d5453b980310f1b973024f9016b16e42c3fe3327.png",
+    "description": "Voice notes",
+    "metadata": {}
+  },
+  {
+    "id": "dtan",
+    "url": "https://dtan.xyz/",
+    "name": "DTAN",
+    "icon": "https://cdn.satellite.earth/1d0692530fec2818cd8b87d2cc5a3c297b2fb5b5d83171026745848e620165af.png",
+    "description": "Decentralized torrents directory",
+    "metadata": {}
+  },
+  {
+    "id": "chachi",
+    "url": "https://chachi.chat",
+    "name": "Chachi",
+    "icon": "https://cdn.satellite.earth/6e72236f02b922deeb715c552327133dcd503f01a633a74856301ba196139935.png",
+    "description": "A group chat and generic NIP-29 group posts client",
+    "metadata": {}
+  },
+  {
+    "id": "habla",
+    "url": "https://habla.news/",
+    "name": "Habla",
+    "icon": "https://cdn.satellite.earth/270694a2f68d486a4f97dfafed7622839869a8759161dfe9946f64a1418a1885.svg",
+    "description": "A long form content client for nostr notes",
+    "metadata": {}
+  },
+  {
+    "id": "gif_buddy",
+    "url": "https://gifbuddy.lol/",
+    "name": "GIF Buddy",
+    "icon": "https://cdn.satellite.earth/6f35a18eab9a83a7baf785eb3f96c64774fbb60e3944d46b35b68d0a00c26f11.png",
+    "description": "Nostrify gifs",
     "metadata": {}
   },
   {
     "id": "iris",
     "url": "https://iris.to",
     "name": "Iris",
-    "icon": "",
-    "description": "Nostr client for better social networks",
+    "icon": "https://image.nostr.build/5457b339d6ed801fe1c50f2cd47c3d5e2a5d41524fbea31f9bd0ae70e3c067b3.png",
+    "description": "Simple and fast web client",
+    "metadata": {}
+  },
+  {
+    "id": "formstr",
+    "url": "https://formstr.app/",
+    "name": "Formstr",
+    "icon": "https://cdn.satellite.earth/a7cdfbf9fad0fcd1ad67a2e2511f3c2c9977f9ed2ecac7f55d77ff938a84a2e2.svg",
+    "description": "Create and share forms",
+    "metadata": {}
+  },
+  {
+    "id": "keys_band",
+    "url": "https://keys.band/",
+    "name": "Keys Band",
+    "icon": "https://cdn.satellite.earth/9236649ee08f7ce60e4d061a37e6d56d986bb2bbb3b78faed494a224ba131a31.png",
+    "description": "Safe nsecs",
+    "metadata": {}
+  },
+  {
+    "id": "nostrocket",
+    "url": "https://nostrocket.org/rockets",
+    "name": "Nostrocket",
+    "icon": "https://cdn.satellite.earth/0d405c31c16d931135fa206e7659abc7bbdf8c2115230bb98f14cbc4b075ab90.png",
+    "description": "Separation of Business and State",
+    "metadata": {}
+  },
+  {
+    "id": "lumilumi",
+    "url": "https://lumilumi.app/",
+    "name": "lumilumi",
+    "icon": "https://cdn.satellite.earth/cbab039f7c1833d1ce533afeb283e49fc8be46055de32e75b37f3e0d2dc05164.webp",
+    "description": "Switch between full and low-data modes — a flexible Nostr web client",
+    "metadata": {}
+  },
+  {
+    "id": "slidestr",
+    "url": "https://slidestr.net/",
+    "name": "Slidestr",
+    "icon": "https://cdn.satellite.earth/f6f748ac94361bc7454464d651c4caae28a540642f103712ade281da07c4ae7d.svg",
+    "description": "Immersive media browsing",
+    "metadata": {}
+  },
+  {
+    "id": "shopstr",
+    "url": "https://shopstr.store/",
+    "name": "Shopstr",
+    "icon": "https://cdn.satellite.earth/548fb6eb0ce5def851fb6d0dabf0e0e31d427abc23fb10fd2ea3838724886202.png",
+    "description": "Buy and sell for sats over nostr",
     "metadata": {}
   },
   {
     "id": "nos_social",
-    "url": "https://nos.social",
+    "url": "https://www.nos.social/",
     "name": "Nos Social",
-    "icon": "",
+    "icon": "https://cdn.satellite.earth/0d16dff6557e6c0c33207dac79dfec87f3a7c43c6b5ac4dd65f1fe445ee1c3a2.png",
     "description": "Join your peers in a healthy social network. Nos is our Nostr client for humans, not algorithms.",
-    "metadata": {}
-  },
-  {
-    "id": "coolcoin_1",
-    "url": "",
-    "name": "49_CoolCoin",
-    "icon": "",
-    "description": "Your support of content creators on this placi...",
-    "metadata": {}
-  },
-  {
-    "id": "coolcoin_2",
-    "url": "",
-    "name": "49_CoolCoin",
-    "icon": "",
-    "description": "Your support of content creators on this placi...",
     "metadata": {}
   }
 ]
-
