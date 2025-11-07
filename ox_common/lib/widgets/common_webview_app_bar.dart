@@ -13,6 +13,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_common/widgets/nostr_permission_bottom_sheet.dart';
+import 'package:ox_common/utils/string_utils.dart';
 
 class CommonWebViewAppBar extends StatelessWidget implements PreferredSizeWidget {
   const CommonWebViewAppBar(
@@ -216,6 +218,20 @@ class CommonWebViewAppBar extends StatelessWidget implements PreferredSizeWidget
             onTap: () => _onShare(context),
             iconName: 'icon_share_file.png',
             margin: margin,
+          ))
+      ..add((margin) => FutureBuilder<bool>(
+            future: _hasAnyPermission(),
+            builder: (context, snapshot) {
+              bool hasPermission = snapshot.data ?? false;
+              return _buildItem(
+                label: hasPermission 
+                    ? Localized.text('ox_common.webview_more_revoke_nip07_permissions')
+                    : Localized.text('ox_common.webview_more_grant_nip07_permissions'),
+                onTap: () => _onToggleNip07Permissions(context, hasPermission),
+                iconName: hasPermission ? 'icon_unauth.png' : 'icon_auth.png',
+                margin: margin,
+              );
+            },
           ));
 
     final bool useWrap = builders.length > 5;
@@ -420,6 +436,115 @@ class CommonWebViewAppBar extends StatelessWidget implements PreferredSizeWidget
           .saveForeverData('napp_bookmarks', bookmarkIds);
       // Show toast
       CommonToast.instance.show(context, 'Bookmarked');
+    }
+  }
+
+  Future<String?> _getCurrentWebViewUrl() async {
+    if (webViewControllerFuture == null) return null;
+    try {
+      WebViewController controller = await webViewControllerFuture!;
+      return await controller.currentUrl();
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<String?> _getCurrentHost() async {
+    String? url = await _getCurrentWebViewUrl();
+    if (url == null || url.isEmpty) {
+      // Fallback to nappUrl if available
+      if (nappUrl != null && nappUrl!.isNotEmpty) {
+        url = nappUrl;
+      } else {
+        return null;
+      }
+    }
+    if (url == null || url.isEmpty) {
+      return null;
+    }
+    try {
+      Uri uri = Uri.parse(url);
+      return uri.host;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<bool> _hasAnyPermission() async {
+    String? host = await _getCurrentHost();
+    if (host == null || host.isEmpty) {
+      return false;
+    }
+
+    // Check all permission keys
+    List<String> allKeys = ['getPublicKey', 'signEvent', 'encryptNIP04', 'encryptNIP44', 'decryptNIP44'];
+    for (String key in allKeys) {
+      String cacheKey = '$host.$key';
+      bool granted = await OXCacheManager.defaultOXCacheManager
+          .getForeverData(cacheKey, defaultValue: false) ?? false;
+      if (granted) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  Future<void> _grantAllPermissions() async {
+    String? host = await _getCurrentHost();
+    if (host == null || host.isEmpty) {
+      return;
+    }
+
+    // Grant all permission keys
+    List<String> allKeys = ['getPublicKey', 'signEvent', 'encryptNIP04', 'encryptNIP44', 'decryptNIP44'];
+    for (String key in allKeys) {
+      String cacheKey = '$host.$key';
+      await OXCacheManager.defaultOXCacheManager
+          .saveForeverData(cacheKey, true);
+    }
+  }
+
+  Future<void> _revokeAllPermissions() async {
+    String? host = await _getCurrentHost();
+    if (host == null || host.isEmpty) {
+      return;
+    }
+
+    // Revoke all permission keys
+    List<String> allKeys = ['getPublicKey', 'signEvent', 'encryptNIP04', 'encryptNIP44', 'decryptNIP44'];
+    for (String key in allKeys) {
+      String cacheKey = '$host.$key';
+      await OXCacheManager.defaultOXCacheManager
+          .saveForeverData(cacheKey, false);
+    }
+  }
+
+  void _onToggleNip07Permissions(BuildContext context, bool hasPermission) async {
+    OXNavigator.pop(context);
+    
+    String? host = await _getCurrentHost();
+    if (host == null || host.isEmpty) {
+      CommonToast.instance.show(context, 'Unable to get website host');
+      return;
+    }
+
+    if (hasPermission) {
+      // Revoke permissions
+      await _revokeAllPermissions();
+      CommonToast.instance.show(context, 'Permissions revoked');
+    } else {
+      // Grant permissions - show confirmation dialog
+      String content = 'get_publicKey_request_content'.commonLocalized();
+      bool confirmed = await NostrPermissionBottomSheet.show(
+        context,
+        title: 'get_request_title'.commonLocalized(),
+        content: content,
+      );
+      
+      if (confirmed) {
+        await _grantAllPermissions();
+        CommonToast.instance.show(context, 'Permissions granted');
+      }
     }
   }
 }

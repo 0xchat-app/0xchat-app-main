@@ -38,19 +38,13 @@ class NostrPermissionBottomSheet extends StatefulWidget {
     );
     return result ?? false;
   }
+
 }
 
 class _NostrPermissionBottomSheetState extends State<NostrPermissionBottomSheet> {
-  late Map<String, bool> _permissionStates;
-
   @override
   void initState() {
     super.initState();
-    // Parse permission items and initialize states
-    List<String> permissionItems = _parsePermissionItems(widget.content);
-    _permissionStates = {
-      for (var item in permissionItems) item: true, // Default to checked
-    };
   }
 
   // Parse permission items from content string (format: "☑️ Item 1\n☑️ Item 2")
@@ -99,25 +93,13 @@ class _NostrPermissionBottomSheetState extends State<NostrPermissionBottomSheet>
           ),
           // Permission items
           if (permissionItems.isNotEmpty)
-            ...permissionItems.map((item) => _buildPermissionItem(
-              item,
-              _permissionStates[item] ?? true,
-              (value) => setState(() => _permissionStates[item] = value),
-            ))
+            ...permissionItems.map((item) => _buildPermissionItem(item))
           else
             // Fallback to default permissions
             Column(
               children: [
-                _buildPermissionItem(
-                  'Request to read your public key',
-                  _permissionStates['Request to read your public key'] ?? true,
-                  (value) => setState(() => _permissionStates['Request to read your public key'] = value),
-                ),
-                _buildPermissionItem(
-                  'Sign events using your private key',
-                  _permissionStates['Sign events using your private key'] ?? true,
-                  (value) => setState(() => _permissionStates['Sign events using your private key'] = value),
-                ),
+                _buildPermissionItem('Request to read your public key'),
+                _buildPermissionItem('Sign events using your private key'),
               ],
             ),
           SizedBox(height: 20.px),
@@ -169,19 +151,17 @@ class _NostrPermissionBottomSheetState extends State<NostrPermissionBottomSheet>
     );
   }
 
-  Widget _buildPermissionItem(String text, bool value, ValueChanged<bool> onChanged) {
+  Widget _buildPermissionItem(String text) {
+    // Permissions are always checked and not editable in request mode
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.px, vertical: 12.px),
       child: Row(
         children: [
-          GestureDetector(
-            onTap: () => onChanged(!value),
-            child: CommonImage(
-              iconName: value ? 'icon_item_selected.png' : 'icon_item_unselected.png',
-              size: 20.px,
-              package: 'ox_wallet',
-              useTheme: true,
-            ),
+          CommonImage(
+            iconName: 'icon_item_selected.png',
+            size: 20.px,
+            package: 'ox_wallet',
+            useTheme: true,
           ),
           SizedBox(width: 12.px),
           Expanded(
