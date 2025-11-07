@@ -141,31 +141,7 @@ class CommonWebViewAppBar extends StatelessWidget implements PreferredSizeWidget
         children: [
           Container(
             padding: EdgeInsets.symmetric(horizontal: 16.px,vertical: 16.px),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if ((nappName != null && nappUrl != null) || nappId != null)
-                    FutureBuilder<bool>(
-                      future: _isBookmarked(),
-                      builder: (context, snapshot) {
-                        bool isBookmarked = snapshot.data ?? false;
-                        return _buildItem(
-                          label: Localized.text('ox_common.webview_more_bookmark'),
-                          onTap: () => _onBookmark(context),
-                          iconName: isBookmarked ? 'icon_unbookmark.png' : 'icon_bookmark.png',
-                        );
-                      },
-                    ),
-                  _buildItem(label: Localized.text('ox_common.webview_more_send_to_chat'),onTap: ()=>_onSendToOther(context), iconName: 'icon_share_chat.png'),
-                  _buildItem(label: Localized.text('ox_common.webview_more_browser'),onTap: ()=>_launchURL(context), iconName: 'icon_share_browser.png'),
-                  _buildItem(label: Localized.text('ox_common.webview_more_copy'),onTap: ()=>_copyURL(context), iconName: 'icon_share_link.png',),
-                  _buildItem(label: Localized.text('ox_common.str_share'),onTap: ()=>_onShare(context), iconName: 'icon_share_file.png',),
-                ],
-              ),
-            ),
+            child: _buildMoreItems(context),
           ),
           Container(
             height: Adapt.px(8),
@@ -192,12 +168,86 @@ class CommonWebViewAppBar extends StatelessWidget implements PreferredSizeWidget
     );
   }
 
-  Widget _buildItem({required String label,required String iconName,GestureTapCallback? onTap}){
+  Widget _buildMoreItems(BuildContext context) {
+    final List<Widget Function(EdgeInsetsGeometry margin)> builders = [];
+
+    if ((nappName != null && nappUrl != null) || nappId != null) {
+      builders.add((margin) => FutureBuilder<bool>(
+            future: _isBookmarked(),
+            builder: (context, snapshot) {
+              bool isBookmarked = snapshot.data ?? false;
+              return _buildItem(
+                label: Localized.text('ox_common.webview_more_bookmark'),
+                onTap: () => _onBookmark(context),
+                iconName: isBookmarked ? 'icon_unbookmark.png' : 'icon_bookmark.png',
+                margin: margin,
+              );
+            },
+          ));
+    }
+
+    builders
+      ..add((margin) => _buildItem(
+            label: Localized.text('ox_common.webview_more_send_to_chat'),
+            onTap: () => _onSendToOther(context),
+            iconName: 'icon_share_chat.png',
+            margin: margin,
+          ))
+      ..add((margin) => _buildItem(
+            label: Localized.text('ox_common.status_network_refresh'),
+            onTap: () => _onRefreshPage(context),
+            iconName: 'icon_reload.png',
+            margin: margin,
+          ))
+      ..add((margin) => _buildItem(
+            label: Localized.text('ox_common.webview_more_browser'),
+            onTap: () => _launchURL(context),
+            iconName: 'icon_share_browser.png',
+            margin: margin,
+          ))
+      ..add((margin) => _buildItem(
+            label: Localized.text('ox_common.webview_more_copy'),
+            onTap: () => _copyURL(context),
+            iconName: 'icon_share_link.png',
+            margin: margin,
+          ))
+      ..add((margin) => _buildItem(
+            label: Localized.text('ox_common.str_share'),
+            onTap: () => _onShare(context),
+            iconName: 'icon_share_file.png',
+            margin: margin,
+          ));
+
+    final bool useWrap = builders.length > 5;
+    final EdgeInsetsGeometry itemMargin = useWrap ? EdgeInsets.zero : EdgeInsets.only(right: 16.px);
+    final List<Widget> items = builders.map((builder) => builder(itemMargin)).toList();
+
+    if (useWrap) {
+      return Wrap(
+        spacing: 16.px,
+        runSpacing: 16.px,
+        children: items,
+      );
+    }
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: items,
+      ),
+    );
+  }
+
+  Widget _buildItem({required String label, String? iconName, Widget? iconWidget, GestureTapCallback? onTap, EdgeInsetsGeometry? margin}){
+    assert(iconName != null || iconWidget != null, 'Either iconName or iconWidget must be provided');
+    final EdgeInsetsGeometry effectiveMargin = margin ?? EdgeInsets.only(right: 16.px);
     return _buildTapWidget(
       onTap: onTap,
       child: Container(
         width: 60.px,
-        margin: EdgeInsets.only(right: 16.px),
+        margin: effectiveMargin,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -211,8 +261,8 @@ class CommonWebViewAppBar extends StatelessWidget implements PreferredSizeWidget
               alignment: Alignment.center,
               width: 60.px,
               height: 60.px,
-              child: CommonImage(
-                iconName: iconName,
+              child: iconWidget ?? CommonImage(
+                iconName: iconName!,
                 size: 24.px,
               ),
             ),
@@ -273,6 +323,13 @@ class CommonWebViewAppBar extends StatelessWidget implements PreferredSizeWidget
       OXNavigator.pop(context);
       Share.share(url);
     }
+  }
+
+  void _onRefreshPage(BuildContext context) async {
+    if (webViewControllerFuture == null) return;
+    WebViewController webViewController = await webViewControllerFuture!;
+    OXNavigator.pop(context);
+    webViewController.reload();
   }
 
   Future<String?> _getTargetNappId() async {
