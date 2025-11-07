@@ -52,13 +52,6 @@ class CommunityMenuOptionModel {
         optionModel: OptionModel.AddFriend,
       ),
     );
-    // list.add(
-    //   CommunityMenuOptionModel(
-    //     content: Localized.text('ox_common.str_new_channel'),
-    //     iconName: 'icon_new_channel.png',
-    //     optionModel: OptionModel.NewChannel,
-    //   ),
-    // );
     return list;
   }
 
@@ -70,8 +63,8 @@ class CommunityMenuOptionModel {
     }
     if (optionModel == OptionModel.AddFriend) {
       gotoAddFriend(context);
-    // } else if (optionModel == OptionModel.NewChannel) {
-    //   OXNavigator.pushPage(context, (context) => ChatChannelCreate());
+    } else if (optionModel == OptionModel.NewChannel) {
+      OXNavigator.pushPage(context, (context) => ChatChannelCreate());
     } else if (optionModel == OptionModel.ScanQCode) {
       gotoScan(context);
     } else if (optionModel == OptionModel.RecommenderTools) {

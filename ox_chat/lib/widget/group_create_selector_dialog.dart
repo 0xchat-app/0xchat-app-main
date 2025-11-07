@@ -30,7 +30,7 @@ class GroupCreateSelectorDialog extends StatefulWidget {
 }
 
 class _GroupCreateSelectorDialogState extends State<GroupCreateSelectorDialog> {
-  List<GroupType> _itemModelList = [GroupType.privateGroup, GroupType.openGroup, GroupType.closeGroup];
+  List<GroupType> _itemModelList = [GroupType.privateGroup, GroupType.openGroup, GroupType.closeGroup, GroupType.channel];
 
   @override
   void initState() {

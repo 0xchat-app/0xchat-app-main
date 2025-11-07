@@ -10,7 +10,6 @@ import 'package:ox_chat/model/message_content_model.dart';
 import 'package:ox_chat/page/contacts/contact_request.dart';
 import 'package:ox_chat/page/session/chat_message_page.dart';
 import 'package:ox_chat/page/session/chat_new_message_page.dart';
-import 'package:ox_chat/page/session/search_page.dart';
 import 'package:ox_chat/page/session/unified_search_page.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_chat/utils/chat_session_utils.dart';
@@ -32,9 +31,7 @@ import 'package:ox_common/utils/date_utils.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
-import 'package:ox_common/utils/platform_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
-import 'package:ox_common/utils/throttle_utils.dart';
 import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/avatar.dart';
@@ -49,7 +46,6 @@ import 'package:ox_common/widgets/highlighted_clickable_text.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_theme/ox_theme.dart';
-import 'package:flutter_vibrate/flutter_vibrate.dart';
 
 part 'chat_session_list_page_ui.dart';
 
@@ -353,7 +349,7 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   @override
   renderNoDataView(BuildContext context, {String? errorTip}) {
     String addfriendStr = 'str_add_a_friend'.localized();
-    String johnchannelStr = 'str_john_a_channel'.localized();
+    String joinGroupStr = 'str_join_a_group'.localized();
     return Container(
       padding: EdgeInsets.only(
         top: Adapt.px(80.0),
@@ -368,17 +364,19 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
           Container(
             margin: EdgeInsets.only(top: Adapt.px(24.0)),
             child: HighlightedClickableText(
-              text: 'str_no_chats_hint'.localized({r'${addfriend}': addfriendStr,r'${johnchannel}': johnchannelStr}),
-              highlightWords: [addfriendStr, johnchannelStr],
+              text: 'str_no_chats_hint'.localized({r'${addfriend}': addfriendStr, r'${joingroup}': joinGroupStr}),
+              highlightWords: [addfriendStr, joinGroupStr],
               onWordTap: (word) async {
                 if (word == addfriendStr) {
-                   CommunityMenuOptionModel.gotoAddFriend(context);
-                } else if (word == johnchannelStr) {
-                  OXNavigator.pushPage(
-                      context,
-                      (context) => SearchPage(
-                            searchPageType: SearchPageType.discover,
-                          ));
+                  CommunityMenuOptionModel.gotoAddFriend(context);
+                } else if (word == joinGroupStr) {
+                  // Navigate to Discovery page Groups tab
+                  OXModuleService.pushPage(
+                    context,
+                    'ox_discovery',
+                    'discoveryPageWidget',
+                    {'typeInt': 3}  // 3 = Groups
+                  );
                 }
               },
             ),
