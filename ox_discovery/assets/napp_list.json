@@ -83,7 +83,7 @@
     "id": "flotilla",
     "url": "https://flotilla.social",
     "name": "Flotilla",
-    "icon": "https://cdn.satellite.earth/24b356d645f7c0eb64c0cb1f6bf7f1b224dbf583296cb1cc29f83c5810ab1e66.png",
+    "icon": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://flotilla.social/&size=256",
     "description": "Relay chat client",
     "metadata": {}
   },
@@ -99,7 +99,7 @@
     "id": "coracle",
     "url": "https://coracle.social",
     "name": "Coracle",
-    "icon": "https://cdn.satellite.earth/621067dcc446cdb6bda35b798d9a13652f90240b2af723e96fb3437c39065a96.png",
+    "icon": "https://coracle-media.us-southeast-1.linodeobjects.com/logomark-light.png",
     "description": "Nostr, the easy way.",
     "metadata": {}
   },
@@ -371,7 +371,7 @@
     "id": "lumilumi",
     "url": "https://lumilumi.app/",
     "name": "lumilumi",
-    "icon": "https://cdn.satellite.earth/cbab039f7c1833d1ce533afeb283e49fc8be46055de32e75b37f3e0d2dc05164.webp",
+    "icon": "https://lumilumi.app/favicon.ico",
     "description": "Switch between full and low-data modes — a flexible Nostr web client",
     "metadata": {}
   },

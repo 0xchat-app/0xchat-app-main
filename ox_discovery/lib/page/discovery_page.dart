@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/utils/widget_tool.dart';
-import 'package:ox_common/widgets/common_appbar.dart';
+import 'package:ox_common/widgets/categoryView/common_category_title_view.dart';
+import 'package:ox_common/widgets/categoryView/common_category_title_item.dart';
 import 'package:ox_discovery/enum/group_type.dart';
 import 'package:ox_discovery/page/moments/groups_page.dart';
 import 'package:ox_discovery/page/widgets/group_selector_dialog.dart';
@@ -59,7 +60,7 @@ extension EDiscoveryPageTypeEx on EDiscoveryPageType {
       case EDiscoveryPageType.moment:
         return 'Moments';
       case EDiscoveryPageType.napp:
-        return 'NApp';
+        return 'NApps';
       case EDiscoveryPageType.group:
         return 'Groups';
     }
@@ -89,6 +90,8 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
 
   late EDiscoveryPageType pageType;
   late TabController _tabController;
+  late PageController _pageController;
+  late List<CommonCategoryTitleItem> tabItems;
   
   ENAppFilterType _nappFilterType = ENAppFilterType.all;
 
@@ -114,6 +117,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
     if (widget.typeInt == 2) initialIndex = 1; // NApp
     else if (widget.typeInt == 3) initialIndex = 2; // Groups
     _tabController = TabController(length: 3, vsync: this, initialIndex: initialIndex);
+    _pageController = PageController(initialPage: initialIndex);
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
         setState(() {
@@ -131,13 +135,23 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
         });
       }
     });
+    _loadData();
     setState(() {});
+  }
+
+  void _loadData() {
+    tabItems = [
+      CommonCategoryTitleItem(title: EDiscoveryPageType.moment.text),
+      CommonCategoryTitleItem(title: EDiscoveryPageType.napp.text),
+      CommonCategoryTitleItem(title: EDiscoveryPageType.group.text),
+    ];
   }
 
 
   @override
   void dispose() {
     _tabController.dispose();
+    _pageController.dispose();
     OXUserInfoManager.sharedInstance.removeObserver(this);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
@@ -162,67 +176,94 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
     super.build(context);
     return Scaffold(
       backgroundColor: ThemeColor.color200,
-      appBar: CommonAppBar(
-        backgroundColor: ThemeColor.color200,
-        elevation: 0,
-        titleSpacing: 0.0,
-        canBack: widget.isSecondPage,
-        actions: _actionWidget(),
-        centerTitle: false,
-        leadingWidth: widget.isSecondPage ? null : 0,
-        titleWidget: widget.isSecondPage ? Center(
-          child: TabBar(
-            controller: _tabController,
-            indicatorColor: ThemeColor.purple1,
-            indicatorWeight: 2.0,
-            labelColor: ThemeColor.purple1,
-            unselectedLabelColor: ThemeColor.color120,
-            labelStyle: TextStyle(
-              fontSize: Adapt.px(16),
-              fontWeight: FontWeight.w600,
-            ),
-            unselectedLabelStyle: TextStyle(
-              fontSize: Adapt.px(16),
-              fontWeight: FontWeight.w400,
-            ),
-            tabs: [
-              Tab(text: EDiscoveryPageType.moment.text),
-              Tab(text: EDiscoveryPageType.napp.text),
-              Tab(text: EDiscoveryPageType.group.text),
-            ],
+      appBar: _commonAppBar(),
+      body: PageView(
+        physics: const BouncingScrollPhysics(),
+        controller: _pageController,
+        onPageChanged: (index) {
+          setState(() {
+            _tabController.index = index;
+            switch (index) {
+              case 0:
+                pageType = EDiscoveryPageType.moment;
+                break;
+              case 1:
+                pageType = EDiscoveryPageType.napp;
+                break;
+              case 2:
+                pageType = EDiscoveryPageType.group;
+                break;
+            }
+          });
+        },
+        children: [
+          PublicMomentsPage(
+            key: publicMomentPageKey,
+            publicMomentsPageType: publicMomentsPageType,
+            newMomentsBottom: widget.isSecondPage ? 50.px : 128.px,
           ),
-        ) : ShaderMask(
-          shaderCallback: (Rect bounds) {
-            return LinearGradient(
-              colors: [
-                ThemeColor.gradientMainEnd,
-                ThemeColor.gradientMainStart,
-              ],
-            ).createShader(Offset.zero & bounds.size);
-          },
-          child: TabBar(
-            controller: _tabController,
-            indicatorColor: ThemeColor.purple1,
-            indicatorWeight: 2.0,
-            labelColor: ThemeColor.purple1,
-            unselectedLabelColor: ThemeColor.color120,
-            labelStyle: TextStyle(
-              fontSize: Adapt.px(16),
-              fontWeight: FontWeight.w600,
-            ),
-            unselectedLabelStyle: TextStyle(
-              fontSize: Adapt.px(16),
-              fontWeight: FontWeight.w400,
-            ),
-            tabs: [
-              Tab(text: EDiscoveryPageType.moment.text),
-              Tab(text: EDiscoveryPageType.napp.text),
-              Tab(text: EDiscoveryPageType.group.text),
+          NAppPage(
+            filterType: _nappFilterType,
+          ),
+          GroupsPage(
+            key: groupsPageState,
+            groupType: _groupType,
+          ),
+        ],
+      ),
+    );
+  }
+
+  PreferredSizeWidget _commonAppBar() {
+    return AppBar(
+      backgroundColor: ThemeColor.color200,
+      elevation: 0,
+      titleSpacing: 0.0,
+      centerTitle: false,
+      automaticallyImplyLeading: widget.isSecondPage,
+      leadingWidth: widget.isSecondPage ? null : 0,
+      leading: widget.isSecondPage ? null : SizedBox.shrink(),
+      title: Align(
+        alignment: Alignment.centerLeft,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 24.px),
+          child: CommonCategoryTitleView(
+            bgColor: Colors.transparent,
+            selectedGradientColors: [
+              ThemeColor.gradientMainStart,
+              ThemeColor.gradientMainEnd
             ],
+            unselectedGradientColors: [ThemeColor.color120, ThemeColor.color120],
+            selectedFontSize: Adapt.sp(20),
+            unSelectedFontSize: Adapt.sp(20),
+            itemSpacing: 16.0,
+            items: tabItems,
+            onTap: (int value) {
+              setState(() {
+                switch (value) {
+                  case 0:
+                    pageType = EDiscoveryPageType.moment;
+                    break;
+                  case 1:
+                    pageType = EDiscoveryPageType.napp;
+                    break;
+                  case 2:
+                    pageType = EDiscoveryPageType.group;
+                    break;
+                }
+                _tabController.index = value;
+              });
+              _pageController.animateToPage(
+                value,
+                duration: const Duration(milliseconds: 2),
+                curve: Curves.linear,
+              );
+            },
+            selectedIndex: _tabController.index,
           ),
         ),
       ),
-      body: _body(),
+      actions: _actionWidget(),
     );
   }
 
@@ -334,25 +375,6 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
     }
   }
 
-  Widget _body() {
-    return TabBarView(
-      controller: _tabController,
-      children: [
-        PublicMomentsPage(
-          key: publicMomentPageKey,
-          publicMomentsPageType: publicMomentsPageType,
-          newMomentsBottom: widget.isSecondPage ? 50.px : 128.px,
-        ),
-        NAppPage(
-          filterType: _nappFilterType,
-        ),
-        GroupsPage(
-          key: groupsPageState,
-          groupType: _groupType,
-        ),
-      ],
-    );
-  }
 
   Widget headerViewForIndex(String leftTitle, int index) {
     return SizedBox(
