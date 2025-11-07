@@ -214,40 +214,30 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
     // TODO: implement didSwitchUser
   }
 
-  @override
-  void didMoveToTabBarCallBack() {
-    _typeList = [HomeTabBarType.home, HomeTabBarType.contact, HomeTabBarType.discover, HomeTabBarType.me];
+  void _applyTabbarMode({int targetIndex = 0}) {
+    final List<HomeTabBarType> targetList = [HomeTabBarType.home, HomeTabBarType.contact, HomeTabBarType.discover, HomeTabBarType.me];
     setState(() {
+      _typeList = targetList;
       tabViewInfo = TabViewInfo.getTabViewData(_typeList);
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _toPage(0, animated: false);
+      _toPage(targetIndex.clamp(0, _typeList.length - 1), animated: false);
     });
+  }
+
+  @override
+  void didMoveToTabBarCallBack() {
+    _applyTabbarMode(targetIndex: 0);
   }
 
   @override
   void didMoveToTopCallBack() {
-    _typeList = [HomeTabBarType.contact, HomeTabBarType.home, HomeTabBarType.me];
-    setState(() {
-      tabViewInfo = TabViewInfo.getTabViewData(_typeList);
-    });
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _toPage(1, animated: false);
-    });
+    _applyTabbarMode(targetIndex: 0);
   }
 
   @override
   void didDeleteMomentsCallBack() {
-    if (_typeList.length == 3) {
-      return;
-    }
-    _typeList = [HomeTabBarType.contact, HomeTabBarType.home, HomeTabBarType.me];
-    setState(() {
-      tabViewInfo = TabViewInfo.getTabViewData(_typeList);
-    });
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _toPage(1, animated: false);
-    });
+    _applyTabbarMode(targetIndex: 0);
   }
 
   void _handleDoubleTap(value,int currentSelect){

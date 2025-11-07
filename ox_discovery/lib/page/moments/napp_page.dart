@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ox_common/mixin/common_state_view_mixin.dart';
 import 'package:ox_common/mixin/common_navigator_observer_mixin.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -405,27 +406,7 @@ class _NAppPageState extends State<NAppPage>
                   color: ThemeColor.color190,
                   borderRadius: BorderRadius.circular(8.px),
                 ),
-                child: napp.iconUrl.isNotEmpty
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(8.px),
-                        child: OXCachedNetworkImage(
-                          imageUrl: napp.iconUrl,
-                          width: 48.px,
-                          height: 48.px,
-                          fit: BoxFit.cover,
-                        ),
-                      )
-                    : Container(
-                        alignment: Alignment.center,
-                        child: Text(
-                          napp.name.isNotEmpty ? napp.name[0].toUpperCase() : 'N',
-                          style: TextStyle(
-                            fontSize: 20.px,
-                            fontWeight: FontWeight.bold,
-                            color: ThemeColor.color0,
-                          ),
-                        ),
-                      ),
+                child: _buildNappIcon(napp),
               ),
               SizedBox(width: 16.px),
               // NApp Info
@@ -469,6 +450,60 @@ class _NAppPageState extends State<NAppPage>
         ),
       ),
     );
+  }
+
+  Widget _buildNappIcon(NAppModel napp) {
+    final String iconUrl = napp.iconUrl;
+    final Widget fallback = _buildNappIconFallback(napp);
+
+    if (iconUrl.isEmpty) {
+      return fallback;
+    }
+
+    final Widget iconWidget;
+    if (_isSvgUrl(iconUrl)) {
+      iconWidget = SvgPicture.network(
+        iconUrl,
+        width: 48.px,
+        height: 48.px,
+        fit: BoxFit.cover,
+        placeholderBuilder: (_) => fallback,
+      );
+    } else {
+      iconWidget = OXCachedNetworkImage(
+        imageUrl: iconUrl,
+        width: 48.px,
+        height: 48.px,
+        fit: BoxFit.cover,
+        errorWidget: (context, url, error) => fallback,
+      );
+    }
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8.px),
+      child: iconWidget,
+    );
+  }
+
+  Widget _buildNappIconFallback(NAppModel napp) {
+    return Container(
+      alignment: Alignment.center,
+      child: Text(
+        napp.name.isNotEmpty ? napp.name[0].toUpperCase() : 'N',
+        style: TextStyle(
+          fontSize: 20.px,
+          fontWeight: FontWeight.bold,
+          color: ThemeColor.color0,
+        ),
+      ),
+    );
+  }
+
+  bool _isSvgUrl(String url) {
+    final uri = Uri.tryParse(url);
+    if (uri == null) return false;
+    final path = uri.path.toLowerCase();
+    return path.endsWith('.svg') || path.contains('.svg');
   }
 
   @override

@@ -27,7 +27,7 @@
     "id": "alphaama",
     "url": "https://alphaama.com",
     "name": "alphaama",
-    "icon": "https://cdn.satellite.earth/be4ade6d02e650923fdbbe4dfa2a5e5c9d1c06a606ff1385fe7c65518721588f.png",
+    "icon": "https://alphaama.com/stuff/android-chrome-512x512.png",
     "description": "just a nostr fucking client",
     "metadata": {}
   },
@@ -147,7 +147,7 @@
     "id": "jumble",
     "url": "https://jumble.social/",
     "name": "Jumble",
-    "icon": "https://cdn.satellite.earth/2466ba2a09a44b9788394f9e82fef04c61b9d8899cd6e4e1ebf4f1ec7bd1814b.png",
+    "icon": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://jumble.social/&size=256",
     "description": "Jumble is a client focused on browsing relay feeds",
     "metadata": {}
   },
@@ -243,7 +243,7 @@
     "id": "shosho",
     "url": "https://shosho.live/",
     "name": "Shosho",
-    "icon": "https://cdn.satellite.earth/42d704c9c602ce75f5e34eb97d7f5ebcccd47d99bb7a6cb1a01b5480df513325.png",
+    "icon": "https://shosho.live/android-chrome-192x192.png",
     "description": "Stream your camera and chat with your friends and followers on Nostr live!",
     "metadata": {}
   },
@@ -267,7 +267,7 @@
     "id": "treasures",
     "url": "https://treasures.to/",
     "name": "Treasures",
-    "icon": "https://cdn.satellite.earth/24d7e869d19be9444531df8f77bd3fb5dff8ffd27bdf67a86fa5c35ec235f44c.png",
+    "icon": "https://treasures.to/icon-192x192.png",
     "description": "Geocaching adventures",
     "metadata": {}
   },
@@ -299,7 +299,7 @@
     "id": "yakbak",
     "url": "https://yakbak.app/",
     "name": "YakBak",
-    "icon": "https://cdn.satellite.earth/82a492f8ede9c8bac65eb433d5453b980310f1b973024f9016b16e42c3fe3327.png",
+    "icon": "https://yakbak.app/favicon.ico",
     "description": "Voice notes",
     "metadata": {}
   },
@@ -315,7 +315,7 @@
     "id": "chachi",
     "url": "https://chachi.chat",
     "name": "Chachi",
-    "icon": "https://cdn.satellite.earth/6e72236f02b922deeb715c552327133dcd503f01a633a74856301ba196139935.png",
+    "icon": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://chachi.chat/&size=256",
     "description": "A group chat and generic NIP-29 group posts client",
     "metadata": {}
   },
@@ -331,7 +331,7 @@
     "id": "gif_buddy",
     "url": "https://gifbuddy.lol/",
     "name": "GIF Buddy",
-    "icon": "https://cdn.satellite.earth/6f35a18eab9a83a7baf785eb3f96c64774fbb60e3944d46b35b68d0a00c26f11.png",
+    "icon": "https://pfp.nostr.build/3397a8a2c96e5cca91b440d9829a10efa252f87a8a8d801787583e9fd4cba824.png",
     "description": "Nostrify gifs",
     "metadata": {}
   },
