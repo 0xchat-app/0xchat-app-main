@@ -40,6 +40,10 @@ class GroupsPageState extends State<GroupsPage>
   Map<String, GroupModel> _groupList = {};
   bool addAutomaticKeepAlives = true;
   bool addRepaintBoundaries = true;
+  // Cache for user info to avoid repeated async calls
+  final Map<String, UserDBISAR> _userCache = {};
+  final Map<String, String> _creatorNameCache = {};
+  final Map<String, List<String>> _membersAvatarsCache = {};
 
   @override
   void initState() {
@@ -94,9 +98,15 @@ class GroupsPageState extends State<GroupsPage>
   Future<void> _updateGroupList() async {
     if (widget.groupType == GroupType.openGroup) {
       _groupList.clear();
+      // Clear caches when refreshing
+      _creatorNameCache.clear();
+      _membersAvatarsCache.clear();
       await _getRelayGroupList();
     } else {
       _groupList.clear();
+      // Clear caches when refreshing
+      _creatorNameCache.clear();
+      _membersAvatarsCache.clear();
       await _getChannelList();
     }
   }
@@ -116,34 +126,40 @@ class GroupsPageState extends State<GroupsPage>
       enablePullUp: false,
       onRefresh: _onRefresh,
       onLoading: null,
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            _topSearch(),
-            commonStateViewWidget(context, _buildBodyWidget()),
-          ],
-        ),
+      child: CustomScrollView(
+        controller: scrollController,
+        slivers: [
+          SliverToBoxAdapter(
+            child: _topSearch(),
+          ),
+          SliverPadding(
+            padding: EdgeInsets.only(
+              left: 24.px,
+              right: 24.px,
+              bottom: 120.px,
+            ),
+            sliver: _groupList.isEmpty
+                ? SliverFillRemaining(
+                    child: commonStateViewWidget(context, const SizedBox.shrink()),
+                  )
+                : _buildBodyWidget(),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildBodyWidget() {
-    return ListView.builder(
-      padding: EdgeInsets.only(
-        left: 24.px,
-        right: 24.px,
-        bottom: 120.px,
+    return SliverList(
+      delegate: SliverChildBuilderDelegate(
+        (context, index) {
+          final group = _groupList.values.elementAt(index);
+          return _buildHotGroupCard(group);
+        },
+        childCount: _groupList.values.length,
+        addAutomaticKeepAlives: addAutomaticKeepAlives,
+        addRepaintBoundaries: addRepaintBoundaries,
       ),
-      primary: false,
-      physics: const NeverScrollableScrollPhysics(),
-      shrinkWrap: true,
-      itemCount: _groupList.values.length,
-      // addAutomaticKeepAlives: addAutomaticKeepAlives,
-      // addRepaintBoundaries: addRepaintBoundaries,
-      itemBuilder: (context, index) {
-        final group = _groupList.values.elementAt(index);
-        return _buildHotGroupCard(group);
-      },
     );
   }
 
@@ -164,9 +180,9 @@ class GroupsPageState extends State<GroupsPage>
               ),
               child: Column(
                 children: [
-                  _buildCardBackgroundWidget(group.picture ?? ''),
+                  _buildCardBackgroundWidget(group.picture),
                   _buildGroupInfoWidget(group),
-                  _buildCreatorWidget(group.creator ?? ''),
+                  _buildCreatorWidget(group.creator),
                   _buildMembersInfoWidget(group.members ?? []),
                 ],
               ),
@@ -275,23 +291,44 @@ class GroupsPageState extends State<GroupsPage>
 
   Widget _buildCreatorWidget(String pubkey) {
     if (pubkey.isEmpty) return const SizedBox();
+    // Use cached name if available, otherwise fetch and cache
+    String? cachedName = _creatorNameCache[pubkey];
+    if (cachedName != null) {
+      return Container(
+        height: Adapt.px(20),
+        margin: EdgeInsets.only(left: 16.px, right: 16.px),
+        alignment: Alignment.bottomLeft,
+        child: Text(
+          '${Localized.text('ox_common.by')} $cachedName',
+          style: TextStyle(
+            color: ThemeColor.color100,
+            fontSize: 14.sp,
+            fontWeight: FontWeight.normal,
+          ),
+          maxLines: 1,
+        ),
+      ).setPaddingOnly(bottom: 12.px);
+    }
+    // Fetch and cache asynchronously
+    _getCreator(pubkey).then((name) {
+      if (mounted) {
+        _creatorNameCache[pubkey] = name;
+        setState(() {});
+      }
+    });
     return Container(
       height: Adapt.px(20),
       margin: EdgeInsets.only(left: 16.px, right: 16.px),
       alignment: Alignment.bottomLeft,
-      child: FutureBuilder(
-          future: _getCreator(pubkey),
-          builder: (context, snapshot) {
-            return Text(
-              '${Localized.text('ox_common.by')} ${snapshot.data}',
-              style: TextStyle(
-                color: ThemeColor.color100,
-                fontSize: 14.sp,
-                fontWeight: FontWeight.normal,
-              ),
-              maxLines: 1,
-            );
-          }),
+      child: Text(
+        '${Localized.text('ox_common.by')} ...',
+        style: TextStyle(
+          color: ThemeColor.color100,
+          fontSize: 14.sp,
+          fontWeight: FontWeight.normal,
+        ),
+        maxLines: 1,
+      ),
     ).setPaddingOnly(bottom: 12.px);
   }
 
@@ -308,17 +345,38 @@ class GroupsPageState extends State<GroupsPage>
   Widget _buildMembersInfoWidget(List<String> members) {
     if (members.isEmpty) return const SizedBox();
     final count = members.length;
+    // Create a cache key from members list
+    final cacheKey = members.join(',');
+    // Use cached avatars if available
+    List<String>? cachedAvatars = _membersAvatarsCache[cacheKey];
+    if (cachedAvatars != null) {
+      return Row(
+        children: [
+          _buildAvatarStack(cachedAvatars),
+          SizedBox(width: 5.px,),
+          Expanded(
+            child: Text(
+              count > 1 ? '$count ${Localized.text('ox_discovery.members')}' : '$count ${Localized.text('ox_discovery.member')}',
+              style: TextStyle(
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w400,
+                color: ThemeColor.color0,
+              ),
+            ),
+          ),
+        ],
+      ).setPaddingOnly(left: 16.px, bottom: 20.px);
+    }
+    // Fetch and cache asynchronously
+    _getMembersAvatars(members).then((avatars) {
+      if (mounted) {
+        _membersAvatarsCache[cacheKey] = avatars;
+        setState(() {});
+      }
+    });
     return Row(
       children: [
-        FutureBuilder(
-          future: _getMembersAvatars(members),
-          builder: (context, snapshot) {
-            if(snapshot.hasData) {
-              return _buildAvatarStack(snapshot.data ?? []);
-            }
-            return const SizedBox();
-          },
-        ),
+        const SizedBox(width: 32, height: 32), // Placeholder for avatars
         SizedBox(width: 5.px,),
         Expanded(
           child: Text(
@@ -386,11 +444,24 @@ class GroupsPageState extends State<GroupsPage>
 
   Future<List<UserDBISAR>> _getMembers(List<String> pubKeys) async {
     List<UserDBISAR> users = [];
+    List<String> uncachedKeys = [];
+    
+    // Check cache first
+    for (var pubKey in pubKeys) {
+      if (_userCache.containsKey(pubKey)) {
+        users.add(_userCache[pubKey]!);
+      } else {
+        uncachedKeys.add(pubKey);
+      }
+    }
+    
+    // Fetch uncached users
     await Future.forEach(
-      pubKeys,
+      uncachedKeys,
       (element) async {
         UserDBISAR? user = await Account.sharedInstance.getUserInfo(element);
         if (user != null) {
+          _userCache[element] = user; // Cache the user
           users.add(user);
         }
       },
