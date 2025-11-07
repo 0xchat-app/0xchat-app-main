@@ -1,0 +1,51 @@
+[
+  {
+    "id": "damus",
+    "url": "https://damus.io",
+    "name": "Damus",
+    "icon": "",
+    "description": "A popular social client for iOS",
+    "metadata": {}
+  },
+  {
+    "id": "snort",
+    "url": "https://snort.social",
+    "name": "Snort",
+    "icon": "",
+    "description": "Make Nostr sexy",
+    "metadata": {}
+  },
+  {
+    "id": "iris",
+    "url": "https://iris.to",
+    "name": "Iris",
+    "icon": "",
+    "description": "Nostr client for better social networks",
+    "metadata": {}
+  },
+  {
+    "id": "nos_social",
+    "url": "https://nos.social",
+    "name": "Nos Social",
+    "icon": "",
+    "description": "Join your peers in a healthy social network. Nos is our Nostr client for humans, not algorithms.",
+    "metadata": {}
+  },
+  {
+    "id": "coolcoin_1",
+    "url": "",
+    "name": "49_CoolCoin",
+    "icon": "",
+    "description": "Your support of content creators on this placi...",
+    "metadata": {}
+  },
+  {
+    "id": "coolcoin_2",
+    "url": "",
+    "name": "49_CoolCoin",
+    "icon": "",
+    "description": "Your support of content creators on this placi...",
+    "metadata": {}
+  }
+]
+

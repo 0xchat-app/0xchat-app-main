@@ -61,6 +61,7 @@ flutter:
     - assets/images/dark/
     - assets/images/light/
     - assets/locale/
+    - assets/napp_list.json
 
   # To add assets to your plugin package, add an assets section, like this:
   # assets:

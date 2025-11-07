@@ -19,10 +19,26 @@ import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'moments/notifications_moments_page.dart';
 import 'moments/public_moments_page.dart';
+import 'moments/napp_page.dart';
 import 'package:ox_common/business_interface/ox_discovery/ox_discovery_model.dart';
 import 'package:flutter/cupertino.dart';
 
-enum EDiscoveryPageType { moment, group }
+enum EDiscoveryPageType { moment, napp, group }
+
+enum ENAppFilterType { all, favorite, recent }
+
+extension ENAppFilterTypeEx on ENAppFilterType {
+  String get text {
+    switch (this) {
+      case ENAppFilterType.all:
+        return 'All';
+      case ENAppFilterType.favorite:
+        return Localized.text('ox_common.webview_more_bookmark');
+      case ENAppFilterType.recent:
+        return 'Recent';
+    }
+  }
+}
 
 extension EDiscoveryPageTypeEx on EDiscoveryPageType {
   static EDiscoveryPageType changeIntToEnum(int typeInt) {
@@ -30,6 +46,8 @@ extension EDiscoveryPageTypeEx on EDiscoveryPageType {
       case 1:
         return EDiscoveryPageType.moment;
       case 2:
+        return EDiscoveryPageType.napp;
+      case 3:
         return EDiscoveryPageType.group;
       default:
         return EDiscoveryPageType.moment;
@@ -40,8 +58,10 @@ extension EDiscoveryPageTypeEx on EDiscoveryPageType {
     switch (this) {
       case EDiscoveryPageType.moment:
         return 'Moments';
+      case EDiscoveryPageType.napp:
+        return 'NApp';
       case EDiscoveryPageType.group:
-        return 'Add Group';
+        return 'Groups';
     }
   }
 }
@@ -60,14 +80,17 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
         AutomaticKeepAliveClientMixin,
         OXUserInfoObserver,
         WidgetsBindingObserver,
-        CommonStateViewMixin {
-  int _channelCurrentIndex = 0;
-
+        CommonStateViewMixin,
+        SingleTickerProviderStateMixin {
   GroupType _groupType = GroupType.openGroup;
 
   String saveMomentFilterKey = 'momentFilterKey';
+  String saveNappFilterKey = 'nappFilterKey';
 
   late EDiscoveryPageType pageType;
+  late TabController _tabController;
+  
+  ENAppFilterType _nappFilterType = ENAppFilterType.all;
 
   GlobalKey<PublicMomentsPageState> publicMomentPageKey =
       GlobalKey<PublicMomentsPageState>();
@@ -84,20 +107,37 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
     OXUserInfoManager.sharedInstance.addObserver(this);
     _isLogin = OXUserInfoManager.sharedInstance.isLogin;
     getMomentPublicFilter();
+    getNappFilter();
     pageType = EDiscoveryPageTypeEx.changeIntToEnum(widget.typeInt);
+    // Initialize TabController with 3 tabs: Moments, NApp, Groups
+    int initialIndex = 0; // Default to Moments
+    if (widget.typeInt == 2) initialIndex = 1; // NApp
+    else if (widget.typeInt == 3) initialIndex = 2; // Groups
+    _tabController = TabController(length: 3, vsync: this, initialIndex: initialIndex);
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        setState(() {
+          switch (_tabController.index) {
+            case 0:
+              pageType = EDiscoveryPageType.moment;
+              break;
+            case 1:
+              pageType = EDiscoveryPageType.napp;
+              break;
+            case 2:
+              pageType = EDiscoveryPageType.group;
+              break;
+          }
+        });
+      }
+    });
     setState(() {});
   }
 
-  void _scrollMomentToTop() {
-    publicMomentPageKey.currentState?.momentScrollController.animateTo(
-      0.0,
-      duration: const Duration(milliseconds: 500),
-      curve: Curves.easeInOut,
-    );
-  }
 
   @override
   void dispose() {
+    _tabController.dispose();
     OXUserInfoManager.sharedInstance.removeObserver(this);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
@@ -130,40 +170,56 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
         actions: _actionWidget(),
         centerTitle: false,
         leadingWidth: widget.isSecondPage ? null : 0,
-        titleWidget: GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onTap: (){
-            if(pageType == EDiscoveryPageType.moment){
-              _scrollMomentToTop();
-            }
-          },
-          child: widget.isSecondPage ? Center(
-            child: Text(
-              pageType.text,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: Adapt.px(20),
-                color: ThemeColor.titleColor,
-              ),
-            ).setPaddingOnly(left: pageType == EDiscoveryPageType.moment ? 36.px : 0.0),
-          ) : ShaderMask(
-            shaderCallback: (Rect bounds) {
-              return LinearGradient(
-                colors: [
-                  ThemeColor.gradientMainEnd,
-                  ThemeColor.gradientMainStart,
-                ],
-              ).createShader(Offset.zero & bounds.size);
-            },
-            child: Text(
-              pageType.text,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: Adapt.px(20),
-                color: ThemeColor.titleColor,
-              ),
+        titleWidget: widget.isSecondPage ? Center(
+          child: TabBar(
+            controller: _tabController,
+            indicatorColor: ThemeColor.purple1,
+            indicatorWeight: 2.0,
+            labelColor: ThemeColor.purple1,
+            unselectedLabelColor: ThemeColor.color120,
+            labelStyle: TextStyle(
+              fontSize: Adapt.px(16),
+              fontWeight: FontWeight.w600,
             ),
-          ).setPaddingOnly(left: pageType == EDiscoveryPageType.moment ? 24.px : 0),
+            unselectedLabelStyle: TextStyle(
+              fontSize: Adapt.px(16),
+              fontWeight: FontWeight.w400,
+            ),
+            tabs: [
+              Tab(text: EDiscoveryPageType.moment.text),
+              Tab(text: EDiscoveryPageType.napp.text),
+              Tab(text: EDiscoveryPageType.group.text),
+            ],
+          ),
+        ) : ShaderMask(
+          shaderCallback: (Rect bounds) {
+            return LinearGradient(
+              colors: [
+                ThemeColor.gradientMainEnd,
+                ThemeColor.gradientMainStart,
+              ],
+            ).createShader(Offset.zero & bounds.size);
+          },
+          child: TabBar(
+            controller: _tabController,
+            indicatorColor: ThemeColor.purple1,
+            indicatorWeight: 2.0,
+            labelColor: ThemeColor.purple1,
+            unselectedLabelColor: ThemeColor.color120,
+            labelStyle: TextStyle(
+              fontSize: Adapt.px(16),
+              fontWeight: FontWeight.w600,
+            ),
+            unselectedLabelStyle: TextStyle(
+              fontSize: Adapt.px(16),
+              fontWeight: FontWeight.w400,
+            ),
+            tabs: [
+              Tab(text: EDiscoveryPageType.moment.text),
+              Tab(text: EDiscoveryPageType.napp.text),
+              Tab(text: EDiscoveryPageType.group.text),
+            ],
+          ),
         ),
       ),
       body: _body(),
@@ -173,7 +229,11 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
   List<Widget> _actionWidget() {
     if (!_isLogin) return [];
 
-    if (pageType == EDiscoveryPageType.moment) {
+    // Get current tab index
+    int currentTabIndex = _tabController.index;
+    
+    if (currentTabIndex == 0) {
+      // Moments tab actions
       return [
         GestureDetector(
           behavior: HitTestBehavior.translucent,
@@ -212,49 +272,85 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
           width: Adapt.px(24),
         ),
       ];
-    }
-
-    return [
-      GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        child: CommonImage(
-          iconName: "menu_icon.png",
+    } else if (currentTabIndex == 2) {
+      // Groups tab actions
+      return [
+        GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          child: CommonImage(
+            iconName: "menu_icon.png",
+            width: Adapt.px(24),
+            height: Adapt.px(24),
+            color: ThemeColor.color0,
+            package: 'ox_discovery',
+          ).setPaddingOnly(left: 10.px),
+          onTap: () async {
+            await showModalBottomSheet(
+              context: context,
+              backgroundColor: Colors.transparent,
+              builder: (BuildContext context) {
+                return GroupSelectorDialog(
+                  title: Localized.text('ox_discovery.group'),
+                  onChanged: (type) => _updateGroupType(type),
+                );
+              },
+            );
+          },
+        ),
+        SizedBox(
           width: Adapt.px(24),
-          height: Adapt.px(24),
-          color: ThemeColor.color0,
-          package: 'ox_discovery',
-        ).setPaddingOnly(left: 10.px),
-        onTap: () async {
-          // showModalBottomSheet(context: context, backgroundColor: Colors.transparent, builder: (context) => _buildChannelBottomDialog());
-          await showModalBottomSheet(
-            context: context,
-            backgroundColor: Colors.transparent,
-            builder: (BuildContext context) {
-              return GroupSelectorDialog(
-                title: Localized.text('ox_discovery.group'),
-                onChanged: (type) => _updateGroupType(type),
-              );
-            },
-          );
-        },
-      ),
-      // OXChatInterface.showRelayInfoWidget().setPaddingOnly(left: 20.px),
-      SizedBox(
-        width: Adapt.px(24),
-      ),
-    ];
+        ),
+      ];
+    } else if (currentTabIndex == 1) {
+      // NApp tab actions
+      return [
+        GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          child: CommonImage(
+            iconName: "menu_icon.png",
+            width: Adapt.px(24),
+            height: Adapt.px(24),
+            color: ThemeColor.color0,
+            package: 'ox_discovery',
+          ).setPaddingOnly(left: 10.px),
+          onTap: () {
+            showModalBottomSheet(
+                context: context,
+                backgroundColor: Colors.transparent,
+                builder: (context) => _buildNappBottomDialog());
+          },
+        ),
+        SizedBox(
+          width: Adapt.px(24),
+        ),
+      ];
+    } else {
+      // Other tabs - no actions for now
+      return [
+        SizedBox(
+          width: Adapt.px(24),
+        ),
+      ];
+    }
   }
 
   Widget _body() {
-    if (pageType == EDiscoveryPageType.moment)
-      return PublicMomentsPage(
-        key: publicMomentPageKey,
-        publicMomentsPageType: publicMomentsPageType,
-        newMomentsBottom: widget.isSecondPage ? 50.px : 128.px,
-      );
-    return GroupsPage(
-      key: groupsPageState,
-      groupType: _groupType,
+    return TabBarView(
+      controller: _tabController,
+      children: [
+        PublicMomentsPage(
+          key: publicMomentPageKey,
+          publicMomentsPageType: publicMomentsPageType,
+          newMomentsBottom: widget.isSecondPage ? 50.px : 128.px,
+        ),
+        NAppPage(
+          filterType: _nappFilterType,
+        ),
+        GroupsPage(
+          key: groupsPageState,
+          groupType: _groupType,
+        ),
+      ],
     );
   }
 
@@ -287,28 +383,6 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
     );
   }
 
-  Widget _buildItem(String title,
-      {required int index, GestureTapCallback? onTap}) {
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      child: Container(
-        alignment: Alignment.center,
-        width: double.infinity,
-        height: Adapt.px(56),
-        child: Text(
-          title,
-          style: TextStyle(
-            color: ThemeColor.color0,
-            fontSize: Adapt.px(16),
-            fontWeight: index == _channelCurrentIndex
-                ? FontWeight.w600
-                : FontWeight.w400,
-          ),
-        ),
-      ),
-      onTap: onTap,
-    );
-  }
 
   Widget _buildMomentBottomDialog() {
     return Container(
@@ -383,6 +457,83 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
     }
   }
 
+  void getNappFilter() async {
+    final result = await OXCacheManager.defaultOXCacheManager
+        .getForeverData(saveNappFilterKey);
+    if (result != null && result is int && result >= 0 && result < ENAppFilterType.values.length) {
+      _nappFilterType = ENAppFilterType.values[result];
+    } else {
+      // Default to 'all' if no saved filter or invalid value
+      _nappFilterType = ENAppFilterType.all;
+    }
+    setState(() {});
+  }
+
+  void setNappFilter(ENAppFilterType type) async {
+    OXNavigator.pop(context);
+    await OXCacheManager.defaultOXCacheManager
+        .saveForeverData(saveNappFilterKey, type.index);
+    if (mounted) {
+      _nappFilterType = type;
+      setState(() {});
+    }
+  }
+
+  Widget _buildNappBottomDialog() {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(Adapt.px(12)),
+        color: ThemeColor.color180,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildMomentItem(
+            isSelect: _nappFilterType == ENAppFilterType.all,
+            ENAppFilterType.all.text,
+            index: 1,
+            onTap: () => setNappFilter(ENAppFilterType.all),
+          ),
+          Divider(
+            color: ThemeColor.color170,
+            height: Adapt.px(0.5),
+          ),
+          _buildMomentItem(
+            isSelect: _nappFilterType == ENAppFilterType.favorite,
+            ENAppFilterType.favorite.text,
+            index: 1,
+            onTap: () => setNappFilter(ENAppFilterType.favorite),
+          ),
+          Divider(
+            color: ThemeColor.color170,
+            height: Adapt.px(0.5),
+          ),
+          _buildMomentItem(
+            isSelect: _nappFilterType == ENAppFilterType.recent,
+            ENAppFilterType.recent.text,
+            index: 1,
+            onTap: () => setNappFilter(ENAppFilterType.recent),
+          ),
+          Divider(
+            color: ThemeColor.color170,
+            height: Adapt.px(0.5),
+          ),
+          Container(
+            height: Adapt.px(8),
+            color: ThemeColor.color190,
+          ),
+          _buildMomentItem(Localized.text('ox_common.cancel'), index: 3,
+              onTap: () {
+            OXNavigator.pop(context);
+          }),
+          SizedBox(
+            height: Adapt.px(21),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildMomentItem(String title,
       {required int index, GestureTapCallback? onTap, bool isSelect = false}) {
     return GestureDetector(
@@ -436,10 +587,6 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
   // TODO: implement wantKeepAlive
   bool get wantKeepAlive => true;
 
-  @override
-  void didRelayStatusChange(String relay, int status) {
-    setState(() {});
-  }
 
   onThemeStyleChange() {
     if (mounted) setState(() {});
