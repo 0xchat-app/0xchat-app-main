@@ -118,7 +118,11 @@ class OXCommon extends OXFlutterModule {
     return null;
   }
 
-  void gotoWebView(BuildContext context, String url, bool? isPresentPage, bool? fullscreenDialog, bool? isLocalHtmlResource, Function(String)? calllBack) async {
+  void gotoWebView(BuildContext context, String url, bool? isPresentPage, bool? fullscreenDialog, bool? isLocalHtmlResource, Function(String)? calllBack, [Map<String, dynamic>? extraParams]) async {
+    String? title = extraParams?['title'];
+    String? nappName = extraParams?['nappName'];
+    String? nappUrl = extraParams?['nappUrl'];
+    String? nappId = extraParams?['nappId'];
     if (isPresentPage == null) {
       final Uri uri = Uri.parse(url);
       try {
@@ -129,7 +133,15 @@ class OXCommon extends OXFlutterModule {
     } else {
       OXNavigator.presentPage(
         context,
-        (context) => CommonWebView(url, title: '0xchat', urlCallback: calllBack, isLocalHtmlResource: isLocalHtmlResource),
+        (context) => CommonWebView(
+          url, 
+          title: title ?? nappName ?? '0xchat', 
+          urlCallback: calllBack, 
+          isLocalHtmlResource: isLocalHtmlResource,
+          nappName: nappName,
+          nappUrl: nappUrl ?? url,
+          nappId: nappId,
+        ),
         fullscreenDialog: fullscreenDialog ?? true,
       );
     }

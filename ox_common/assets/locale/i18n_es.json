@@ -107,6 +107,7 @@
   "you": "tú",
   "webview_more_browser": "Abrir en el navegador",
   "webview_more_copy": "Copiar enlace",
+  "webview_more_bookmark": "Marcador",
   "open_singer_app_error_title": "Error al abrir la aplicación de firma",
   "open_singer_app_error_content": "No se pudo encontrar la aplicación de firma. Verifica si la aplicación no ha sido desinstalada.",
   "str_grant_permission_photo_hint": "Por favor, concede permiso para acceder a la foto",

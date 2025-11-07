@@ -106,5 +106,6 @@
   "secret_chat_rejected_tips": "${name}이(가) 당신의 비밀 채팅 요청을 거절했습니다",
   "you": "당신",
   "webview_more_browser": "브라우저에서 열기",
-  "webview_more_copy": "링크 복사"
+  "webview_more_copy": "링크 복사",
+  "webview_more_bookmark": "북마크"
 }

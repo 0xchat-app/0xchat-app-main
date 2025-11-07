@@ -106,5 +106,6 @@
   "secret_chat_rejected_tips": "${name} a refusé votre demande de chat secret",
   "you": "tu",
   "webview_more_browser": "Ouvrir dans le navigateur",
-  "webview_more_copy": "Copier le lien"
+  "webview_more_copy": "Copier le lien",
+  "webview_more_bookmark": "Signet"
 }

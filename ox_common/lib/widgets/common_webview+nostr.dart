@@ -55,6 +55,20 @@ window.nostr = {
       });
     },
   },
+  nip44: {
+    async encrypt(pubkey, plaintext) {
+      return window.nostr._call(JS_nip44_encrypt, {
+        pubkey: pubkey,
+        plaintext: plaintext,
+      });
+    },
+    async decrypt(pubkey, ciphertext) {
+      return window.nostr._call(JS_nip44_decrypt, {
+        pubkey: pubkey,
+        ciphertext: ciphertext,
+      });
+    },
+  },
 };   
          """;
 
@@ -64,6 +78,8 @@ window.nostr = {
         getRelaysChannel(context),
         encryptNIP04Channel(context),
         decryptNIP04Channel(context),
+        encryptNIP44Channel(context),
+        decryptNIP44Channel(context),
       };
 
   JavascriptChannel getPublicKeyChannel(BuildContext context) {
@@ -182,9 +198,67 @@ window.nostr = {
         });
   }
 
+  JavascriptChannel encryptNIP44Channel(BuildContext context) {
+    return JavascriptChannel(
+        name: 'JS_nip44_encrypt',
+        onMessageReceived: (JavaScriptMessage message) async {
+          var jsonObj = jsonDecode(message.message);
+          var resultId = jsonObj["resultId"];
+          bool result = await getAgreement(
+              'get_request_title'.commonLocalized(),
+              'get_encryptNip04_request_content'.commonLocalized(),
+              'encryptNIP44');
+          if (result) {
+            var msg = jsonObj["msg"];
+            if (msg != null && msg is Map) {
+              var pubkey = msg["pubkey"];
+              var plaintext = msg["plaintext"];
+              var resultStr =
+                  await Account.sharedInstance.encryptNip44(plaintext, pubkey);
+              var script =
+                  "window.nostr.resolve(\"$resultId\", \"$resultStr\");";
+              await currentController.runJavaScript(script);
+            }
+          } else {
+            var resultStr = 'User Rejected';
+            var script = "window.nostr.reject(\"$resultId\", \"$resultStr\");";
+            await currentController.runJavaScript(script);
+          }
+        });
+  }
+
+  JavascriptChannel decryptNIP44Channel(BuildContext context) {
+    return JavascriptChannel(
+        name: 'JS_nip44_decrypt',
+        onMessageReceived: (JavaScriptMessage message) async {
+          var jsonObj = jsonDecode(message.message);
+          var resultId = jsonObj["resultId"];
+          bool result = await getAgreement(
+              'get_request_title'.commonLocalized(),
+              'get_encryptNip04_request_content'.commonLocalized(),
+              'decryptNIP44');
+          if (result) {
+            var msg = jsonObj["msg"];
+            if (msg != null && msg is Map) {
+              var pubkey = msg["pubkey"];
+              var ciphertext = msg["ciphertext"];
+              var resultStr =
+                  await Account.sharedInstance.decryptNip44(ciphertext, pubkey);
+              var script =
+                  "window.nostr.resolve(\"$resultId\", \"$resultStr\");";
+              await currentController.runJavaScript(script);
+            }
+          } else {
+            var resultStr = 'User Rejected';
+            var script = "window.nostr.reject(\"$resultId\", \"$resultStr\");";
+            await currentController.runJavaScript(script);
+          }
+        });
+  }
+
   Future<bool> getAgreement(String title, String content, String key) async {
     Completer<bool> completer = Completer<bool>();
-    var uri = Uri.parse((widget as CommonWebView).url);
+    var uri = Uri.parse(widget.url);
     var host = uri.host;
     bool agree = await OXCacheManager.defaultOXCacheManager
             .getForeverData('$host.$key') ??

@@ -106,5 +106,6 @@
   "secret_chat_rejected_tips": "${name}があなたの秘密のチャットのリクエストを拒否しました",
   "you": "あなた",
   "webview_more_browser": "ブラウザで開く",
-  "webview_more_copy": "リンクをコピー"
+  "webview_more_copy": "リンクをコピー",
+  "webview_more_bookmark": "ブックマーク"
 }

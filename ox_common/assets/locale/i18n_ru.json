@@ -106,5 +106,6 @@
   "secret_chat_rejected_tips": "${name} отклонил ваш запрос на секретный чат",
   "you": "ты",
   "webview_more_browser": "Открыть в браузере",
-  "webview_more_copy": "Скопировать ссылку"
+  "webview_more_copy": "Скопировать ссылку",
+  "webview_more_bookmark": "Закладка"
 }

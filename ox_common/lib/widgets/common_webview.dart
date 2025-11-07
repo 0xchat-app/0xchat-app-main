@@ -21,6 +21,9 @@ class CommonWebView extends StatefulWidget {
   final bool hideAppbar;
   final UrlCallBack? urlCallback;
   final bool isLocalHtmlResource;
+  final String? nappName;
+  final String? nappUrl;
+  final String? nappId;
 
   CommonWebView(
     this.url,{
@@ -28,6 +31,9 @@ class CommonWebView extends StatefulWidget {
     this.hideAppbar = false,
     this.urlCallback,
     bool? isLocalHtmlResource,
+    this.nappName,
+    this.nappUrl,
+    this.nappId,
   }) : isLocalHtmlResource = isLocalHtmlResource ?? false;
 
   @override
@@ -155,6 +161,9 @@ class CommonWebViewState<T extends CommonWebView> extends State<T>
     return CommonWebViewAppBar(
       title: Text('${widget.title ?? ""}'),
       webViewControllerFuture: Future.value(currentController),
+      nappName: widget.nappName,
+      nappUrl: widget.nappUrl,
+      nappId: widget.nappId,
     );
   }
 

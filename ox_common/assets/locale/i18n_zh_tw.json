@@ -106,5 +106,6 @@
   "secret_chat_rejected_tips": "${name}拒绝了您的密聊请求",
   "you": "你",
   "webview_more_browser": "在瀏覽器中開啟",
-  "webview_more_copy": "複製連結"
+  "webview_more_copy": "複製連結",
+  "webview_more_bookmark": "收藏"
 }

@@ -106,5 +106,6 @@
   "secret_chat_rejected_tips": "${name} hat Ihre Anfrage für einen geheimen Chat abgelehnt",
   "you": "du",
   "webview_more_browser": "Im Browser öffnen",
-  "webview_more_copy": "Link kopieren"
+  "webview_more_copy": "Link kopieren",
+  "webview_more_bookmark": "Lesezeichen"
 }

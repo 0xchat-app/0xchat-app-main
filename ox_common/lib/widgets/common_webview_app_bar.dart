@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -9,6 +11,8 @@ import 'package:ox_module_service/ox_module_service.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:ox_cache_manager/ox_cache_manager.dart';
+import 'package:ox_common/widgets/common_toast.dart';
 
 class CommonWebViewAppBar extends StatelessWidget implements PreferredSizeWidget {
   const CommonWebViewAppBar(
@@ -20,7 +24,10 @@ class CommonWebViewAppBar extends StatelessWidget implements PreferredSizeWidget
       this.canBack = true,
       this.onClickMore,
       this.onClickClose,
-      this.webViewControllerFuture});
+      this.webViewControllerFuture,
+      this.nappName,
+      this.nappUrl,
+      this.nappId});
 
   final Color? backgroundColor;
   final Widget? title;
@@ -30,6 +37,9 @@ class CommonWebViewAppBar extends StatelessWidget implements PreferredSizeWidget
   final GestureTapCallback? onClickMore;
   final GestureTapCallback? onClickClose;
   final Future<WebViewController>? webViewControllerFuture;
+  final String? nappName;
+  final String? nappUrl;
+  final String? nappId;
 
   @override
   Size get preferredSize => Size.fromHeight(56.px);
@@ -130,16 +140,31 @@ class CommonWebViewAppBar extends StatelessWidget implements PreferredSizeWidget
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 20.px,vertical: 16.px),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildItem(label: Localized.text('ox_common.webview_more_send_to_chat'),onTap: ()=>_onSendToOther(context), iconName: 'icon_share_browser.png'),
-                _buildItem(label: Localized.text('ox_common.webview_more_browser'),onTap: ()=>_launchURL(context), iconName: 'icon_share_browser.png'),
-                _buildItem(label: Localized.text('ox_common.webview_more_copy'),onTap: ()=>_copyURL(context), iconName: 'icon_share_link.png',),
-                _buildItem(label: Localized.text('ox_common.str_share'),onTap: ()=>_onShare(context), iconName: 'icon_share_link.png',),
-              ],
+            padding: EdgeInsets.symmetric(horizontal: 16.px,vertical: 16.px),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if ((nappName != null && nappUrl != null) || nappId != null)
+                    FutureBuilder<bool>(
+                      future: _isBookmarked(),
+                      builder: (context, snapshot) {
+                        bool isBookmarked = snapshot.data ?? false;
+                        return _buildItem(
+                          label: Localized.text('ox_common.webview_more_bookmark'),
+                          onTap: () => _onBookmark(context),
+                          iconName: isBookmarked ? 'icon_unbookmark.png' : 'icon_bookmark.png',
+                        );
+                      },
+                    ),
+                  _buildItem(label: Localized.text('ox_common.webview_more_send_to_chat'),onTap: ()=>_onSendToOther(context), iconName: 'icon_share_chat.png'),
+                  _buildItem(label: Localized.text('ox_common.webview_more_browser'),onTap: ()=>_launchURL(context), iconName: 'icon_share_browser.png'),
+                  _buildItem(label: Localized.text('ox_common.webview_more_copy'),onTap: ()=>_copyURL(context), iconName: 'icon_share_link.png',),
+                  _buildItem(label: Localized.text('ox_common.str_share'),onTap: ()=>_onShare(context), iconName: 'icon_share_file.png',),
+                ],
+              ),
             ),
           ),
           Container(
@@ -247,6 +272,97 @@ class CommonWebViewAppBar extends StatelessWidget implements PreferredSizeWidget
     if(url != null && url.isNotEmpty){
       OXNavigator.pop(context);
       Share.share(url);
+    }
+  }
+
+  Future<String?> _getTargetNappId() async {
+    if (nappId != null) return nappId;
+    if (nappUrl == null) return null;
+    
+    try {
+      // Try to load napp_list.json to find matching id
+      final String jsonString = await rootBundle.loadString('packages/ox_discovery/assets/napp_list.json');
+      final List<dynamic> jsonList = jsonDecode(jsonString);
+      for (var item in jsonList) {
+        if (item is Map && item['url'] == nappUrl) {
+          return item['id'] as String?;
+        }
+      }
+    } catch (e) {
+      // If can't load JSON, use URL as fallback
+      return nappUrl;
+    }
+    
+    return nappUrl;
+  }
+
+  Future<bool> _isBookmarked() async {
+    if (nappId == null && (nappName == null || nappUrl == null)) return false;
+    
+    String? targetNappId = await _getTargetNappId();
+    if (targetNappId == null) return false;
+    
+    // Get current bookmarks (only store ids)
+    List<dynamic> bookmarkIds = await OXCacheManager.defaultOXCacheManager
+        .getForeverData('napp_bookmarks', defaultValue: []) ?? [];
+    
+    // Check if already bookmarked
+    return bookmarkIds.any((item) {
+      if (item is Map) {
+        return item['id'] == targetNappId;
+      } else if (item is String) {
+        return item == targetNappId;
+      }
+      return false;
+    });
+  }
+
+  void _onBookmark(BuildContext context) async {
+    if (nappId == null && (nappName == null || nappUrl == null)) return;
+    
+    OXNavigator.pop(context);
+    
+    // Get current bookmarks (only store ids)
+    List<dynamic> bookmarkIds = await OXCacheManager.defaultOXCacheManager
+        .getForeverData('napp_bookmarks', defaultValue: []) ?? [];
+    
+    // Use helper method to get target NApp id
+    String? targetNappId = await _getTargetNappId();
+    if (targetNappId == null) {
+      targetNappId = nappUrl ?? ''; // Fallback to URL if no id found
+    }
+    
+    // Check if already bookmarked
+    bool isBookmarked = bookmarkIds.any((item) {
+      if (item is Map) {
+        return item['id'] == targetNappId;
+      } else if (item is String) {
+        return item == targetNappId;
+      }
+      return false;
+    });
+    
+    if (isBookmarked) {
+      // Remove bookmark
+      bookmarkIds.removeWhere((item) {
+        if (item is Map) {
+          return item['id'] == targetNappId;
+        } else if (item is String) {
+          return item == targetNappId;
+        }
+        return false;
+      });
+      await OXCacheManager.defaultOXCacheManager
+          .saveForeverData('napp_bookmarks', bookmarkIds);
+      // Show toast
+      CommonToast.instance.show(context, 'Bookmark removed');
+    } else {
+      // Add bookmark (only store id)
+      bookmarkIds.add(targetNappId);
+      await OXCacheManager.defaultOXCacheManager
+          .saveForeverData('napp_bookmarks', bookmarkIds);
+      // Show toast
+      CommonToast.instance.show(context, 'Bookmarked');
     }
   }
 }
