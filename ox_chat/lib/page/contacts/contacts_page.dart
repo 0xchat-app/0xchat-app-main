@@ -441,7 +441,7 @@ class _ContractsPageState extends ContactBasePageState<ContractsPage>
           context,
           'ox_discovery',
           'discoveryPageWidget',
-          {'typeInt':2}
+          {'typeInt':3}  // 3 = Groups
       );
     }
   }
