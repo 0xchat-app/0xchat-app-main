@@ -3,12 +3,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'common_webview.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
-import 'common_hint_dialog.dart';
+import 'nostr_permission_bottom_sheet.dart';
 import 'package:ox_common/utils/string_utils.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:ox_common/navigator/navigator.dart';
-import 'package:ox_localizable/ox_localizable.dart';
 
 extension Nostr on CommonWebViewState {
   String get windowNostrJavaScript => """
@@ -264,24 +262,18 @@ window.nostr = {
             .getForeverData('$host.$key') ??
         false;
     if (!agree) {
-      OXCommonHintDialog.show(context,
-          title: title,
-          content: content,
-          isRowAction: true,
-          actionList: [
-            OXCommonHintAction.cancel(onTap: () {
-              OXNavigator.pop(context);
-              completer.complete(false);
-            }),
-            OXCommonHintAction.sure(
-                text: Localized.text('ox_common.confirm'),
-                onTap: () async {
-                  await OXCacheManager.defaultOXCacheManager
-                      .saveForeverData('$host.$key', true);
-                  OXNavigator.pop(context);
-                  completer.complete(true);
-                }),
-          ]);
+      bool result = await NostrPermissionBottomSheet.show(
+        context,
+        title: title,
+        content: content,
+      );
+      if (result) {
+        await OXCacheManager.defaultOXCacheManager
+            .saveForeverData('$host.$key', true);
+        completer.complete(true);
+      } else {
+        completer.complete(false);
+      }
     } else {
       completer.complete(true);
     }
