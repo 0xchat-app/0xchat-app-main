@@ -88,6 +88,11 @@ class CommonWebViewState<T extends CommonWebView> extends State<T>
   }
 
   void prepareWebViewController() {
+    // Enable JavaScript for Android WebView
+    currentController.setJavaScriptMode(JavaScriptMode.unrestricted);
+    // Set background color to avoid white screen
+    currentController.setBackgroundColor(Colors.transparent);
+    
     currentController.setNavigationDelegate(webViewDelegate);
 
     final isLocalHtmlResource = widget.isLocalHtmlResource;
