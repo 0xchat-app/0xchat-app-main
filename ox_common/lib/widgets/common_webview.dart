@@ -7,8 +7,6 @@ import 'package:ox_common/widgets/common_webview_app_bar.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:ox_common/mixin/common_js_method_mixin.dart';
 import 'package:ox_common/utils/theme_color.dart';
-import 'package:ox_localizable/ox_localizable.dart';
-import 'package:ox_theme/ox_theme.dart';
 
 typedef JavascriptMessageHandler = void Function(JavaScriptMessage message);
 final RegExp _validChannelNames = RegExp(r'^[a-zA-Z_][a-zA-Z0-9_]*$');
@@ -169,13 +167,14 @@ class CommonWebViewState<T extends CommonWebView> extends State<T>
 
   String formatUrl(String url) {
     return url;
-    if (url.contains("?")) {
-      return url +
-          "&lang=${Localized.getCurrentLanguage().symbol()}&theme=${ThemeManager.getCurrentThemeStyle().value()}";
-    } else {
-      return url +
-          "?lang=${Localized.getCurrentLanguage().symbol()}&theme=${ThemeManager.getCurrentThemeStyle().value()}";
-    }
+    // TODO: Add language and theme parameters if needed
+    // if (url.contains("?")) {
+    //   return url +
+    //       "&lang=${Localized.getCurrentLanguage().symbol()}&theme=${ThemeManager.getCurrentThemeStyle().value()}";
+    // } else {
+    //   return url +
+    //       "?lang=${Localized.getCurrentLanguage().symbol()}&theme=${ThemeManager.getCurrentThemeStyle().value()}";
+    // }
   }
 }
 
