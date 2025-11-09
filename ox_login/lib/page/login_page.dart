@@ -307,6 +307,8 @@ class _LoginPageState extends State<LoginPage> {
       CommonToast.instance.show(context, Localized.text('ox_login.str_not_installed_amber'));
       return;
     }
+    // Set signer to amber to ensure Content Provider is used first
+    await ExternalSignerTool.setSigner('amber');
     String? signature = await ExternalSignerTool.getPubKey();
     if (signature == null) {
       CommonToast.instance.show(context, Localized.text('ox_login.sign_request_rejected'));
