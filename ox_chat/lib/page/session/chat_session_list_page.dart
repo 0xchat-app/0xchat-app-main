@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/cupertino.dart';
@@ -14,7 +13,6 @@ import 'package:ox_chat/page/session/unified_search_page.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_chat/utils/chat_session_utils.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
-import 'package:ox_chat/widget/moment_longpress_dialog.dart';
 import 'package:ox_chat/widget/relay_info_widget.dart';
 import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/const/common_constant.dart';
@@ -75,7 +73,6 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   GlobalKey? _latestGlobalKey;
   bool addAutomaticKeepAlives = true;
   bool addRepaintBoundaries = true;
-  GlobalKey _momentGlobalKey = GlobalKey();
 
   @override
   void initState() {

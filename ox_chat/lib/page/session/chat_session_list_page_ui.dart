@@ -39,36 +39,6 @@ extension ChatSessionListPageUI on ChatSessionListPageState{
         ),
       ),
       actions: <Widget>[
-        Visibility(
-          visible: OXUserInfoManager.sharedInstance.momentPosition == 0,
-          child: GestureDetector(
-            key: _momentGlobalKey,
-            behavior: HitTestBehavior.translucent,
-            onLongPress: () {
-              TookKit.vibrateEffect();
-              MomentLongPressDialog.sharedInstance.showPopupDialog(context, _momentGlobalKey);
-            },
-            child: CommonImage(
-              iconName: 'moments_icon.png',
-              size: 24.px,
-              color: ThemeColor.color100,
-              package: 'ox_chat',
-            ),
-            onTap: () {
-              if (_isLogin) {
-                OXModuleService.pushPage(
-                  context,
-                  'ox_discovery',
-                  'discoveryPageWidget',
-                  {'typeInt': 1, 'isSecondPage': true},
-                );
-              } else {
-                OXModuleService.pushPage(context, "ox_login", "LoginPage", {});
-              }
-            },
-          ),
-        ),
-        SizedBox(width: 16.px),
         GestureDetector(
           behavior: HitTestBehavior.translucent,
           child: CommonImage(

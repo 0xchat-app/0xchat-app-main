@@ -285,8 +285,11 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
   }
 
   void _tabbarItemOnLongPress(int index) async {
+    // Disable long press for discover tab
+    if (_typeList.elementAt(index) == HomeTabBarType.discover) return;
+    
     TookKit.vibrateEffect();
-    if (!_isLogin && _typeList.elementAt(index) != HomeTabBarType.discover) return;
+    if (!_isLogin) return;
     if (_typeList.elementAt(index) == HomeTabBarType.me) {
       await _loadLocalInfo();
     }
