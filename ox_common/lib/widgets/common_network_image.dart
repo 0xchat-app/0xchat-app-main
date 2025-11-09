@@ -50,14 +50,26 @@ class OXCachedNetworkImage extends StatelessWidget {
 
     final ratio = MediaQuery.of(context).devicePixelRatio;
 
+    // Optimized: Limit memory cache size to reduce memory pressure
+    // Maximum memory cache size: 800px to prevent excessive memory usage
+    const int maxMemoryCacheSize = 800;
+    
     int? memCacheWidth;
     if (width != null && width != double.infinity) {
       memCacheWidth = (width! * ratio).round();
+      // Limit memory cache width to prevent excessive memory usage
+      if (memCacheWidth > maxMemoryCacheSize) {
+        memCacheWidth = maxMemoryCacheSize;
+      }
     }
 
     int? memCacheHeight;
     if (memCacheWidth == null && height != null && height != double.infinity) {
       memCacheHeight = (height! * ratio).round();
+      // Limit memory cache height to prevent excessive memory usage
+      if (memCacheHeight > maxMemoryCacheSize) {
+        memCacheHeight = maxMemoryCacheSize;
+      }
     }
 
     String? cacheKey;
@@ -67,6 +79,12 @@ class OXCachedNetworkImage extends StatelessWidget {
       cacheKey = '$imageUrl\_thumb';
       maxWidthDiskCache = (80.px * ratio).round();
       maxHeightDiskCache = (80.px * ratio).round();
+    } else {
+      // Optimized: Set default disk cache limits for non-thumb images
+      // Limit to screen width to reduce disk usage
+      final screenWidth = MediaQuery.of(context).size.width;
+      maxWidthDiskCache = (screenWidth * ratio * 1.5).round(); // 1.5x for high DPI
+      maxHeightDiskCache = (screenWidth * ratio * 1.5).round();
     }
 
     return CachedNetworkImage(
