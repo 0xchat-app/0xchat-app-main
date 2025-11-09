@@ -109,6 +109,8 @@ class OXUserInfoManager {
       if (localPubKey.isNotEmpty && localIsLoginAmber != null && localIsLoginAmber) {
         bool isInstalled = await CoreMethodChannel.isInstalledAmber();
         if (isInstalled) {
+          // Set signer to amber to ensure Content Provider is used first
+          await ExternalSignerTool.setSigner('amber');
           String? signature = await ExternalSignerTool.getPubKey();
           if (signature == null) {
             signatureVerifyFailed = true;
