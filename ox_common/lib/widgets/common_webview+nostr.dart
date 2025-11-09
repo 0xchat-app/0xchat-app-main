@@ -5,6 +5,7 @@ import 'common_webview.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'nostr_permission_bottom_sheet.dart';
 import 'package:ox_common/utils/string_utils.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -258,8 +259,16 @@ window.nostr = {
     Completer<bool> completer = Completer<bool>();
     var uri = Uri.parse(widget.url);
     var host = uri.host;
+    // Get current user's pubKey for account-specific authorization
+    String currentPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
+    if (currentPubKey.isEmpty) {
+      completer.complete(false);
+      return completer.future;
+    }
+    // Use account-specific cache key: pubKey.host.key
+    String cacheKey = '$currentPubKey.$host.$key';
     bool agree = await OXCacheManager.defaultOXCacheManager
-            .getForeverData('$host.$key') ??
+            .getForeverData(cacheKey) ??
         false;
     if (!agree) {
       bool result = await NostrPermissionBottomSheet.show(
@@ -269,7 +278,7 @@ window.nostr = {
       );
       if (result) {
         await OXCacheManager.defaultOXCacheManager
-            .saveForeverData('$host.$key', true);
+            .saveForeverData(cacheKey, true);
         completer.complete(true);
       } else {
         completer.complete(false);

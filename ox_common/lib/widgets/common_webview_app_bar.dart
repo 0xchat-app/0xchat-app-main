@@ -15,6 +15,7 @@ import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/nostr_permission_bottom_sheet.dart';
 import 'package:ox_common/utils/string_utils.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
 
 class CommonWebViewAppBar extends StatelessWidget implements PreferredSizeWidget {
   const CommonWebViewAppBar(
@@ -476,10 +477,16 @@ class CommonWebViewAppBar extends StatelessWidget implements PreferredSizeWidget
       return false;
     }
 
-    // Check all permission keys
+    // Get current user's pubKey for account-specific authorization
+    String currentPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
+    if (currentPubKey.isEmpty) {
+      return false;
+    }
+
+    // Check all permission keys with account-specific cache key: pubKey.host.key
     List<String> allKeys = ['getPublicKey', 'signEvent', 'encryptNIP04', 'encryptNIP44', 'decryptNIP44'];
     for (String key in allKeys) {
-      String cacheKey = '$host.$key';
+      String cacheKey = '$currentPubKey.$host.$key';
       bool granted = await OXCacheManager.defaultOXCacheManager
           .getForeverData(cacheKey, defaultValue: false) ?? false;
       if (granted) {
@@ -495,10 +502,16 @@ class CommonWebViewAppBar extends StatelessWidget implements PreferredSizeWidget
       return;
     }
 
-    // Grant all permission keys
+    // Get current user's pubKey for account-specific authorization
+    String currentPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
+    if (currentPubKey.isEmpty) {
+      return;
+    }
+
+    // Grant all permission keys with account-specific cache key: pubKey.host.key
     List<String> allKeys = ['getPublicKey', 'signEvent', 'encryptNIP04', 'encryptNIP44', 'decryptNIP44'];
     for (String key in allKeys) {
-      String cacheKey = '$host.$key';
+      String cacheKey = '$currentPubKey.$host.$key';
       await OXCacheManager.defaultOXCacheManager
           .saveForeverData(cacheKey, true);
     }
@@ -510,10 +523,16 @@ class CommonWebViewAppBar extends StatelessWidget implements PreferredSizeWidget
       return;
     }
 
-    // Revoke all permission keys
+    // Get current user's pubKey for account-specific authorization
+    String currentPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
+    if (currentPubKey.isEmpty) {
+      return;
+    }
+
+    // Revoke all permission keys with account-specific cache key: pubKey.host.key
     List<String> allKeys = ['getPublicKey', 'signEvent', 'encryptNIP04', 'encryptNIP44', 'decryptNIP44'];
     for (String key in allKeys) {
-      String cacheKey = '$host.$key';
+      String cacheKey = '$currentPubKey.$host.$key';
       await OXCacheManager.defaultOXCacheManager
           .saveForeverData(cacheKey, false);
     }
