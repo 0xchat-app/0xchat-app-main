@@ -3,13 +3,10 @@ import 'package:ox_common/business_interface/ox_chat/interface.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
-import 'package:ox_common/utils/ox_moment_manager.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
-import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/avatar.dart';
-import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
@@ -17,7 +14,6 @@ import 'package:ox_home/model/home_tabbar_type.dart';
 import 'package:ox_home/model/tab_bar_menu_model.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
-import 'package:ox_cache_manager/ox_cache_manager.dart';
 
 ///Title: tab_bar_longpress_dialog
 ///Description: TODO(Fill in by oneself)
@@ -218,9 +214,7 @@ class TabBarLongPressDialog {
         list = userCacheList.toList();
         break;
       case HomeTabBarType.discover:
-        list.add(TabbarMenuModel(type: MenuItemType.moveToTop, name: Localized.text('ox_chat.str_move_to_top'), picture: 'icon_moments_movetop.png', iconPackage: 'ox_chat'));
         list.add(TabbarMenuModel(type: MenuItemType.createNewMoment,  name: Localized.text('ox_discovery.new_moments_title'), picture: 'icon_moments_new_moment.png', iconPackage: 'ox_chat'));
-        list.add(TabbarMenuModel(type: MenuItemType.deleteMoments, name: Localized.text('ox_chat.str_remove'), picture: 'icon_chat_delete.png', iconPackage: 'ox_chat'));
         break;
     }
 
@@ -231,13 +225,14 @@ class TabBarLongPressDialog {
     OXNavigator.pop(context);
     switch(model.type) {
       case MenuItemType.userType:
-        String pubKey = model.pubKey ?? '';
+        String pubKey = model.pubKey;
         if (pubKey.isEmpty) {
           CommonToast.instance.show(context, 'PubKey is empty, try other.');
           return;
         }
-        if (pubKey == OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey)
+        if (pubKey == OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey) {
           return;
+        }
         await OXLoading.show();
         await OXUserInfoManager.sharedInstance.switchAccount(pubKey);
         await OXLoading.dismiss();
@@ -254,12 +249,6 @@ class TabBarLongPressDialog {
       case MenuItemType.addGroup:
         OXChatInterface.addGroup(context);
         break;
-      case MenuItemType.moveToTop:
-        OXUserInfoManager.sharedInstance.momentPosition = 0;
-        OXCacheManager.defaultOXCacheManager.saveForeverData(
-            StorageKeyTool.APP_MOMENT_POSITION, 0);
-        OXMomentManager.sharedInstance.moveToTopCallBack();
-        break;
       case MenuItemType.createNewMoment:
         if (OXUserInfoManager.sharedInstance.isLogin) {
           OXModuleService.pushPage(
@@ -270,24 +259,11 @@ class TabBarLongPressDialog {
           );
         }
         break;
+      case MenuItemType.moveToTop:
+        // Removed: move tab functionality
+        break;
       case MenuItemType.deleteMoments:
-        OXCommonHintDialog.show(OXNavigator.navigatorKey.currentContext!,
-            title: Localized.text('ox_chat.str_remove_moments'),
-            content: Localized.text('ox_chat.str_remove_moments_hint'),
-            actionList: [
-              OXCommonHintAction.cancel(onTap: () {
-                OXNavigator.pop(OXNavigator.navigatorKey.currentContext!);
-              }),
-              OXCommonHintAction.sure(
-                  text: Localized.text('ox_common.confirm'),
-                  onTap: () async {
-                    OXNavigator.pop(OXNavigator.navigatorKey.currentContext!);
-                    OXUserInfoManager.sharedInstance.momentPosition = 2;
-                    OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.APP_MOMENT_POSITION, 2);
-                    OXMomentManager.sharedInstance.moveToTopCallBack();
-                  }),
-            ],
-            isRowAction: true);
+        // Removed: delete moments functionality
         break;
     }
   }

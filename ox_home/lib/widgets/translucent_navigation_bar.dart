@@ -134,11 +134,8 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
     _horizontalPadding = widget.horizontalPadding ?? 20.px;
     _verticalPadding = widget.verticalPadding ?? 24.px;
-    if (OXUserInfoManager.sharedInstance.momentPosition == 1) {
-      _typeList = [HomeTabBarType.home, HomeTabBarType.contact, HomeTabBarType.discover, HomeTabBarType.me];
-    } else {
-      _typeList = [HomeTabBarType.contact, HomeTabBarType.home, HomeTabBarType.me];
-    }
+    // Always show 4 tabs: home, contact, discover, me
+    _typeList = [HomeTabBarType.home, HomeTabBarType.contact, HomeTabBarType.discover, HomeTabBarType.me];
     _animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
     _animation = Tween<double>(begin: 0.0, end: 72 + 24.px).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeInOut));
     prepareMessageTimer();
@@ -483,16 +480,15 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
 
   @override
   void didMoveToTopCallBack() {
-    _typeList = [HomeTabBarType.contact, HomeTabBarType.home, HomeTabBarType.me];
+    // Always show 4 tabs: home, contact, discover, me
+    _typeList = [HomeTabBarType.home, HomeTabBarType.contact, HomeTabBarType.discover, HomeTabBarType.me];
     dataInit();
   }
 
   @override
   void didDeleteMomentsCallBack() {
-    if (_typeList.length == 3) {
-      return;
-    }
-    _typeList = [HomeTabBarType.contact, HomeTabBarType.home, HomeTabBarType.me];
+    // Always show 4 tabs: home, contact, discover, me
+    _typeList = [HomeTabBarType.home, HomeTabBarType.contact, HomeTabBarType.discover, HomeTabBarType.me];
     dataInit();
   }
 
