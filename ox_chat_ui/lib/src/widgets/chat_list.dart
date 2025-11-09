@@ -222,33 +222,42 @@ class _ChatListState extends State<ChatList>
   ///
   /// This widget is essential for dynamically adding header items while ensuring
   /// proper layout alignment in the body list view.
-  Widget buildStagingListView() =>
-      SliverVisibility(
-        visible: false,
-        maintainState: true,
-        sliver: SliverToBoxAdapter(
-          child: NotificationListener<SizeChangedLayoutNotification>(
-            onNotification: (notification) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (headerItems.isEmpty) return ;
-                insertHeaderMessage();
-              });
-              return true;
-            },
-            child: SizeChangedLayoutNotifier(
-              child: ListView.builder(
-                padding: EdgeInsets.zero,
-                physics: NeverScrollableScrollPhysics(),
-                key: headerWidgetKey,
-                shrinkWrap: true,
-                reverse: true,
-                itemCount: headerItems.length,
-                itemBuilder: (context, index) => _newMessageBuilder(headerItems[index], index),
-              ),
+  /// 
+  /// Optimized: Only render when headerItems exist to reduce unnecessary work
+  Widget buildStagingListView() {
+    if (headerItems.isEmpty) {
+      return SliverToBoxAdapter(child: SizedBox.shrink());
+    }
+    
+    return SliverVisibility(
+      visible: false,
+      maintainState: true,
+      sliver: SliverToBoxAdapter(
+        child: NotificationListener<SizeChangedLayoutNotification>(
+          onNotification: (notification) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (headerItems.isEmpty) return;
+              insertHeaderMessage();
+            });
+            return true;
+          },
+          child: SizeChangedLayoutNotifier(
+            child: ListView.builder(
+              padding: EdgeInsets.zero,
+              physics: NeverScrollableScrollPhysics(),
+              key: headerWidgetKey,
+              shrinkWrap: true,
+              reverse: true,
+              itemCount: headerItems.length,
+              // Optimized: Add cache extent to improve performance
+              cacheExtent: 0,
+              itemBuilder: (context, index) => _newMessageBuilder(headerItems[index], index),
             ),
           ),
         ),
-      );
+      ),
+    );
+  }
 
   void _calculateDiffs(List<Object> oldList, List<Object> newList) async {
     final newHeaderItems = [...headerItems];

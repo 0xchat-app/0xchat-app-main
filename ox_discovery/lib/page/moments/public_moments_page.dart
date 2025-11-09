@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -82,7 +80,9 @@ class PublicMomentsPage extends StatefulWidget {
 class PublicMomentsPageState extends State<PublicMomentsPage>
     with OXMomentObserver, OXUserInfoObserver {
   bool isLogin = false;
-  final int _limit = 50;
+  // Optimized: Reduce initial load limit to improve initial render performance
+  // Load more items on scroll instead of all at once
+  final int _limit = 30; // Reduced from 50 to 30 for better initial performance
   final double tipsHeight = 52;
   final double tipsGroupHeight = 52;
 
@@ -118,10 +118,9 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
   @override
   void initState() {
     super.initState();
-    if (Platform.isAndroid) {
-      addAutomaticKeepAlives = false;
-      addRepaintBoundaries = false;
-    }
+    // Keep performance optimizations enabled on Android for better performance
+    addAutomaticKeepAlives = true;
+    addRepaintBoundaries = true;
     isLogin = OXUserInfoManager.sharedInstance.isLogin;
     OXUserInfoManager.sharedInstance.addObserver(this);
     OXMomentManager.sharedInstance.addObserver(this);
@@ -242,8 +241,11 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
         controller: null,
         shrinkWrap: false,
         itemCount: notesList.length,
-        // addAutomaticKeepAlives: addAutomaticKeepAlives,
-        // addRepaintBoundaries: addRepaintBoundaries,
+        // Optimized: Enable performance optimizations
+        addAutomaticKeepAlives: addAutomaticKeepAlives,
+        addRepaintBoundaries: addRepaintBoundaries,
+        // Optimized: Add cache extent to improve scroll performance
+        cacheExtent: 200, // Cache 200px worth of items off-screen
         itemBuilder: (context, index) {
           NotedUIModel? notedUIModel = notesList[index];
           if (index == 0) {

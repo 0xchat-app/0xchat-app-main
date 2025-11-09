@@ -228,53 +228,58 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
 
   Widget createTabContainer(
       List<TranslucentNavigationBarItem> updatedItems, double middleIndex) {
-    return GlassmorphicContainer(
-      borderRadius: widget.borderRadius,
-      blur: widget.blur,
-      alignment: Alignment.bottomCenter,
-      border: 0.5,
-      linearGradient: gradient.LinearGradient(
+    // Optimized: Use RepaintBoundary to isolate glassmorphic rendering
+    // and reduce blur effect intensity for better performance
+    return RepaintBoundary(
+      child: GlassmorphicContainer(
+        borderRadius: widget.borderRadius,
+        // Optimized: Reduce blur intensity for better performance on low-end devices
+        blur: widget.blur.clamp(1.0, 3.0), // Limit blur to max 3.0
+        alignment: Alignment.bottomCenter,
+        border: 0.5,
+        linearGradient: gradient.LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              // Daytime pattern
+              isDark ? const Color(0xB2444444) : const Color(0xB2FFFFFF),
+              isDark ? const Color(0xB2444444) : const Color(0xB2FFFFFF),
+            ],
+            stops: const [
+              0.1,
+              1,
+            ]),
+        borderGradient: gradient.LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            // Daytime pattern
-            isDark ? const Color(0xB2444444) : const Color(0xB2FFFFFF),
-            isDark ? const Color(0xB2444444) : const Color(0xB2FFFFFF),
+            isDark ?  const Color(0x0c595959) :  const Color(0x66F5F5F5),
+            isDark ?  const Color(0x0c595959) : const Color(0x66F5F5F5),
+            isDark ?  const Color(0x0c595959) : const Color(0x66F5F5F5),
+            isDark ?  const Color(0x0c595959) : const Color(0x66F5F5F5),
           ],
-          stops: const [
-            0.1,
-            1,
-          ]),
-      borderGradient: gradient.LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          isDark ?  const Color(0x0c595959) :  const Color(0x66F5F5F5),
-          isDark ?  const Color(0x0c595959) : const Color(0x66F5F5F5),
-          isDark ?  const Color(0x0c595959) : const Color(0x66F5F5F5),
-          isDark ?  const Color(0x0c595959) : const Color(0x66F5F5F5),
-        ],
-      ),
-      height: widget.height,
-      width: PlatformUtils.listWidth,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          for (int index = 0; index < updatedItems.length; index ++)
-            GestureDetector(
-              onLongPress: () {
-                _tabbarItemOnLongPress(index);
-              },
-              onTap: () {
-                _tabBarItemOnTap(index);
-              },
-              onDoubleTap: index == selectedIndex ? () {
-                widget.handleDoubleTap?.call(index, selectedIndex);
-              } : null,
-              behavior: HitTestBehavior.translucent,
-              child: _tabbarItemWidget(_itemList.elementAt(index), _navItemKeyList[index]),
-            ),
-        ],
+        ),
+        height: widget.height,
+        width: PlatformUtils.listWidth,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            for (int index = 0; index < updatedItems.length; index ++)
+              GestureDetector(
+                onLongPress: () {
+                  _tabbarItemOnLongPress(index);
+                },
+                onTap: () {
+                  _tabBarItemOnTap(index);
+                },
+                onDoubleTap: index == selectedIndex ? () {
+                  widget.handleDoubleTap?.call(index, selectedIndex);
+                } : null,
+                behavior: HitTestBehavior.translucent,
+                child: _tabbarItemWidget(_itemList.elementAt(index), _navItemKeyList[index]),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -294,7 +299,10 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     if (selectedIndex != index) {
       TookKit.vibrateEffect();
     }
-    if (!OXUserInfoManager.sharedInstance.isLogin && (index == 2)) {
+    // Check if clicking "me" tab (index 3) when not logged in
+    if (!OXUserInfoManager.sharedInstance.isLogin && 
+        index < _typeList.length && 
+        _typeList[index] == HomeTabBarType.me) {
       _showLoginPage(context);
       return;
     }

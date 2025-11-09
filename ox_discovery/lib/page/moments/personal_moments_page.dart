@@ -37,6 +37,16 @@ class PersonMomentsPage extends StatefulWidget {
   State<PersonMomentsPage> createState() => _PersonMomentsPageState();
 }
 
+// Item type for flat list structure
+class _MomentListItem {
+  final bool isTitle;
+  final int? timestamp;
+  final NoteDBISAR? note;
+  
+  _MomentListItem.title(this.timestamp) : isTitle = true, note = null;
+  _MomentListItem.note(this.note) : isTitle = false, timestamp = null;
+}
+
 class _PersonMomentsPageState extends State<PersonMomentsPage>
     with CommonStateViewMixin, AutomaticKeepAliveClientMixin {
   bool get isCurrentUser =>
@@ -44,6 +54,8 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
   final RefreshController _refreshController = RefreshController();
   final List<NoteDBISAR> _notes = [];
   final Map<DateTime, List<NoteDBISAR>> _groupedNotes = {};
+  // Flat list for SliverList optimization
+  final List<_MomentListItem> _flatMomentList = [];
 
   final int _limit = 50;
   int? _lastTimestamp;
@@ -74,26 +86,13 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
 
   @override
   Widget build(BuildContext context) {
-    if(_groupedNotes.isEmpty) return _noDataWidget('No moments');
-    return OXSmartRefresher(
-        controller: _refreshController,
-        enablePullDown: false,
-        enablePullUp: true,
-        onLoading: () =>
-            _isLoadNotesFromRelay ? _loadNotesFromRelay() : _loadNotesFromDB(),
-        child: ListView.builder(
-          physics: ClampingScrollPhysics(), // 禁用回弹效果
-          primary: true,
-          controller: null,
-          shrinkWrap: true,
-          itemBuilder: (BuildContext context, int index) {
-            List<DateTime> keys = _groupedNotes.keys.toList();
-            DateTime dateTime = keys[index];
-            List<NoteDBISAR> notes = _groupedNotes[dateTime] ?? [];
-            return _buildGroupedMomentItem(notes);
-          },
-          itemCount: _groupedNotes.keys.length,
-        ));
+    super.build(context); // Required for AutomaticKeepAliveClientMixin
+    if(_groupedNotes.isEmpty) {
+      return Scaffold(
+        backgroundColor: ThemeColor.color190,
+        body: _noDataWidget('No moments'),
+      );
+    }
     return Scaffold(
         backgroundColor: ThemeColor.color190,
         body: OXSmartRefresher(
@@ -117,20 +116,20 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
               ),
               SliverPadding(
                 padding: EdgeInsets.symmetric(horizontal: 24.px),
-                sliver: _groupedNotes.isNotEmpty
-                    ? SliverToBoxAdapter(
-                        child: ListView.builder(
-                          physics: const NeverScrollableScrollPhysics(),
-                          padding: EdgeInsets.zero,
-                          shrinkWrap: true,
-                          itemBuilder: (BuildContext context, int index) {
-                            List<DateTime> keys = _groupedNotes.keys.toList();
-                            DateTime dateTime = keys[index];
-                            List<NoteDBISAR> notes =
-                                _groupedNotes[dateTime] ?? [];
-                            return _buildGroupedMomentItem(notes);
+                sliver: _flatMomentList.isNotEmpty
+                    ? SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (BuildContext context, int index) {
+                            final item = _flatMomentList[index];
+                            if (item.isTitle) {
+                              return _buildTitle(item.timestamp!);
+                            } else {
+                              return _buildMomentItem(item.note!);
+                            }
                           },
-                          itemCount: _groupedNotes.keys.length,
+                          childCount: _flatMomentList.length,
+                          addAutomaticKeepAlives: true,
+                          addRepaintBoundaries: true,
                         ),
                       )
                     : SliverToBoxAdapter(
@@ -271,19 +270,20 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
     );
   }
 
-  Widget _buildGroupedMomentItem(List<NoteDBISAR> notes) {
-    return Column(
-      children: [
-        _buildTitle(notes.first.createAt),
-        ListView.builder(
-            padding: EdgeInsets.zero,
-            physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            itemCount: notes.length,
-            itemBuilder: (context, index) => _buildMomentItem(notes[index])),
-      ],
-    );
-  }
+  // This method is no longer needed, but kept for reference
+  // Widget _buildGroupedMomentItem(List<NoteDBISAR> notes) {
+  //   return Column(
+  //     children: [
+  //       _buildTitle(notes.first.createAt),
+  //       ListView.builder(
+  //           padding: EdgeInsets.zero,
+  //           physics: const NeverScrollableScrollPhysics(),
+  //           shrinkWrap: true,
+  //           itemCount: notes.length,
+  //           itemBuilder: (context, index) => _buildMomentItem(notes[index])),
+  //     ],
+  //   );
+  // }
 
   Widget _buildTitle(int timestamp) {
     return SizedBox(
@@ -427,6 +427,8 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
     }
     _notes.addAll(filteredNoteList);
     _groupedNotes.addAll(_groupedNotesFromDateTime(_notes));
+    // Rebuild flat list after grouping
+    _buildFlatMomentList();
     _lastTimestamp = noteList.last.createAt;
     if (noteList.length < _limit) {
       _isLoadNotesFromRelay = true;
@@ -479,6 +481,8 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
           .toList();
       _notes.addAll(filteredNoteList);
       _groupedNotes.addAll(_groupedNotesFromDateTime(_notes));
+      // Rebuild flat list after grouping
+      _buildFlatMomentList();
       _lastTimestamp = noteList.last.createAt;
 
       noteList.length < _limit
@@ -488,13 +492,6 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
     } catch (e) {
       _refreshController.loadFailed();
     }
-  }
-
-  List<NoteDBISAR> _filterNotes(List<NoteDBISAR> noteList) {
-    return noteList
-        .where((element) =>
-            element.getNoteKind() != ENotificationsMomentType.like.kind)
-        .toList();
   }
 
   Map<DateTime, List<NoteDBISAR>> _groupedNotesFromDateTime(
@@ -515,6 +512,26 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
     }
 
     return groupedNotes;
+  }
+
+  // Build flat list from grouped notes for SliverList optimization
+  void _buildFlatMomentList() {
+    _flatMomentList.clear();
+    // Sort dates in descending order (newest first)
+    final sortedDates = _groupedNotes.keys.toList()
+      ..sort((a, b) => b.compareTo(a));
+    
+    for (var date in sortedDates) {
+      final notes = _groupedNotes[date]!;
+      if (notes.isNotEmpty) {
+        // Add title item
+        _flatMomentList.add(_MomentListItem.title(notes.first.createAt));
+        // Add note items
+        for (var note in notes) {
+          _flatMomentList.add(_MomentListItem.note(note));
+        }
+      }
+    }
   }
 
   @override

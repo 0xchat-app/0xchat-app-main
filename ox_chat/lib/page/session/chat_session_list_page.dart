@@ -40,7 +40,6 @@ import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
-import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_pull_refresher.dart';
 import 'package:ox_common/widgets/highlighted_clickable_text.dart';
 import 'package:ox_localizable/ox_localizable.dart';
@@ -70,7 +69,6 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   List<ChatSessionModelISAR> _msgDatas = []; // Message List
   int _allUnreadCount = 0;
   List<ValueNotifier<bool>> _scaleList = [];
-  Map<String, BadgeDBISAR> _badgeCache = {};
   Map<String, bool> _muteCache = {};
   Map<String, List<String>> _groupMembersCache = {};
   bool _isLogin = false;
@@ -82,10 +80,10 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   @override
   void initState() {
     super.initState();
-    if (Platform.isAndroid) {
-      addAutomaticKeepAlives = false;
-      addRepaintBoundaries = false;
-    }
+    // Keep performance optimizations enabled on Android for better performance
+    // These optimizations help reduce unnecessary rebuilds and repaints
+    addAutomaticKeepAlives = true;
+    addRepaintBoundaries = true;
     OXChatBinding.sharedInstance.addObserver(this);
     ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
     WidgetsBinding.instance.addObserver(this);
@@ -238,8 +236,8 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                     return _buildListViewItem(context, index);
                   },
                   childCount: itemCount(),
-                  // addAutomaticKeepAlives: false,
-                  // addRepaintBoundaries: false,
+                  addAutomaticKeepAlives: addAutomaticKeepAlives,
+                  addRepaintBoundaries: addRepaintBoundaries,
                 ),
               )
                   : SliverToBoxAdapter(
@@ -386,30 +384,6 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     );
   }
 
-  Future<BadgeDBISAR?> _getUserSelectedBadgeInfo(ChatSessionModelISAR announceListItem) async {
-    final chatId = announceListItem.chatId ?? '';
-    UserDBISAR? friendUserDB = await Account.sharedInstance.getUserInfo(chatId);
-    if (friendUserDB == null) {
-      return null;
-    }
-    String badges = friendUserDB.badges ?? '';
-    if (badges.isNotEmpty) {
-      List<dynamic> badgeListDynamic = jsonDecode(badges);
-      List<String> badgeList = badgeListDynamic.cast();
-      BadgeDBISAR? badgeDB;
-      try {
-        List<BadgeDBISAR?> badgeDBList = await BadgesHelper.getBadgeInfosFromDB(badgeList);
-        badgeDB = badgeDBList.firstOrNull;
-      } catch (error) {
-        LogUtil.e("user selected badge info fetch failed: $error");
-      }
-      if (badgeDB != null) {
-        _badgeCache[chatId] = badgeDB;
-      }
-      return badgeDB;
-    }
-    return null;
-  }
 
   void updateState(Function function) {
     setState(() {
@@ -423,16 +397,55 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     }
   }
 
+  // Optimized batch processing for group members query
+  // Only queries groups that are not in cache, and processes them in batches
   void _getGroupMembers(List<ChatSessionModelISAR> chatSessionModelList) async {
-    chatSessionModelList.forEach((element) async {
+    // Filter out groups that are already in cache
+    final groupsToQuery = <String>[];
+    for (var element in chatSessionModelList) {
       if (element.chatType == ChatType.chatGroup) {
         final groupId = element.groupId ?? '';
-        List<UserDBISAR> groupList = await Groups.sharedInstance.getAllGroupMembers(groupId);
-        List<String> avatars = groupList.map((element) => element.picture ?? '').toList();
-        avatars.removeWhere((element) => element.isEmpty);
-        _groupMembersCache[groupId] = avatars;
+        if (groupId.isNotEmpty && !_groupMembersCache.containsKey(groupId)) {
+          groupsToQuery.add(groupId);
+        }
       }
-    });
+    }
+    
+    if (groupsToQuery.isEmpty) return;
+    
+    // Process in batches to avoid overwhelming the system
+    const batchSize = 5; // Limit concurrent queries
+    for (int i = 0; i < groupsToQuery.length; i += batchSize) {
+      final batch = groupsToQuery.skip(i).take(batchSize).toList();
+      
+      // Process batch concurrently
+      final futures = batch.map((groupId) async {
+        try {
+          final groupList = await Groups.sharedInstance.getAllGroupMembers(groupId);
+          final avatars = groupList
+              .map((member) => member.picture ?? '')
+              .where((avatar) => avatar.isNotEmpty)
+              .toList();
+          
+          // Update cache and UI if mounted
+          if (mounted) {
+            _groupMembersCache[groupId] = avatars;
+            // Trigger UI update for this specific group
+            setState(() {});
+          }
+        } catch (e) {
+          // Log error but don't crash
+          LogUtil.e("Failed to load group members for $groupId: $e");
+          // Set empty list to avoid repeated queries
+          if (mounted) {
+            _groupMembersCache[groupId] = [];
+          }
+        }
+      });
+      
+      // Wait for current batch to complete before starting next batch
+      await Future.wait(futures);
+    }
   }
 
   void _getMergeStrangerSession() {

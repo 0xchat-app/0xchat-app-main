@@ -360,26 +360,7 @@ extension ChatSessionListPageUI on ChatSessionListPageState{
                 size: Adapt.px(60),
               ),
             ),
-            (item.chatType == ChatType.chatSingle)
-                ? Positioned(
-              bottom: 0,
-              right: 0,
-              child: FutureBuilder<BadgeDBISAR?>(
-                initialData: _badgeCache[item.chatId],
-                builder: (context, snapshot) {
-                  return (snapshot.data != null)
-                      ? OXCachedNetworkImage(
-                    imageUrl: snapshot.data!.thumb,
-                    width: Adapt.px(24),
-                    height: Adapt.px(24),
-                    fit: BoxFit.cover,
-                  )
-                      : Container();
-                },
-                future: _getUserSelectedBadgeInfo(item),
-              ),
-            )
-                : SizedBox(),
+            // Badge display removed for performance optimization
             Positioned(
               bottom: 0,
               right: 0,
