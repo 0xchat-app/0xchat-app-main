@@ -1,161 +1,159 @@
-import 'dart:math';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:flutter_zxing/flutter_zxing.dart';
+import 'package:ox_common/utils/adapt.dart';
 
-///Title: custom_scanner_overlay
-///Description: TODO(Fill in by oneself)
-///Copyright: Copyright (c) 2021
-///@author Michael
-///CreateTime: 2023/10/31 17:01
-class CustomScannerOverlay extends ScannerOverlay{
-  CustomScannerOverlay({
-    this.borderColor = Colors.red,
-    this.borderWidth = 3.0,
-    this.overlayColor = const Color.fromRGBO(0, 0, 0, 80),
-    this.borderRadius = 0,
-    this.borderLength = 40,
-    double? cutOutSize,
-    double? cutOutWidth,
-    double? cutOutHeight,
-    this.cutOutBottomOffset = 0,
-  })  : cutOutWidth = cutOutWidth ?? cutOutSize ?? 250,
-        cutOutHeight = cutOutHeight ?? cutOutSize ?? 250 {
-    assert(
-    borderLength <=
-        min(this.cutOutWidth, this.cutOutHeight) / 2 + borderWidth * 2,
-    "Border can't be larger than ${min(this.cutOutWidth, this.cutOutHeight) / 2 + borderWidth * 2}",
-    );
-    assert(
-    (cutOutWidth == null && cutOutHeight == null) ||
-        (cutOutSize == null && cutOutWidth != null && cutOutHeight != null),
-    'Use only cutOutWidth and cutOutHeight or only cutOutSize');
-  }
+class CustomScannerOverlay extends StatelessWidget {
+  const CustomScannerOverlay({
+    super.key,
+    required this.cutOutSize,
+    this.verticalOffset = 0,
+    this.borderColor = Colors.white,
+    this.overlayColor = Colors.black45,
+    this.cornerLength,
+    this.borderWidth,
+  });
 
+  final double cutOutSize;
+  final double verticalOffset;
   final Color borderColor;
-  final double borderWidth;
   final Color overlayColor;
-  final double borderRadius;
-  final double borderLength;
-  final double cutOutWidth;
-  final double cutOutHeight;
-  final double cutOutBottomOffset;
-
+  final double? cornerLength;
+  final double? borderWidth;
 
   @override
-  void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {
-    final width = rect.width;
-    final borderWidthSize = width / 2;
-    final height = rect.height;
-    final borderOffset = borderWidth / 2;
-    final _borderLength =
-    borderLength > min(cutOutHeight, cutOutHeight) / 2 + borderWidth * 2
-        ? borderWidthSize / 2
-        : borderLength;
-    final _cutOutWidth =
-    cutOutWidth < width ? cutOutWidth : width - borderOffset;
-    final _cutOutHeight =
-    cutOutHeight < height ? cutOutHeight : height - borderOffset;
+  Widget build(BuildContext context) {
+    final double resolvedCornerLength = cornerLength ?? Adapt.px(24);
+    final double resolvedBorderWidth = borderWidth ?? Adapt.px(4);
 
-    final backgroundPaint = Paint()
-      ..color = overlayColor
-      ..style = PaintingStyle.fill;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double width = constraints.maxWidth;
+        final double height = constraints.maxHeight;
+        final double overlaySize = math.min(
+          cutOutSize,
+          math.min(width, height),
+        );
+        double left = (width - overlaySize) / 2;
+        double top = (height - overlaySize) / 2 - verticalOffset;
+        left = left.clamp(0.0, math.max(0.0, width - overlaySize));
+        top = top.clamp(0.0, math.max(0.0, height - overlaySize));
 
-    final borderPaint = Paint()
-      ..color = borderColor
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = borderWidth;
-
-    final boxPaint = Paint()
-      ..color = borderColor
-      ..style = PaintingStyle.fill
-      ..blendMode = BlendMode.dstOut;
-
-    final cutOutRect = Rect.fromLTWH(
-      rect.left + width / 2 - _cutOutWidth / 2 + borderOffset,
-      -cutOutBottomOffset +
-          rect.top +
-          height / 2 -
-          _cutOutHeight / 2 +
-          borderOffset,
-      _cutOutWidth - borderOffset * 2,
-      _cutOutHeight - borderOffset * 2,
+        return Stack(
+          children: [
+            CustomPaint(
+              size: Size(width, height),
+              painter: _ScannerOverlayBackgroundPainter(
+                left: left,
+                top: top,
+                cutOutSize: overlaySize,
+                overlayColor: overlayColor,
+              ),
+            ),
+            _CornerBorder(
+              top: top,
+              left: left,
+              size: resolvedCornerLength,
+              border: Border(
+                top: BorderSide(color: borderColor, width: resolvedBorderWidth),
+                left: BorderSide(color: borderColor, width: resolvedBorderWidth),
+              ),
+            ),
+            _CornerBorder(
+              top: top,
+              right: left,
+              size: resolvedCornerLength,
+              border: Border(
+                top: BorderSide(color: borderColor, width: resolvedBorderWidth),
+                right: BorderSide(color: borderColor, width: resolvedBorderWidth),
+              ),
+            ),
+            _CornerBorder(
+              top: top + overlaySize - resolvedCornerLength,
+              left: left,
+              size: resolvedCornerLength,
+              border: Border(
+                bottom: BorderSide(color: borderColor, width: resolvedBorderWidth),
+                left: BorderSide(color: borderColor, width: resolvedBorderWidth),
+              ),
+            ),
+            _CornerBorder(
+              top: top + overlaySize - resolvedCornerLength,
+              right: left,
+              size: resolvedCornerLength,
+              border: Border(
+                bottom: BorderSide(color: borderColor, width: resolvedBorderWidth),
+                right: BorderSide(color: borderColor, width: resolvedBorderWidth),
+              ),
+            ),
+          ],
+        );
+      },
     );
+  }
+}
 
-    canvas
-      ..saveLayer(
-        rect,
-        backgroundPaint,
-      )
-      ..drawRect(
-        rect,
-        backgroundPaint,
-      )
-    // Draw top right corner
-      ..drawRRect(
-        RRect.fromLTRBAndCorners(
-          cutOutRect.right - _borderLength,
-          cutOutRect.top,
-          cutOutRect.right,
-          cutOutRect.top + _borderLength,
-          topRight: Radius.circular(borderRadius),
+class _CornerBorder extends StatelessWidget {
+  const _CornerBorder({
+    required this.size,
+    required this.border,
+    this.left,
+    this.top,
+    this.right,
+  });
+
+  final double size;
+  final double? left;
+  final double? top;
+  final double? right;
+  final Border border;
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      left: left,
+      top: top,
+      right: right,
+      child: SizedBox(
+        width: size,
+        height: size,
+        child: DecoratedBox(
+          decoration: BoxDecoration(border: border),
         ),
-        borderPaint,
-      )
-    // Draw top left corner
-      ..drawRRect(
-        RRect.fromLTRBAndCorners(
-          cutOutRect.left,
-          cutOutRect.top,
-          cutOutRect.left + _borderLength,
-          cutOutRect.top + _borderLength,
-          topLeft: Radius.circular(borderRadius),
-        ),
-        borderPaint,
-      )
-    // Draw bottom right corner
-      ..drawRRect(
-        RRect.fromLTRBAndCorners(
-          cutOutRect.right - _borderLength,
-          cutOutRect.bottom - _borderLength,
-          cutOutRect.right,
-          cutOutRect.bottom,
-          bottomRight: Radius.circular(borderRadius),
-        ),
-        borderPaint,
-      )
-    // Draw bottom left corner
-      ..drawRRect(
-        RRect.fromLTRBAndCorners(
-          cutOutRect.left,
-          cutOutRect.bottom - _borderLength,
-          cutOutRect.left + _borderLength,
-          cutOutRect.bottom,
-          bottomLeft: Radius.circular(borderRadius),
-        ),
-        borderPaint,
-      )
-      ..drawRRect(
-        RRect.fromRectAndRadius(
-          cutOutRect,
-          Radius.circular(borderRadius),
-        ),
-        boxPaint,
-      )
-      ..restore();
+      ),
+    );
+  }
+}
+
+class _ScannerOverlayBackgroundPainter extends CustomPainter {
+  const _ScannerOverlayBackgroundPainter({
+    required this.left,
+    required this.top,
+    required this.cutOutSize,
+    required this.overlayColor,
+  });
+
+  final double left;
+  final double top;
+  final double cutOutSize;
+  final Color overlayColor;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final Path overlayPath = Path()
+      ..fillType = PathFillType.evenOdd
+      ..addRect(Rect.fromLTWH(0, 0, size.width, size.height))
+      ..addRect(Rect.fromLTWH(left, top, cutOutSize, cutOutSize));
+
+    final Paint backgroundPaint = Paint()..color = overlayColor;
+    canvas.drawPath(overlayPath, backgroundPaint);
   }
 
   @override
-  ScannerOverlay scale(double t) {
-    return CustomScannerOverlay(
-      borderColor: borderColor,
-      borderWidth: borderWidth,
-      overlayColor: overlayColor,
-    );
+  bool shouldRepaint(covariant _ScannerOverlayBackgroundPainter oldDelegate) {
+    return left != oldDelegate.left ||
+        top != oldDelegate.top ||
+        cutOutSize != oldDelegate.cutOutSize ||
+        overlayColor != oldDelegate.overlayColor;
   }
-
-  @override
-  // TODO: implement cutOutSize
-  double get cutOutSize => throw UnimplementedError();
-
 }
