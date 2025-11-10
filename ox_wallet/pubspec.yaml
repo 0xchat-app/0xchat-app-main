@@ -19,6 +19,7 @@ dependencies:
     path: ../../base_framework/ox_network
   ox_cache_manager:
     path: ../../base_framework/ox_cache_manager
+  mobile_scanner: ^3.5.7
 
 dev_dependencies:
   flutter_test:
