@@ -123,7 +123,9 @@ class OXCommon extends OXFlutterModule {
     String? nappName = extraParams?['nappName'];
     String? nappUrl = extraParams?['nappUrl'];
     String? nappId = extraParams?['nappId'];
-    if (isPresentPage == null) {
+    // Optimized: Default to use built-in WebView instead of external browser
+    // Only use external browser if explicitly set to false
+    if (isPresentPage == false) {
       final Uri uri = Uri.parse(url);
       try {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
@@ -131,6 +133,7 @@ class OXCommon extends OXFlutterModule {
         print(e.toString() + 'Cannot open $url');
       }
     } else {
+      // Default behavior: use built-in WebView
       OXNavigator.presentPage(
         context,
         (context) => CommonWebView(
