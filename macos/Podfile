@@ -34,7 +34,6 @@ target 'Runner' do
   target 'RunnerTests' do
     inherit! :search_paths
   end
-    pod 'FMDB/SQLCipher', :git => 'https://github.com/wcat7/fmdb.git', :branch => 'master'
 end
 
 post_install do |installer|
