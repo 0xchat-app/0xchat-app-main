@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_linkify/flutter_linkify.dart' hide UrlLinkifier;
+import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/web_url_helper.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -21,6 +22,7 @@ class LinkPreview extends StatefulWidget {
     this.headerStyle,
     this.hideImage,
     this.imageBuilder,
+    this.isMessageSender,
     this.linkStyle,
     this.metadataTextStyle,
     this.metadataTitleStyle,
@@ -59,6 +61,9 @@ class LinkPreview extends StatefulWidget {
 
   /// Function that allows you to build a custom image.
   final Widget Function(String)? imageBuilder;
+
+  /// Whether the message is sent by the current user. Used to determine vertical line color.
+  final bool? isMessageSender;
 
   /// Style of highlighted links in the text.
   final TextStyle? linkStyle;
@@ -165,7 +170,6 @@ class _LinkPreviewState extends State<LinkPreview>
           child: Container(
             padding: EdgeInsets.only(
               bottom: padding.bottom,
-              left: padding.left,
               right: padding.right,
             ),
             child: Column(
@@ -197,44 +201,91 @@ class _LinkPreviewState extends State<LinkPreview>
 
     final shouldAnimate = widget.enableAnimation == true && animate;
 
-    return Container(
+    // Text content (without vertical line)
+    final textContent = Container(
       constraints: BoxConstraints(maxWidth: widget.width),
       padding: withPadding ? padding : null,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: withPadding
-                ? EdgeInsets.zero
-                : EdgeInsets.only(
-                    left: padding.left,
-                    right: padding.right,
-                    top: padding.top,
-                    bottom: _hasOnlyImage() ? 0 : 16,
-                  ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (widget.header != null)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 6),
-                    child: Text(
-                      widget.header!,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: widget.headerStyle,
-                    ),
-                  ),
-                widget.textWidget ?? _linkify(),
-                if (withPadding && child != null)
-                  shouldAnimate ? _animated(child) : child,
-              ],
+      child: Padding(
+        padding: withPadding
+            ? EdgeInsets.zero
+            : EdgeInsets.only(
+                left: padding.left,
+                right: padding.right,
+                top: padding.top,
+                bottom: child != null ? 0 : padding.bottom,
+              ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (widget.header != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: Text(
+                  widget.header!,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: widget.headerStyle,
+                ),
+              ),
+            widget.textWidget ?? _linkify(),
+          ],
+        ),
+      ),
+    );
+
+    // Preview content with vertical line (only when child is not null)
+    Widget? previewContent;
+    if (child != null) {
+      // Determine vertical line color based on message sender
+      final lineColor = widget.isMessageSender == true 
+          ? Colors.white 
+          : ThemeColor.gradientMainStart;
+
+      // Use transparent overlay with 0.3 alpha
+      final backgroundColor = Colors.black.withOpacity(0.1);
+
+      final previewWidget = withPadding
+          ? Padding(
+              padding: EdgeInsets.only(
+                right: padding.right,
+                bottom: padding.bottom,
+              ),
+              child: shouldAnimate ? _animated(child) : child,
+            )
+          : Padding(
+              padding: EdgeInsets.only(
+                right: padding.right,
+                bottom: _hasOnlyImage() ? 0 : 16,
+              ),
+              child: shouldAnimate ? _animated(child) : child,
+            );
+
+      // Use Container with border to implement vertical line (similar to buildRepliedMessageView)
+      previewContent = Container(
+        constraints: BoxConstraints(maxWidth: widget.width),
+        margin: const EdgeInsets.only(top: 8), // Space between link text and preview
+        decoration: BoxDecoration(
+          color: backgroundColor, // Background color matching bubble, slightly darker
+          // borderRadius: BorderRadius.circular(12), // Rounded corners
+          border: Border(
+            left: BorderSide(
+              color: lineColor,
+              width: 4,
             ),
           ),
-          if (!withPadding && child != null)
-            shouldAnimate ? _animated(child) : child,
-        ],
-      ),
+        ),
+        padding: const EdgeInsets.only(left: 12), // Margin after vertical line
+        child: previewWidget,
+      );
+    }
+
+    // Combine text and preview
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        textContent,
+        if (previewContent != null) previewContent,
+      ],
     );
   }
 

@@ -115,8 +115,11 @@ class TextMessage extends StatelessWidget {
         ? theme.sentMessageBodyTextStyle
         : theme.receivedMessageBodyTextStyle;
 
+    final isMessageSender = user.id == message.author.id;
+
     return LinkPreview(
       enableAnimation: true,
+      isMessageSender: isMessageSender,
       metadataTextStyle: linkDescriptionTextStyle,
       metadataTitleStyle: linkTitleTextStyle,
       onLinkPressed: options.onLinkPressed,
