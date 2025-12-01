@@ -484,7 +484,10 @@ class _ContractListItemState extends State<ContractListItem> {
 
   @override
   Widget build(BuildContext context) {
-    Widget iconAvatar = OXUserAvatar(user: widget.item);
+    // Optimized: Use RepaintBoundary to isolate avatar rendering
+    Widget iconAvatar = RepaintBoundary(
+      child: OXUserAvatar(user: widget.item),
+    );
 
     Widget checkWidget = isChecked
         ? assetIcon(

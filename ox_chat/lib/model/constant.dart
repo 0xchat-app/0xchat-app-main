@@ -8,6 +8,7 @@ enum MessageLongPressEventType {
   report,
   zaps,
   info,
+  translate,
 }
 
 enum ChatSendingType {

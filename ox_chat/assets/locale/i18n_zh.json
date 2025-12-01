@@ -348,5 +348,13 @@
   "str_move_to_top": "移至顶部",
   "str_remove": "移除",
   "str_remove_moments": "移除动态",
-  "str_remove_moments_hint": "您确定要删除动态吗？此操作无法撤销。"
+  "str_remove_moments_hint": "您确定要删除动态吗？此操作无法撤销。",
+  "message_menu_translate": "翻译",
+  "translate_result": "翻译结果",
+  "translate_original": "原文",
+  "translate_translated": "译文",
+  "translate_empty_message": "消息内容为空，无法翻译",
+  "translate_failed": "翻译失败",
+  "translate_error": "翻译出错，请稍后重试",
+  "translate_hide": "隐藏翻译"
 }

@@ -8,6 +8,7 @@ import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/utils/web_url_helper.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../../ox_chat_ui.dart';
@@ -443,13 +444,18 @@ class MessageState extends State<Message> {
       );
     }
 
+    // Check if message has translation
+    final translatedText = widget.message.metadata?['translated_text'] as String?;
+    final hasTranslation = translatedText != null && translatedText.isNotEmpty;
+    final hasRepliedMessage = widget.message.repliedMessageId != null && widget.message.repliedMessageId!.isNotEmpty;
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         if (currentUserIsAuthor)
           _buildStatusWidget().setPaddingOnly(right: statusPadding),
-        if (widget.message.repliedMessageId == null || widget.message.repliedMessageId!.isEmpty)
+        if (!hasRepliedMessage && !hasTranslation)
           Flexible(child: bubble,)
         else
           Flexible(
@@ -458,13 +464,16 @@ class MessageState extends State<Message> {
                 crossAxisAlignment: currentUserIsAuthor ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                 children: [
                   bubble,
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: widget.uiConfig.repliedMessageBuilder?.call(
-                      widget.message,
-                      messageWidth: contentMaxWidth,
+                  if (hasRepliedMessage)
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: widget.uiConfig.repliedMessageBuilder?.call(
+                        widget.message,
+                        messageWidth: contentMaxWidth,
+                      ),
                     ),
-                  ),
+                  if (hasTranslation)
+                    _buildTranslationWidget(translatedText, currentUserIsAuthor),
                 ],
               ),
             ),
@@ -484,6 +493,49 @@ class MessageState extends State<Message> {
     child: widget.uiConfig.customStatusBuilder?.call(widget.message, context: context)
         ?? MessageStatus(size: statusSize, status: widget.message.status),
   );
+
+  Widget _buildTranslationWidget(String translatedText, bool isMessageSender) {
+    return Container(
+      margin: EdgeInsets.only(top: Adapt.px(4)),
+      padding: EdgeInsets.symmetric(
+        horizontal: Adapt.px(12),
+        vertical: Adapt.px(8),
+      ),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(Adapt.px(8)),
+        color: ThemeColor.color190,
+      ),
+      constraints: BoxConstraints(
+        maxWidth: contentMaxWidth.toDouble(),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              Text(
+                Localized.text('ox_chat.translate_translated'),
+                style: TextStyle(
+                  fontSize: Adapt.px(12),
+                  color: ThemeColor.color100,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: Adapt.px(4)),
+          Text(
+            translatedText,
+            style: TextStyle(
+              fontSize: Adapt.px(14),
+              color: ThemeColor.color0,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _messageBuilder(BuildContext context, [bool addReaction = false]) {
     Widget messageContentWidget;

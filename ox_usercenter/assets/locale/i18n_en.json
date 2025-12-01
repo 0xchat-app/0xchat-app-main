@@ -293,5 +293,14 @@
   "tor_settings_description": "Tor provides anonymity by routing your traffic through multiple encrypted relays. Enable Tor to protect your privacy when connecting to relays.",
   "socks_proxy_description": "SOCKS proxy settings allow you to route traffic through a proxy server. You can use either Tor (built-in) or a custom SOCKS proxy server.",
   "tor_mode": "Tor Mode",
-  "custom_proxy_mode": "Custom Proxy Mode"
+  "custom_proxy_mode": "Custom Proxy Mode",
+  "translate": "Translate",
+  "translate_select_service": "Select Service",
+  "translate_service_libretranslate": "LibreTranslate",
+  "translate_server": "Server",
+  "translate_server_custom": "Custom",
+  "translate_url": "URL",
+  "translate_api_key": "API Key",
+  "translate_api_key_optional": "(Optional)",
+  "auto_translate_notes": "Auto Translate Notes"
 }

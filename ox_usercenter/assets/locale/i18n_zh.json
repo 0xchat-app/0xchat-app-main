@@ -293,5 +293,14 @@
   "tor_settings_description": "Tor 通过多个加密中继路由您的流量来提供匿名性。启用 Tor 可在连接到中继时保护您的隐私。",
   "socks_proxy_description": "SOCKS 代理设置允许您通过代理服务器路由流量。您可以使用 Tor（内置）或自定义 SOCKS 代理服务器。",
   "tor_mode": "Tor 模式",
-  "custom_proxy_mode": "自定义代理模式"
+  "custom_proxy_mode": "自定义代理模式",
+  "translate": "翻译",
+  "translate_select_service": "选择服务",
+  "translate_service_libretranslate": "LibreTranslate",
+  "translate_server": "服务器",
+  "translate_server_custom": "自定义",
+  "translate_url": "URL",
+  "translate_api_key": "API 密钥",
+  "translate_api_key_optional": "(可选)",
+  "auto_translate_notes": "自动翻译笔记"
 }

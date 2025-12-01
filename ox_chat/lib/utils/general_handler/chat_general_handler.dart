@@ -53,6 +53,7 @@ import 'package:ox_chat/page/contacts/contact_user_info_page.dart';
 import 'package:ox_chat/page/session/message_info_page.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_chat/utils/message_report.dart';
+import 'package:ox_chat/utils/translate_service.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_chat/widget/report_dialog.dart';
 import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
@@ -543,6 +544,9 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
       case MessageLongPressEventType.info:
         _infoMenuItemPressHandler(context, message);
         break;
+      case MessageLongPressEventType.translate:
+        _translateMenuItemPressHandler(context, message);
+        break;
       default:
         break;
     }
@@ -708,6 +712,72 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
       groupId: session.hasMultipleUsers ? session.groupId : null,
     );
     await handler.handleZap(context: context, eventId: eventId);
+  }
+
+  /// Handles the press event for the "Translate" button in a menu item.
+  void _translateMenuItemPressHandler(BuildContext context, types.Message message) async {
+    if (message is! types.TextMessage) {
+      return;
+    }
+
+    final textToTranslate = message.text.trim();
+    if (textToTranslate.isEmpty) {
+      CommonToast.instance.show(context, Localized.text('ox_chat.translate_empty_message'));
+      return;
+    }
+
+    // Check if translation already exists in metadata
+    final existingTranslation = message.metadata?['translated_text'] as String?;
+    if (existingTranslation != null && existingTranslation.isNotEmpty) {
+      // Toggle translation display: remove translation to hide it
+      final updatedMetadata = Map<String, dynamic>.from(message.metadata ?? {});
+      updatedMetadata.remove('translated_text');
+      final updatedMessage = message.copyWith(metadata: updatedMetadata);
+      dataController.updateMessage(updatedMessage);
+      return;
+    }
+
+    // Perform translation
+    OXLoading.show();
+    try {
+      // Simulate translation delay
+      await Future.delayed(Duration(milliseconds: 800));
+      
+      // TODO: Replace with actual translation service call
+      // final translationService = TranslateService();
+      // final translatedText = await translationService.translate(textToTranslate);
+      
+      // Mock translation result for UI testing
+      String mockTranslatedText;
+      final currentLocale = Localized.getCurrentLanguage();
+      if (currentLocale == LocaleType.zh || currentLocale == LocaleType.zh_tw) {
+        // If current language is Chinese, translate to English
+        mockTranslatedText = 'This is a mock translation result. The original text is: "$textToTranslate". In a real implementation, this would be translated using the translation service.';
+      } else {
+        // If current language is not Chinese, translate to Chinese
+        mockTranslatedText = '这是模拟的翻译结果。原文是："$textToTranslate"。在实际实现中，这将使用翻译服务进行翻译。';
+      }
+      
+      OXLoading.dismiss();
+
+      if (mockTranslatedText.isNotEmpty) {
+        // Store translation in message metadata and update message
+        final updatedMetadata = Map<String, dynamic>.from(message.metadata ?? {});
+        updatedMetadata['translated_text'] = mockTranslatedText;
+        final updatedMessage = message.copyWith(metadata: updatedMetadata);
+        dataController.updateMessage(updatedMessage);
+      } else {
+        CommonToast.instance.show(context, Localized.text('ox_chat.translate_failed'));
+      }
+    } catch (e) {
+      OXLoading.dismiss();
+      CommonToast.instance.show(context, Localized.text('ox_chat.translate_error'));
+      ChatLogUtils.error(
+        className: 'ChatGeneralHandler',
+        funcName: '_translateMenuItemPressHandler',
+        message: 'Translation error: $e',
+      );
+    }
   }
 
   /// Handles the press event for the "Info" button in a menu item.

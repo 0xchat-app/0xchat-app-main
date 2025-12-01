@@ -442,6 +442,12 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
       
       // Wait for current batch to complete before starting next batch
       await Future.wait(futures);
+      
+      // Optimized: Only trigger setState once per batch instead of per group
+      // This reduces unnecessary rebuilds from N times to 1 time per batch
+      if (mounted) {
+        setState(() {});
+      }
     }
   }
 

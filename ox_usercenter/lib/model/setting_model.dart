@@ -112,6 +112,12 @@ class SettingModel {
         rightContent: '',
         settingItemType: SettingItemType.devLog
     ));
+    settingModelList.add(SettingModel(
+        iconName: 'icon_settings_language.png',
+        title: 'ox_usercenter.translate',
+        rightContent: '',
+        settingItemType: SettingItemType.translate
+    ));
     return settingModelList;
   }
 }
@@ -132,5 +138,6 @@ enum SettingItemType {
   chats,
   dataRevovery,
   devLog,
+  translate,
   none,
 }

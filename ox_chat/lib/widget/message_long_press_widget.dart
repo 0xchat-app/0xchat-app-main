@@ -91,6 +91,12 @@ class MessageLongPressWidgetState extends State<MessageLongPressWidget> {
         AssetImageData('icon_quote.png', package: 'ox_chat'),
         MessageLongPressEventType.quote,
       ),
+      if (message is types.TextMessage)
+        ItemModel(
+          Localized.text('ox_chat.message_menu_translate'),
+          AssetImageData('icon_settings_language.png', package: 'ox_usercenter'),
+          MessageLongPressEventType.translate,
+        ),
       ItemModel(
         Localized.text('ox_chat_ui.input_more_zaps'),
         AssetImageData('icon_zaps.png', package: 'ox_chat'),

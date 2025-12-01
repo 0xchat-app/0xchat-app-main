@@ -359,5 +359,13 @@
   "str_move_to_top": "Move to Top",
   "str_remove": "Remove",
   "str_remove_moments": "Remove Moments",
-  "str_remove_moments_hint": "Are you sure you want to remove the moment? This action cannot be undone."
+  "str_remove_moments_hint": "Are you sure you want to remove the moment? This action cannot be undone.",
+  "message_menu_translate": "Translate",
+  "translate_result": "Translation Result",
+  "translate_original": "Original",
+  "translate_translated": "Translated",
+  "translate_empty_message": "Message is empty, cannot translate",
+  "translate_failed": "Translation failed",
+  "translate_error": "Translation error, please try again later",
+  "translate_hide": "Hide translation"
 }

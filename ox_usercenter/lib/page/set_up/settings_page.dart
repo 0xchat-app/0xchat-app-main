@@ -30,6 +30,7 @@ import 'package:ox_usercenter/page/set_up/message_notification_page.dart';
 import 'package:ox_usercenter/page/set_up/privacy_page.dart';
 import 'package:ox_usercenter/page/set_up/relays_page.dart';
 import 'package:ox_usercenter/page/set_up/theme_settings_page.dart';
+import 'package:ox_usercenter/page/set_up/translate_settings_page.dart';
 import 'package:ox_usercenter/page/set_up/zaps_page.dart';
 import 'package:ox_usercenter/utils/import_data_tools.dart';
 import 'package:ox_usercenter/widget/bottom_sheet_dialog.dart';
@@ -244,6 +245,9 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
             break;
           case SettingItemType.chats:
             OXNavigator.pushPage(context, (context) => const ChatSettingPage());
+            break;
+          case SettingItemType.translate:
+            OXNavigator.pushPage(context, (context) => const TranslateSettingsPage());
             break;
           case SettingItemType.none:
             // TODO: Handle this case.
