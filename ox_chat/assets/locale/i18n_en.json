@@ -361,6 +361,7 @@
   "str_remove_moments": "Remove Moments",
   "str_remove_moments_hint": "Are you sure you want to remove the moment? This action cannot be undone.",
   "message_menu_translate": "Translate",
+  "message_menu_cancel_translate": "Hide",
   "translate_result": "Translation Result",
   "translate_original": "Original",
   "translate_translated": "Translated",
@@ -372,5 +373,8 @@
   "translate_service_initializing": "Translation service is initializing, please wait a few minutes for the service to finish loading language models",
   "translate_service_unavailable": "Translation service is temporarily unavailable, please try again later",
   "translate_service_error": "Translation service error (${code}), please check service configuration",
-  "translate_network_error": "Translation failed, please check network connection and service status"
+  "translate_network_error": "Translation failed, please check network connection and service status",
+  "translate_not_configured_title": "Translation Service Not Configured",
+  "translate_not_configured_content": "Please configure the translation service URL first to use translation",
+  "translate_goto_settings": "Go to Settings"
 }

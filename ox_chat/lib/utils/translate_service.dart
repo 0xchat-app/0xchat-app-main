@@ -6,8 +6,6 @@ import 'package:ox_localizable/ox_localizable.dart';
 
 /// Translation service for translating text messages
 class TranslateService {
-  static const String _defaultLibreTranslateUrl = 'http://localhost:5000/translate';
-
   /// Translate text using the configured translation service
   Future<String?> translate(String text) async {
     if (text.isEmpty) {
@@ -32,9 +30,12 @@ class TranslateService {
 
     // Use LibreTranslate by default
     if (serviceIndex == 0) {
+      if (url.isEmpty) {
+        throw Exception(Localized.text('ox_chat.translate_not_configured_content'));
+      }
       return _translateWithLibreTranslate(
         text,
-        url.isNotEmpty ? url : _defaultLibreTranslateUrl,
+        url,
         apiKey,
       );
     }

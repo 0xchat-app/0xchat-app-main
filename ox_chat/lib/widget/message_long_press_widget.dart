@@ -93,7 +93,7 @@ class MessageLongPressWidgetState extends State<MessageLongPressWidget> {
       ),
       if (message is types.TextMessage)
         ItemModel(
-          Localized.text('ox_chat.message_menu_translate'),
+          _getTranslateMenuText(message),
           AssetImageData('icon_settings_language.png', package: 'ox_usercenter'),
           MessageLongPressEventType.translate,
         ),
@@ -116,6 +116,15 @@ class MessageLongPressWidgetState extends State<MessageLongPressWidget> {
           MessageLongPressEventType.delete,
         ),
     ]);
+  }
+
+  String _getTranslateMenuText(types.Message message) {
+    // Check if message is already translated
+    final existingTranslation = message.metadata?['translated_text'] as String?;
+    final isTranslated = existingTranslation != null && existingTranslation.isNotEmpty;
+    return isTranslated 
+        ? Localized.text('ox_chat.message_menu_cancel_translate')
+        : Localized.text('ox_chat.message_menu_translate');
   }
 
   @override

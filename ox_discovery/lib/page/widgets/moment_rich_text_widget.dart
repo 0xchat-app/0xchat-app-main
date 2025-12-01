@@ -6,14 +6,16 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_video_page.dart';
-import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
-import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_discovery/utils/discovery_utils.dart';
 import 'package:ox_discovery/utils/moment_content_analyze_utils.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_chat/utils/translate_service.dart';
+import 'package:ox_usercenter/page/set_up/translate_settings_page.dart' as TranslateSettings;
+import 'package:ox_common/utils/storage_key_tool.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
+import 'package:ox_common/widgets/common_hint_dialog.dart';
 import '../moments/topic_moment_page.dart';
 
 class MomentRichTextWidget extends StatefulWidget {
@@ -337,6 +339,38 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget>
       setState(() {
         showTranslation = true;
       });
+      return;
+    }
+
+    // Check if translation service is configured
+    final url = UserConfigTool.getSetting(
+      StorageSettingKey.KEY_TRANSLATE_URL.name,
+      defaultValue: '',
+    ) as String;
+    
+    // If URL is not configured, show dialog to navigate to settings
+    if (url.isEmpty) {
+      final shouldGoToSettings = await OXCommonHintDialog.show<bool>(
+        context,
+        title: Localized.text('ox_chat.translate_not_configured_title'),
+        content: Localized.text('ox_chat.translate_not_configured_content'),
+        isRowAction: true,
+        actionList: [
+          OXCommonHintAction.cancel(onTap: () {
+            OXNavigator.pop(context, false);
+          }),
+          OXCommonHintAction.sure(
+            text: Localized.text('ox_chat.translate_goto_settings'),
+            onTap: () {
+              OXNavigator.pop(context, true);
+            },
+          ),
+        ],
+      );
+      
+      if (shouldGoToSettings == true) {
+        OXNavigator.pushPage(context, (context) => TranslateSettings.TranslateSettingsPage());
+      }
       return;
     }
 

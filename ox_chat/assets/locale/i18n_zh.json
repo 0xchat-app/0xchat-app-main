@@ -350,6 +350,7 @@
   "str_remove_moments": "移除动态",
   "str_remove_moments_hint": "您确定要删除动态吗？此操作无法撤销。",
   "message_menu_translate": "翻译",
+  "message_menu_cancel_translate": "隐藏翻译",
   "translate_result": "翻译结果",
   "translate_original": "原文",
   "translate_translated": "译文",
@@ -361,5 +362,8 @@
   "translate_service_initializing": "翻译服务正在初始化，请等待几分钟让服务完成语言模型加载",
   "translate_service_unavailable": "翻译服务暂时不可用，请稍后重试",
   "translate_service_error": "翻译服务错误 (${code})，请检查服务配置",
-  "translate_network_error": "翻译失败，请检查网络连接和服务状态"
+  "translate_network_error": "翻译失败，请检查网络连接和服务状态",
+  "translate_not_configured_title": "翻译服务未配置",
+  "translate_not_configured_content": "请先配置翻译服务 URL 才能使用翻译功能",
+  "translate_goto_settings": "前往设置"
 }

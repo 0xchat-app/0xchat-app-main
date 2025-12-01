@@ -53,7 +53,8 @@ import 'package:ox_chat/page/contacts/contact_user_info_page.dart';
 import 'package:ox_chat/page/session/message_info_page.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_chat/utils/message_report.dart';
-import 'package:ox_chat/utils/translate_service.dart';
+import 'package:ox_chat/utils/translate_service.dart' as TranslateServiceLib;
+import 'package:ox_usercenter/page/set_up/translate_settings_page.dart' as TranslateSettings;
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_chat/widget/report_dialog.dart';
 import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
@@ -64,6 +65,8 @@ import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/permission_utils.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_common/utils/storage_key_tool.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/common_loading.dart';
@@ -725,6 +728,38 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
       return;
     }
 
+    // Check if translation service is configured
+    final url = UserConfigTool.getSetting(
+      StorageSettingKey.KEY_TRANSLATE_URL.name,
+      defaultValue: '',
+    ) as String;
+    
+    // If URL is not configured, show dialog to navigate to settings
+    if (url.isEmpty) {
+      final shouldGoToSettings = await OXCommonHintDialog.show<bool>(
+        context,
+        title: Localized.text('ox_chat.translate_not_configured_title'),
+        content: Localized.text('ox_chat.translate_not_configured_content'),
+        isRowAction: true,
+        actionList: [
+          OXCommonHintAction.cancel(onTap: () {
+            OXNavigator.pop(context, false);
+          }),
+          OXCommonHintAction.sure(
+            text: Localized.text('ox_chat.translate_goto_settings'),
+            onTap: () {
+              OXNavigator.pop(context, true);
+            },
+          ),
+        ],
+      );
+      
+      if (shouldGoToSettings == true) {
+        OXNavigator.pushPage(context, (context) => TranslateSettings.TranslateSettingsPage());
+      }
+      return;
+    }
+
     // Check if translation already exists in metadata
     final existingTranslation = message.metadata?['translated_text'] as String?;
     if (existingTranslation != null && existingTranslation.isNotEmpty) {
@@ -739,7 +774,7 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
     // Perform translation
     OXLoading.show();
     try {
-      final translationService = TranslateService();
+      final translationService = TranslateServiceLib.TranslateService();
       final translatedText = await translationService.translate(textToTranslate);
       
       OXLoading.dismiss();
