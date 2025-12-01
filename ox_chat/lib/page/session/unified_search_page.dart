@@ -39,6 +39,7 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
     with SingleTickerProviderStateMixin {
 
   String _searchQuery = '';
+  String _lastSearchQuery = ''; // Track last search query to avoid clearing results unnecessarily
   TextEditingController _searchBarController = TextEditingController();
   Map<SearchType, List<dynamic>> _searchResult = {};
   List<GroupedModel<UserDBISAR>> _contacts = [];
@@ -66,9 +67,14 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
   }
 
   void _loadContactsData() {
-    _contacts.clear();
+    // Only clear contacts if search query has changed
+    if (_searchQuery != _lastSearchQuery) {
+      _contacts.clear();
+    }
     List<UserDBISAR>? contactList = SearchTxtUtil.loadChatFriendsWithSymbol(searchQuery);
     if (contactList != null && contactList.length > 0) {
+      // Remove existing group with same title if exists
+      _contacts.removeWhere((group) => group.title == 'str_title_contacts'.localized());
       _contacts.add(
         GroupedModel(
           title: 'str_title_contacts'.localized(),
@@ -146,9 +152,12 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
       eoseCallBack: (requestId, ok, relay, unRelays) async {
         if (unRelays.isEmpty && result.isNotEmpty) {
           List<UserDBISAR> users = result.values.toList();
+          // Remove existing group with same title if exists (from relay search)
+          String contactsTitle = 'str_title_contacts'.localized();
+          _contacts.removeWhere((group) => group.title == contactsTitle);
           _contacts.add(
             GroupedModel(
-              title: 'str_title_contacts'.localized(),
+              title: contactsTitle,
               items: users,
             ),
           );
@@ -367,7 +376,11 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
   }
 
   void _prepareData() {
-    _searchResult.clear();
+    // Only clear results if search query has changed
+    if (_searchQuery != _lastSearchQuery) {
+      _searchResult.clear();
+      _lastSearchQuery = _searchQuery;
+    }
     if (!OXUserInfoManager.sharedInstance.isLogin) {
       return;
     }
@@ -388,6 +401,7 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
 
   void _loadRecentData() {
     _searchResult.clear();
+    _lastSearchQuery = ''; // Reset last search query when loading recent data
     _loadRecentChatMessage();
     _loadRecentGroup();
     _loadRecentChannel();
