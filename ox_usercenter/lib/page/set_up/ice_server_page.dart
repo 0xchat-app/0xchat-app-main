@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/model/ice_server_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_server_manager.dart';
 import 'package:ox_common/utils/platform_utils.dart';
-import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
@@ -46,8 +44,38 @@ class _ICEServerPageState extends State<ICEServerPage> {
 
   Future<void> _initData() async {
     List<ICEServerModel> iCEServerList = await OXServerManager.sharedInstance.getICEServerList();
+    // Filter out old servers (rtc.0xchat.com, rtc2-6.0xchat.com)
+    final oldServerPatterns = [
+      'rtc.0xchat.com',
+      'rtc2.0xchat.com',
+      'rtc3.0xchat.com',
+      'rtc4.0xchat.com',
+      'rtc5.0xchat.com',
+      'rtc6.0xchat.com',
+    ];
+    var filteredList = iCEServerList.where((server) {
+      final host = server.host;
+      return !oldServerPatterns.any((pattern) => host.contains(pattern));
+    }).toList();
+    
+    // Ensure all default servers are in the connected list
+    final defaultServers = ICEServerModel.defaultICEServers;
+    final existingUrls = filteredList.map((s) => s.url).toSet();
+    
+    for (var defaultServer in defaultServers) {
+      if (!existingUrls.contains(defaultServer.url)) {
+        filteredList.add(defaultServer);
+      }
+    }
+    
+    // Save if list changed
+    if (filteredList.length != iCEServerList.length || 
+        filteredList.any((server) => !iCEServerList.any((s) => s.url == server.url))) {
+      await OXServerManager.sharedInstance.saveICEServerList(filteredList);
+    }
+    
     setState(() {
-      _connectICEServerList = iCEServerList;
+      _connectICEServerList = filteredList;
     });
   }
 
@@ -350,7 +378,7 @@ class _ICEServerPageState extends State<ICEServerPage> {
             title: Container(
               margin: EdgeInsets.only(left: Adapt.px(12)),
               child: Text(
-                model.host,
+                model.displayName,
                 style: TextStyle(
                   color: ThemeColor.color0,
                   fontSize: Adapt.px(16),
