@@ -4,7 +4,6 @@ import 'package:flutter_link_previewer/flutter_link_previewer.dart'
     show LinkPreview;
 import 'package:flutter_parsed_text/flutter_parsed_text.dart';
 import 'package:ox_common/const/common_constant.dart';
-import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/web_url_helper.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -32,7 +31,7 @@ class TextMessage extends StatelessWidget {
     this.userAgent,
     this.maxLimit,
     this.onSecondaryTap,
-  }) : messageText = message.text.trim();
+  }) : messageText = message.text;
 
   /// See [Message.emojiEnlargementBehavior].
   final EmojiEnlargementBehavior emojiEnlargementBehavior;
@@ -200,7 +199,7 @@ class TextMessageText extends StatelessWidget {
     this.maxLimit,
     required this.isMessageSender,
     this.onSecondaryTap,
-  }) : messageText = message.text.trim();
+  }) : messageText = message.text;
 
   final ChatUIConfig uiConfig;
 

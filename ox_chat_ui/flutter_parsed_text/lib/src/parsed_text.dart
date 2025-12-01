@@ -183,7 +183,7 @@ class ParsedText extends StatelessWidget {
       },
       onNonMatch: (String text) {
         widgets.add(TextSpan(
-          text: text.trim(),
+          text: text,
           style: this.style,
         ));
 
