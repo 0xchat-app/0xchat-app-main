@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:ox_chat/model/group_ui_model.dart';
 import 'package:ox_chat/model/search_chat_model.dart';
@@ -18,6 +20,7 @@ import 'package:ox_common/widgets/common_gradient_tab_bar.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_theme/ox_theme.dart';
+import 'package:nostr_core_dart/nostr.dart';
 
 class UnifiedSearchPage extends StatefulWidget {
   final int initialIndex;
@@ -42,6 +45,7 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
   List<GroupedModel<GroupUIModel>> _groups = [];
   List<GroupedModel<ChannelDBISAR>> _channels = [];
   late final TabController _controller;
+  Timer? _searchDebounceTimer;
 
   String get searchQuery => _searchQuery;
 
@@ -89,9 +93,151 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
         );
       }
       _searchResult[SearchType.contact] = _contacts;
+    } else if (searchQuery.isNotEmpty) {
+      // Search contacts from search relay
+      await _searchContactsFromRelay(searchQuery);
     }
     if (mounted) {
       setState(() {});
+    }
+  }
+
+  Future<void> _searchContactsFromRelay(String keyword) async {
+    List<RelayDBISAR> searchRelayList = Account.sharedInstance.getMySearchRelayList();
+    
+    // If no search relay is selected, use the first recommended one
+    if (searchRelayList.isEmpty) {
+      List<RelayDBISAR> recommendRelayList = Account.sharedInstance.getMyRecommendSearchRelaysList();
+      if (recommendRelayList.isEmpty) {
+        return;
+      }
+      // Auto-select the first recommended relay
+      String defaultRelay = recommendRelayList.first.url;
+      await Account.sharedInstance.setSearchRelay(defaultRelay);
+      searchRelayList = Account.sharedInstance.getMySearchRelayList();
+      if (searchRelayList.isEmpty) {
+        return;
+      }
+    }
+
+    String searchRelay = searchRelayList.first.url;
+    await Connect.sharedInstance.connectRelays([searchRelay], relayKind: RelayKind.search);
+    
+    Filter searchFilter = Nip50.encode(
+      search: keyword,
+      kinds: [0],
+      limit: 10,
+    );
+
+    Map<String, UserDBISAR> result = {};
+    Connect.sharedInstance.addSubscription(
+      [searchFilter],
+      relays: [searchRelay],
+      relayKinds: [RelayKind.search],
+      eventCallBack: (event, relay) async {
+        if (event.kind == 0) {
+          // Parse kind 0 event and create/update user info
+          UserDBISAR? user = await _handleKind0Event(event);
+          if (user != null) {
+            result[event.pubkey] = user;
+          }
+        }
+      },
+      eoseCallBack: (requestId, ok, relay, unRelays) async {
+        if (unRelays.isEmpty && result.isNotEmpty) {
+          List<UserDBISAR> users = result.values.toList();
+          _contacts.add(
+            GroupedModel(
+              title: 'str_title_contacts'.localized(),
+              items: users,
+            ),
+          );
+          _searchResult[SearchType.contact] = _contacts;
+          if (mounted) {
+            setState(() {});
+          }
+          // Close the search relay connection after search
+          Connect.sharedInstance.closeConnects([searchRelay], RelayKind.search);
+        } else if (unRelays.isEmpty) {
+          // Close connection even if no results
+          Connect.sharedInstance.closeConnects([searchRelay], RelayKind.search);
+        }
+      },
+    );
+  }
+
+  /// Handle kind 0 event and create/update user info
+  Future<UserDBISAR?> _handleKind0Event(Event event) async {
+    if (event.content.isEmpty) return null;
+    
+    try {
+      Map map = jsonDecode(event.content);
+      
+      // Get existing user or create new one
+      UserDBISAR? user = await Account.sharedInstance.getUserInfo(event.pubkey);
+      if (user == null) {
+        user = UserDBISAR(pubKey: event.pubkey);
+      }
+      
+      // Update user info from event if event is newer
+      if (user.lastUpdatedTime < event.createdAt) {
+        user.name = map['name']?.toString();
+        user.gender = map['gender']?.toString();
+        user.area = map['area']?.toString();
+        user.about = map['about']?.toString();
+        user.picture = map['picture']?.toString();
+        user.banner = map['banner']?.toString();
+        user.dns = map['nip05']?.toString();
+        user.lnurl = map['lnurl']?.toString();
+        if (user.lnurl == null || user.lnurl == 'null' || user.lnurl!.isEmpty) {
+          user.lnurl = null;
+        }
+        user.lnurl ??= map['lud06']?.toString();
+        user.lnurl ??= map['lud16']?.toString();
+        user.lastUpdatedTime = event.createdAt;
+        
+        if (user.name == null || user.name!.isEmpty) {
+          user.name = map['display_name']?.toString();
+        }
+        if (user.name == null || user.name!.isEmpty) {
+          user.name = map['username']?.toString();
+        }
+        if (user.name == null || user.name!.isEmpty) {
+          user.name = user.shortEncodedPubkey;
+        }
+        
+        var keysToRemove = {
+          'name',
+          'display_name',
+          'username',
+          'gender',
+          'area',
+          'about',
+          'picture',
+          'banner',
+          'nip05',
+          'lnurl',
+          'lud16',
+          'lud06'
+        };
+        Map filteredMap = Map.from(map)..removeWhere((key, value) => keysToRemove.contains(key));
+        user.otherField = jsonEncode(filteredMap);
+      } else {
+        // Update lnurl even if event is older
+        if (user.lnurl == null || user.lnurl == 'null' || user.lnurl!.isEmpty) {
+          user.lnurl = null;
+        }
+        user.lnurl ??= map['lud16']?.toString();
+        user.lnurl ??= map['lud06']?.toString();
+      }
+      
+      // Save to database and cache
+      Account.saveUserToDB(user);
+      Account.sharedInstance.userCache[event.pubkey] = ValueNotifier<UserDBISAR>(user);
+      
+      return user;
+    } catch (e) {
+      return null;
     }
   }
 
@@ -222,7 +368,9 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
 
   void _prepareData() {
     _searchResult.clear();
-    if (!OXUserInfoManager.sharedInstance.isLogin) return;
+    if (!OXUserInfoManager.sharedInstance.isLogin) {
+      return;
+    }
     _loadAllData();
   }
 
@@ -248,15 +396,29 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
 
   void _onTextChanged(String value) {
     _searchQuery = value;
+    
+    // Cancel previous timer
+    _searchDebounceTimer?.cancel();
+    
+    if(value.isEmpty) {
+      _loadRecentData();
+    } else {
+      // Start debounce timer: trigger search after 0.5 seconds of no input
+      _searchDebounceTimer = Timer(Duration(milliseconds: 500), () {
+        _prepareData();
+      });
+    }
+  }
+
+  _onSubmitted(String value) {
+    // Cancel debounce timer and trigger search immediately
+    _searchDebounceTimer?.cancel();
+    _searchQuery = value;
     if(value.isEmpty) {
       _loadRecentData();
     } else {
       _prepareData();
     }
-  }
-
-  _onSubmitted(String value) {
-    _onTextChanged(value);
   }
 
   List<GroupedModel<ChatMessage>> _groupedChatMessage(List<ChatMessage> messages) {
@@ -301,7 +463,7 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
                 top: MediaQuery.of(context).padding.top,
               ),
               controller: _searchBarController,
-              // onChanged: _onTextChanged,
+              onChanged: _onTextChanged,
               onSubmitted: _onSubmitted,
             ),
             CommonGradientTabBar(
@@ -332,6 +494,7 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
 
   @override
   void dispose() {
+    _searchDebounceTimer?.cancel();
     _controller.dispose();
     _searchBarController.dispose();
     ThemeManager.removeOnThemeChangedCallback(onThemeStyleChange);
