@@ -37,13 +37,15 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
     RelayType.general: [],
     RelayType.dm: [],
     RelayType.outbox: [],
-    RelayType.inbox: []
+    RelayType.inbox: [],
+    RelayType.search: []
   };
   final Map<RelayType, List<RelayDBISAR>> _recommendRelayListMap = {
     RelayType.general: [],
     RelayType.dm: [],
     RelayType.outbox: [],
-    RelayType.inbox: []
+    RelayType.inbox: [],
+    RelayType.search: []
   };
   bool _isEditing = false;
   bool _isShowDelete = false;
@@ -65,6 +67,10 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
   void _relayTypeChanged(int index) {
     setState(() {
       _relayType = RelayType.values[index];
+      // Reset editing state when switching to search relay (no edit mode for search)
+      if (_relayType == RelayType.search) {
+        _isEditing = false;
+      }
     });
   }
 
@@ -77,19 +83,29 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
 
   void _initDefault() async {
     for (var relayType in RelayType.values) {
-      _initRelayList(relayType);
+      await _initRelayList(relayType);
     }
     if (mounted) setState(() {});
   }
 
-  void _initRelayList(RelayType relayType) {
+  Future<void> _initRelayList(RelayType relayType) async {
     List<RelayDBISAR> relayList = _getRelayList(relayType);
     List<RelayDBISAR> recommendRelayList = _getRecommendRelayList(relayType);
 
-    //Filters elements in the relay LIst
-    recommendRelayList.removeWhere((recommendRelay) {
-      return relayList.any((relay) => relay.url == recommendRelay.url);
-    });
+    // For search relay, if no relay is selected, default to the first recommended one
+    if (relayType == RelayType.search && relayList.isEmpty && recommendRelayList.isNotEmpty) {
+      String defaultRelay = recommendRelayList.first.url;
+      await Account.sharedInstance.setSearchRelay(defaultRelay);
+      relayList = _getRelayList(relayType);
+    }
+
+    // For search relay, don't remove selected relay from recommend list (allow switching)
+    // For other relay types, filter out relays that are already in the list
+    if (relayType != RelayType.search) {
+      recommendRelayList.removeWhere((recommendRelay) {
+        return relayList.any((relay) => relay.url == recommendRelay.url);
+      });
+    }
 
     _relayListMap[relayType] = relayList;
     _recommendRelayListMap[relayType] = recommendRelayList;
@@ -105,6 +121,8 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
         return Account.sharedInstance.getMyInboxRelayList();
       case RelayType.outbox:
         return Account.sharedInstance.getMyOutboxRelayList();
+      case RelayType.search:
+        return Account.sharedInstance.getMySearchRelayList();
       default:
         return [];
     }
@@ -120,6 +138,8 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
         return Account.sharedInstance.getMyRecommendDMRelaysList();
       case RelayType.outbox:
         return Account.sharedInstance.getMyRecommendDMRelaysList();
+      case RelayType.search:
+        return Account.sharedInstance.getMyRecommendSearchRelaysList();
       default:
         return [];
     }
@@ -140,24 +160,25 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
         title: Localized.text('ox_usercenter.relays'),
         titleTextColor: ThemeColor.color0,
         actions: [
-          //icon_edit.png
-          OXButton(
-            highlightColor: Colors.transparent,
-            color: Colors.transparent,
-            minWidth: Adapt.px(44),
-            height: Adapt.px(44),
-            child: CommonImage(
-              iconName: _isEditing ? 'icon_done.png' : 'icon_edit.png',
-              width: Adapt.px(24),
-              height: Adapt.px(24),
-              useTheme: true,
+          // For search relay, no edit button needed
+          if (_relayType != RelayType.search)
+            OXButton(
+              highlightColor: Colors.transparent,
+              color: Colors.transparent,
+              minWidth: Adapt.px(44),
+              height: Adapt.px(44),
+              child: CommonImage(
+                iconName: _isEditing ? 'icon_done.png' : 'icon_edit.png',
+                width: Adapt.px(24),
+                height: Adapt.px(24),
+                useTheme: true,
+              ),
+              onPressed: () {
+                setState(() {
+                  _isEditing = !_isEditing;
+                });
+              },
             ),
-            onPressed: () {
-              setState(() {
-                _isEditing = !_isEditing;
-              });
-            },
-          ),
         ],
       ),
       backgroundColor: ThemeColor.color190,
@@ -195,8 +216,9 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
                     padding: EdgeInsets.only(top: 24.px, bottom: 12.px),
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      // Localized.text('ox_usercenter.connect_relay'),
-                      '${Localized.text('ox_usercenter.str_connect_to_relay')} ${_relayType.sign()}',
+                      _relayType == RelayType.search
+                          ? Localized.text('ox_usercenter.str_custom_search_relay')
+                          : '${Localized.text('ox_usercenter.str_connect_to_relay')} ${_relayType.sign()}',
                       style: TextStyle(
                         color: ThemeColor.color0,
                         fontSize: Adapt.px(14),
@@ -276,8 +298,9 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
                       padding: EdgeInsets.only(top: 24.px, bottom: 12.px),
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        // Localized.text('ox_usercenter.connected_relay'),
-                        '${Localized.text('ox_usercenter.str_connected_to_relay')} ${_relayType.sign()}',
+                        _relayType == RelayType.search
+                            ? Localized.text('ox_usercenter.str_selected_search_relay')
+                            : '${Localized.text('ox_usercenter.str_connected_to_relay')} ${_relayType.sign()}',
                         style: TextStyle(
                           color: ThemeColor.color0,
                           fontSize: Adapt.px(16),
@@ -299,9 +322,11 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
                     ),
                   ],
                   if (recommendRelayList.isNotEmpty)
-                    RelayCommendWidget(recommendRelayList, (RelayDBISAR relayDB) {
-                      _addOnTap(upcomingRelay: relayDB.url);
-                    }),
+                    _relayType == RelayType.search
+                        ? _buildSearchRelayRecommendList(recommendRelayList, relayList)
+                        : RelayCommendWidget(recommendRelayList, (RelayDBISAR relayDB) {
+                            _addOnTap(upcomingRelay: relayDB.url);
+                          }),
                 ],
               ).setPadding(
                   EdgeInsets.only(left: Adapt.px(24), right: Adapt.px(24), bottom: Adapt.px(24))),
@@ -322,7 +347,10 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
         GestureDetector(
           behavior: HitTestBehavior.translucent,
           onTap: () {
-            if (!_isEditing) {
+            if (_relayType == RelayType.search) {
+              // For search relay, clicking switches the selection
+              _addOnTap(upcomingRelay: _model.url);
+            } else if (!_isEditing) {
               OXNavigator.pushPage(
                   context,
                   (context) => RelayDetailPage(
@@ -378,6 +406,15 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
   }
 
   Widget _relayStateImage(RelayDBISAR relayDB) {
+    // For search relay, always show selected icon (no edit/delete mode)
+    if (_relayType == RelayType.search) {
+      return CommonImage(
+        iconName: 'icon_pic_selected.png',
+        width: Adapt.px(24),
+        height: Adapt.px(24),
+      );
+    }
+    
     if (_isEditing) {
       return GestureDetector(
           behavior: HitTestBehavior.translucent,
@@ -513,10 +550,21 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
         case RelayType.outbox:
           await Account.sharedInstance.addOutboxRelay(upcomingRelay);
           break;
+        case RelayType.search:
+          await Account.sharedInstance.setSearchRelay(upcomingRelay);
+          break;
       }
-      recommendRelayList.removeWhere((element) => element.url == upcomingRelay);
-      setState(() {
+      // For search relay, replace the existing one instead of adding
+      // But don't remove from recommend list (keep it for switching)
+      if (_relayType == RelayType.search) {
+        relayList.clear();
         relayList.add(RelayDBISAR(url: upcomingRelay!));
+        // Don't remove from recommend list for search relay
+      } else {
+        recommendRelayList.removeWhere((element) => element.url == upcomingRelay);
+        relayList.add(RelayDBISAR(url: upcomingRelay!));
+      }
+      setState(() {
         if (isUserInput) {
           _relayTextFieldControll.text = '';
           _isShowDelete = false;
@@ -549,6 +597,9 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
                   case RelayType.outbox:
                     await Account.sharedInstance.removeOutboxRelay(relayModel.url);
                     break;
+                  case RelayType.search:
+                    await Account.sharedInstance.removeSearchRelay();
+                    break;
                 }
                 OXNavigator.pop(context);
                 _initDefault();
@@ -575,6 +626,100 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
   void didPopNext() {
     _pingLifecycleController.isPaused.value = false;
   }
+
+  Widget _buildSearchRelayRecommendList(List<RelayDBISAR> recommendRelayList, List<RelayDBISAR> relayList) {
+    String? selectedRelay = relayList.isNotEmpty ? relayList.first.url : null;
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: double.infinity,
+          height: Adapt.px(58),
+          alignment: Alignment.centerLeft,
+          child: Text(
+            Localized.text('ox_usercenter.recommend_relay'),
+            style: TextStyle(
+              color: ThemeColor.color0,
+              fontSize: Adapt.px(16),
+            ),
+          ),
+        ),
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(Adapt.px(16)),
+            color: ThemeColor.color180,
+          ),
+          child: ListView.builder(
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemBuilder: (context, index) => _buildSearchRelayRecommendItem(context, index, recommendRelayList, selectedRelay),
+            itemCount: recommendRelayList.length,
+            padding: EdgeInsets.zero,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSearchRelayRecommendItem(BuildContext context, int index, List<RelayDBISAR> recommendRelayList, String? selectedRelay) {
+    RelayDBISAR relayDB = recommendRelayList[index];
+    final host = relayDB.url.split('//').last;
+    
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () {
+            _addOnTap(upcomingRelay: relayDB.url);
+          },
+          child: Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(horizontal: 16.px, vertical: 10.px),
+            child: Row(
+              children: [
+                CommonImage(
+                  iconName: 'icon_settings_relays.png',
+                  width: Adapt.px(32),
+                  height: Adapt.px(32),
+                  package: 'ox_usercenter',
+                ),
+                Expanded(
+                  child: Container(
+                    margin: EdgeInsets.symmetric(horizontal: 12.px),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          relayDB.url,
+                          style: TextStyle(
+                            color: ThemeColor.color0,
+                            fontSize: Adapt.px(16),
+                          ),
+                        ),
+                        PingDelayTimeWidget(
+                          host: host,
+                          controller: _pingLifecycleController,
+                        ).setPaddingOnly(top: 4.px)
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(width: Adapt.px(24)),
+              ],
+            ),
+          ),
+        ),
+        recommendRelayList.length > 1 && recommendRelayList.length - 1 != index
+            ? Divider(
+                height: Adapt.px(0.5),
+                color: ThemeColor.color160,
+              )
+            : Container(),
+      ],
+    );
+  }
 }
 
 enum RelayType {
@@ -582,6 +727,7 @@ enum RelayType {
   dm,
   outbox,
   inbox,
+  search,
 }
 
 extension RelayTypeExtension on RelayType {
@@ -595,6 +741,8 @@ extension RelayTypeExtension on RelayType {
         return Localized.text('ox_usercenter.str_inbox_relays');
       case RelayType.outbox:
         return Localized.text('ox_usercenter.str_outbox_relays');
+      case RelayType.search:
+        return Localized.text('ox_usercenter.str_search_relays');
     }
   }
 
@@ -608,6 +756,8 @@ extension RelayTypeExtension on RelayType {
         return Localized.text('ox_usercenter.str_inbox');
       case RelayType.outbox:
         return Localized.text('ox_usercenter.str_outbox');
+      case RelayType.search:
+        return Localized.text('ox_usercenter.str_search');
     }
   }
 
@@ -621,6 +771,8 @@ extension RelayTypeExtension on RelayType {
         return Localized.text('ox_usercenter.str_inbox_relay_description');
       case RelayType.outbox:
         return Localized.text('ox_usercenter.str_outbox_relay_description');
+      case RelayType.search:
+        return Localized.text('ox_usercenter.str_search_relay_description');
     }
   }
 }
