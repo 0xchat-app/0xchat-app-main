@@ -398,5 +398,13 @@
     "icon": "https://cdn.satellite.earth/0d16dff6557e6c0c33207dac79dfec87f3a7c43c6b5ac4dd65f1fe445ee1c3a2.png",
     "description": "Join your peers in a healthy social network. Nos is our Nostr client for humans, not algorithms.",
     "metadata": {}
+  },
+  {
+    "id": "hivetalk",
+    "url": "https://hivetalk.org/",
+    "name": "HiveTalk",
+    "icon": "https://honey.hivetalk.org/all.png",
+    "description": "Video Conferencing, Reimagined\nNostr + Lightning Integrated",
+    "metadata": {}
   }
 ]
