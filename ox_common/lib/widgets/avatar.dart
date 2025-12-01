@@ -261,11 +261,13 @@ class OXGroupAvatarState extends State<OXGroupAvatar> {
 
   final defaultImageName = 'icon_group_default.png';
 
+  // Optimized: Static cache to share group member avatars across all instances
+  static final Map<String, List<String>> _groupAvatarsCache = {};
+  static final Map<String, Future<List<String>>> _loadingFutures = {};
+
   List<String> _avatars = [];
 
   String groupId = '';
-
-  late Future<ImageProvider> _imageLoader;
 
   @override
   void initState() {
@@ -275,53 +277,87 @@ class OXGroupAvatarState extends State<OXGroupAvatar> {
     }else{
       groupId = widget.group?.groupId ?? '';
     }
-    _getMembers();
-    _imageLoader = _loadImageFromCache();
+    _loadMembers();
   }
 
-  Future<ImageProvider> _loadImageFromCache() async {
-    return throw Exception('load error');
+  // Optimized: Use cache and avoid duplicate queries
+  void _loadMembers() async {
+    // Check cache first
+    if (_groupAvatarsCache.containsKey(groupId)) {
+      if (mounted) {
+        setState(() {
+          _avatars = _groupAvatarsCache[groupId]!;
+        });
+      }
+      return;
+    }
+
+    // Check if already loading for this group
+    if (_loadingFutures.containsKey(groupId)) {
+      _loadingFutures[groupId]!.then((avatars) {
+        if (mounted) {
+          setState(() {
+            _avatars = avatars;
+          });
+        }
+      });
+      return;
+    }
+
+    // Start loading
+    final loadingFuture = _fetchGroupMembers(groupId);
+    _loadingFutures[groupId] = loadingFuture;
+
+    final avatars = await loadingFuture;
+    _loadingFutures.remove(groupId);
+
+    if (mounted) {
+      setState(() {
+        _avatars = avatars;
+      });
+    }
   }
 
-  void _getMembers() async {
-    List<UserDBISAR> groupList = await Groups.sharedInstance.getAllGroupMembers(groupId);
-    _avatars = groupList.map((element) => element.picture ?? '').toList();
-    _avatars.removeWhere((element) => element.isEmpty);
+  // Optimized: Fetch and cache group members
+  Future<List<String>> _fetchGroupMembers(String groupId) async {
+    try {
+      final groupList = await Groups.sharedInstance.getAllGroupMembers(groupId);
+      final avatars = groupList
+          .map((element) => element.picture ?? '')
+          .where((avatar) => avatar.isNotEmpty)
+          .toList();
+      
+      // Cache the result
+      _groupAvatarsCache[groupId] = avatars;
+      return avatars;
+    } catch (e) {
+      // Return empty list on error and cache it to avoid repeated queries
+      _groupAvatarsCache[groupId] = [];
+      return [];
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: _imageLoader,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting || snapshot.hasError) {
-          if (_avatars.isEmpty) {
-            return BaseAvatarWidget(
-              defaultImageName: defaultImageName,
-              size: widget.size,
-              imageUrl: '',
-              isCircular: widget.isCircular,
-              isClickable: widget.isClickable,
-              onTap: _onTap,
-            );
-          }
-          return GroupedAvatar(
-            avatars: _avatars,
-            size: widget.size,
-            isCircular: widget.isCircular,
-            isClickable: widget.isClickable,
-            onTap: _onTap,
-          );
-        } else {
-          return GroupedAvatar(
-            avatars: _avatars,
-            size: widget.size,
-            isCircular: widget.isCircular,
-            isClickable: widget.isClickable,
-            onTap: _onTap,
-          );
-        }
-      },
+    // Optimized: Simplified build logic, always show GroupedAvatar or default
+    // Removed unnecessary FutureBuilder that always returned the same widget
+    if (_avatars.isEmpty) {
+      return BaseAvatarWidget(
+        defaultImageName: defaultImageName,
+        size: widget.size,
+        imageUrl: '',
+        isCircular: widget.isCircular,
+        isClickable: widget.isClickable,
+        onTap: _onTap,
+      );
+    }
+    
+    return GroupedAvatar(
+      avatars: _avatars,
+      size: widget.size,
+      isCircular: widget.isCircular,
+      isClickable: widget.isClickable,
+      onTap: _onTap,
     );
   }
 
@@ -353,9 +389,26 @@ class GroupedAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Optimized: Use RepaintBoundary to isolate avatar rendering
+    return RepaintBoundary(
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: isClickable ? onTap : null,
+        child: Container(
+          width: size,
+          height: size,
+          alignment: Alignment.center,
+          child: _buildGroupedAvatarContent(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGroupedAvatarContent() {
+    if (avatars.isEmpty) return _buildDefaultGroupedAvatar(size);
+    
     double smallSize = 0;
     List<String> avatarList = avatars;
-    List<Widget> avatarWidgetList = [];
 
     if (avatarList.length <= 4) {
       smallSize = avatarList.length <= 2 ? size * 0.66 : size * 0.5;
@@ -363,22 +416,19 @@ class GroupedAvatar extends StatelessWidget {
       smallSize = size / 3;
       avatarList = avatarList.length > 9 ? avatarList.sublist(0, 9) : avatarList;
     }
-    avatarWidgetList = avatars.map((element) => _buildSingleAvatar(smallSize, element)).toList();
+    
+    // Optimized: Only create widgets for visible avatars
+    final visibleAvatars = avatarList;
+    final avatarWidgetList = visibleAvatars.map((element) => 
+      RepaintBoundary(
+        child: _buildSingleAvatar(smallSize, element),
+      )
+    ).toList();
 
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onTap: isClickable ? onTap : null,
-      child: Container(
-        width: size,
-        height: size,
-        alignment: Alignment.center,
-        child: _buildGroupedAvatar(avatarWidgetList),
-      ),
-    );
+    return _buildGroupedAvatarLayout(avatarWidgetList);
   }
 
-  Widget _buildGroupedAvatar(List<Widget> avatarWidgetList) {
-    if (avatars.isEmpty) return _buildDefaultGroupedAvatar(size);
+  Widget _buildGroupedAvatarLayout(List<Widget> avatarWidgetList) {
     if (avatars.length == 2) {
       return Stack(
         children: [
