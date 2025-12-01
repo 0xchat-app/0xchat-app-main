@@ -69,6 +69,8 @@ class CommonWebViewState<T extends CommonWebView> extends State<T>
           });
         }
         currentController.runJavaScript(windowNostrJavaScript);
+        // Inject bottom safe area CSS variable for Android navigation bar
+        _injectBottomSafeArea();
       },
       onProgress: (progress) {
         if (loadProgress != 1) {
@@ -148,7 +150,10 @@ class CommonWebViewState<T extends CommonWebView> extends State<T>
           ),
         ),
         Expanded(
-          child: buildWebView(),
+          child: SafeArea(
+            bottom: true,
+            child: buildWebView(),
+          ),
         )
       ],
     );
@@ -180,6 +185,32 @@ class CommonWebViewState<T extends CommonWebView> extends State<T>
     //   return url +
     //       "?lang=${Localized.getCurrentLanguage().symbol()}&theme=${ThemeManager.getCurrentThemeStyle().value()}";
     // }
+  }
+
+  // Inject bottom safe area CSS variable to help web pages adjust bottom content
+  void _injectBottomSafeArea() {
+    if (!mounted) return;
+    
+    // Use WidgetsBinding to get safe area info reliably
+    final window = WidgetsBinding.instance.window;
+    // Get bottom padding in logical pixels (CSS pixels)
+    final double bottomPadding = window.padding.bottom / window.devicePixelRatio;
+    
+    // Inject CSS variable for web pages to use
+    final String script = """
+      (function() {
+        const root = document.documentElement;
+        const bottomSafeArea = ${bottomPadding};
+        root.style.setProperty('--safe-area-inset-bottom', bottomSafeArea + 'px');
+        
+        // Dispatch a custom event so web pages can listen and adjust their layout
+        window.dispatchEvent(new CustomEvent('safeAreaChanged', {
+          detail: { bottom: bottomSafeArea }
+        }));
+      })();
+    """;
+    
+    currentController.runJavaScript(script);
   }
 }
 
