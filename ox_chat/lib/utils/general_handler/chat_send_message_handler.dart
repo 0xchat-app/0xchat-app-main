@@ -902,7 +902,7 @@ extension ChatMessageSendUtileEx on ChatGeneralHandler {
     String? encryptedNonce,
   }) async {
     final file = File(filePath);
-    final ext = Path.extension(filePath);
+    final ext = filePath.contains('.') ? '.${filePath.split('.').last}' : '';
     final fileName = '$messageId$ext';
     return await UploadUtils.uploadFile(
         fileType: fileType, file: file, filename: fileName, encryptedKey: encryptedKey, encryptedNonce: encryptedNonce);

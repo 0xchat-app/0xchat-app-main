@@ -62,6 +62,10 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget>
   void didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.text != oldWidget.text) {
+      // Clear translation state when text changes
+      translatedText = null;
+      showTranslation = false;
+      isTranslating = false;
       _getUserInfo();
     }
   }
@@ -253,11 +257,9 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget>
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CommonImage(
-              iconName: 'icon_settings_language.png',
-              package: 'ox_usercenter',
-              width: 14.px,
-              height: 14.px,
+            Icon(
+              Icons.language,
+              size: 14.px,
               color: ThemeColor.color100,
             ),
             SizedBox(width: 4.px),
@@ -350,34 +352,32 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget>
     });
 
     try {
-      // Simulate translation delay
-      await Future.delayed(Duration(milliseconds: 800));
-      
-      // TODO: Replace with actual translation service call
-      // final translationService = TranslateService();
-      // final result = await translationService.translate(plainText);
-      
-      // Mock translation result for UI testing
-      String mockTranslatedText;
-      final currentLocale = Localized.getCurrentLanguage();
-      if (currentLocale == LocaleType.zh || currentLocale == LocaleType.zh_tw) {
-        // If current language is Chinese, translate to English
-        mockTranslatedText = 'This is a mock translation result. The original text is: "$plainText". In a real implementation, this would be translated using the translation service.';
-      } else {
-        // If current language is not Chinese, translate to Chinese
-        mockTranslatedText = '这是模拟的翻译结果。原文是："$plainText"。在实际实现中，这将使用翻译服务进行翻译。';
-      }
+      final translationService = TranslateService();
+      final result = await translationService.translate(plainText);
       
       setState(() {
         isTranslating = false;
-        translatedText = mockTranslatedText;
-        showTranslation = true;
+        if (result != null && result.isNotEmpty) {
+          translatedText = result;
+          showTranslation = true;
+        } else {
+          CommonToast.instance.show(context, Localized.text('ox_chat.translate_not_supported'));
+        }
       });
     } catch (e) {
       setState(() {
         isTranslating = false;
       });
-      CommonToast.instance.show(context, Localized.text('ox_chat.translate_error'));
+      String errorMessage = e.toString();
+      // Extract meaningful error message
+      if (errorMessage.contains('Exception:')) {
+        errorMessage = errorMessage.split('Exception:').last.trim();
+      }
+      // If error message is too technical, use default
+      if (errorMessage.isEmpty || errorMessage.length > 100) {
+        errorMessage = Localized.text('ox_chat.translate_error');
+      }
+      CommonToast.instance.show(context, errorMessage);
     }
   }
 }

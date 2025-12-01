@@ -71,7 +71,6 @@ import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
-import 'package:path/path.dart' as Path;
 import 'package:flutter_chat_types/src/message.dart' as UIMessage;
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:ox_common/widgets/zaps/zaps_action_handler.dart';
@@ -740,38 +739,33 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
     // Perform translation
     OXLoading.show();
     try {
-      // Simulate translation delay
-      await Future.delayed(Duration(milliseconds: 800));
-      
-      // TODO: Replace with actual translation service call
-      // final translationService = TranslateService();
-      // final translatedText = await translationService.translate(textToTranslate);
-      
-      // Mock translation result for UI testing
-      String mockTranslatedText;
-      final currentLocale = Localized.getCurrentLanguage();
-      if (currentLocale == LocaleType.zh || currentLocale == LocaleType.zh_tw) {
-        // If current language is Chinese, translate to English
-        mockTranslatedText = 'This is a mock translation result. The original text is: "$textToTranslate". In a real implementation, this would be translated using the translation service.';
-      } else {
-        // If current language is not Chinese, translate to Chinese
-        mockTranslatedText = '这是模拟的翻译结果。原文是："$textToTranslate"。在实际实现中，这将使用翻译服务进行翻译。';
-      }
+      final translationService = TranslateService();
+      final translatedText = await translationService.translate(textToTranslate);
       
       OXLoading.dismiss();
 
-      if (mockTranslatedText.isNotEmpty) {
+      if (translatedText != null && translatedText.isNotEmpty) {
         // Store translation in message metadata and update message
         final updatedMetadata = Map<String, dynamic>.from(message.metadata ?? {});
-        updatedMetadata['translated_text'] = mockTranslatedText;
+        updatedMetadata['translated_text'] = translatedText;
         final updatedMessage = message.copyWith(metadata: updatedMetadata);
         dataController.updateMessage(updatedMessage);
       } else {
-        CommonToast.instance.show(context, Localized.text('ox_chat.translate_failed'));
+        // Translation failed or same language
+        CommonToast.instance.show(context, Localized.text('ox_chat.translate_not_supported'));
       }
     } catch (e) {
       OXLoading.dismiss();
-      CommonToast.instance.show(context, Localized.text('ox_chat.translate_error'));
+      String errorMessage = e.toString();
+      // Extract meaningful error message
+      if (errorMessage.contains('Exception:')) {
+        errorMessage = errorMessage.split('Exception:').last.trim();
+      }
+      // If error message is too technical, use default
+      if (errorMessage.isEmpty || errorMessage.length > 100) {
+        errorMessage = Localized.text('ox_chat.translate_error');
+      }
+      CommonToast.instance.show(context, errorMessage);
       ChatLogUtils.error(
         className: 'ChatGeneralHandler',
         funcName: '_translateMenuItemPressHandler',

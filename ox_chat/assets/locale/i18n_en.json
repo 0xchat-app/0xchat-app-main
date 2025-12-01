@@ -367,5 +367,10 @@
   "translate_empty_message": "Message is empty, cannot translate",
   "translate_failed": "Translation failed",
   "translate_error": "Translation error, please try again later",
-  "translate_hide": "Hide translation"
+  "translate_not_supported": "Cannot translate (may be same language or service unavailable)",
+  "translate_hide": "Hide translation",
+  "translate_service_initializing": "Translation service is initializing, please wait a few minutes for the service to finish loading language models",
+  "translate_service_unavailable": "Translation service is temporarily unavailable, please try again later",
+  "translate_service_error": "Translation service error (${code}), please check service configuration",
+  "translate_network_error": "Translation failed, please check network connection and service status"
 }

@@ -179,6 +179,7 @@ class _MomentWidgetState extends State<MomentWidget> {
           return MomentPaymentWidget(invoice:content,type: EPaymentType.ecash,);
         } else {
           return MomentRichTextWidget(
+            key: ValueKey('${model.noteDB.noteId}_${content.hashCode}'),
             isShowAllContent: widget.isShowAllContent,
             clickBlankCallback: () => widget.clickMomentCallback?.call(model),
             showMoreCallback: () async {

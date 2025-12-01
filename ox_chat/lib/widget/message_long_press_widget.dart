@@ -194,12 +194,19 @@ class MessageLongPressWidgetState extends State<MessageLongPressWidget> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            CommonImage(
-              iconName: item.icon.path,
-              size: _Layout.menuIconSize,
-              color: ThemeColor.color0,
-              package: item.icon.package,
-            ),
+            // Use Icon for translate button, CommonImage for others
+            item.type == MessageLongPressEventType.translate
+                ? Icon(
+                    Icons.language,
+                    size: _Layout.menuIconSize,
+                    color: ThemeColor.color0,
+                  )
+                : CommonImage(
+                    iconName: item.icon.path,
+                    size: _Layout.menuIconSize,
+                    color: ThemeColor.color0,
+                    package: item.icon.package,
+                  ),
             Text(
               item.title,
               style: TextStyle(

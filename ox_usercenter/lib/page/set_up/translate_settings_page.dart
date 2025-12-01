@@ -40,10 +40,12 @@ class _TranslateSettingsPageState extends State<TranslateSettingsPage> {
     ) as int;
     _selectedService = TranslateService.values[serviceIndex.clamp(0, TranslateService.values.length - 1)];
 
-    _urlController.text = UserConfigTool.getSetting(
+    final savedUrl = UserConfigTool.getSetting(
       StorageSettingKey.KEY_TRANSLATE_URL.name,
       defaultValue: '',
     ) as String;
+    // Set default URL to local LibreTranslate service if not configured
+    _urlController.text = savedUrl.isEmpty ? 'http://localhost:5000/translate' : savedUrl;
 
     _apiKeyController.text = UserConfigTool.getSetting(
       StorageSettingKey.KEY_TRANSLATE_API_KEY.name,

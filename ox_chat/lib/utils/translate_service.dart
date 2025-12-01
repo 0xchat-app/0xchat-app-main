@@ -6,7 +6,7 @@ import 'package:ox_localizable/ox_localizable.dart';
 
 /// Translation service for translating text messages
 class TranslateService {
-  static const String _defaultLibreTranslateUrl = 'https://libretranslate.com/translate';
+  static const String _defaultLibreTranslateUrl = 'http://localhost:5000/translate';
 
   /// Translate text using the configured translation service
   Future<String?> translate(String text) async {
@@ -42,17 +42,97 @@ class TranslateService {
     return null;
   }
 
+  /// Detect language of text
+  Future<String?> _detectLanguage(String text, String baseUrl, String apiKey) async {
+    try {
+      // Build detect URL from base URL
+      String finalDetectUrl;
+      if (baseUrl.endsWith('/translate')) {
+        finalDetectUrl = baseUrl.replaceAll('/translate', '/detect');
+      } else if (baseUrl.endsWith('/')) {
+        finalDetectUrl = '${baseUrl}detect';
+      } else {
+        finalDetectUrl = '$baseUrl/detect';
+      }
+
+      final requestData = {
+        'q': text,
+      };
+
+      final headers = <String, String>{
+        'Content-Type': 'application/json',
+      };
+
+      if (apiKey.isNotEmpty) {
+        requestData['api_key'] = apiKey;
+      }
+
+      final response = await OXNetwork.instance.request(
+        null,
+        url: finalDetectUrl,
+        data: requestData,
+        header: headers,
+        contentType: OXNetwork.CONTENT_TYPE_JSON,
+        requestType: RequestType.POST,
+        showLoading: false,
+        showError: false,
+      );
+
+      if (response.code == 200 && response.data != null) {
+        final responseData = response.data;
+        if (responseData is List && responseData.isNotEmpty) {
+          final detectedLang = responseData[0] as Map?;
+          return detectedLang?['language'] as String?;
+        } else if (responseData is Map) {
+          return responseData['language'] as String?;
+        } else if (responseData is String) {
+          try {
+            final jsonData = json.decode(responseData);
+            if (jsonData is List && jsonData.isNotEmpty) {
+              final detectedLang = jsonData[0] as Map?;
+              return detectedLang?['language'] as String?;
+            } else if (jsonData is Map) {
+              return jsonData['language'] as String?;
+            }
+          } catch (_) {
+            // If parsing fails, return null
+          }
+        }
+      }
+
+      return null;
+    } catch (e) {
+      print('Language detection error: $e');
+      return null;
+    }
+  }
+
   /// Translate using LibreTranslate API
+  /// Returns the original text if source and target languages are the same
   Future<String?> _translateWithLibreTranslate(
     String text,
     String baseUrl,
     String apiKey,
   ) async {
     try {
-      // Detect source language (auto-detect)
-      final sourceLang = 'auto';
       // Get target language from current locale
       final targetLang = _getTargetLanguage();
+
+      // Try to detect source language first
+      String? detectedLang;
+      try {
+        detectedLang = await _detectLanguage(text, baseUrl, apiKey);
+        // If detected language is the same as target language, return original text
+        if (detectedLang != null && detectedLang == targetLang) {
+          return text; // Return original text instead of null
+        }
+      } catch (e) {
+        // If detection fails, continue with auto-detect
+        print('Language detection failed, using auto-detect: $e');
+      }
+
+      // Use detected language or auto-detect
+      final sourceLang = detectedLang ?? 'auto';
 
       final translateUrl = baseUrl.endsWith('/translate')
           ? baseUrl
@@ -84,22 +164,53 @@ class TranslateService {
         showError: false,
       );
 
+      print('Translation response code: ${response.code}');
+      
       if (response.code == 200 && response.data != null) {
         final responseData = response.data;
+        print('Translation response data type: ${responseData.runtimeType}');
+        
         if (responseData is Map) {
           final translatedText = responseData['translatedText'] as String?;
-          return translatedText;
+          print('Translated text: $translatedText');
+          // Check if translation is different from original
+          if (translatedText != null && translatedText.trim() != text.trim()) {
+            return translatedText;
+          }
+          // If translation is same as original, return original text
+          print('Translation same as original, returning original text');
+          return text;
         } else if (responseData is String) {
           // Try to parse as JSON
           try {
             final jsonData = json.decode(responseData);
             if (jsonData is Map) {
               final translatedText = jsonData['translatedText'] as String?;
-              return translatedText;
+              print('Translated text (from string): $translatedText');
+              // Check if translation is different from original
+              if (translatedText != null && translatedText.trim() != text.trim()) {
+                return translatedText;
+              }
+              // If translation is same as original, return original text
+              print('Translation same as original, returning original text');
+              return text;
             }
-          } catch (_) {
+          } catch (e) {
+            print('JSON parsing error: $e');
             // If parsing fails, return null
           }
+        }
+      } else {
+        print('Translation failed: code=${response.code}, data=${response.data}');
+        // Provide specific error messages based on response code
+        if (response.code == 502) {
+          throw Exception(Localized.text('ox_chat.translate_service_initializing'));
+        } else if (response.code == 503) {
+          throw Exception(Localized.text('ox_chat.translate_service_unavailable'));
+        } else if (response.code >= 400) {
+          throw Exception(Localized.text('ox_chat.translate_service_error').replaceAll(r'${code}', response.code.toString()));
+        } else {
+          throw Exception(Localized.text('ox_chat.translate_network_error'));
         }
       }
 

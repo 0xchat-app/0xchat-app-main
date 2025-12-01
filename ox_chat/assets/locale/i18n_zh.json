@@ -356,5 +356,10 @@
   "translate_empty_message": "消息内容为空，无法翻译",
   "translate_failed": "翻译失败",
   "translate_error": "翻译出错，请稍后重试",
-  "translate_hide": "隐藏翻译"
+  "translate_not_supported": "无法翻译（可能是同种语言或服务不可用）",
+  "translate_hide": "隐藏翻译",
+  "translate_service_initializing": "翻译服务正在初始化，请等待几分钟让服务完成语言模型加载",
+  "translate_service_unavailable": "翻译服务暂时不可用，请稍后重试",
+  "translate_service_error": "翻译服务错误 (${code})，请检查服务配置",
+  "translate_network_error": "翻译失败，请检查网络连接和服务状态"
 }
