@@ -49,10 +49,36 @@ class OXServerManager {
 
   void loadConnectICEServer() async {
     List<ICEServerModel> connectICEServerList = await getICEServerList();
-    if(connectICEServerList.isEmpty){
-      connectICEServerList.addAll(ICEServerModel.defaultICEServers);
+    
+    // Filter out old servers
+    final oldServerPatterns = [
+      'rtc.0xchat.com',
+      'rtc2.0xchat.com',
+      'rtc3.0xchat.com',
+      'rtc4.0xchat.com',
+      'rtc5.0xchat.com',
+      'rtc6.0xchat.com',
+    ];
+    connectICEServerList = connectICEServerList.where((server) {
+      final host = server.host;
+      return !oldServerPatterns.any((pattern) => host.contains(pattern));
+    }).toList();
+    
+    // Ensure all default servers are in the list
+    final defaultServers = ICEServerModel.defaultICEServers;
+    final existingUrls = connectICEServerList.map((s) => s.url).toSet();
+    
+    for (var defaultServer in defaultServers) {
+      if (!existingUrls.contains(defaultServer.url)) {
+        connectICEServerList.add(defaultServer);
+      }
+    }
+    
+    // Save if list changed
+    if (connectICEServerList.isNotEmpty) {
       await saveICEServerList(connectICEServerList);
     }
+    
     iCESeverModelList = connectICEServerList;
     List<FileStorageServer> tempFileStorageServers = await getFileStorageServers();
     if(tempFileStorageServers.isEmpty) {

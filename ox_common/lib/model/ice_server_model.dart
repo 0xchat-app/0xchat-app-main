@@ -50,6 +50,24 @@ class ICEServerModel {
 
   String get host => isTurnAddress ? domain.split(':')[0] : url;
 
+  /// Get display name for the server (e.g., rtc1, rtc3, rtc4 instead of IP)
+  String get displayName {
+    if (!isTurnAddress) return url;
+    final hostPart = domain.split(':')[0];
+    
+    // Map IP addresses to friendly names
+    switch (hostPart) {
+      case '52.76.210.159':
+        return 'rtc1.0xchat.com';
+      case '13.213.17.140':
+        return 'rtc3.0xchat.com';
+      case '15.222.242.167':
+        return 'rtc4.0xchat.com';
+      default:
+        return hostPart;
+    }
+  }
+
   String get domain => (isTurnAddress && url.contains('@')) ? url.split('@')[1] : url;
 
   factory ICEServerModel.fromJson(Map<String, dynamic> json) {
