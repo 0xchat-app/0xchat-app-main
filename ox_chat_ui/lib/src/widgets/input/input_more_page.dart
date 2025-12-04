@@ -33,11 +33,16 @@ class _InputMorePageState extends State<InputMorePage> {
 
   @override
   Widget build(BuildContext context) {
-    final maxAvailableWidth = MediaQuery.of(context).size.width - MediaQuery.of(context).padding.horizontal;
+    final mediaQuery = MediaQuery.of(context);
+    final maxAvailableWidth = mediaQuery.size.width - mediaQuery.padding.horizontal;
     final margin = EdgeInsets.only(top: 4.px);
-    final padding = EdgeInsets.symmetric(
-      horizontal: 14.px,
-      vertical: 20.px,
+    // Add bottom padding to avoid Android gesture navigation area
+    final bottomPadding = mediaQuery.padding.bottom > 0 ? mediaQuery.padding.bottom : 0.0;
+    final padding = EdgeInsets.only(
+      left: 14.px,
+      right: 14.px,
+      top: 20.px,
+      bottom: 20.px + bottomPadding,
     );
     final crossAxisCount = 4;
     final crossAxisSpacing = 22.px;
@@ -65,6 +70,7 @@ class _InputMorePageState extends State<InputMorePage> {
           children: List.generate(widget.items.length, (index) {
             final item = widget.items[index];
             return GestureDetector(
+              behavior: HitTestBehavior.opaque, // Ensure touch events are handled properly
               child: Container(
                 color: Colors.transparent, // Background color for each grid
                 child: Column(
@@ -106,31 +112,4 @@ class _InputMorePageState extends State<InputMorePage> {
     );
   }
 
-  Widget _buildItem(InputMoreItem item) =>
-    GestureDetector(
-      child: Container(
-        color: Colors.transparent, // Background color for each grid
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: Adapt.px(48),
-              height: Adapt.px(48),
-              margin: EdgeInsets.only(bottom: Adapt.px(8)),
-              child: CommonImage(
-                iconName: item.iconName,
-                package: 'ox_chat_ui',
-                useTheme: true,
-              ),
-            ),
-            Text(
-              '${item.title()}',
-              style: TextStyle(fontSize: 12.0),
-            ),
-          ],
-        ),
-      ),
-      onTap: () => item.action(context),
-    );
 }
