@@ -88,15 +88,6 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
     List<RelayDBISAR> relayList = _getRelayList(relayType);
     List<RelayDBISAR> recommendRelayList = _getRecommendRelayList(relayType);
 
-    // For search relay, if no relay is selected, default to all recommended ones
-    if (relayType == RelayType.search && relayList.isEmpty && recommendRelayList.isNotEmpty) {
-      List<String> defaultRelays = recommendRelayList.map((relay) => relay.url).toList();
-      for (String relay in defaultRelays) {
-        await Account.sharedInstance.addSearchRelay(relay);
-      }
-      relayList = _getRelayList(relayType);
-    }
-
     // For all relay types, filter out relays that are already in the list
     recommendRelayList.removeWhere((recommendRelay) {
       return relayList.any((relay) => relay.url == recommendRelay.url);
@@ -155,25 +146,23 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
         title: Localized.text('ox_usercenter.relays'),
         titleTextColor: ThemeColor.color0,
         actions: [
-          // For search relay, no edit button needed
-          if (_relayType != RelayType.search)
-            OXButton(
-              highlightColor: Colors.transparent,
-              color: Colors.transparent,
-              minWidth: Adapt.px(44),
-              height: Adapt.px(44),
-              child: CommonImage(
-                iconName: _isEditing ? 'icon_done.png' : 'icon_edit.png',
-                width: Adapt.px(24),
-                height: Adapt.px(24),
-                useTheme: true,
-              ),
-              onPressed: () {
-                setState(() {
-                  _isEditing = !_isEditing;
-                });
-              },
+          OXButton(
+            highlightColor: Colors.transparent,
+            color: Colors.transparent,
+            minWidth: Adapt.px(44),
+            height: Adapt.px(44),
+            child: CommonImage(
+              iconName: _isEditing ? 'icon_done.png' : 'icon_edit.png',
+              width: Adapt.px(24),
+              height: Adapt.px(24),
+              useTheme: true,
             ),
+            onPressed: () {
+              setState(() {
+                _isEditing = !_isEditing;
+              });
+            },
+          ),
         ],
       ),
       backgroundColor: ThemeColor.color190,
@@ -293,9 +282,7 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
                       padding: EdgeInsets.only(top: 24.px, bottom: 12.px),
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        _relayType == RelayType.search
-                            ? Localized.text('ox_usercenter.str_selected_search_relay')
-                            : '${Localized.text('ox_usercenter.str_connected_to_relay')} ${_relayType.sign()}',
+                        '${Localized.text('ox_usercenter.str_connected_to_relay')} ${_relayType.sign()}',
                         style: TextStyle(
                           color: ThemeColor.color0,
                           fontSize: Adapt.px(16),
@@ -317,11 +304,9 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
                     ),
                   ],
                   if (recommendRelayList.isNotEmpty)
-                    _relayType == RelayType.search
-                        ? _buildSearchRelayRecommendList(recommendRelayList, relayList)
-                        : RelayCommendWidget(recommendRelayList, (RelayDBISAR relayDB) {
-                            _addOnTap(upcomingRelay: relayDB.url);
-                          }),
+                    RelayCommendWidget(recommendRelayList, (RelayDBISAR relayDB) {
+                      _addOnTap(upcomingRelay: relayDB.url);
+                    }),
                 ],
               ).setPadding(
                   EdgeInsets.only(left: Adapt.px(24), right: Adapt.px(24), bottom: Adapt.px(24))),
@@ -342,14 +327,7 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
         GestureDetector(
           behavior: HitTestBehavior.translucent,
           onTap: () {
-            if (_relayType == RelayType.search) {
-              // For search relay, clicking toggles the selection
-              if (relayList.any((r) => r.url == _model.url)) {
-                _deleteOnTap(_model);
-              } else {
-                _addOnTap(upcomingRelay: _model.url);
-              }
-            } else if (!_isEditing) {
+            if (!_isEditing) {
               OXNavigator.pushPage(
                   context,
                   (context) => RelayDetailPage(
@@ -405,17 +383,6 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
   }
 
   Widget _relayStateImage(RelayDBISAR relayDB) {
-    // For search relay, show selected icon if it's in the list
-    if (_relayType == RelayType.search) {
-      List<RelayDBISAR> relayList = _relayListMap[_relayType]!;
-      bool isSelected = relayList.any((r) => r.url == relayDB.url);
-      return CommonImage(
-        iconName: isSelected ? 'icon_pic_selected.png' : 'icon_pic_unselected.png',
-        width: Adapt.px(24),
-        height: Adapt.px(24),
-      );
-    }
-    
     if (_isEditing) {
       return GestureDetector(
           behavior: HitTestBehavior.translucent,
@@ -618,108 +585,6 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
   @override
   void didPopNext() {
     _pingLifecycleController.isPaused.value = false;
-  }
-
-  Widget _buildSearchRelayRecommendList(List<RelayDBISAR> recommendRelayList, List<RelayDBISAR> relayList) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: double.infinity,
-          height: Adapt.px(58),
-          alignment: Alignment.centerLeft,
-          child: Text(
-            Localized.text('ox_usercenter.recommend_relay'),
-            style: TextStyle(
-              color: ThemeColor.color0,
-              fontSize: Adapt.px(16),
-            ),
-          ),
-        ),
-        Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(Adapt.px(16)),
-            color: ThemeColor.color180,
-          ),
-          child: ListView.builder(
-            physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            itemBuilder: (context, index) => _buildSearchRelayRecommendItem(context, index, recommendRelayList, relayList),
-            itemCount: recommendRelayList.length,
-            padding: EdgeInsets.zero,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSearchRelayRecommendItem(BuildContext context, int index, List<RelayDBISAR> recommendRelayList, List<RelayDBISAR> relayList) {
-    RelayDBISAR relayDB = recommendRelayList[index];
-    final host = relayDB.url.split('//').last;
-    bool isSelected = relayList.any((r) => r.url == relayDB.url);
-    
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onTap: () {
-            if (isSelected) {
-              _deleteOnTap(relayDB);
-            } else {
-              _addOnTap(upcomingRelay: relayDB.url);
-            }
-          },
-          child: Container(
-            width: double.infinity,
-            padding: EdgeInsets.symmetric(horizontal: 16.px, vertical: 10.px),
-            child: Row(
-              children: [
-                CommonImage(
-                  iconName: 'icon_settings_relays.png',
-                  width: Adapt.px(32),
-                  height: Adapt.px(32),
-                  package: 'ox_usercenter',
-                ),
-                Expanded(
-                  child: Container(
-                    margin: EdgeInsets.symmetric(horizontal: 12.px),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          relayDB.url,
-                          style: TextStyle(
-                            color: ThemeColor.color0,
-                            fontSize: Adapt.px(16),
-                          ),
-                        ),
-                        PingDelayTimeWidget(
-                          host: host,
-                          controller: _pingLifecycleController,
-                        ).setPaddingOnly(top: 4.px)
-                      ],
-                    ),
-                  ),
-                ),
-                CommonImage(
-                  iconName: isSelected ? 'icon_pic_selected.png' : 'icon_pic_unselected.png',
-                  width: Adapt.px(24),
-                  height: Adapt.px(24),
-                ),
-              ],
-            ),
-          ),
-        ),
-        recommendRelayList.length > 1 && recommendRelayList.length - 1 != index
-            ? Divider(
-                height: Adapt.px(0.5),
-                color: ThemeColor.color160,
-              )
-            : Container(),
-      ],
-    );
   }
 }
 
