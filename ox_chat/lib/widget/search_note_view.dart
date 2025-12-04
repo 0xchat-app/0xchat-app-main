@@ -21,7 +21,9 @@ class _SearchNoteViewState extends State<SearchNoteView>
   @override
   void initState() {
     super.initState();
-    if (_notes.isEmpty) {
+    if (widget.searchQuery.isNotEmpty) {
+      _searchNotes(widget.searchQuery);
+    } else {
       updateStateView(CommonStateView.CommonStateView_NoData);
     }
   }
@@ -63,14 +65,23 @@ class _SearchNoteViewState extends State<SearchNoteView>
   }
 
   void _searchNotes(String keyword) async {
+    if (keyword.isEmpty) {
+      _notes.clear();
+      updateStateView(CommonStateView.CommonStateView_NoData);
+      setState(() {});
+      return;
+    }
     List<NoteDBISAR> noteList = await Moment.sharedInstance.searchNotesWithKeyword(keyword);
+    _notes.clear();
     if (noteList.isEmpty) {
       updateStateView(CommonStateView.CommonStateView_NoData);
     } else {
       _notes.addAll(noteList);
       updateStateView(CommonStateView.CommonStateView_None);
     }
-    setState(() {});
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   @override

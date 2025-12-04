@@ -111,23 +111,24 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
   Future<void> _searchContactsFromRelay(String keyword) async {
     List<RelayDBISAR> searchRelayList = Account.sharedInstance.getMySearchRelayList();
     
-    // If no search relay is selected, use the first recommended one
+    // If no search relay is selected, use all recommended ones
     if (searchRelayList.isEmpty) {
       List<RelayDBISAR> recommendRelayList = Account.sharedInstance.getMyRecommendSearchRelaysList();
       if (recommendRelayList.isEmpty) {
         return;
       }
-      // Auto-select the first recommended relay
-      String defaultRelay = recommendRelayList.first.url;
-      await Account.sharedInstance.setSearchRelay(defaultRelay);
+      // Auto-select all recommended relays
+      for (var relay in recommendRelayList) {
+        await Account.sharedInstance.addSearchRelay(relay.url);
+      }
       searchRelayList = Account.sharedInstance.getMySearchRelayList();
       if (searchRelayList.isEmpty) {
         return;
       }
     }
 
-    String searchRelay = searchRelayList.first.url;
-    await Connect.sharedInstance.connectRelays([searchRelay], relayKind: RelayKind.search);
+    List<String> searchRelays = searchRelayList.map((r) => r.url).toList();
+    await Connect.sharedInstance.connectRelays(searchRelays, relayKind: RelayKind.search);
     
     Filter searchFilter = Nip50.encode(
       search: keyword,
@@ -138,7 +139,7 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
     Map<String, UserDBISAR> result = {};
     Connect.sharedInstance.addSubscription(
       [searchFilter],
-      relays: [searchRelay],
+      relays: searchRelays,
       relayKinds: [RelayKind.search],
       eventCallBack: (event, relay) async {
         if (event.kind == 0) {
@@ -165,11 +166,6 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
           if (mounted) {
             setState(() {});
           }
-          // Close the search relay connection after search
-          Connect.sharedInstance.closeConnects([searchRelay], RelayKind.search);
-        } else if (unRelays.isEmpty) {
-          // Close connection even if no results
-          Connect.sharedInstance.closeConnects([searchRelay], RelayKind.search);
         }
       },
     );

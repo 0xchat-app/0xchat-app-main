@@ -67,10 +67,6 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
   void _relayTypeChanged(int index) {
     setState(() {
       _relayType = RelayType.values[index];
-      // Reset editing state when switching to search relay (no edit mode for search)
-      if (_relayType == RelayType.search) {
-        _isEditing = false;
-      }
     });
   }
 
@@ -92,20 +88,19 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
     List<RelayDBISAR> relayList = _getRelayList(relayType);
     List<RelayDBISAR> recommendRelayList = _getRecommendRelayList(relayType);
 
-    // For search relay, if no relay is selected, default to the first recommended one
+    // For search relay, if no relay is selected, default to all recommended ones
     if (relayType == RelayType.search && relayList.isEmpty && recommendRelayList.isNotEmpty) {
-      String defaultRelay = recommendRelayList.first.url;
-      await Account.sharedInstance.setSearchRelay(defaultRelay);
+      List<String> defaultRelays = recommendRelayList.map((relay) => relay.url).toList();
+      for (String relay in defaultRelays) {
+        await Account.sharedInstance.addSearchRelay(relay);
+      }
       relayList = _getRelayList(relayType);
     }
 
-    // For search relay, don't remove selected relay from recommend list (allow switching)
-    // For other relay types, filter out relays that are already in the list
-    if (relayType != RelayType.search) {
-      recommendRelayList.removeWhere((recommendRelay) {
-        return relayList.any((relay) => relay.url == recommendRelay.url);
-      });
-    }
+    // For all relay types, filter out relays that are already in the list
+    recommendRelayList.removeWhere((recommendRelay) {
+      return relayList.any((relay) => relay.url == recommendRelay.url);
+    });
 
     _relayListMap[relayType] = relayList;
     _recommendRelayListMap[relayType] = recommendRelayList;
@@ -348,8 +343,12 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
           behavior: HitTestBehavior.translucent,
           onTap: () {
             if (_relayType == RelayType.search) {
-              // For search relay, clicking switches the selection
-              _addOnTap(upcomingRelay: _model.url);
+              // For search relay, clicking toggles the selection
+              if (relayList.any((r) => r.url == _model.url)) {
+                _deleteOnTap(_model);
+              } else {
+                _addOnTap(upcomingRelay: _model.url);
+              }
             } else if (!_isEditing) {
               OXNavigator.pushPage(
                   context,
@@ -406,10 +405,12 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
   }
 
   Widget _relayStateImage(RelayDBISAR relayDB) {
-    // For search relay, always show selected icon (no edit/delete mode)
+    // For search relay, show selected icon if it's in the list
     if (_relayType == RelayType.search) {
+      List<RelayDBISAR> relayList = _relayListMap[_relayType]!;
+      bool isSelected = relayList.any((r) => r.url == relayDB.url);
       return CommonImage(
-        iconName: 'icon_pic_selected.png',
+        iconName: isSelected ? 'icon_pic_selected.png' : 'icon_pic_unselected.png',
         width: Adapt.px(24),
         height: Adapt.px(24),
       );
@@ -551,19 +552,11 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
           await Account.sharedInstance.addOutboxRelay(upcomingRelay);
           break;
         case RelayType.search:
-          await Account.sharedInstance.setSearchRelay(upcomingRelay);
+          await Account.sharedInstance.addSearchRelay(upcomingRelay);
           break;
       }
-      // For search relay, replace the existing one instead of adding
-      // But don't remove from recommend list (keep it for switching)
-      if (_relayType == RelayType.search) {
-        relayList.clear();
-        relayList.add(RelayDBISAR(url: upcomingRelay!));
-        // Don't remove from recommend list for search relay
-      } else {
-        recommendRelayList.removeWhere((element) => element.url == upcomingRelay);
-        relayList.add(RelayDBISAR(url: upcomingRelay!));
-      }
+      recommendRelayList.removeWhere((element) => element.url == upcomingRelay);
+      relayList.add(RelayDBISAR(url: upcomingRelay));
       setState(() {
         if (isUserInput) {
           _relayTextFieldControll.text = '';
@@ -598,7 +591,7 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
                     await Account.sharedInstance.removeOutboxRelay(relayModel.url);
                     break;
                   case RelayType.search:
-                    await Account.sharedInstance.removeSearchRelay();
+                    await Account.sharedInstance.removeSearchRelay(relayModel.url);
                     break;
                 }
                 OXNavigator.pop(context);
@@ -628,7 +621,6 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
   }
 
   Widget _buildSearchRelayRecommendList(List<RelayDBISAR> recommendRelayList, List<RelayDBISAR> relayList) {
-    String? selectedRelay = relayList.isNotEmpty ? relayList.first.url : null;
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -653,7 +645,7 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
           child: ListView.builder(
             physics: const NeverScrollableScrollPhysics(),
             shrinkWrap: true,
-            itemBuilder: (context, index) => _buildSearchRelayRecommendItem(context, index, recommendRelayList, selectedRelay),
+            itemBuilder: (context, index) => _buildSearchRelayRecommendItem(context, index, recommendRelayList, relayList),
             itemCount: recommendRelayList.length,
             padding: EdgeInsets.zero,
           ),
@@ -662,9 +654,10 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
     );
   }
 
-  Widget _buildSearchRelayRecommendItem(BuildContext context, int index, List<RelayDBISAR> recommendRelayList, String? selectedRelay) {
+  Widget _buildSearchRelayRecommendItem(BuildContext context, int index, List<RelayDBISAR> recommendRelayList, List<RelayDBISAR> relayList) {
     RelayDBISAR relayDB = recommendRelayList[index];
     final host = relayDB.url.split('//').last;
+    bool isSelected = relayList.any((r) => r.url == relayDB.url);
     
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -672,7 +665,11 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
         GestureDetector(
           behavior: HitTestBehavior.translucent,
           onTap: () {
-            _addOnTap(upcomingRelay: relayDB.url);
+            if (isSelected) {
+              _deleteOnTap(relayDB);
+            } else {
+              _addOnTap(upcomingRelay: relayDB.url);
+            }
           },
           child: Container(
             width: double.infinity,
@@ -706,7 +703,11 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
                     ),
                   ),
                 ),
-                SizedBox(width: Adapt.px(24)),
+                CommonImage(
+                  iconName: isSelected ? 'icon_pic_selected.png' : 'icon_pic_unselected.png',
+                  width: Adapt.px(24),
+                  height: Adapt.px(24),
+                ),
               ],
             ),
           ),
