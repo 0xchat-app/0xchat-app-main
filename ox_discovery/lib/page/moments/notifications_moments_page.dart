@@ -306,6 +306,7 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
                   textSize: 12.px,
                   maxLines: 2,
                   isShowAllContent: false,
+                  showTranslateButton: false,
                   clickBlankCallback:() => _jumpMomentsPage(type,notificationDB),
                 ),
 

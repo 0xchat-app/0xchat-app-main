@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ox_common/mixin/common_state_view_mixin.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:chatcore/chat-core.dart';
 
@@ -71,16 +72,27 @@ class _SearchNoteViewState extends State<SearchNoteView>
       setState(() {});
       return;
     }
-    List<NoteDBISAR> noteList = await Moment.sharedInstance.searchNotesWithKeyword(keyword);
-    _notes.clear();
-    if (noteList.isEmpty) {
-      updateStateView(CommonStateView.CommonStateView_NoData);
-    } else {
-      _notes.addAll(noteList);
-      updateStateView(CommonStateView.CommonStateView_None);
+    // Show loading during search
+    if (!OXLoading.isShow) {
+      OXLoading.show();
     }
-    if (mounted) {
-      setState(() {});
+    try {
+      List<NoteDBISAR> noteList = await Moment.sharedInstance.searchNotesWithKeyword(keyword);
+      _notes.clear();
+      if (noteList.isEmpty) {
+        updateStateView(CommonStateView.CommonStateView_NoData);
+      } else {
+        _notes.addAll(noteList);
+        updateStateView(CommonStateView.CommonStateView_None);
+      }
+      if (mounted) {
+        setState(() {});
+      }
+    } finally {
+      // Hide loading after search completes
+      if (OXLoading.isShow) {
+        OXLoading.dismiss();
+      }
     }
   }
 

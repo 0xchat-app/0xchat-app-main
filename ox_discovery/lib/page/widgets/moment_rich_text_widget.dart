@@ -26,6 +26,7 @@ class MomentRichTextWidget extends StatefulWidget {
   final Function? clickBlankCallback;
   final Function? showMoreCallback;
   final bool isShowAllContent;
+  final bool showTranslateButton;
 
   const MomentRichTextWidget({
     super.key,
@@ -36,6 +37,7 @@ class MomentRichTextWidget extends StatefulWidget {
     this.clickBlankCallback,
     this.showMoreCallback,
     this.isShowAllContent = false,
+    this.showTranslateButton = true,
   });
 
   @override
@@ -116,7 +118,7 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget>
               children: textSpans,
             ),
           ),
-          if (hasText) _buildTranslateButton(),
+          if (hasText && widget.showTranslateButton) _buildTranslateButton(),
           if (showTranslation && translatedText != null && translatedText!.isNotEmpty)
             _buildTranslationResult(),
         ],

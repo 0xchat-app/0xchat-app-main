@@ -127,48 +127,71 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
       }
     }
 
-    List<String> searchRelays = searchRelayList.map((r) => r.url).toList();
-    await Connect.sharedInstance.connectRelays(searchRelays, relayKind: RelayKind.search);
-    
-    Filter searchFilter = Nip50.encode(
-      search: keyword,
-      kinds: [0],
-      limit: 10,
-    );
+    // Show loading during search
+    if (!OXLoading.isShow) {
+      OXLoading.show();
+    }
 
-    Map<String, UserDBISAR> result = {};
-    Connect.sharedInstance.addSubscription(
-      [searchFilter],
-      relays: searchRelays,
-      relayKinds: [RelayKind.search],
-      eventCallBack: (event, relay) async {
-        if (event.kind == 0) {
-          // Parse kind 0 event and create/update user info
-          UserDBISAR? user = await _handleKind0Event(event);
-          if (user != null) {
-            result[event.pubkey] = user;
+    try {
+      List<String> searchRelays = searchRelayList.map((r) => r.url).toList();
+      await Connect.sharedInstance.connectRelays(searchRelays, relayKind: RelayKind.search);
+      
+      Filter searchFilter = Nip50.encode(
+        search: keyword,
+        kinds: [0],
+        limit: 10,
+      );
+
+      Map<String, UserDBISAR> result = {};
+      Map<String, Event> eventMap = {}; // Store events to clean cache later
+      Connect.sharedInstance.addSubscription(
+        [searchFilter],
+        relays: searchRelays,
+        relayKinds: [RelayKind.search],
+        eventCallBack: (event, relay) async {
+          if (event.kind == 0) {
+            // Store event for cache cleanup
+            eventMap[event.id] = event;
+            // Parse kind 0 event and create/update user info
+            UserDBISAR? user = await _handleKind0Event(event);
+            if (user != null) {
+              result[event.pubkey] = user;
+            }
           }
-        }
-      },
-      eoseCallBack: (requestId, ok, relay, unRelays) async {
-        if (unRelays.isEmpty && result.isNotEmpty) {
-          List<UserDBISAR> users = result.values.toList();
-          // Remove existing group with same title if exists (from relay search)
-          String contactsTitle = 'str_title_contacts'.localized();
-          _contacts.removeWhere((group) => group.title == contactsTitle);
-          _contacts.add(
-            GroupedModel(
-              title: contactsTitle,
-              items: users,
-            ),
-          );
-          _searchResult[SearchType.contact] = _contacts;
-          if (mounted) {
-            setState(() {});
+        },
+        eoseCallBack: (requestId, ok, relay, unRelays) async {
+          if (unRelays.isEmpty && result.isNotEmpty) {
+            List<UserDBISAR> users = result.values.toList();
+            // Remove existing group with same title if exists (from relay search)
+            String contactsTitle = 'str_title_contacts'.localized();
+            _contacts.removeWhere((group) => group.title == contactsTitle);
+            _contacts.add(
+              GroupedModel(
+                title: contactsTitle,
+                items: users,
+              ),
+            );
+            _searchResult[SearchType.contact] = _contacts;
+            if (mounted) {
+              setState(() {});
+            }
           }
-        }
-      },
-    );
+          // Remove eventIds from event cache to avoid being cached for next search
+          for (Event event in eventMap.values) {
+            EventCache.sharedInstance.cacheIds.remove(event.id);
+          }
+          // Hide loading after search completes
+          if (OXLoading.isShow) {
+            OXLoading.dismiss();
+          }
+        },
+      );
+    } catch (e) {
+      // Hide loading if error occurs
+      if (OXLoading.isShow) {
+        OXLoading.dismiss();
+      }
+    }
   }
 
   /// Handle kind 0 event and create/update user info
@@ -413,8 +436,8 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
     if(value.isEmpty) {
       _loadRecentData();
     } else {
-      // Start debounce timer: trigger search after 0.5 seconds of no input
-      _searchDebounceTimer = Timer(Duration(milliseconds: 500), () {
+      // Start debounce timer: trigger search after 1 second of no input
+      _searchDebounceTimer = Timer(Duration(milliseconds: 1000), () {
         _prepareData();
       });
     }

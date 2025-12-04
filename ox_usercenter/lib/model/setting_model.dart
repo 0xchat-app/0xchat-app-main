@@ -101,6 +101,12 @@ class SettingModel {
         settingItemType: SettingItemType.sound
     ));
     settingModelList.add(SettingModel(
+        iconName: 'icon_settings_language.png',
+        title: 'ox_usercenter.translate',
+        rightContent: '',
+        settingItemType: SettingItemType.translate
+    ));
+    settingModelList.add(SettingModel(
         iconName: 'icon_database_import.png',
         title: 'ox_usercenter.str_data_revovery',
         rightContent: '',
@@ -111,12 +117,6 @@ class SettingModel {
         title: 'ox_usercenter.str_dev_log',
         rightContent: '',
         settingItemType: SettingItemType.devLog
-    ));
-    settingModelList.add(SettingModel(
-        iconName: 'icon_settings_language.png',
-        title: 'ox_usercenter.translate',
-        rightContent: '',
-        settingItemType: SettingItemType.translate
     ));
     return settingModelList;
   }
