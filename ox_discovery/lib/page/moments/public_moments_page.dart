@@ -168,7 +168,10 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
             controller: refreshController,
             enablePullDown: true,
             enablePullUp: true,
-            onRefresh: () => updateNotesList(true),
+            onRefresh: () async {
+              await Moment.sharedInstance.updateSubscriptions();
+              updateNotesList(true);
+            },
             onLoading: () => updateNotesList(false),
             child: _getMomentListWidget(),
           ),
