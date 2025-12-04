@@ -28,6 +28,7 @@ import 'package:ox_usercenter/ox_usercenter.dart';
 import 'package:ox_wallet/ox_wallet.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:dart_ping_ios/dart_ping_ios.dart';
+import 'package:ox_chat/utils/translate_service.dart';
 
 import 'http_overrides.dart';
 import 'main.reflectable.dart';
@@ -65,6 +66,16 @@ class AppInitializer {
             LogUtil.d('[App start] Tor network manager initialized');
           } catch (e) {
             LogUtil.e('[App start] Failed to initialize Tor network manager: $e');
+          }
+        });
+        
+        // Preload common translation language models in background
+        Future.microtask(() async {
+          try {
+            await TranslateService.preloadCommonLanguageModels();
+            LogUtil.d('[App start] Translation models preload started');
+          } catch (e) {
+            LogUtil.w('[App start] Failed to start translation models preload: $e');
           }
         });
         

@@ -99,3 +99,4 @@ build/
 .idea/workspace.xml
 pubspec.lock
 Podfile.lock
+/zapstore
