@@ -33,6 +33,8 @@ dependencies:
     path: ../../base_framework/ox_cache_manager
   ox_chat_ui:
     path: ../../business_modules/ox_chat_ui
+  google_mlkit_translation: ^0.13.0
+  google_mlkit_language_id: ^0.13.0
 
 
 dev_dependencies:

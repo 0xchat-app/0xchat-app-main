@@ -301,6 +301,7 @@
   "custom_proxy_mode": "自定义代理模式",
   "translate": "翻译",
   "translate_select_service": "选择服务",
+  "translate_service_google_mlkit": "Google ML Kit (离线)",
   "translate_service_libretranslate": "LibreTranslate",
   "translate_server": "服务器",
   "translate_server_custom": "自定义",

@@ -11,6 +11,7 @@ import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_usercenter/widget/bottom_sheet_dialog.dart';
 
 enum TranslateService {
+  googleMLKit,
   libreTranslate,
 }
 
@@ -22,7 +23,7 @@ class TranslateSettingsPage extends StatefulWidget {
 }
 
 class _TranslateSettingsPageState extends State<TranslateSettingsPage> {
-  TranslateService _selectedService = TranslateService.libreTranslate;
+  TranslateService _selectedService = TranslateService.googleMLKit;
   final TextEditingController _urlController = TextEditingController();
   final TextEditingController _apiKeyController = TextEditingController();
 
@@ -36,7 +37,7 @@ class _TranslateSettingsPageState extends State<TranslateSettingsPage> {
     // Load saved settings
     final serviceIndex = UserConfigTool.getSetting(
       StorageSettingKey.KEY_TRANSLATE_SERVICE.name,
-      defaultValue: 0,
+      defaultValue: 0, // Default to Google ML Kit
     ) as int;
     _selectedService = TranslateService.values[serviceIndex.clamp(0, TranslateService.values.length - 1)];
 
@@ -71,6 +72,8 @@ class _TranslateSettingsPageState extends State<TranslateSettingsPage> {
 
   String _getServiceName(TranslateService service) {
     switch (service) {
+      case TranslateService.googleMLKit:
+        return Localized.text('ox_usercenter.translate_service_google_mlkit');
       case TranslateService.libreTranslate:
         return Localized.text('ox_usercenter.translate_service_libretranslate');
     }
@@ -126,18 +129,20 @@ class _TranslateSettingsPageState extends State<TranslateSettingsPage> {
                   _getServiceName(_selectedService),
                   () => _showServiceSelector(),
                 ),
-                Divider(height: Adapt.px(0.5), color: ThemeColor.color160),
-                _buildTextField(
-                  Localized.text('ox_usercenter.translate_url'),
-                  _urlController,
-                  hintText: '',
-                ),
-                Divider(height: Adapt.px(0.5), color: ThemeColor.color160),
-                _buildTextField(
-                  Localized.text('ox_usercenter.translate_api_key'),
-                  _apiKeyController,
-                  hintText: Localized.text('ox_usercenter.translate_api_key_optional'),
-                ),
+                if (_selectedService == TranslateService.libreTranslate) ...[
+                  Divider(height: Adapt.px(0.5), color: ThemeColor.color160),
+                  _buildTextField(
+                    Localized.text('ox_usercenter.translate_url'),
+                    _urlController,
+                    hintText: '',
+                  ),
+                  Divider(height: Adapt.px(0.5), color: ThemeColor.color160),
+                  _buildTextField(
+                    Localized.text('ox_usercenter.translate_api_key'),
+                    _apiKeyController,
+                    hintText: Localized.text('ox_usercenter.translate_api_key_optional'),
+                  ),
+                ],
               ],
             ),
           ),

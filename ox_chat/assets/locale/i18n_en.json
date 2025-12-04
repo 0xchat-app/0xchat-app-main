@@ -376,5 +376,6 @@
   "translate_network_error": "Translation failed, please check network connection and service status",
   "translate_not_configured_title": "Translation Service Not Configured",
   "translate_not_configured_content": "Please configure the translation service URL first to use translation",
-  "translate_goto_settings": "Go to Settings"
+  "translate_goto_settings": "Go to Settings",
+  "translate_downloading_model": "Downloading language pack, please wait a moment and try again"
 }

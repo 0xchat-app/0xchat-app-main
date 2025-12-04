@@ -729,35 +729,44 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
     }
 
     // Check if translation service is configured
-    final url = UserConfigTool.getSetting(
-      StorageSettingKey.KEY_TRANSLATE_URL.name,
-      defaultValue: '',
-    ) as String;
+    // Only check URL for LibreTranslate (serviceIndex == 1), Google ML Kit doesn't need URL
+    final serviceIndex = UserConfigTool.getSetting(
+      StorageSettingKey.KEY_TRANSLATE_SERVICE.name,
+      defaultValue: 0, // Default to Google ML Kit
+    ) as int;
     
-    // If URL is not configured, show dialog to navigate to settings
-    if (url.isEmpty) {
-      final shouldGoToSettings = await OXCommonHintDialog.show<bool>(
-        context,
-        title: Localized.text('ox_chat.translate_not_configured_title'),
-        content: Localized.text('ox_chat.translate_not_configured_content'),
-        isRowAction: true,
-        actionList: [
-          OXCommonHintAction.cancel(onTap: () {
-            OXNavigator.pop(context, false);
-          }),
-          OXCommonHintAction.sure(
-            text: Localized.text('ox_chat.translate_goto_settings'),
-            onTap: () {
-              OXNavigator.pop(context, true);
-            },
-          ),
-        ],
-      );
+    if (serviceIndex == 1) {
+      // LibreTranslate requires URL configuration
+      final url = UserConfigTool.getSetting(
+        StorageSettingKey.KEY_TRANSLATE_URL.name,
+        defaultValue: '',
+      ) as String;
       
-      if (shouldGoToSettings == true) {
-        OXNavigator.pushPage(context, (context) => TranslateSettings.TranslateSettingsPage());
+      // If URL is not configured, show dialog to navigate to settings
+      if (url.isEmpty) {
+        final shouldGoToSettings = await OXCommonHintDialog.show<bool>(
+          context,
+          title: Localized.text('ox_chat.translate_not_configured_title'),
+          content: Localized.text('ox_chat.translate_not_configured_content'),
+          isRowAction: true,
+          actionList: [
+            OXCommonHintAction.cancel(onTap: () {
+              OXNavigator.pop(context, false);
+            }),
+            OXCommonHintAction.sure(
+              text: Localized.text('ox_chat.translate_goto_settings'),
+              onTap: () {
+                OXNavigator.pop(context, true);
+              },
+            ),
+          ],
+        );
+        
+        if (shouldGoToSettings == true) {
+          OXNavigator.pushPage(context, (context) => TranslateSettings.TranslateSettingsPage());
+        }
+        return;
       }
-      return;
     }
 
     // Check if translation already exists in metadata

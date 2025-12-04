@@ -365,5 +365,6 @@
   "translate_network_error": "翻译失败，请检查网络连接和服务状态",
   "translate_not_configured_title": "翻译服务未配置",
   "translate_not_configured_content": "请先配置翻译服务 URL 才能使用翻译功能",
-  "translate_goto_settings": "前往设置"
+  "translate_goto_settings": "前往设置",
+  "translate_downloading_model": "正在下载语言包，请稍候片刻再尝试翻译"
 }

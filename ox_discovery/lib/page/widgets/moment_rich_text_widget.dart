@@ -330,50 +330,63 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget>
   void _handleTranslate() async {
     if (showTranslation) {
       // Toggle hide translation
-      setState(() {
-        showTranslation = false;
-      });
+      if (mounted) {
+        setState(() {
+          showTranslation = false;
+        });
+      }
       return;
     }
 
     // If translation already exists, just show it
     if (translatedText != null && translatedText!.isNotEmpty) {
-      setState(() {
-        showTranslation = true;
-      });
+      if (mounted) {
+        setState(() {
+          showTranslation = true;
+        });
+      }
       return;
     }
 
     // Check if translation service is configured
-    final url = UserConfigTool.getSetting(
-      StorageSettingKey.KEY_TRANSLATE_URL.name,
-      defaultValue: '',
-    ) as String;
+    // Only check URL for LibreTranslate (serviceIndex == 1), Google ML Kit doesn't need URL
+    final serviceIndex = UserConfigTool.getSetting(
+      StorageSettingKey.KEY_TRANSLATE_SERVICE.name,
+      defaultValue: 0, // Default to Google ML Kit
+    ) as int;
     
-    // If URL is not configured, show dialog to navigate to settings
-    if (url.isEmpty) {
-      final shouldGoToSettings = await OXCommonHintDialog.show<bool>(
-        context,
-        title: Localized.text('ox_chat.translate_not_configured_title'),
-        content: Localized.text('ox_chat.translate_not_configured_content'),
-        isRowAction: true,
-        actionList: [
-          OXCommonHintAction.cancel(onTap: () {
-            OXNavigator.pop(context, false);
-          }),
-          OXCommonHintAction.sure(
-            text: Localized.text('ox_chat.translate_goto_settings'),
-            onTap: () {
-              OXNavigator.pop(context, true);
-            },
-          ),
-        ],
-      );
+    if (serviceIndex == 1) {
+      // LibreTranslate requires URL configuration
+      final url = UserConfigTool.getSetting(
+        StorageSettingKey.KEY_TRANSLATE_URL.name,
+        defaultValue: '',
+      ) as String;
       
-      if (shouldGoToSettings == true) {
-        OXNavigator.pushPage(context, (context) => TranslateSettings.TranslateSettingsPage());
+      // If URL is not configured, show dialog to navigate to settings
+      if (url.isEmpty) {
+        final shouldGoToSettings = await OXCommonHintDialog.show<bool>(
+          context,
+          title: Localized.text('ox_chat.translate_not_configured_title'),
+          content: Localized.text('ox_chat.translate_not_configured_content'),
+          isRowAction: true,
+          actionList: [
+            OXCommonHintAction.cancel(onTap: () {
+              OXNavigator.pop(context, false);
+            }),
+            OXCommonHintAction.sure(
+              text: Localized.text('ox_chat.translate_goto_settings'),
+              onTap: () {
+                OXNavigator.pop(context, true);
+              },
+            ),
+          ],
+        );
+        
+        if (shouldGoToSettings == true) {
+          OXNavigator.pushPage(context, (context) => TranslateSettings.TranslateSettingsPage());
+        }
+        return;
       }
-      return;
     }
 
     // Perform translation
@@ -383,37 +396,45 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget>
       return;
     }
 
-    setState(() {
-      isTranslating = true;
-    });
+    if (mounted) {
+      setState(() {
+        isTranslating = true;
+      });
+    }
 
     try {
       final translationService = TranslateService();
       final result = await translationService.translate(plainText);
       
-      setState(() {
-        isTranslating = false;
-        if (result != null && result.isNotEmpty) {
-          translatedText = result;
-          showTranslation = true;
-        } else {
-          CommonToast.instance.show(context, Localized.text('ox_chat.translate_not_supported'));
-        }
-      });
+      if (mounted) {
+        setState(() {
+          isTranslating = false;
+          if (result != null && result.isNotEmpty) {
+            translatedText = result;
+            showTranslation = true;
+          } else {
+            CommonToast.instance.show(context, Localized.text('ox_chat.translate_not_supported'));
+          }
+        });
+      }
     } catch (e) {
-      setState(() {
-        isTranslating = false;
-      });
-      String errorMessage = e.toString();
-      // Extract meaningful error message
-      if (errorMessage.contains('Exception:')) {
-        errorMessage = errorMessage.split('Exception:').last.trim();
+      if (mounted) {
+        setState(() {
+          isTranslating = false;
+        });
       }
-      // If error message is too technical, use default
-      if (errorMessage.isEmpty || errorMessage.length > 100) {
-        errorMessage = Localized.text('ox_chat.translate_error');
+      if (mounted) {
+        String errorMessage = e.toString();
+        // Extract meaningful error message
+        if (errorMessage.contains('Exception:')) {
+          errorMessage = errorMessage.split('Exception:').last.trim();
+        }
+        // If error message is too technical, use default
+        if (errorMessage.isEmpty || errorMessage.length > 100) {
+          errorMessage = Localized.text('ox_chat.translate_error');
+        }
+        CommonToast.instance.show(context, errorMessage);
       }
-      CommonToast.instance.show(context, errorMessage);
     }
   }
 }

@@ -301,6 +301,7 @@
   "custom_proxy_mode": "Custom Proxy Mode",
   "translate": "Translate",
   "translate_select_service": "Select Service",
+  "translate_service_google_mlkit": "Google ML Kit (Offline)",
   "translate_service_libretranslate": "LibreTranslate",
   "translate_server": "Server",
   "translate_server_custom": "Custom",
