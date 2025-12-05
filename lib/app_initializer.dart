@@ -70,13 +70,9 @@ class AppInitializer {
         });
         
         // Preload common translation language models in background
-        Future.microtask(() async {
-          try {
-            await TranslateService.preloadCommonLanguageModels();
-            LogUtil.d('[App start] Translation models preload started');
-          } catch (e) {
-            LogUtil.w('[App start] Failed to start translation models preload: $e');
-          }
+        // Don't await - let it run completely in background
+        TranslateService.preloadCommonLanguageModels().catchError((e) {
+          LogUtil.w('[App start] Failed to start translation models preload: $e');
         });
         
         SystemChrome.setSystemUIOverlayStyle(ThemeManager.getCurrentThemeStyle().toOverlayStyle());
