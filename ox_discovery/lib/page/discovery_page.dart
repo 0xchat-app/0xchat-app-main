@@ -20,6 +20,7 @@ import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'moments/notifications_moments_page.dart';
 import 'moments/public_moments_page.dart';
+import 'moments/moments_view_page.dart';
 import 'moments/napp_page.dart';
 import 'package:ox_common/business_interface/ox_discovery/ox_discovery_model.dart';
 import 'package:flutter/cupertino.dart';
@@ -285,11 +286,14 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
             color: ThemeColor.color0,
             package: 'ox_discovery',
           ),
-          onTap: () {
-            showModalBottomSheet(
-                context: context,
-                backgroundColor: Colors.transparent,
-                builder: (context) => _buildMomentBottomDialog());
+          onTap: () async {
+            final result = await OXNavigator.presentPage(
+                context, (context) => const MomentsViewPage());
+            if (result != null && result is Map && mounted) {
+              final type = result['type'] as EPublicMomentsPageType;
+              publicMomentsPageType = type;
+              setState(() {});
+            }
           },
         ),
         SizedBox(
@@ -399,62 +403,6 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
           // ),
           SizedBox(
             width: Adapt.px(16),
-          ),
-        ],
-      ),
-    );
-  }
-
-
-  Widget _buildMomentBottomDialog() {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(Adapt.px(12)),
-        color: ThemeColor.color180,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _buildMomentItem(
-            isSelect: publicMomentsPageType == EPublicMomentsPageType.contacts,
-            EPublicMomentsPageType.contacts.text,
-            index: 1,
-            onTap: () => setMomentPublicFilter(EPublicMomentsPageType.contacts),
-          ),
-          Divider(
-            color: ThemeColor.color170,
-            height: Adapt.px(0.5),
-          ),
-          _buildMomentItem(
-            isSelect: publicMomentsPageType == EPublicMomentsPageType.reacted,
-            EPublicMomentsPageType.reacted.text,
-            index: 1,
-            onTap: () => setMomentPublicFilter(EPublicMomentsPageType.reacted),
-          ),
-          Divider(
-            color: ThemeColor.color170,
-            height: Adapt.px(0.5),
-          ),
-          _buildMomentItem(
-            isSelect: publicMomentsPageType == EPublicMomentsPageType.private,
-            EPublicMomentsPageType.private.text,
-            index: 1,
-            onTap: () => setMomentPublicFilter(EPublicMomentsPageType.private),
-          ),
-          Divider(
-            color: ThemeColor.color170,
-            height: Adapt.px(0.5),
-          ),
-          Container(
-            height: Adapt.px(8),
-            color: ThemeColor.color190,
-          ),
-          _buildMomentItem(Localized.text('ox_common.cancel'), index: 3,
-              onTap: () {
-            OXNavigator.pop(context);
-          }),
-          SizedBox(
-            height: Adapt.px(21),
           ),
         ],
       ),
