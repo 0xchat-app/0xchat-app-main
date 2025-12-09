@@ -86,6 +86,9 @@ dependencies:
   emoji_picker_flutter: 1.5.4
   window_manager: ^0.4.3
   fc_native_video_thumbnail: ^0.17.2
+  wechat_assets_picker: ^9.2.1
+  photo_manager: ^3.5.0
+  path_provider: ^2.1.1
 
   chatcore:
     path: ../../0xchat-core
