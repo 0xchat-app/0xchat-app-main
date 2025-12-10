@@ -201,7 +201,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
           PublicMomentsPage(
             key: publicMomentPageKey,
             publicMomentsPageType: publicMomentsPageType,
-            newMomentsBottom: widget.isSecondPage ? 50.px : 128.px,
+            newMomentsBottom: widget.isSecondPage ? 60.px : 138.px,
           ),
           NAppPage(
             filterType: _nappFilterType,
