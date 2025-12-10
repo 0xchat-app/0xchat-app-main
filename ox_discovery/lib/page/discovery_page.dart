@@ -110,6 +110,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
     super.initState();
     OXUserInfoManager.sharedInstance.addObserver(this);
     _isLogin = OXUserInfoManager.sharedInstance.isLogin;
+    // Load filters asynchronously, but don't await to avoid blocking initState
     getMomentPublicFilter();
     getNappFilter();
     pageType = EDiscoveryPageTypeEx.changeIntToEnum(widget.typeInt);
@@ -121,19 +122,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
     _pageController = PageController(initialPage: initialIndex);
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
-        setState(() {
-          switch (_tabController.index) {
-            case 0:
-              pageType = EDiscoveryPageType.moment;
-              break;
-            case 1:
-              pageType = EDiscoveryPageType.napp;
-              break;
-            case 2:
-              pageType = EDiscoveryPageType.group;
-              break;
-          }
-        });
+        _updatePageType(_tabController.index);
       }
     });
     _loadData();
@@ -146,6 +135,22 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
       CommonCategoryTitleItem(title: EDiscoveryPageType.napp.text),
       CommonCategoryTitleItem(title: EDiscoveryPageType.group.text),
     ];
+  }
+
+  void _updatePageType(int index) {
+    setState(() {
+      switch (index) {
+        case 0:
+          pageType = EDiscoveryPageType.moment;
+          break;
+        case 1:
+          pageType = EDiscoveryPageType.napp;
+          break;
+        case 2:
+          pageType = EDiscoveryPageType.group;
+          break;
+      }
+    });
   }
 
 
@@ -184,18 +189,13 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
         onPageChanged: (index) {
           setState(() {
             _tabController.index = index;
-            switch (index) {
-              case 0:
-                pageType = EDiscoveryPageType.moment;
-                break;
-              case 1:
-                pageType = EDiscoveryPageType.napp;
-                break;
-              case 2:
-                pageType = EDiscoveryPageType.group;
-                break;
-            }
           });
+          _updatePageType(index);
+          // Only load filter when switching to Moments tab
+          // getMomentPublicFilter will update publicMomentsPageType if needed, which will trigger didUpdateWidget
+          if (index == 0) {
+            getMomentPublicFilter();
+          }
         },
         children: [
           PublicMomentsPage(
@@ -245,19 +245,9 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
                 Moment.sharedInstance.closeSubscriptions();
               }
               setState(() {
-                switch (value) {
-                  case 0:
-                    pageType = EDiscoveryPageType.moment;
-                    break;
-                  case 1:
-                    pageType = EDiscoveryPageType.napp;
-                    break;
-                  case 2:
-                    pageType = EDiscoveryPageType.group;
-                    break;
-                }
                 _tabController.index = value;
               });
+              _updatePageType(value);
               _pageController.animateToPage(
                 value,
                 duration: const Duration(milliseconds: 2),
@@ -419,21 +409,22 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
     );
   }
 
-  void setMomentPublicFilter(EPublicMomentsPageType type) async {
-    OXNavigator.pop(context);
-    await OXCacheManager.defaultOXCacheManager
-        .saveForeverData(saveMomentFilterKey, type.changeInt);
-    if (mounted) {
-      publicMomentsPageType = type;
-    }
-  }
 
-  void getMomentPublicFilter() async {
+  Future<void> getMomentPublicFilter() async {
     final result = await OXCacheManager.defaultOXCacheManager
         .getForeverData(saveMomentFilterKey);
     if (result != null) {
-      publicMomentsPageType = EPublicMomentsPageTypeEx.getEnumType(result);
-      setState(() {});
+      final newType = EPublicMomentsPageTypeEx.getEnumType(result);
+      if (newType != publicMomentsPageType) {
+        publicMomentsPageType = newType;
+        setState(() {});
+      }
+    } else {
+      // Ensure default value is set if no saved filter exists
+      if (publicMomentsPageType != EPublicMomentsPageType.contacts) {
+        publicMomentsPageType = EPublicMomentsPageType.contacts;
+        setState(() {});
+      }
     }
   }
 

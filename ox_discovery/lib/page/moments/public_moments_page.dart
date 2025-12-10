@@ -137,6 +137,9 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
     return map;
   }
 
+  bool _isInitializingSubscriptions = false;
+  EPublicMomentsPageType? _lastInitializedType;
+
   @override
   void initState() {
     super.initState();
@@ -147,25 +150,78 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
     OXUserInfoManager.sharedInstance.addObserver(this);
     OXMomentManager.sharedInstance.addObserver(this);
     ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
-    // Default: subscribe to contacts feed
-    List<String> authors = Contacts.sharedInstance.allContacts.keys.toList();
-    authors.add(Moment.sharedInstance.pubkey);
-    Moment.sharedInstance.updateSubscriptions(authors: authors);
-    _loadGlobalRelaysAndInit();
+    // Initialize subscriptions based on current filter type
+    _initializeSubscriptions();
     _notificationUpdateNotes(OXMomentManager.sharedInstance.notes);
     _updateNotifications(OXMomentManager.sharedInstance.notifications);
   }
+
+  Future<void> _initializeSubscriptions() async {
+    // Prevent concurrent initialization
+    if (_isInitializingSubscriptions) {
+      return;
+    }
+    // Skip if type hasn't changed
+    if (_lastInitializedType == widget.publicMomentsPageType) {
+      return;
+    }
+    // Store the type we're about to initialize to prevent race conditions
+    final targetType = widget.publicMomentsPageType;
+    _isInitializingSubscriptions = true;
+    try {
+      // Verify type hasn't changed during async gap
+      if (widget.publicMomentsPageType != targetType) {
+        return;
+      }
+      _lastInitializedType = targetType;
+      switch (targetType) {
+      case EPublicMomentsPageType.global:
+        await _loadGlobalRelaysAndInit();
+        break;
+      case EPublicMomentsPageType.contacts:
+        // Subscribe to contacts feed
+        await Moment.sharedInstance.updateSubscriptions(filterType: targetType.changeInt);
+        updateNotesList(true);
+        break;
+      case EPublicMomentsPageType.private:
+        // Close subscriptions for private posts (they only exist in local DB)
+        Moment.sharedInstance.closeSubscriptions();
+        updateNotesList(true);
+        break;
+      case EPublicMomentsPageType.reacted:
+        // For reacted type, close subscriptions (no relay subscription needed)
+        Moment.sharedInstance.closeSubscriptions();
+        updateNotesList(true);
+        break;
+      }
+    } catch (e) {
+      // Reset _lastInitializedType on error so it can be retried
+      _lastInitializedType = null;
+      rethrow;
+    } finally {
+      _isInitializingSubscriptions = false;
+    }
+  }
+
   Future<void> _loadGlobalRelaysAndInit() async {
+    // Safety check: only proceed if current type is global
+    if (widget.publicMomentsPageType != EPublicMomentsPageType.global || !mounted) {
+      return;
+    }
     try {
       final relays =
           await OXCacheManager.defaultOXCacheManager.getListData(_momentRelayCacheKey);
       _globalRelays = relays;
-    } catch (_) {
+    } catch (e) {
       _globalRelays = [];
     }
-    if (mounted) {
+    // Double check type before subscribing (in case it changed during async operation)
+    if (mounted && widget.publicMomentsPageType == EPublicMomentsPageType.global) {
       setState(() {});
-      await Moment.sharedInstance.updateSubscriptions(relays: _globalRelays, authors: null);
+      await Moment.sharedInstance.updateSubscriptions(
+        filterType: widget.publicMomentsPageType.changeInt,
+        relays: _globalRelays.isNotEmpty ? _globalRelays : null,
+      );
       updateNotesList(true);
     }
   }
@@ -179,26 +235,14 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
   @override
   void didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
+    // Only re-initialize if the type actually changed
     if (widget.publicMomentsPageType != oldWidget.publicMomentsPageType) {
       refreshController.resetNoData();
-      _clearData(); 
-      if (widget.publicMomentsPageType == EPublicMomentsPageType.global) {
-        _loadGlobalRelaysAndInit();
-      } else if (widget.publicMomentsPageType == EPublicMomentsPageType.contacts) {
-        // Subscribe to contacts feed
-        List<String> authors = Contacts.sharedInstance.allContacts.keys.toList();
-        authors.add(Moment.sharedInstance.pubkey);
-        Moment.sharedInstance.updateSubscriptions(authors: authors);
-        updateNotesList(true);
-      } else if (widget.publicMomentsPageType == EPublicMomentsPageType.private) {
-        // Close subscriptions for private posts (they only exist in local DB)
-        Moment.sharedInstance.closeSubscriptions();
-        updateNotesList(true);
-      } else {
-        // For reacted type, close subscriptions (no relay subscription needed)
-        Moment.sharedInstance.closeSubscriptions();
-        updateNotesList(true);
-      }
+      _clearData();
+      // Reset last initialized type to allow re-initialization
+      _lastInitializedType = null;
+      // Use _initializeSubscriptions to ensure consistent subscription logic
+      _initializeSubscriptions();
     }
   }
 
@@ -230,8 +274,8 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
             enablePullDown: true,
             enablePullUp: true,
             onRefresh: () async {
-              await Moment.sharedInstance.updateSubscriptions();
-              updateNotesList(true);
+              // Re-initialize subscriptions based on current filter type
+              await _initializeSubscriptions();
             },
             onLoading: () => updateNotesList(false),
             child: _getMomentListWidget(),

@@ -250,7 +250,7 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
 
   }
 
-  void _tabClick(int changeIndex, int currentSelect) {
+  Future<void> _tabClick(int changeIndex, int currentSelect) async {
     if(_typeList.elementAt(changeIndex) == HomeTabBarType.contact && _typeList.elementAt(currentSelect) == HomeTabBarType.contact) {
       contactGlobalKey.currentState?.updateContactTabClickAction(1, false);
     }
@@ -258,7 +258,10 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
       homeGlobalKey.currentState?.updateHomeTabClickAction(1, false);
     }
     if(_typeList.elementAt(changeIndex) == HomeTabBarType.discover) {
-      Moment.sharedInstance.updateSubscriptions();
+      // Load filterType from cache, default to 1 (contacts) if not found
+      final filterType = await OXCacheManager.defaultOXCacheManager
+          .getForeverData('momentFilterKey', defaultValue: 1);
+      Moment.sharedInstance.updateSubscriptions(filterType: filterType);
     }else{
       Moment.sharedInstance.closeSubscriptions();
     }
