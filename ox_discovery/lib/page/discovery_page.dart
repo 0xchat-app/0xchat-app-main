@@ -240,6 +240,10 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
             itemSpacing: 16.0,
             items: tabItems,
             onTap: (int value) {
+              // Close subscriptions when switching away from Moments tab
+              if (value != 0 && pageType == EDiscoveryPageType.moment) {
+                Moment.sharedInstance.closeSubscriptions();
+              }
               setState(() {
                 switch (value) {
                   case 0:
@@ -291,8 +295,14 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
                 context, (context) => const MomentsViewPage());
             if (result != null && result is Map && mounted) {
               final type = result['type'] as EPublicMomentsPageType;
-              publicMomentsPageType = type;
-              setState(() {});
+              if (type == publicMomentsPageType &&
+                  type == EPublicMomentsPageType.global) {
+                // Same type: refresh global relays & data
+                publicMomentPageKey.currentState?.refreshGlobalRelays();
+              } else {
+                publicMomentsPageType = type;
+                setState(() {});
+              }
             }
           },
         ),

@@ -13,6 +13,7 @@ import 'package:ox_common/widgets/common_pull_refresher.dart';
 import 'package:ox_discovery/model/moment_extension_model.dart';
 import 'package:ox_discovery/page/widgets/moment_tips.dart';
 import 'package:ox_localizable/ox_localizable.dart';
+import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_theme/ox_theme.dart';
 
@@ -99,6 +100,8 @@ class PublicMomentsPage extends StatefulWidget {
 class PublicMomentsPageState extends State<PublicMomentsPage>
     with OXMomentObserver, OXUserInfoObserver {
   bool isLogin = false;
+  final String _momentRelayCacheKey = 'momentRelaysKey';
+  List<String> _globalRelays = [];
   // Optimized: Reduce initial load limit to improve initial render performance
   // Load more items on scroll instead of all at once
   final int _limit = 30; // Reduced from 50 to 30 for better initial performance
@@ -144,19 +147,58 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
     OXUserInfoManager.sharedInstance.addObserver(this);
     OXMomentManager.sharedInstance.addObserver(this);
     ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
-    Moment.sharedInstance.updateSubscriptions();
-    updateNotesList(true);
+    // Default: subscribe to contacts feed
+    List<String> authors = Contacts.sharedInstance.allContacts.keys.toList();
+    authors.add(Moment.sharedInstance.pubkey);
+    Moment.sharedInstance.updateSubscriptions(authors: authors);
+    _loadGlobalRelaysAndInit();
     _notificationUpdateNotes(OXMomentManager.sharedInstance.notes);
     _updateNotifications(OXMomentManager.sharedInstance.notifications);
   }
+  Future<void> _loadGlobalRelaysAndInit() async {
+    try {
+      final relays =
+          await OXCacheManager.defaultOXCacheManager.getListData(_momentRelayCacheKey);
+      _globalRelays = relays;
+    } catch (_) {
+      _globalRelays = [];
+    }
+    if (mounted) {
+      setState(() {});
+      await Moment.sharedInstance.updateSubscriptions(relays: _globalRelays, authors: null);
+      updateNotesList(true);
+    }
+  }
+
+  /// Refresh global relays and reload data (used when staying on global type)
+  Future<void> refreshGlobalRelays() async {
+    await _loadGlobalRelaysAndInit();
+  }
+
 
   @override
   void didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.publicMomentsPageType != oldWidget.publicMomentsPageType) {
       refreshController.resetNoData();
-      _clearData();
-      updateNotesList(true);
+      _clearData(); 
+      if (widget.publicMomentsPageType == EPublicMomentsPageType.global) {
+        _loadGlobalRelaysAndInit();
+      } else if (widget.publicMomentsPageType == EPublicMomentsPageType.contacts) {
+        // Subscribe to contacts feed
+        List<String> authors = Contacts.sharedInstance.allContacts.keys.toList();
+        authors.add(Moment.sharedInstance.pubkey);
+        Moment.sharedInstance.updateSubscriptions(authors: authors);
+        updateNotesList(true);
+      } else if (widget.publicMomentsPageType == EPublicMomentsPageType.private) {
+        // Close subscriptions for private posts (they only exist in local DB)
+        Moment.sharedInstance.closeSubscriptions();
+        updateNotesList(true);
+      } else {
+        // For reacted type, close subscriptions (no relay subscription needed)
+        Moment.sharedInstance.closeSubscriptions();
+        updateNotesList(true);
+      }
     }
   }
 
@@ -327,12 +369,14 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
                     title:
                         '${_notificationNotes.length} ${Localized.text('ox_discovery.new_post')}',
                     avatars: _notificationAvatarList,
-                    onTap: () {
+                    onTap: () async {
                       momentScrollController.animateTo(
                         0.0,
                         duration: const Duration(milliseconds: 500),
                         curve: Curves.easeInOut,
                       );
+                      // Force flush buffered database writes before refreshing
+                      await DBISAR.sharedInstance.flushBuffers();
                       updateNotesList(true);
                       _clearNotedNotification();
                     },
@@ -402,7 +446,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
           MomentWidgetsUtils.clipImage(
             borderRadius: 16,
             child: OXCachedNetworkImage(
-              imageUrl: groupDB?.picture ?? '',
+              imageUrl: groupDB.picture,
               fit: BoxFit.cover,
               placeholder: (context, url) =>
                   MomentWidgetsUtils.badgePlaceholderImage(),
@@ -432,7 +476,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
                   Container(
                     constraints: BoxConstraints(maxWidth: 80.px),
                     child: Text(
-                      groupDB.name ?? '--',
+                      groupDB.name,
                       style: TextStyle(
                         color: ThemeColor.color0,
                         fontSize: 14.px,
@@ -520,8 +564,6 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
     if (isInit) {
       _clearNotedNotification();
     }
-    bool isPrivateMoment =
-        widget.publicMomentsPageType == EPublicMomentsPageType.private;
     if (isWrapRefresh) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
@@ -532,21 +574,12 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
     }
     try {
       List<NoteDBISAR> list = await _getNoteTypeToDB(isInit);
-      if (list.isEmpty) {
-        isInit
-            ? refreshController.refreshCompleted()
-            : refreshController.loadNoData();
-        if (!isPrivateMoment && !isInit) await _getNotesFromRelay();
-        return;
-      }
-
       List<NoteDBISAR> showList = _filterNotes(list);
       _updateUI(showList, isInit, list.length);
-
+      
+      // If we got fewer notes than the limit, there's no more data
       if (list.length < _limit) {
-        !isPrivateMoment && !isInit
-            ? await _getNotesFromRelay()
-            : refreshController.loadNoData();
+        refreshController.loadNoData();
       }
     } catch (e) {
       print('Error loading notes: $e');
@@ -558,7 +591,9 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
     int? until = isInit ? null : _allNotesFromDBLastTimestamp;
     switch (widget.publicMomentsPageType) {
       case EPublicMomentsPageType.global:
-        return await Moment.sharedInstance.loadAllNotesFromDB(until: until, limit: _limit) ?? [];
+        return await Moment.sharedInstance.loadAllNotesFromDB(
+                until: until, limit: _limit, relayList: _globalRelays.isNotEmpty ? _globalRelays : null) ??
+            [];
       case EPublicMomentsPageType.contacts:
         return await Moment.sharedInstance.loadContactsNotesFromDB(until: until, limit: _limit) ?? [];
       case EPublicMomentsPageType.reacted:
@@ -568,35 +603,6 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
     }
   }
 
-  Future<List<NoteDBISAR>> _getNoteTypeToRelay() async {
-    switch (widget.publicMomentsPageType) {
-      case EPublicMomentsPageType.global:
-        return await Moment.sharedInstance.loadContactsNewNotesFromRelay(until: _allNotesFromDBLastTimestamp, limit: _limit) ?? [];
-      case EPublicMomentsPageType.contacts:
-        return await Moment.sharedInstance.loadContactsNewNotesFromRelay(until: _allNotesFromDBLastTimestamp, limit: _limit) ?? [];
-      case EPublicMomentsPageType.reacted:
-        return [];
-      case EPublicMomentsPageType.private:
-        return [];
-    }
-  }
-
-  Future<void> _getNotesFromRelay() async {
-    try {
-      List<NoteDBISAR> list = await _getNoteTypeToRelay();
-
-      if (list.isEmpty) {
-        refreshController.loadNoData();
-        return;
-      }
-
-      List<NoteDBISAR> showList = _filterNotes(list);
-      _updateUI(showList, false, list.length);
-    } catch (e) {
-      print('Error loading notes from relay: $e');
-      refreshController.loadFailed();
-    }
-  }
 
   List<NoteDBISAR> _filterNotes(List<NoteDBISAR> list) {
     return list.where((NoteDBISAR note) => !note.isReaction && note.getReplyLevel(null) < 2).toList();
@@ -610,7 +616,9 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
       notesList.addAll(list);
     }
 
-    _allNotesFromDBLastTimestamp = showList.last.createAt;
+    if (showList.isNotEmpty) {
+      _allNotesFromDBLastTimestamp = showList.last.createAt;
+    }
 
     if (isInit) {
       refreshController.refreshCompleted();

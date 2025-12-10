@@ -447,9 +447,6 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
   }
 
   Future<void> _loadnewNotesFromRelay() async {
-    await Moment.sharedInstance.loadNewNotesFromRelay(
-            authors: [widget.userDB.pubKey], limit: _limit) ??
-        [];
     List<NoteDBISAR> noteList = await Moment.sharedInstance
             .loadUserNotesFromDB([widget.userDB.pubKey], limit: _limit, root: '') ??
         [];
@@ -461,10 +458,8 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
   Future<void> _loadNotesFromRelay() async {
     try {
       List<NoteDBISAR> noteList = await Moment.sharedInstance
-              .loadNewNotesFromRelay(
-                  authors: [widget.userDB.pubKey],
-                  until: _lastTimestamp,
-                  limit: _limit) ??
+              .loadUserNotesFromDB([widget.userDB.pubKey],
+                  until: _lastTimestamp, limit: _limit, root: '') ??
           [];
       if (noteList.isEmpty) {
         updateStateView(CommonStateView.CommonStateView_NoData);
