@@ -6,10 +6,11 @@ import 'package:flutter/services.dart';
 import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_localizable/ox_localizable.dart';
+// Android only imports
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:ox_localizable/ox_localizable.dart';
 
 ///Title: image_picker_utils
 ///Description: TODO(Take a photo or select an image from an album)
@@ -43,6 +44,123 @@ class ImagePickerUtils {
   ///
   /// videoSelectMinSecond  Minimum video duration when selecting a video (seconds)
   static Future<List<Media>> pickerPaths({
+    GalleryMode galleryMode = GalleryMode.image,
+    UIConfig? uiConfig,
+    int selectCount = 9,
+    bool showCamera = false,
+    bool showGif = true,
+    CropConfig? cropConfig,
+    int compressSize = 500,
+    int videoRecordMaxSecond = 120,
+    int videoRecordMinSecond = 1,
+    int videoSelectMaxSecond = 120,
+    int videoSelectMinSecond = 1,
+    Language language = Language.system,
+  }) async {
+    // iOS uses native method channel, Android uses wechat_assets_picker
+    if (Platform.isIOS) {
+      return await _pickerPathsIOS(
+        galleryMode: galleryMode,
+        uiConfig: uiConfig,
+        selectCount: selectCount,
+        showCamera: showCamera,
+        showGif: showGif,
+        cropConfig: cropConfig,
+        compressSize: compressSize,
+        videoRecordMaxSecond: videoRecordMaxSecond,
+        videoRecordMinSecond: videoRecordMinSecond,
+        videoSelectMaxSecond: videoSelectMaxSecond,
+        videoSelectMinSecond: videoSelectMinSecond,
+        language: language,
+      );
+    } else {
+      return await _pickerPathsAndroid(
+        galleryMode: galleryMode,
+        uiConfig: uiConfig,
+        selectCount: selectCount,
+        showCamera: showCamera,
+        showGif: showGif,
+        cropConfig: cropConfig,
+        compressSize: compressSize,
+        videoRecordMaxSecond: videoRecordMaxSecond,
+        videoRecordMinSecond: videoRecordMinSecond,
+        videoSelectMaxSecond: videoSelectMaxSecond,
+        videoSelectMinSecond: videoSelectMinSecond,
+        language: language,
+      );
+    }
+  }
+
+  /// iOS implementation using native method channel
+  static Future<List<Media>> _pickerPathsIOS({
+    GalleryMode galleryMode = GalleryMode.image,
+    UIConfig? uiConfig,
+    int selectCount = 1,
+    bool showCamera = false,
+    bool showGif = true,
+    CropConfig? cropConfig,
+    int compressSize = 500,
+    int videoRecordMaxSecond = 120,
+    int videoRecordMinSecond = 1,
+    int videoSelectMaxSecond = 120,
+    int videoSelectMinSecond = 1,
+    Language language = Language.system,
+  }) async {
+    Color uiColor = UIConfig.defUiThemeColor;
+    if (uiConfig != null) {
+      uiColor = uiConfig.uiThemeColor;
+    }
+
+    bool enableCrop = false;
+    int width = -1;
+    int height = -1;
+    if (cropConfig != null) {
+      enableCrop = cropConfig.enableCrop;
+      width = cropConfig.width <= 0 ? -1 : cropConfig.width;
+      height = cropConfig.height <= 0 ? -1 : cropConfig.height;
+    }
+
+    final Map<String, dynamic> params = <String, dynamic>{
+      'galleryMode': galleryMode.name,
+      'showGif': showGif,
+      'uiColor': {
+        "a": 255,
+        "r": uiColor.red,
+        "g": uiColor.green,
+        "b": uiColor.blue,
+        "l": (uiColor.computeLuminance() * 255).toInt()
+      },
+      'selectCount': selectCount,
+      'showCamera': showCamera,
+      'enableCrop': enableCrop,
+      'width': width,
+      'height': height,
+      'compressSize': compressSize < 50 ? 50 : compressSize,
+      'videoRecordMaxSecond': videoRecordMaxSecond,
+      'videoRecordMinSecond': videoRecordMinSecond,
+      'videoSelectMaxSecond': videoSelectMaxSecond,
+      'videoSelectMinSecond': videoSelectMinSecond,
+      'language': language.name,
+    };
+    final List<dynamic> paths =
+        await OXCommon.channel.invokeMethod('getPickerPaths', params);
+    List<Media> medias = [];
+    paths.forEach((data) {
+      Media media = Media();
+      media.thumbPath = data["thumbPath"];
+      media.path = data["path"];
+      if (media.path == media.thumbPath) {
+        media.galleryMode = GalleryMode.image;
+      } else {
+        media.galleryMode = GalleryMode.video;
+      }
+      medias.add(media);
+    });
+    return medias;
+  }
+
+  /// Android implementation using wechat_assets_picker
+  static Future<List<Media>> _pickerPathsAndroid({
     GalleryMode galleryMode = GalleryMode.image,
     UIConfig? uiConfig,
     int selectCount = 9,
@@ -90,13 +208,10 @@ class ImagePickerUtils {
     );
 
     // Set confirm button color based on platform
-    // iOS: system blue, Android: theme purple
-    final Color confirmButtonColor = Platform.isIOS
-        ? CupertinoColors.systemBlue
-        : ThemeColor.purple2; // Theme purple color
+    // Android: theme purple
+    final Color confirmButtonColor = ThemeColor.purple2; // Theme purple color
 
     // Create ThemeData and customize buttonTheme
-    // Use ThemeData.light() for better iOS compatibility
     final ThemeData pickerTheme = ThemeData.dark().copyWith(
       colorScheme: ColorScheme.dark(
         primary: Colors.black,
@@ -116,17 +231,13 @@ class ImagePickerUtils {
     }
 
     // Configure picker config
-    // According to documentation:
-    // - textDelegate will be automatically determined from BuildContext locale if not provided
-    // - pickerTheme allows full theme customization including button colors
-    // - Most parameters have sensible defaults
     final AssetPickerConfig pickerConfig = AssetPickerConfig(
       selectedAssets: <AssetEntity>[],
       maxAssets: selectCount,
       requestType: requestType,
       filterOptions: filterOptionGroup,
-      pickerTheme: pickerTheme, // Use pickerTheme with customized buttonTheme
-      textDelegate: textDelegate, // Set text delegate based on app language
+      pickerTheme: pickerTheme,
+      textDelegate: textDelegate,
       pageSize: 320,
       gridThumbnailSize: const ThumbnailSize(80, 80),
       previewThumbnailSize: const ThumbnailSize(150, 150),

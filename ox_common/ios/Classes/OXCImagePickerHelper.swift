@@ -39,6 +39,8 @@ class OXCImagePickerHelper {
         configuration.allowSelectOriginal = true
         configuration.downloadVideoBeforeSelecting = true
         configuration.allowSelectGif = isShowGif
+        // Enable LivePhoto support
+        configuration.allowSelectLivePhoto = true
         configurationUI.cellCornerRadio = 5
         
         // Video
@@ -57,17 +59,27 @@ class OXCImagePickerHelper {
             }
         }
         
-        // Editing
-        configuration.allowEditImage = enableCrop
-        if enableCrop && selectCount == 1 {
-            configuration.editAfterSelectThumbnailImage = false
+        // Editing - Always allow editing for images
+        // EditTool enum: draw=0, clip=1, imageSticker=2, textSticker=3, mosaic=4, filter=5, adjust=6
+        if enableCrop {
+            // If crop is explicitly enabled, use crop mode only
+            configuration.allowEditImage = true
+            if selectCount == 1 {
+                configuration.editAfterSelectThumbnailImage = false
+            } else {
+                configuration.editAfterSelectThumbnailImage = true
+            }
+            configuration.editImageConfiguration.tools_objc = [1] // Only clip (crop) tool
+            let ratio = ZLImageClipRatio(title: "", whRatio: Double(width) / Double(height), isCircle: false)
+            configuration.editImageConfiguration.clipRatios = [ratio]
         } else {
+            // Allow full editing capabilities for chat and other scenarios
+            // Enable all editing tools: draw, clip, imageSticker, textSticker, mosaic, filter, adjust
+            configuration.allowEditImage = true
             configuration.editAfterSelectThumbnailImage = true
+            // tools_objc: [0,1,2,3,4,5,6] = [draw, clip, imageSticker, textSticker, mosaic, filter, adjust]
+            configuration.editImageConfiguration.tools_objc = [0, 1, 2, 3, 4, 5, 6]
         }
-        
-        configuration.editImageConfiguration.tools_objc = [1]
-        let ratio = ZLImageClipRatio(title: "", whRatio: Double(width) / Double(height), isCircle: false)
-        configuration.editImageConfiguration.clipRatios = [ratio]
         
 //        if let colorString = params?["uiColor"] as? [String: Any] {
 //            self.colorChange(colorString: colorString, configuration: configurationUI)
@@ -130,9 +142,7 @@ class OXCImagePickerHelper {
             currentController.showDetailViewController(camera, sender: nil)
             
         } else {
-            
-            let ac = ZLPhotoPreviewSheet()
-            
+            // Configure gallery mode
             if galleryMode == "all" {
                 configuration.allowMixSelect = true
                 ZLPhotoConfiguration.default().cameraConfiguration.allowTakePhoto = true
@@ -146,25 +156,35 @@ class OXCImagePickerHelper {
                 configuration.allowSelectImage = true
                 configuration.allowSelectVideo = false
             } else if galleryMode == "video" {
-                configuration.allowMixSelect = true  // As per the comment, allowing mix selection
+                configuration.allowMixSelect = true
                 ZLPhotoConfiguration.default().cameraConfiguration.allowTakePhoto = false
                 ZLPhotoConfiguration.default().cameraConfiguration.allowRecordVideo = true
                 configuration.allowSelectImage = false
                 configuration.allowSelectVideo = true
             }
-
+            
+            // Enable LivePhoto support
+            configuration.allowSelectLivePhoto = true
+            
+            // Show photo picker using ZLPhotoPicker
+            let picker = ZLPhotoPicker()
             var resultArr = [[String: Any?]]()
-            ac.cancelBlock = {
+            
+            picker.cancelBlock = {
                 let arr: [Any] = []
                 result(arr)
             }
-            ac.selectImageBlock = { modelList, isSelectOriginal in
+            
+            picker.selectImageBlock = { (modelList: [ZLResultModel], isSelectOriginal: Bool) in
                 if modelList.count > 0 {
                     self.saveImageView(0, imagePHAsset: modelList, resultArr: resultArr, compressSize: compressSize, result: result)
+                } else {
+                    let arr: [Any] = []
+                    result(arr)
                 }
             }
             
-            ac.showPhotoLibrary(sender: currentController)
+            picker.showPhotoLibrary(sender: currentController)
         }
     }
     
