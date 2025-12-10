@@ -76,17 +76,23 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
   
   @override
   Widget build(BuildContext context) {
+    // Get bottom safe area padding for Android navigation bar
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+    
     return Scaffold(
       extendBody: true,
       bottomNavigationBar: Align(
         alignment: Alignment.bottomCenter,
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth:  PlatformUtils.listWidth),
-          child: TranslucentNavigationBar(
-            key: tabBarGlobalKey,
-            onTap: (changeIndex, currentSelect) => _tabClick(changeIndex, currentSelect),
-            handleDoubleTap: (changeIndex, currentSelect) => _handleDoubleTap(changeIndex, currentSelect),
-            height: _bottomNavHeight,
+        child: Padding(
+          padding: EdgeInsets.only(bottom: bottomPadding),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth:  PlatformUtils.listWidth),
+            child: TranslucentNavigationBar(
+              key: tabBarGlobalKey,
+              onTap: (changeIndex, currentSelect) => _tabClick(changeIndex, currentSelect),
+              handleDoubleTap: (changeIndex, currentSelect) => _handleDoubleTap(changeIndex, currentSelect),
+              height: _bottomNavHeight,
+            ),
           ),
         ),
       ),

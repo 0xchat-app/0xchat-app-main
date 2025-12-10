@@ -190,11 +190,23 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
 
   @override
   Widget build(BuildContext context) {
+    // Get bottom safe area padding for Android navigation bar
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+    // Calculate total offset including bottom padding
+    final baseOffset = 72 + 24.px;
+    // Add extra safety margin to ensure complete hiding
+    final extraMargin = 8.px;
+    
     return AnimatedBuilder(
       animation: _animationController,
       builder: (context, child) {
+        // Calculate current offset: scale the animation value to include bottom padding and extra margin
+        // When animation value reaches baseOffset, currentOffset should be totalOffset
+        // This ensures tab bar can slide completely off screen including navigation bar
+        final progress = baseOffset > 0 ? (_animation.value / baseOffset) : 0.0;
+        final currentOffset = _animation.value + progress * (bottomPadding + extraMargin);
         return Transform.translate(
-          offset: Offset(0, _animation.value),
+          offset: Offset(0, currentOffset),
           child: Container(
             margin: EdgeInsets.symmetric(
               vertical: _verticalPadding,
