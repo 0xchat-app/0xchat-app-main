@@ -43,6 +43,7 @@ class _MomentsViewPageState extends State<MomentsViewPage> {
         .getForeverData(_saveMomentFilterKey, defaultValue: 1);
     _selectedType = EPublicMomentsPageTypeEx.getEnumType(filterType);
 
+    final savedAllRelays = await OXCacheManager.defaultOXCacheManager
         .getListData(_saveAllRelaysKey);
     _allGeneralRelays = savedAllRelays.isNotEmpty 
         ? savedAllRelays 
