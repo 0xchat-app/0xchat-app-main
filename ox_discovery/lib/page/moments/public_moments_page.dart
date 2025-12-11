@@ -777,9 +777,13 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
   void didSwitchUser(UserDBISAR? userInfo) {
     if (mounted) {
       setState(() {
-        notesList = [];
         isLogin = true;
       });
+      // Reset pagination state and re-init subscriptions/data for new account
+      refreshController.resetNoData();
+      _clearData();
+      _lastInitializedType = null;
+      _initializeSubscriptions();
     }
   }
 }
