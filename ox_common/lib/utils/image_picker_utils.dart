@@ -281,10 +281,12 @@ class ImagePickerUtils {
       int fileSize = await file.length();
       int compressSizeBytes = compressSize * 1024; // Convert KB to bytes
       
-      // Check if it's a GIF by file extension
+      // Check if it's a GIF or WebP by file extension
+      // These formats should not be compressed to preserve their original format
       bool isGif = file.path.toLowerCase().endsWith('.gif');
+      bool isWebP = file.path.toLowerCase().endsWith('.webp');
       
-      if (fileSize > compressSizeBytes && !isGif) {
+      if (fileSize > compressSizeBytes && !isGif && !isWebP) {
         // Compress image
         Uint8List? imageData = await asset.originBytes;
         if (imageData != null) {

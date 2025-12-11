@@ -320,7 +320,10 @@ class OXCImagePickerHelper {
                 if let im = UIImage(data: imageData) {
                     let pathExtension = ((dataUTI ?? "") as NSString).pathExtension
                     let imageLast = "\(imageData.count).\(pathExtension)"
-                    if !(dataUTI?.contains("gif") ?? false) && !(dataUTI?.contains("GIF") ?? false) {
+                    let isGif = (dataUTI?.contains("gif") ?? false) || (dataUTI?.contains("GIF") ?? false)
+                    let isWebP = (dataUTI?.contains("webp") ?? false) || (dataUTI?.contains("WEBP") ?? false) || (dataUTI?.contains("com.google.webp") ?? false)
+                    
+                    if !isGif && !isWebP {
                         let formatter = DateFormatter()
                         formatter.dateFormat = "yyyyMMddHHmmss"
                         let name = "\(formatter.string(from: Date()))\(imageLast)"
@@ -340,11 +343,10 @@ class OXCImagePickerHelper {
                         ])
                         self.saveImageView(newIndex, imagePHAsset: modelList, resultArr: newArr, compressSize: compressSize, result: result)
                     } else {
-                        // Handle GIF image
-                        // The original Objective-C code has a method `createFile:suffix:` which appears to be a custom method.
-                        // For the translation, I'll assume its purpose and replicate it.
-                        let gifData = imageData
-                        let str = createFile(data: gifData, suffix: ".gif")
+                        // Handle GIF or WebP image - preserve original format without compression
+                        let suffix = isGif ? ".gif" : ".webp"
+                        let originalData = imageData
+                        let str = createFile(data: originalData, suffix: suffix)
                         
                         var newArr = resultArr
                         newArr.append([
