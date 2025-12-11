@@ -47,7 +47,7 @@ extension EInformationTypeEx on EInformationType {
       case EInformationType.badges:
         return 'Badges';
       case EInformationType.moments:
-        return 'Moment';
+        return 'Posts';
       case EInformationType.groups:
         return 'Groups';
     }
