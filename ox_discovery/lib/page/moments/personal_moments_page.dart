@@ -65,9 +65,7 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
   void initState() {
     super.initState();
     _loadNotesFromDB();
-    Future.delayed(Duration(seconds: 1), () {
-      _loadnewNotesFromRelay();
-    });
+    _loadnewNotesFromRelay();
   }
 
   @override
@@ -105,15 +103,15 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
           child: CustomScrollView(
             physics: const ClampingScrollPhysics(),
             slivers: <Widget>[
-              _buildAppBar(),
-              SliverToBoxAdapter(
-                child: ContactInfoWidget(
-                  userDB: widget.userDB,
-                ).setPaddingOnly(bottom: 20.px),
-              ),
-              SliverToBoxAdapter(
-                child: isCurrentUser ? _buildNotificationTips() : Container(),
-              ),
+              // _buildAppBar(),
+              // SliverToBoxAdapter(
+              //   child: ContactInfoWidget(
+              //     userDB: widget.userDB,
+              //   ).setPaddingOnly(bottom: 20.px),
+              // ),
+              // SliverToBoxAdapter(
+              //   child: isCurrentUser ? _buildNotificationTips() : Container(),
+              // ),
               SliverPadding(
                 padding: EdgeInsets.symmetric(horizontal: 24.px),
                 sliver: _flatMomentList.isNotEmpty
@@ -417,11 +415,18 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
         .where((element) =>
             element.getNoteKind() != ENotificationsMomentType.like.kind)
         .toList();
+    // Deduplicate by noteId to avoid repeats between DB and relay
+    final existingIds = _notes.map((e) => e.noteId).toSet();
+    filteredNoteList =
+        filteredNoteList.where((e) => !existingIds.contains(e.noteId)).toList();
+
     if (filteredNoteList.isEmpty) {
-      updateStateView(CommonStateView.CommonStateView_NoData);
-      _refreshController.footerStatus == LoadStatus.idle
-          ? _refreshController.loadComplete()
-          : _refreshController.loadNoData();
+      if (_notes.isEmpty) {
+        updateStateView(CommonStateView.CommonStateView_NoData);
+        _refreshController.footerStatus == LoadStatus.idle
+            ? _refreshController.loadComplete()
+            : _refreshController.loadNoData();
+      }
       if (mounted) setState(() {});
       return;
     }
@@ -442,17 +447,15 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
             [widget.userDB.pubKey],
             limit: _limit, until: _lastTimestamp, root: '') ??
         [];
-    Future.delayed(
-        const Duration(milliseconds: 400), () => _refreshData(noteList));
+    _refreshData(noteList);
   }
 
   Future<void> _loadnewNotesFromRelay() async {
-    List<NoteDBISAR> noteList = await Moment.sharedInstance
-            .loadUserNotesFromDB([widget.userDB.pubKey], limit: _limit, root: '') ??
-        [];
-    List<NoteDBISAR> newNoteList =
-        noteList.where((element) => element.noteId != element.noteId).toList();
-    _refreshData(newNoteList);
+    // Pull fresh notes from relay and update UI in real time
+    await Moment.sharedInstance.loadUserNotesFromRelay([widget.userDB.pubKey],
+        limit: _limit, notesCallBack: (notes) {
+      _refreshData(notes);
+    });
   }
 
   Future<void> _loadNotesFromRelay() async {
