@@ -18,6 +18,7 @@ class MomentsViewPage extends StatefulWidget {
 class _MomentsViewPageState extends State<MomentsViewPage> {
   static const String _saveMomentFilterKey = 'momentFilterKey';
   static const String _saveMomentRelaysKey = 'momentRelaysKey';
+  static const String _saveAllRelaysKey = 'momentAllRelaysKey';
 
   EPublicMomentsPageType _selectedType = EPublicMomentsPageType.contacts;
   List<String> _selectedRelays = [];
@@ -42,8 +43,10 @@ class _MomentsViewPageState extends State<MomentsViewPage> {
         .getForeverData(_saveMomentFilterKey, defaultValue: 1);
     _selectedType = EPublicMomentsPageTypeEx.getEnumType(filterType);
 
-    // Load all general relays
-    _allGeneralRelays = Connect.sharedInstance.relays(relayKinds: [RelayKind.general]);
+        .getListData(_saveAllRelaysKey);
+    _allGeneralRelays = savedAllRelays.isNotEmpty 
+        ? savedAllRelays 
+        : Relays.sharedInstance.recommendGlobalRelays;
     
     // Load selected relays
     final relays = await OXCacheManager.defaultOXCacheManager
@@ -54,9 +57,8 @@ class _MomentsViewPageState extends State<MomentsViewPage> {
   }
 
   List<String> _getDefaultRelays() {
-    // Get general relays from Connect
-    final generalRelays = Connect.sharedInstance.relays(relayKinds: [RelayKind.general]);
-    return generalRelays.isNotEmpty ? generalRelays : [];
+    // Return recommendGlobalRelays as default
+    return Relays.sharedInstance.recommendGlobalRelays;
   }
 
 
@@ -470,6 +472,10 @@ class _MomentsViewPageState extends State<MomentsViewPage> {
     // Save selected relays
     await OXCacheManager.defaultOXCacheManager
         .saveListData(_saveMomentRelaysKey, _selectedRelays);
+
+    // Save all general relays (user's relay list for display)
+    await OXCacheManager.defaultOXCacheManager
+        .saveListData(_saveAllRelaysKey, _allGeneralRelays);
 
     if (mounted) {
       OXNavigator.pop(context, {
