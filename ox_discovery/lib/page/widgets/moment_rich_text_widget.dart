@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/gestures.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -16,6 +16,7 @@ import 'package:ox_usercenter/page/set_up/translate_settings_page.dart' as Trans
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
+import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import '../moments/topic_moment_page.dart';
 
 class MomentRichTextWidget extends StatefulWidget {
@@ -92,7 +93,6 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget>
   Widget build(BuildContext context) {
     String getShowText =
         MomentContentAnalyzeUtils(widget.text).getMomentShowContent;
-    final textSpans = _buildTextSpans(getShowText, context);
     String plainText = MomentContentAnalyzeUtils(widget.text).getMomentPlainText;
     bool hasText = plainText.trim().isNotEmpty;
     
@@ -102,22 +102,7 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SelectableText.rich(
-            onSelectionChanged:(TextSelection selection, SelectionChangedCause? cause){
-              if(cause == SelectionChangedCause.longPress){
-                isOnSelectText = true;
-              }
-            },
-            onTap: _clearSelectTextToCallback,
-            maxLines: widget.maxLines,
-            TextSpan(
-              style: TextStyle(
-                color: widget.defaultTextColor ?? ThemeColor.color0,
-                fontSize: widget.textSize ?? 16.px,
-              ),
-              children: textSpans,
-            ),
-          ),
+          _buildMarkdownText(getShowText, context),
           if (hasText && widget.showTranslateButton) _buildTranslateButton(),
           if (showTranslation && translatedText != null && translatedText!.isNotEmpty)
             _buildTranslationResult(),
@@ -126,7 +111,7 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget>
     );
   }
 
-  List<TextSpan> _buildTextSpans(String text, BuildContext context) {
+  Widget _buildMarkdownText(String text, BuildContext context) {
     MomentContentAnalyzeUtils analyze = MomentContentAnalyzeUtils(text);
     String showContent = analyze.getMomentPlainText;
     
@@ -134,67 +119,122 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget>
       text = '${DiscoveryUtils.truncateTextAndProcessUsers(text)} show more';
     }
 
-    final List<TextSpan> spans = [];
-    Map<String, RegExp> regexMap = MomentContentAnalyzeUtils.regexMap;
-    final RegExp contentExp = RegExp(
-        [
-          (regexMap['hashRegex'] as RegExp).pattern,
-          (regexMap['urlExp'] as RegExp).pattern,
-          (regexMap['nostrExp'] as RegExp).pattern,
-          (regexMap['lineFeedExp'] as RegExp).pattern,
-          (regexMap['showMoreExp'] as RegExp).pattern,
-        ].join('|'),
-        caseSensitive: false
+    final baseTextStyle = TextStyle(
+      color: widget.defaultTextColor ?? ThemeColor.color0,
+      fontSize: widget.textSize ?? 16.px,
     );
-    int lastMatchEnd = 0;
-    contentExp.allMatches(text).forEach((match) {
-      final beforeMatch = text.substring(lastMatchEnd, match.start);
-      if (beforeMatch.isNotEmpty) {
-        spans.add(TextSpan(
-          text: beforeMatch,
-          recognizer: TapGestureRecognizer()
-            ..onTap = _clearSelectTextToCallback,
-        ));
-      }
 
-      final matchText = match.group(0);
-      if (matchText == '\n') {
-        spans.add(const TextSpan(text: '\n'));
-      } else if (matchText == 'show more') {
-        spans.add(TextSpan(
-          text: '... show more',
-          style: TextStyle(color: ThemeColor.purple2),
-          recognizer: TapGestureRecognizer()
-            ..onTap = () {
-              widget.showMoreCallback?.call();
-            },
-        ));
-      } else {
-        spans.add(_buildLinkSpan(matchText!, context));
-      }
+    // Preprocess text to handle custom features (hashtags, Nostr links) before Markdown rendering
+    String processedText = _preprocessTextForMarkdown(text);
 
-      lastMatchEnd = match.end;
+    return MarkdownBody(
+      data: processedText,
+      selectable: true,
+      styleSheet: MarkdownStyleSheet(
+        p: baseTextStyle,
+        h1: baseTextStyle.copyWith(
+          fontSize: (widget.textSize ?? 16.px) * 2,
+          fontWeight: FontWeight.bold,
+        ),
+        h2: baseTextStyle.copyWith(
+          fontSize: (widget.textSize ?? 16.px) * 1.75,
+          fontWeight: FontWeight.bold,
+        ),
+        h3: baseTextStyle.copyWith(
+          fontSize: (widget.textSize ?? 16.px) * 1.5,
+          fontWeight: FontWeight.bold,
+        ),
+        h4: baseTextStyle.copyWith(
+          fontSize: (widget.textSize ?? 16.px) * 1.25,
+          fontWeight: FontWeight.bold,
+        ),
+        h5: baseTextStyle.copyWith(
+          fontSize: (widget.textSize ?? 16.px) * 1.1,
+          fontWeight: FontWeight.bold,
+        ),
+        h6: baseTextStyle.copyWith(
+          fontSize: widget.textSize ?? 16.px,
+          fontWeight: FontWeight.bold,
+        ),
+        strong: baseTextStyle.copyWith(fontWeight: FontWeight.bold),
+        em: baseTextStyle.copyWith(fontStyle: FontStyle.italic),
+        del: baseTextStyle.copyWith(decoration: TextDecoration.lineThrough),
+        code: baseTextStyle.copyWith(
+          fontFamily: defaultTargetPlatform == TargetPlatform.iOS ? 'Courier' : 'monospace',
+          backgroundColor: ThemeColor.color190,
+        ),
+        codeblockDecoration: BoxDecoration(
+          color: ThemeColor.color190,
+          borderRadius: BorderRadius.circular(4.px),
+        ),
+        codeblockPadding: EdgeInsets.all(8.px),
+        listBullet: baseTextStyle,
+        blockquote: baseTextStyle.copyWith(
+          color: ThemeColor.color100,
+          fontStyle: FontStyle.italic,
+        ),
+        blockquoteDecoration: BoxDecoration(
+          border: Border(
+            left: BorderSide(color: ThemeColor.purple2, width: 2.px),
+          ),
+        ),
+        blockquotePadding: EdgeInsets.only(left: 16.px),
+        a: baseTextStyle.copyWith(color: ThemeColor.purple2),
+        listIndent: 24.px,
+      ),
+      onTapLink: (text, href, title) {
+        if (href != null) {
+          // Handle custom link formats
+          if (href.startsWith('moment://hashtag/')) {
+            _onTextTap('#${href.substring(18)}', context);
+          } else if (href.startsWith('moment://nostr/')) {
+            String nostrLink = href.substring(15);
+            List<String> list = _dealWithText(nostrLink);
+            if (list[1].isNotEmpty) {
+              _onTextTap(list[1], context);
+            }
+          } else if (href.startsWith('moment://showmore')) {
+            widget.showMoreCallback?.call();
+          } else {
+            // Regular URL
+            _onTextTap(href, context);
+          }
+        }
+      },
+    );
+  }
+
+  // Preprocess text to convert custom formats to Markdown-compatible links
+  String _preprocessTextForMarkdown(String text) {
+    Map<String, RegExp> regexMap = MomentContentAnalyzeUtils.regexMap;
+    String processed = text;
+
+    // Convert hashtags to Markdown links
+    final hashRegex = regexMap['hashRegex']!;
+    processed = processed.replaceAllMapped(hashRegex, (match) {
+      String tag = match.group(0)!;
+      String tagName = match.group(1)!;
+      // Skip headings like "## title" or empty tags
+      if (tagName.isEmpty || tagName.contains('#')) return tag;
+      return '[$tag](moment://hashtag/$tagName)';
     });
 
-    if (lastMatchEnd < text.length) {
-      spans.add(TextSpan(text: text.substring(lastMatchEnd)));
-    }
+    // Convert Nostr profiles to Markdown links
+    final nostrRegex = regexMap['nostrExp']!;
+    processed = processed.replaceAllMapped(nostrRegex, (match) {
+      String nostr = match.group(0)!;
+      return '[$nostr](moment://nostr/$nostr)';
+    });
 
-    return spans;
+    // Convert "show more" to Markdown link
+    final showMoreRegex = regexMap['showMoreExp']!;
+    processed = processed.replaceAllMapped(showMoreRegex, (match) {
+      return '[... show more](moment://showmore)';
+    });
+
+    return processed;
   }
 
-  TextSpan _buildLinkSpan(String text, BuildContext context) {
-    List<String> list = _dealWithText(text);
-    bool hasClickInfo = list[1].isNotEmpty;
-    return TextSpan(
-      text: list[0],
-      style: TextStyle(color: hasClickInfo ? ThemeColor.purple2 : ThemeColor.white),
-      recognizer: TapGestureRecognizer()
-        ..onTap = () {
-          _onTextTap(list[1], context);
-        },
-    );
-  }
 
   List<String> _dealWithText(String text) {
     if (text.startsWith('nostr:npub') ||
@@ -243,14 +283,6 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget>
     widget.clickBlankCallback?.call();
   }
 
-  void _clearSelectTextToCallback(){
-    if (FocusScope.of(context).hasFocus && isOnSelectText) {
-      FocusScope.of(context).unfocus();
-      isOnSelectText = false;
-    } else {
-      widget.clickBlankCallback?.call();
-    }
-  }
 
   Widget _buildTranslateButton() {
     return GestureDetector(
