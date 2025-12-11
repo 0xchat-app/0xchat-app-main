@@ -62,6 +62,7 @@ class _MomentsViewPageState extends State<MomentsViewPage> {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
     return Scaffold(
       backgroundColor: ThemeColor.color190,
       body: SafeArea(
@@ -73,14 +74,14 @@ class _MomentsViewPageState extends State<MomentsViewPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildTitle(),
-                    _buildFilterOptions(),
+                    _buildTitle(textTheme),
+                    _buildFilterOptions(textTheme),
                     SizedBox(height: 24.px),
                   ],
                 ),
               ),
             ),
-            _buildDoneButton(),
+            _buildDoneButton(textTheme),
           ],
         ),
       ),
@@ -109,52 +110,45 @@ class _MomentsViewPageState extends State<MomentsViewPage> {
     );
   }
 
-  Widget _buildTitle() {
+  Widget _buildTitle(TextTheme textTheme) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 24.px, vertical: 16.px),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Moments View',
-            style: TextStyle(
-              color: ThemeColor.color0,
-              fontSize: 24.px,
-              fontWeight: FontWeight.w600,
-            ),
+            'Posts View',
+            style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w600),
             textAlign: TextAlign.center,
           ),
           SizedBox(height: 8.px),
           Text(
             'Select what content appears in your timeline.',
-            style: TextStyle(
-              color: ThemeColor.color100,
-              fontSize: 16.px,
-            ),
+            style: textTheme.bodyMedium,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildFilterOptions() {
+  Widget _buildFilterOptions(TextTheme textTheme) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 24.px, vertical: 16.px),
       child: Column(
         children: [
-          _buildFilterCard(EPublicMomentsPageType.global),
+          _buildFilterCard(EPublicMomentsPageType.global, textTheme),
           SizedBox(height: 12.px),
-          _buildFilterCard(EPublicMomentsPageType.contacts),
+          _buildFilterCard(EPublicMomentsPageType.contacts, textTheme),
           SizedBox(height: 12.px),
-          _buildFilterCard(EPublicMomentsPageType.reacted),
+          _buildFilterCard(EPublicMomentsPageType.reacted, textTheme),
           SizedBox(height: 12.px),
-          _buildFilterCard(EPublicMomentsPageType.private),
+          _buildFilterCard(EPublicMomentsPageType.private, textTheme),
         ],
       ),
     );
   }
 
-  Widget _buildFilterCard(EPublicMomentsPageType type) {
+  Widget _buildFilterCard(EPublicMomentsPageType type, TextTheme textTheme) {
     final isSelected = _selectedType == type;
     final isGlobal = type == EPublicMomentsPageType.global;
     return GestureDetector(
@@ -186,19 +180,12 @@ class _MomentsViewPageState extends State<MomentsViewPage> {
                     children: [
                       Text(
                         type.text,
-                        style: TextStyle(
-                          color: ThemeColor.color0,
-                          fontSize: 16.px,
-                          fontWeight: FontWeight.w600,
-                        ),
+                          style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
                       ),
                       SizedBox(height: 4.px),
                       Text(
                         type.subtitle,
-                        style: TextStyle(
-                          color: ThemeColor.color100,
-                          fontSize: 14.px,
-                        ),
+                          style: textTheme.bodySmall,
                       ),
                     ],
                   ),
@@ -239,7 +226,7 @@ class _MomentsViewPageState extends State<MomentsViewPage> {
     }
     return Icon(
       iconData,
-      size: 32.px,
+      size: 24.px,
       color: ThemeColor.color0,
     );
   }
@@ -258,11 +245,7 @@ class _MomentsViewPageState extends State<MomentsViewPage> {
             SizedBox(width: 8.px),
             Text(
               'SOURCE RELAYS',
-              style: TextStyle(
-                color: ThemeColor.color0,
-                fontSize: 14.px,
-                fontWeight: FontWeight.w600,
-              ),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
             ),
             SizedBox(width: 8.px),
             Container(
@@ -323,8 +306,8 @@ class _MomentsViewPageState extends State<MomentsViewPage> {
             onTap: _addRelay,
             child: Container(
               margin: EdgeInsets.all(8.px),
-              width: 32.px,
-              height: 32.px,
+              width: 24.px,
+              height: 24.px,
               decoration: BoxDecoration(
                 color: ThemeColor.color0,
                 shape: BoxShape.circle,
@@ -410,10 +393,7 @@ class _MomentsViewPageState extends State<MomentsViewPage> {
             Expanded(
               child: Text(
                 relay,
-                style: TextStyle(
-                  color: ThemeColor.color0,
-                  fontSize: 15.px,
-                ),
+                style: Theme.of(context).textTheme.bodyMedium,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
               ),
@@ -424,7 +404,7 @@ class _MomentsViewPageState extends State<MomentsViewPage> {
     );
   }
 
-  Widget _buildDoneButton() {
+  Widget _buildDoneButton(TextTheme textTheme) {
     return Container(
       margin: EdgeInsets.all(24.px),
       width: double.infinity,
@@ -441,9 +421,8 @@ class _MomentsViewPageState extends State<MomentsViewPage> {
           child: Center(
             child: Text(
               'Done',
-              style: TextStyle(
+              style: textTheme.titleSmall?.copyWith(
                 color: ThemeColor.color200,
-                fontSize: 16.px,
                 fontWeight: FontWeight.w600,
               ),
             ),

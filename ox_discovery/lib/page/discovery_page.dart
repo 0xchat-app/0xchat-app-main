@@ -59,7 +59,7 @@ extension EDiscoveryPageTypeEx on EDiscoveryPageType {
   String get text {
     switch (this) {
       case EDiscoveryPageType.moment:
-        return 'Moments';
+        return 'Posts';
       case EDiscoveryPageType.napp:
         return 'NApps';
       case EDiscoveryPageType.group:
