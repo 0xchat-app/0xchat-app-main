@@ -274,8 +274,8 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
             enablePullDown: true,
             enablePullUp: true,
             onRefresh: () async {
-              // Re-initialize subscriptions based on current filter type
-              await _initializeSubscriptions();
+              // Only refresh data, don't re-subscribe
+              await updateNotesList(true);
             },
             onLoading: () => updateNotesList(false),
             child: _getMomentListWidget(),
