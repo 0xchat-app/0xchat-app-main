@@ -143,6 +143,7 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
       );
 
       Map<String, UserDBISAR> result = {};
+      Set<String> processedPubkeys = {}; // Track processed users to avoid duplicates
       Map<String, Event> eventMap = {}; // Store events to clean cache later
       Connect.sharedInstance.addSubscription(
         [searchFilter],
@@ -160,29 +161,54 @@ class _UnifiedSearchPageState extends State<UnifiedSearchPage>
           }
         },
         eoseCallBack: (requestId, ok, relay, unRelays) async {
-          if (unRelays.isEmpty && result.isNotEmpty) {
-            List<UserDBISAR> users = result.values.toList();
-            // Remove existing group with same title if exists (from relay search)
+          // Process new users and return via callback for real-time display
+          List<UserDBISAR> newUsers = [];
+          for (UserDBISAR user in result.values) {
+            if (!processedPubkeys.contains(user.pubKey)) {
+              newUsers.add(user);
+              processedPubkeys.add(user.pubKey);
+            }
+          }
+          
+          // Return new users via callback for real-time display
+          if (newUsers.isNotEmpty) {
             String contactsTitle = 'str_title_contacts'.localized();
-            _contacts.removeWhere((group) => group.title == contactsTitle);
-            _contacts.add(
-              GroupedModel(
-                title: contactsTitle,
-                items: users,
-              ),
-            );
+            // Find or create the contacts group
+            int groupIndex = _contacts.indexWhere((group) => group.title == contactsTitle);
+            if (groupIndex == -1) {
+              _contacts.add(
+                GroupedModel<UserDBISAR>(
+                  title: contactsTitle,
+                  items: [],
+                ),
+              );
+              groupIndex = _contacts.length - 1;
+            }
+            // Add new users to existing group, avoiding duplicates
+            GroupedModel<UserDBISAR> existingGroup = _contacts[groupIndex];
+            Set<String> existingPubkeys = existingGroup.items.map((u) => u.pubKey).toSet();
+            for (var user in newUsers) {
+              if (!existingPubkeys.contains(user.pubKey)) {
+                existingGroup.items.add(user);
+                existingPubkeys.add(user.pubKey);
+              }
+            }
             _searchResult[SearchType.contact] = _contacts;
             if (mounted) {
               setState(() {});
             }
           }
+          
           // Remove eventIds from event cache to avoid being cached for next search
           for (Event event in eventMap.values) {
             EventCache.sharedInstance.cacheIds.remove(event.id);
           }
-          // Hide loading after search completes
-          if (OXLoading.isShow) {
-            OXLoading.dismiss();
+          
+          // Hide loading after all relays complete
+          if (unRelays.isEmpty) {
+            if (OXLoading.isShow) {
+              OXLoading.dismiss();
+            }
           }
         },
       );
