@@ -119,12 +119,14 @@ class GroupContactState extends State<GroupContact> {
       mapData[cTag]?.add(item);
     });
 
-    mapData.forEach((tag, list) {
-      if (list.isNotEmpty) {
+    // Build index tag list and note list in alphabetical order
+    for (var tag in ALPHAS_INDEX) {
+      var list = mapData[tag];
+      if (list != null && list.isNotEmpty) {
         indexTagList.add(tag);
         noteList.add(Note(tag, list));
       }
-    });
+    }
   }
 
   @override
