@@ -76,17 +76,46 @@ class _SearchNoteViewState extends State<SearchNoteView>
     if (!OXLoading.isShow) {
       OXLoading.show();
     }
+    // Clear previous results
+    _notes.clear();
+    if (mounted) {
+      setState(() {});
+    }
     try {
-      List<NoteDBISAR> noteList = await Moment.sharedInstance.searchNotesWithKeyword(keyword);
-      _notes.clear();
-      if (noteList.isEmpty) {
-        updateStateView(CommonStateView.CommonStateView_NoData);
-      } else {
-        _notes.addAll(noteList);
-        updateStateView(CommonStateView.CommonStateView_None);
-      }
+      List<NoteDBISAR> noteList = await Moment.sharedInstance.searchNotesWithKeyword(
+        keyword,
+        notesCallBack: (List<NoteDBISAR> newNotes) {
+          // Real-time callback: add new notes as they arrive
+          if (mounted) {
+            setState(() {
+              // Avoid duplicates
+              Set<String> existingIds = _notes.map((n) => n.noteId).toSet();
+              for (var note in newNotes) {
+                if (!existingIds.contains(note.noteId)) {
+                  _notes.add(note);
+                  existingIds.add(note.noteId);
+                }
+              }
+              // Sort by createAt from new to old (descending)
+              _notes.sort((a, b) => b.createAt.compareTo(a.createAt));
+              if (_notes.isNotEmpty) {
+                updateStateView(CommonStateView.CommonStateView_None);
+              }
+            });
+          }
+        },
+      );
+      // Final update with all results
       if (mounted) {
-        setState(() {});
+        setState(() {
+          _notes.clear();
+          _notes.addAll(noteList);
+          if (noteList.isEmpty) {
+            updateStateView(CommonStateView.CommonStateView_NoData);
+          } else {
+            updateStateView(CommonStateView.CommonStateView_None);
+          }
+        });
       }
     } finally {
       // Hide loading after search completes
