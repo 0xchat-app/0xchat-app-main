@@ -406,5 +406,21 @@
     "icon": "https://honey.hivetalk.org/all.png",
     "description": "Video Conferencing, Reimagined\nNostr + Lightning Integrated",
     "metadata": {}
+  },
+  {
+    "id": "mutable",
+    "url": "https://www.mutable.top/",
+    "name": "Mutable",
+    "icon": "https://www.mutable.top/mutable_logo.svg",
+    "description": "Your Nostr Mute List Manager",
+    "metadata": {}
+  },
+  {
+    "id": "grimoire",
+    "url": "https://grimoire.rocks/",
+    "name": "Grimoire",
+    "icon": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://grimoire.rocks/&size=256",
+    "description": "a nostr client for magicians",
+    "metadata": {}
   }
 ]
