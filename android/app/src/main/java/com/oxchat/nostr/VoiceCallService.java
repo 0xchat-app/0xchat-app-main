@@ -45,7 +45,7 @@ public class VoiceCallService extends Service {
                 .setContentText("📱 " + notificationText)
                 .setSubText(getString(R.string.voice_call_notification_subtext))
                 .setContentIntent(pendingIntent)
-                .setSmallIcon(R.mipmap.ox_logo_launcher)
+                .setSmallIcon(R.mipmap.ic_notification)
                 .setOngoing(true)
                 .setVisibility(Notification.VISIBILITY_PUBLIC)
                 .setPriority(Notification.PRIORITY_HIGH)

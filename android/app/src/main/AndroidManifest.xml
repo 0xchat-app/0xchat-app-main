@@ -64,7 +64,7 @@
     <application
         android:name=".OXApplication"
         android:allowBackup="false"
-        android:icon="@mipmap/ox_logo_launcher"
+        android:icon="@mipmap/ic_launcher"
         android:label="@string/main_app_name"
         android:requestLegacyExternalStorage="true"
         android:theme="@style/LaunchTheme_night"

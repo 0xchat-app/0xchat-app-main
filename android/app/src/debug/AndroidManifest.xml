@@ -35,7 +35,7 @@
 
     <application
         android:label="@string/main_app_name"
-        android:icon="@mipmap/ox_logo_launcher"
+        android:icon="@mipmap/ic_launcher"
         tools:replace="android:label"
         android:hardwareAccelerated="true"
         android:largeHeap="true"
