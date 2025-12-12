@@ -53,6 +53,7 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
     _initMinioData();
     _initNip96Data();
     _initBlossomData();
+    _initFileDropData();
   }
 
   _initMinioData() {
@@ -85,6 +86,16 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
         BlossomServer? blossomServer = widget.fileStorageServer as BlossomServer;
         _urlController.text = blossomServer.url;
         _serverNameController.text = blossomServer.name;
+      }
+    }
+  }
+
+  _initFileDropData() {
+    if (widget.fileStorageProtocol == FileStorageProtocol.filedrop) {
+      if (widget.operationType == OperationType.edit) {
+        FileDropServer? fileDropServer = widget.fileStorageServer as FileDropServer;
+        _urlController.text = fileDropServer.url;
+        _serverNameController.text = fileDropServer.name;
       }
     }
   }
@@ -124,6 +135,8 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
               _buildNip96TypeView(),
             if(widget.fileStorageProtocol == FileStorageProtocol.blossom)
               _buildBlossomTypeView(),
+            if(widget.fileStorageProtocol == FileStorageProtocol.filedrop)
+              _buildFileDropTypeView(),
             CommonButton.themeButton(
               text: Localized.text('ox_common.complete'),
               onTap: _handleComplete,
@@ -234,6 +247,27 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
     );
   }
 
+  Widget _buildFileDropTypeView() {
+    return Column(
+      children: [
+        _buildItem(
+          'URL',
+          _buildTextField(
+            hintText: Localized.text('ox_usercenter.str_url_hint_text'),
+            controller: _urlController,
+          ),
+        ),
+        _buildItem(
+          Localized.text('ox_usercenter.str_custom_name'),
+          _buildTextField(
+            hintText: Localized.text('ox_usercenter.str_name_hint_text'),
+            controller: _serverNameController,
+          ),
+        ).setPaddingOnly(top: 12.px),
+      ],
+    );
+  }
+
   Widget _buildMinioTypeView() {
     Map<String,String> hintText = {
       _minioInputOptions[0]: Localized.text('ox_usercenter.str_url_hint_text'),
@@ -305,6 +339,9 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
         _createMinioServer();
         break;
       case FileStorageProtocol.oss:
+        break;
+      case FileStorageProtocol.filedrop:
+        _createFileDropServer();
         break;
     }
   }
@@ -419,6 +456,26 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
       await OXServerManager.sharedInstance.addFileStorageServer(nip96server);
     }else {
       await OXServerManager.sharedInstance.updateFileStorageServer(nip96server);
+    }
+    OXNavigator.pop(context);
+  }
+
+  _createFileDropServer() async {
+    final url = _urlController.text;
+    final name = _serverNameController.text;
+    if(!_urlValidator(url)) {
+      CommonToast.instance.show(context, Localized.text('ox_usercenter.str_url_tips_text'));
+      return;
+    }
+    FileDropServer fileDropServer = FileDropServer(
+      url: url,
+      name: name.isNotEmpty ? name : url,
+      description: url,
+    );
+    if(widget.operationType == OperationType.create) {
+      await OXServerManager.sharedInstance.addFileStorageServer(fileDropServer);
+    }else {
+      await OXServerManager.sharedInstance.updateFileStorageServer(fileDropServer);
     }
     OXNavigator.pop(context);
   }

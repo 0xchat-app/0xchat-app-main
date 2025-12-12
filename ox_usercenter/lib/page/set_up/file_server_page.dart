@@ -183,6 +183,7 @@ class _FileServerPageState extends State<FileServerPage> with OXServerObserver {
             BottomSheetItem(title: FileStorageProtocol.nip96.serverName,onTap: ()=> OXNavigator.pushPage(context, (context) => const FileServerOperationPage(fileStorageProtocol: FileStorageProtocol.nip96))),
             BottomSheetItem(title: FileStorageProtocol.blossom.serverName,onTap: ()=> OXNavigator.pushPage(context, (context) => const FileServerOperationPage(fileStorageProtocol: FileStorageProtocol.blossom))),
             BottomSheetItem(title: FileStorageProtocol.minio.serverName,onTap: ()=> OXNavigator.pushPage(context, (context) => const FileServerOperationPage(fileStorageProtocol: FileStorageProtocol.minio))),
+            BottomSheetItem(title: FileStorageProtocol.filedrop.serverName,onTap: ()=> OXNavigator.pushPage(context, (context) => const FileServerOperationPage(fileStorageProtocol: FileStorageProtocol.filedrop))),
           ];
           BottomSheetDialog.showBottomSheet(context, items);
         },
