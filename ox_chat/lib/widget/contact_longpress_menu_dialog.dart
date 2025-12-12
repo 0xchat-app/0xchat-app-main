@@ -266,7 +266,7 @@ extension CLongPressOptionTypeEx on CLongPressOptionType {
       case CLongPressOptionType.voiceCall:
         UserDBISAR? userDB = Contacts.sharedInstance.allContacts[sessionModelISAR.getOtherPubkey] as UserDBISAR;
         if (userDB.pubKey == OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
-          return CommonToast.instance.show(context, "Don't call yourself");
+          return CommonToast.instance.show(context, Localized.text('ox_chat.dont_call_yourself'));
         }
         OXModuleService.pushPage(
           context,

@@ -89,13 +89,13 @@ extension EInformationTypeEx on EInformationType {
   String get text {
     switch (this) {
       case EInformationType.media:
-        return 'Media';
+        return Localized.text('ox_chat.str_title_media');
       case EInformationType.badges:
-        return 'Badges';
+        return Localized.text('ox_chat.badges');
       case EInformationType.moments:
-        return 'Moment';
+        return Localized.text('ox_discovery.moment');
       case EInformationType.groups:
-        return 'Groups';
+        return Localized.text('ox_chat.str_title_groups');
     }
   }
 }
@@ -104,15 +104,15 @@ extension MoreOptionTypeEx on EMoreOptionType {
   String get text {
     switch (this) {
       case EMoreOptionType.message:
-        return 'Clear messages';
+        return Localized.text('ox_chat.clear_messages');
       case EMoreOptionType.messageTimer:
-        return 'Enable auto-delete';
+        return Localized.text('ox_chat.enable_auto_delete');
       case EMoreOptionType.secretChat:
-        return "Start secret chat";
+        return Localized.text('ox_chat.start_secret_chat');
       case EMoreOptionType.userOption:
-        return 'Block user';
+        return Localized.text('ox_chat.block_user');
       case EMoreOptionType.remark:
-        return 'Edit remark';
+        return Localized.text('ox_chat.edit_remark');
     }
   }
 
@@ -148,7 +148,7 @@ extension OtherInfoItemStr on EOtherInfoItemType {
       case EOtherInfoItemType.Moments:
         return Localized.text('ox_discovery.moment');
       case EOtherInfoItemType.Link:
-        return 'Share Link';
+        return Localized.text('ox_chat.share_link');
     }
   }
 }
@@ -265,7 +265,7 @@ class _ContactUserOptionWidgetState extends State<ContactUserOptionWidget> with 
           onTap: () {
             SingleSearchPage(chatId: widget.pubkey,).show(context);
           },
-          content: 'Search',
+          content: Localized.text('ox_chat.search'),
         ),
         TabModel(
           onTap: () {},
@@ -573,7 +573,7 @@ class _ContactUserOptionWidgetState extends State<ContactUserOptionWidget> with 
         ),
         alignment: Alignment.center,
         child: Text(
-          isMe  ?  'Send Message' : 'Add Contact',
+          isMe  ?  Localized.text('ox_chat.send_message') : Localized.text('ox_chat.add_contact'),
           style: TextStyle(
             color: myPubkey != widget.pubkey && friendsStatus
                 ? ThemeColor.red
@@ -863,8 +863,8 @@ class _ContactUserOptionWidgetState extends State<ContactUserOptionWidget> with 
 
   void _clearMessage() async {
     OXCommonHintDialog.show(context,
-        title: 'Clear Message',
-        content: 'Confirm whether to delete all records of the chat ?',
+        title: Localized.text('ox_chat.clear_message_title'),
+        content: Localized.text('ox_chat.clear_message_content'),
         actionList: [
           OXCommonHintAction.cancel(onTap: () {
             OXNavigator.pop(context);
@@ -952,11 +952,11 @@ class _ContactUserOptionWidgetState extends State<ContactUserOptionWidget> with 
             mainAxisSize: MainAxisSize.min,
             children: [
               _buildMomentItem(
-                'Copy Link',
+                Localized.text('ox_chat.copy_link'),
                 index: 0,
                 onTap: () async {
                   await TookKit.copyKey(context, _showUserQrCodeUrl);
-                  CommonToast.instance.show(context, 'Copy successfully !');
+                  CommonToast.instance.show(context, Localized.text('ox_chat.copy_successfully'));
                   OXNavigator.pop(context);
                 },
               ),
@@ -1170,7 +1170,7 @@ class _ContactUserOptionWidgetState extends State<ContactUserOptionWidget> with 
   void _clickCall() async {
     if (userDB.pubKey ==
         OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
-      CommonToast.instance.show(context, "Don't call yourself");
+      CommonToast.instance.show(context, Localized.text('ox_chat.dont_call_yourself'));
     } else {
       OXActionModel? oxActionModel = await OXActionDialog.show(
         context,
