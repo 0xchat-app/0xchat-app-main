@@ -2,7 +2,8 @@ enum FileStorageProtocol {
   nip96(serverName: 'Nip96 Server'),
   blossom(serverName: 'Blossom Server'),
   minio(serverName: 'Minio Server'),
-  oss(serverName: 'OSS Server');
+  oss(serverName: 'OSS Server'),
+  filedrop(serverName: 'FileDrop Server');
 
   final String serverName;
 
@@ -64,12 +65,12 @@ class FileStorageServer {
           canEdit: canEdit,
           description: description,
         );
-      default:
-        return FileStorageServer(
+      case FileStorageProtocol.filedrop:
+        return FileDropServer(
           url: url,
           name: name,
-          protocol: protocol,
           canEdit: canEdit,
+          description: description,
         );
     }
   }
@@ -97,7 +98,7 @@ class FileStorageServer {
         };
       case FileStorageProtocol.oss:
         return fileServerJson;
-      default:
+      case FileStorageProtocol.filedrop:
         return fileServerJson;
     }
   }
@@ -197,4 +198,13 @@ class OXChatServer extends FileStorageServer {
     super.canEdit,
     super.description,
   }) : super(protocol: FileStorageProtocol.oss);
+}
+
+class FileDropServer extends FileStorageServer {
+  FileDropServer({
+    required super.url,
+    required super.name,
+    super.canEdit,
+    super.description,
+  }) : super(protocol: FileStorageProtocol.filedrop);
 }

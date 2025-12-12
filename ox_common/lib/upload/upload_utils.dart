@@ -6,6 +6,7 @@ import 'package:minio/minio.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/file_storage_server_model.dart';
 import 'package:ox_common/upload/file_type.dart';
+import 'package:ox_common/upload/filedrop_uploader.dart';
 import 'package:ox_common/upload/minio_uploader.dart';
 import 'package:ox_common/upload/upload_exception.dart';
 import 'package:ox_common/upload/uploader.dart';
@@ -98,6 +99,14 @@ class UploadUtils {
             showLoading: showLoading,
             onProgress: onProgress,
           );
+          break;
+        case FileStorageProtocol.filedrop:
+          url = await FileDropUploader.upload(
+            fileStorageServer.url,
+            uploadFile.path,
+            fileName: filename,
+            onProgress: onProgress,
+          ) ?? '';
           break;
       }
       if (showLoading) OXLoading.dismiss();
