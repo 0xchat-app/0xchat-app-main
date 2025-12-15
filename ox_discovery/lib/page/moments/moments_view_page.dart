@@ -139,9 +139,9 @@ class _MomentsViewPageState extends State<MomentsViewPage> {
       padding: EdgeInsets.symmetric(horizontal: 24.px, vertical: 16.px),
       child: Column(
         children: [
-          _buildFilterCard(EPublicMomentsPageType.global, textTheme),
-          SizedBox(height: 12.px),
           _buildFilterCard(EPublicMomentsPageType.contacts, textTheme),
+          SizedBox(height: 12.px),
+          _buildFilterCard(EPublicMomentsPageType.global, textTheme),
           SizedBox(height: 12.px),
           _buildFilterCard(EPublicMomentsPageType.reacted, textTheme),
           SizedBox(height: 12.px),

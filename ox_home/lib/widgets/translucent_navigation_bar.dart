@@ -1,6 +1,7 @@
 library dot_navigation_bar;
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
@@ -190,8 +191,9 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
 
   @override
   Widget build(BuildContext context) {
-    // Get bottom safe area padding for Android navigation bar
-    final bottomPadding = MediaQuery.of(context).padding.bottom;
+    // Get bottom safe area padding for Android navigation bar only
+    // iOS Scaffold already handles bottom safe area (Home indicator)
+    final bottomPadding = Platform.isAndroid ? MediaQuery.of(context).padding.bottom : 0.0;
     // Calculate total offset including bottom padding
     final baseOffset = 72 + 24.px;
     // Add extra safety margin to ensure complete hiding

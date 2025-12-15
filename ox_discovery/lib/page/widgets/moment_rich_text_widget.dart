@@ -18,6 +18,7 @@ import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import '../moments/topic_moment_page.dart';
+import '../moments/moment_article_page.dart';
 
 class MomentRichTextWidget extends StatefulWidget {
   final String text;
@@ -127,61 +128,67 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget>
     // Preprocess text to handle custom features (hashtags, Nostr links) before Markdown rendering
     String processedText = _preprocessTextForMarkdown(text);
 
-    return MarkdownBody(
-      data: processedText,
-      selectable: true,
-      styleSheet: MarkdownStyleSheet(
-        p: baseTextStyle,
-        h1: baseTextStyle.copyWith(
-          fontSize: (widget.textSize ?? 16.px) * 2,
-          fontWeight: FontWeight.bold,
-        ),
-        h2: baseTextStyle.copyWith(
-          fontSize: (widget.textSize ?? 16.px) * 1.75,
-          fontWeight: FontWeight.bold,
-        ),
-        h3: baseTextStyle.copyWith(
-          fontSize: (widget.textSize ?? 16.px) * 1.5,
-          fontWeight: FontWeight.bold,
-        ),
-        h4: baseTextStyle.copyWith(
-          fontSize: (widget.textSize ?? 16.px) * 1.25,
-          fontWeight: FontWeight.bold,
-        ),
-        h5: baseTextStyle.copyWith(
-          fontSize: (widget.textSize ?? 16.px) * 1.1,
-          fontWeight: FontWeight.bold,
-        ),
-        h6: baseTextStyle.copyWith(
-          fontSize: widget.textSize ?? 16.px,
-          fontWeight: FontWeight.bold,
-        ),
-        strong: baseTextStyle.copyWith(fontWeight: FontWeight.bold),
-        em: baseTextStyle.copyWith(fontStyle: FontStyle.italic),
-        del: baseTextStyle.copyWith(decoration: TextDecoration.lineThrough),
-        code: baseTextStyle.copyWith(
-          fontFamily: defaultTargetPlatform == TargetPlatform.iOS ? 'Courier' : 'monospace',
-          backgroundColor: ThemeColor.color190,
-        ),
-        codeblockDecoration: BoxDecoration(
-          color: ThemeColor.color190,
-          borderRadius: BorderRadius.circular(4.px),
-        ),
-        codeblockPadding: EdgeInsets.all(8.px),
-        listBullet: baseTextStyle,
-        blockquote: baseTextStyle.copyWith(
-          color: ThemeColor.color100,
-          fontStyle: FontStyle.italic,
-        ),
-        blockquoteDecoration: BoxDecoration(
-          border: Border(
-            left: BorderSide(color: ThemeColor.purple2, width: 2.px),
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () {
+        // Handle blank area tap to trigger detail page navigation
+        widget.clickBlankCallback?.call();
+      },
+      child: MarkdownBody(
+        data: processedText,
+        selectable: false,
+        styleSheet: MarkdownStyleSheet(
+          p: baseTextStyle,
+          h1: baseTextStyle.copyWith(
+            fontSize: (widget.textSize ?? 16.px) * 2,
+            fontWeight: FontWeight.bold,
           ),
+          h2: baseTextStyle.copyWith(
+            fontSize: (widget.textSize ?? 16.px) * 1.75,
+            fontWeight: FontWeight.bold,
+          ),
+          h3: baseTextStyle.copyWith(
+            fontSize: (widget.textSize ?? 16.px) * 1.5,
+            fontWeight: FontWeight.bold,
+          ),
+          h4: baseTextStyle.copyWith(
+            fontSize: (widget.textSize ?? 16.px) * 1.25,
+            fontWeight: FontWeight.bold,
+          ),
+          h5: baseTextStyle.copyWith(
+            fontSize: (widget.textSize ?? 16.px) * 1.1,
+            fontWeight: FontWeight.bold,
+          ),
+          h6: baseTextStyle.copyWith(
+            fontSize: widget.textSize ?? 16.px,
+            fontWeight: FontWeight.bold,
+          ),
+          strong: baseTextStyle.copyWith(fontWeight: FontWeight.bold),
+          em: baseTextStyle.copyWith(fontStyle: FontStyle.italic),
+          del: baseTextStyle.copyWith(decoration: TextDecoration.lineThrough),
+          code: baseTextStyle.copyWith(
+            fontFamily: defaultTargetPlatform == TargetPlatform.iOS ? 'Courier' : 'monospace',
+            backgroundColor: ThemeColor.color190,
+          ),
+          codeblockDecoration: BoxDecoration(
+            color: ThemeColor.color190,
+            borderRadius: BorderRadius.circular(4.px),
+          ),
+          codeblockPadding: EdgeInsets.all(8.px),
+          listBullet: baseTextStyle,
+          blockquote: baseTextStyle.copyWith(
+            color: ThemeColor.color100,
+            fontStyle: FontStyle.italic,
+          ),
+          blockquoteDecoration: BoxDecoration(
+            border: Border(
+              left: BorderSide(color: ThemeColor.purple2, width: 2.px),
+            ),
+          ),
+          blockquotePadding: EdgeInsets.only(left: 16.px),
+          a: baseTextStyle.copyWith(color: ThemeColor.purple2),
+          listIndent: 24.px,
         ),
-        blockquotePadding: EdgeInsets.only(left: 16.px),
-        a: baseTextStyle.copyWith(color: ThemeColor.purple2),
-        listIndent: 24.px,
-      ),
       onTapLink: (text, href, title) {
         if (href != null) {
           // Handle custom link formats
@@ -193,6 +200,14 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget>
             if (list[1].isNotEmpty) {
               _onTextTap(list[1], context);
             }
+          } else if (href.startsWith('moment://note/')) {
+            // Handle note/event references - show as quoted moment
+            String noteRef = href.substring(14);
+            _handleNoteReference(noteRef, context);
+          } else if (href.startsWith('moment://naddr/')) {
+            // Handle naddr (article) references
+            String naddrRef = href.substring(15);
+            _handleNaddrReference(naddrRef, context);
           } else if (href.startsWith('moment://showmore')) {
             widget.showMoreCallback?.call();
           } else {
@@ -201,6 +216,7 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget>
           }
         }
       },
+      ),
     );
   }
 
@@ -219,11 +235,38 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget>
       return '[$tag](moment://hashtag/$tagName)';
     });
 
-    // Convert Nostr profiles to Markdown links
+    // Convert Nostr profiles to Markdown links with user names
     final nostrRegex = regexMap['nostrExp']!;
     processed = processed.replaceAllMapped(nostrRegex, (match) {
       String nostr = match.group(0)!;
-      return '[$nostr](moment://nostr/$nostr)';
+      // Try to get user name from userDBList
+      String displayText = nostr;
+      if (userDBList.containsKey(nostr) && userDBList[nostr] != null) {
+        UserDBISAR userDB = userDBList[nostr]!;
+        displayText = '@${userDB.name ?? userDB.nickName ?? userDB.pubKey}';
+      } else {
+        // Try to decode and get pubkey for display
+        Map<String, dynamic>? userMap = Account.decodeProfile(nostr);
+        if (userMap != null && userMap['pubkey'] != null && userMap['pubkey'].toString().isNotEmpty) {
+          displayText = '@${userMap['pubkey'].toString().substring(0, 8)}...';
+        }
+      }
+      return '[$displayText](moment://nostr/$nostr)';
+    });
+
+    // Convert Nostr note/event references to readable links
+    final noteRegex = regexMap['noteExp']!;
+    processed = processed.replaceAllMapped(noteRegex, (match) {
+      String noteRef = match.group(0)!;
+      String displayText = noteRef.contains('nevent') ? '📝 Event' : '📝 Note';
+      return '[$displayText](moment://note/$noteRef)';
+    });
+
+    // Convert Nostr address (article) references to readable links
+    final naddrRegex = regexMap['naddrExp']!;
+    processed = processed.replaceAllMapped(naddrRegex, (match) {
+      String naddr = match.group(0)!;
+      return '[📄 Article](moment://naddr/$naddr)';
     });
 
     // Convert "show more" to Markdown link
@@ -281,6 +324,21 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget>
       return;
     }
     widget.clickBlankCallback?.call();
+  }
+
+  void _handleNoteReference(String noteRef, BuildContext context) {
+    // Note/event references are handled by MomentQuoteWidget in moment_widget.dart
+    // For now, just show a toast. In the future, could navigate to the note.
+    CommonToast.instance.show(context, 'Note reference: ${noteRef.substring(0, 20)}...');
+  }
+
+  void _handleNaddrReference(String naddrRef, BuildContext context) {
+    // Naddr (article) references are handled by MomentArticleWidget in moment_widget.dart
+    // Navigate to the article page
+    OXNavigator.presentPage(
+      context,
+      (context) => MomentArticlePage(naddr: naddrRef),
+    );
   }
 
 

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:nostr_core_dart/nostr.dart';
@@ -76,8 +77,9 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
   
   @override
   Widget build(BuildContext context) {
-    // Get bottom safe area padding for Android navigation bar
-    final bottomPadding = MediaQuery.of(context).padding.bottom;
+    // Get bottom safe area padding for Android navigation bar only
+    // iOS Scaffold already handles bottom safe area (Home indicator)
+    final bottomPadding = Platform.isAndroid ? MediaQuery.of(context).padding.bottom : 0.0;
     
     return Scaffold(
       extendBody: true,
