@@ -422,5 +422,21 @@
     "icon": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://grimoire.rocks/&size=256",
     "description": "a nostr client for magicians",
     "metadata": {}
+  },
+  {
+    "id": "nym",
+    "url": "https://nym.bar/",
+    "name": "Nym",
+    "icon": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://nym.bar/&size=256",
+    "description": "Nostr Ynstant Messenger",
+    "metadata": {}
+  },
+  {
+    "id": "nostube",
+    "url": "https://nostu.be/",
+    "name": "Nostu",
+    "icon": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://nostu.be/&size=256",
+    "description": "Discover videos and music on NOSTR",
+    "metadata": {}
   }
 ]
