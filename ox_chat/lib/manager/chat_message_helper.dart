@@ -398,6 +398,7 @@ class ChatMessageHelper {
     int? expiration,
     List<String> reactionIds = const [],
     List<String> zapsInfoIds = const [],
+    Map<String, String>? emojiShortcodes,
     Function(String content, MessageType messageType)? asyncParseCallback,
     VoidCallback? isMentionMessageCallback,
   }) async {
@@ -451,6 +452,7 @@ class ChatMessageHelper {
       expiration: expiration,
       reactions: reactions,
       zapsInfoList: zapsInfoList,
+      emojiShortcodes: emojiShortcodes,
     );
 
     logger?.print(
@@ -542,6 +544,7 @@ extension MessageDBToUIEx on MessageDBISAR {
       expiration: expiration,
       reactionIds: reactionEventIds ?? [],
       zapsInfoIds: zapEventIds ?? [],
+      emojiShortcodes: emojiShortcodes.isNotEmpty ? emojiShortcodes : null,
       asyncParseCallback: asyncParseCallback,
       isMentionMessageCallback: isMentionMessageCallback,
     );

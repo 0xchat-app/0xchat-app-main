@@ -31,6 +31,7 @@ abstract class MessageFactory {
     int? expiration,
     List<types.Reaction> reactions = const [],
     List<types.ZapsInfo> zapsInfoList = const [],
+    Map<String, String>? emojiShortcodes,
   });
 }
 
@@ -53,6 +54,7 @@ class TextMessageFactory implements MessageFactory {
     int? expiration,
     List<types.Reaction> reactions = const [],
     List<types.ZapsInfo> zapsInfoList = const [],
+    Map<String, String>? emojiShortcodes,
   }) {
     final text = content;
     PreviewData? previewDataEntry;
@@ -61,6 +63,13 @@ class TextMessageFactory implements MessageFactory {
         previewDataEntry = PreviewData.fromJson(jsonDecode(previewData));
       } catch (_) {}
     }
+    
+    // Store emoji shortcodes in metadata if available (NIP-30)
+    Map<String, dynamic>? metadata;
+    if (emojiShortcodes != null && emojiShortcodes.isNotEmpty) {
+      metadata = {'emojiShortcodes': emojiShortcodes};
+    }
+    
     return types.TextMessage(
       author: author,
       createdAt: timestamp,
@@ -76,6 +85,7 @@ class TextMessageFactory implements MessageFactory {
       expiration: expiration,
       reactions: reactions,
       zapsInfoList: zapsInfoList,
+      metadata: metadata,
     );
   }
 }
@@ -99,6 +109,7 @@ class ImageMessageFactory implements MessageFactory {
     int? expiration,
     List<types.Reaction> reactions = const [],
     List<types.ZapsInfo> zapsInfoList = const [],
+    Map<String, String>? emojiShortcodes,
   }) {
     final uri = content;
     if (uri.isEmpty) {
@@ -146,6 +157,7 @@ class AudioMessageFactory implements MessageFactory {
     int? expiration,
     List<types.Reaction> reactions = const [],
     List<types.ZapsInfo> zapsInfoList = const [],
+    Map<String, String>? emojiShortcodes,
   }) {
     final uri = content;
     if (uri.isEmpty) {
@@ -194,6 +206,7 @@ class VideoMessageFactory implements MessageFactory {
     int? expiration,
     List<types.Reaction> reactions = const [],
     List<types.ZapsInfo> zapsInfoList = const [],
+    Map<String, String>? emojiShortcodes,
   }) {
     final uri = content;
     final snapshotUrl =
@@ -246,6 +259,7 @@ class CallMessageFactory implements MessageFactory {
     int? expiration,
     List<types.Reaction> reactions = const [],
     List<types.ZapsInfo> zapsInfoList = const [],
+    Map<String, String>? emojiShortcodes,
   }) {
     if (content.isEmpty) return null;
 
@@ -346,6 +360,7 @@ class SystemMessageFactory implements MessageFactory {
     int? expiration,
     List<types.Reaction> reactions = const [],
     List<types.ZapsInfo> zapsInfoList = const [],
+    Map<String, String>? emojiShortcodes,
   }) {
     var text = content;
     final key = text;
@@ -407,6 +422,7 @@ class CustomMessageFactory implements MessageFactory {
     int? expiration,
     List<types.Reaction> reactions = const [],
     List<types.ZapsInfo> zapsInfoList = const [],
+    Map<String, String>? emojiShortcodes,
   }) {
     final contentString = content;
     if (contentString.isEmpty) return null;

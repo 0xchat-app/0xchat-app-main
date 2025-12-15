@@ -186,6 +186,7 @@ class _MomentWidgetState extends State<MomentWidget> {
              await OXNavigator.pushPage(context, (context) => MomentsPage(notedUIModel: model,isShowReply: widget.isShowReply));
             },
             text: content,
+            emojiShortcodes: model.noteDB.emojiShortcodes, // Pass custom emojis (NIP-30)
           ).setPadding(EdgeInsets.only(bottom: 12.px));
         }
       }).toList(),

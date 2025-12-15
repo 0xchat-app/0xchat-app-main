@@ -29,6 +29,7 @@ class MomentRichTextWidget extends StatefulWidget {
   final Function? showMoreCallback;
   final bool isShowAllContent;
   final bool showTranslateButton;
+  final Map<String, String>? emojiShortcodes; // Custom emoji shortcode to URL map (NIP-30)
 
   const MomentRichTextWidget({
     super.key,
@@ -40,6 +41,7 @@ class MomentRichTextWidget extends StatefulWidget {
     this.showMoreCallback,
     this.isShowAllContent = false,
     this.showTranslateButton = true,
+    this.emojiShortcodes,
   });
 
   @override
@@ -137,6 +139,26 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget>
       child: MarkdownBody(
         data: processedText,
         selectable: false,
+        imageBuilder: (Uri uri, String? title, String? alt) {
+          // Custom image builder for emoji images (NIP-30)
+          if (uri.toString().startsWith('moment://emoji/')) {
+            final shortcode = uri.toString().substring('moment://emoji/'.length);
+            if (widget.emojiShortcodes != null && widget.emojiShortcodes!.containsKey(shortcode)) {
+              final emojiUrl = widget.emojiShortcodes![shortcode]!;
+              return Image.network(
+                emojiUrl,
+                width: (widget.textSize ?? 16.px) * 1.5,
+                height: (widget.textSize ?? 16.px) * 1.5,
+                errorBuilder: (context, error, stackTrace) {
+                  // Fallback to text if image fails to load
+                  return Text(':$shortcode:', style: baseTextStyle);
+                },
+              );
+            }
+          }
+          // Default image builder
+          return Image.network(uri.toString());
+        },
         styleSheet: MarkdownStyleSheet(
           p: baseTextStyle,
           h1: baseTextStyle.copyWith(
@@ -224,6 +246,20 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget>
   String _preprocessTextForMarkdown(String text) {
     Map<String, RegExp> regexMap = MomentContentAnalyzeUtils.regexMap;
     String processed = text;
+
+    // Convert custom emoji shortcodes to image tags (NIP-30)
+    // Must be done before other replacements to avoid conflicts
+    if (widget.emojiShortcodes != null && widget.emojiShortcodes!.isNotEmpty) {
+      final emojiRegex = RegExp(r':([a-zA-Z0-9_]+):');
+      processed = processed.replaceAllMapped(emojiRegex, (match) {
+        final shortcode = match.group(1);
+          if (shortcode != null && widget.emojiShortcodes!.containsKey(shortcode)) {
+            // Use inline image markdown syntax
+            return '![:$shortcode:](moment://emoji/$shortcode)';
+          }
+        return match.group(0)!;
+      });
+    }
 
     // Convert hashtags to Markdown links
     final hashRegex = regexMap['hashRegex']!;

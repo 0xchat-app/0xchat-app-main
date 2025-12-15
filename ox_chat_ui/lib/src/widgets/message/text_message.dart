@@ -244,8 +244,42 @@ class TextMessageText extends StatelessWidget {
       final moreFlag = '\$\{0xchat_more_flag\}';
       text = text.substring(0, maxLimit) + '...' + moreFlag;
     }
+    
+    // Extract custom emoji shortcodes from metadata (NIP-30)
+    final Map<String, String>? emojiShortcodes = message.metadata?['emojiShortcodes'] as Map<String, String>?;
+    
     return ParsedText(
       parse: [
+        // Custom emoji matcher (NIP-30) - must be before other matchers to prevent conflicts
+        if (emojiShortcodes != null && emojiShortcodes.isNotEmpty)
+          MatchText(
+            pattern: r':([a-zA-Z0-9_]+):',
+            renderWidget: ({required String text, required String pattern}) {
+              // Extract shortcode from :shortcode: format
+              final match = RegExp(r':([a-zA-Z0-9_]+):').firstMatch(text);
+              if (match != null) {
+                final shortcode = match.group(1);
+                if (shortcode != null && emojiShortcodes.containsKey(shortcode)) {
+                  final url = emojiShortcodes[shortcode]!;
+                  return WidgetSpan(
+                    alignment: PlaceholderAlignment.middle,
+                    child: Image.network(
+                      url,
+                      height: bodyTextStyle.fontSize != null ? bodyTextStyle.fontSize! * 1.2 : 20,
+                      width: bodyTextStyle.fontSize != null ? bodyTextStyle.fontSize! * 1.2 : 20,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) {
+                        // Fallback to text if image fails to load
+                        return Text(text, style: bodyTextStyle);
+                      },
+                    ),
+                  );
+                }
+              }
+              // Fallback to text if no match
+              return TextSpan(text: text, style: bodyTextStyle);
+            },
+          ),
         ...options.matchers,
         MatchText(
           pattern: r'\$\{0xchat_more_flag\}',
