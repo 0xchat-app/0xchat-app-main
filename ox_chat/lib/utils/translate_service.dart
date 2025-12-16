@@ -394,9 +394,11 @@ class TranslateService {
             );
         
         // Check if translation is meaningful
+        // Only check if the translated text is different from the original and not empty
+        // Removed length check as it's not reliable for translations between languages
+        // with different character densities (e.g., English to Chinese)
         if (translatedText.trim() != text.trim() && 
-            translatedText.trim().isNotEmpty &&
-            translatedText.length > text.length * 0.5) {
+            translatedText.trim().isNotEmpty) {
           return translatedText;
         } else {
           // Text might already be in target language
