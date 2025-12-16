@@ -43,11 +43,17 @@ class _MomentsViewPageState extends State<MomentsViewPage> {
         .getForeverData(_saveMomentFilterKey, defaultValue: 1);
     _selectedType = EPublicMomentsPageTypeEx.getEnumType(filterType);
 
-    final savedAllRelays = await OXCacheManager.defaultOXCacheManager
+    // Always start with recommended relays
+    final recommendedRelays = Relays.sharedInstance.recommendGlobalRelays;
+    
+    // Load user's custom relays
+    final savedCustomRelays = await OXCacheManager.defaultOXCacheManager
         .getListData(_saveAllRelaysKey);
-    _allGeneralRelays = savedAllRelays.isNotEmpty 
-        ? savedAllRelays 
-        : Relays.sharedInstance.recommendGlobalRelays;
+    
+    // Merge recommended relays with custom relays (recommended first, then custom)
+    // Use Set to avoid duplicates
+    final allRelaysSet = <String>{...recommendedRelays, ...savedCustomRelays};
+    _allGeneralRelays = allRelaysSet.toList();
     
     // Load selected relays
     final relays = await OXCacheManager.defaultOXCacheManager
@@ -474,9 +480,14 @@ class _MomentsViewPageState extends State<MomentsViewPage> {
     await OXCacheManager.defaultOXCacheManager
         .saveListData(_saveMomentRelaysKey, _selectedRelays);
 
-    // Save all general relays (user's relay list for display)
+    // Only save custom relays (exclude recommended relays)
+    // This ensures recommended relays always show up on next load
+    final recommendedRelays = Relays.sharedInstance.recommendGlobalRelays;
+    final customRelays = _allGeneralRelays
+        .where((relay) => !recommendedRelays.contains(relay))
+        .toList();
     await OXCacheManager.defaultOXCacheManager
-        .saveListData(_saveAllRelaysKey, _allGeneralRelays);
+        .saveListData(_saveAllRelaysKey, customRelays);
 
     if (mounted) {
       OXNavigator.pop(context, {
