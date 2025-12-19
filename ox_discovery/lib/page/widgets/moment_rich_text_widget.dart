@@ -58,6 +58,11 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget>
   String? translatedText;
   bool isTranslating = false;
   bool showTranslation = false;
+  
+  // Track pointer events for tap detection
+  DateTime? _pointerDownTime;
+  Offset? _pointerDownPosition;
+  bool _isLongPress = false;
 
   @override
   void initState() {
@@ -130,15 +135,46 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget>
     // Preprocess text to handle custom features (hashtags, Nostr links) before Markdown rendering
     String processedText = _preprocessTextForMarkdown(text);
 
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onTap: () {
-        // Handle blank area tap to trigger detail page navigation
-        widget.clickBlankCallback?.call();
+    return Listener(
+      onPointerDown: (event) {
+        _pointerDownTime = DateTime.now();
+        _pointerDownPosition = event.position;
+        _isLongPress = false;
       },
-      child: MarkdownBody(
-        data: processedText,
-        selectable: false,
+      onPointerUp: (event) {
+        if (_pointerDownTime != null && _pointerDownPosition != null) {
+          final duration = DateTime.now().difference(_pointerDownTime!);
+          final distance = (event.position - _pointerDownPosition!).distance;
+          
+          // Check if this was a quick tap (not long press, not drag)
+          if (duration.inMilliseconds < 250 && 
+              distance < 10 && 
+              !_isLongPress) {
+            // Immediate callback for tap - text selection will be handled by SelectableText
+            // If user is selecting text, the selection UI will appear and prevent navigation
+            widget.clickBlankCallback?.call();
+          }
+        }
+        _pointerDownTime = null;
+        _pointerDownPosition = null;
+      },
+      child: GestureDetector(
+        // Handle long press - let SelectableText handle text selection
+        onLongPressStart: (details) {
+          _isLongPress = true;
+        },
+        onLongPressEnd: (details) {
+          // Keep long press flag for a bit to prevent tap navigation
+          Future.delayed(const Duration(milliseconds: 300), () {
+            if (mounted) {
+              _isLongPress = false;
+            }
+          });
+        },
+        behavior: HitTestBehavior.translucent,
+        child: MarkdownBody(
+          data: processedText,
+          selectable: true,
         imageBuilder: (Uri uri, String? title, String? alt) {
           // Custom image builder for emoji images (NIP-30)
           if (uri.toString().startsWith('moment://emoji/')) {
@@ -238,6 +274,7 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget>
           }
         }
       },
+        ),
       ),
     );
   }
