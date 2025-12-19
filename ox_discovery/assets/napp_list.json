@@ -438,5 +438,45 @@
     "icon": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://nostu.be/&size=256",
     "description": "Discover videos and music on NOSTR",
     "metadata": {}
+  },
+  {
+    "id": "mostro",
+    "url": "https://mostro.network/",
+    "name": "Mostro",
+    "icon": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://mostro.network/&size=256",
+    "description": "NO-KYC P2P Lightning platform on top of nostr",
+    "metadata": {}
+  },
+  {
+    "id": "plebs",
+    "url": "https://plebs.app/",
+    "name": "Plebs",
+    "icon": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://plebs.app/&size=256",
+    "description": "Decentralized video platform",
+    "metadata": {}
+  },
+  {
+    "id": "stacker_news",
+    "url": "https://stacker.news/",
+    "name": "Stacker News",
+    "icon": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://stacker.news/&size=256",
+    "description": "Bitcoin and Nostr news aggregator",
+    "metadata": {}
+  },
+  {
+    "id": "hook_cafe",
+    "url": "https://hook.cafe/",
+    "name": "Hook Cafe",
+    "icon": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://hook.cafe/&size=256",
+    "description": "A social app helping people to meet in real life",
+    "metadata": {}
+  },
+  {
+    "id": "cornychat",
+    "url": "https://cornychat.com/",
+    "name": "CornyChat",
+    "icon": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://cornychat.com/&size=256",
+    "description": "Nostr chat application",
+    "metadata": {}
   }
 ]
