@@ -35,6 +35,37 @@ import '../widgets/nine_palace_grid_picture_widget.dart';
 
 import 'package:nostr_core_dart/nostr.dart';
 
+// Relay selection type for sending posts
+enum RelaySelectionType {
+  outbox,
+  general,
+  all,
+}
+
+extension RelaySelectionTypeEx on RelaySelectionType {
+  String get displayName {
+    switch (this) {
+      case RelaySelectionType.outbox:
+        return 'Outbox Relays';
+      case RelaySelectionType.general:
+        return 'General Relays';
+      case RelaySelectionType.all:
+        return 'All';
+    }
+  }
+  
+  List<RelayKind> get relayKinds {
+    switch (this) {
+      case RelaySelectionType.outbox:
+        return [RelayKind.outbox];
+      case RelaySelectionType.general:
+        return [RelayKind.general];
+      case RelaySelectionType.all:
+        return [RelayKind.general, RelayKind.outbox];
+    }
+  }
+}
+
 class CreateMomentsPage extends StatefulWidget {
   final String? groupId;
   final EOptionMomentsType sendMomentsType;
@@ -87,6 +118,9 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
   List<UserDBISAR>? _selectedContacts;
 
   EMomentType? currentPageType;
+  
+  // Relay selection for sending posts
+  RelaySelectionType _relaySelectionType = RelaySelectionType.outbox;
 
 
   @override
@@ -187,7 +221,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
                             _quoteWidget(),
                             _captionWidget(),
                             _visibleContactsWidget(),
-                            // _selectRelayWidget(),
+                            _selectRelayTypeWidget(),
                           ],
                         ),
                       ),
@@ -633,6 +667,137 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
     );
   }
 
+  Widget _selectRelayTypeWidget() {
+    // Only show for public posts (everyone visibility)
+    if (_visibleType != VisibleType.everyone || widget.sendMomentsType == EOptionMomentsType.group) {
+      return const SizedBox();
+    }
+    
+    return Container(
+      margin: EdgeInsets.only(top: 12.px),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: EdgeInsets.only(bottom: 12.px),
+            child: Text(
+              'Send to Server',
+              style: TextStyle(
+                fontSize: 14.px,
+                fontWeight: FontWeight.w600,
+                color: ThemeColor.color0,
+              ),
+            ),
+          ),
+          _labelWidget(
+            title: 'Server',
+            content: _relaySelectionType.displayName,
+            onTap: () {
+              _showRelaySelectionDialog();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showRelaySelectionDialog() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(Adapt.px(12)),
+          color: ThemeColor.color180,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildRelaySelectionItem(
+              RelaySelectionType.outbox,
+              'Outbox Relays',
+            ),
+            Divider(
+              color: ThemeColor.color170,
+              height: Adapt.px(0.5),
+            ),
+            _buildRelaySelectionItem(
+              RelaySelectionType.general,
+              'General Relays',
+            ),
+            Divider(
+              color: ThemeColor.color170,
+              height: Adapt.px(0.5),
+            ),
+            _buildRelaySelectionItem(
+              RelaySelectionType.all,
+              'All',
+            ),
+            Divider(
+              color: ThemeColor.color170,
+              height: Adapt.px(0.5),
+            ),
+            Container(
+              height: Adapt.px(8),
+              color: ThemeColor.color190,
+            ),
+            _buildItem(
+              Localized.text('ox_common.cancel'),
+              index: -1,
+              onTap: () {
+                OXNavigator.pop(context);
+              },
+            ),
+            SizedBox(height: Adapt.px(21)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRelaySelectionItem(RelaySelectionType type, String title) {
+    final isSelected = _relaySelectionType == type;
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () {
+        setState(() {
+          _relaySelectionType = type;
+        });
+        OXNavigator.pop(context);
+      },
+      child: Container(
+        alignment: Alignment.center,
+        width: double.infinity,
+        height: Adapt.px(56),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Padding(
+              padding: EdgeInsets.only(left: 16.px),
+              child: Text(
+                title,
+                style: TextStyle(
+                  color: ThemeColor.color0,
+                  fontSize: Adapt.px(16),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            if (isSelected)
+              Padding(
+                padding: EdgeInsets.only(right: 16.px),
+                child: Icon(
+                  Icons.check,
+                  color: ThemeColor.color0,
+                  size: 24.px,
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _selectRelayWidget(){
     return Container(
       width: double.infinity,
@@ -712,6 +877,17 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
     //   getMediaStr = await _uploadCompleter!.future;
     // }
     if(_postMomentTag) return;
+    
+    // Check if outbox relays are available when outbox is selected
+    if (_relaySelectionType == RelaySelectionType.outbox) {
+      final outboxRelays = Connect.sharedInstance.relays(relayKinds: [RelayKind.outbox]);
+      if (outboxRelays.isEmpty) {
+        _postMomentTag = false;
+        await _showNoOutboxRelaysDialog();
+        return;
+      }
+    }
+    
     _postMomentTag = true;
     OXLoading.show();
 
@@ -729,18 +905,30 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
 
     if(content.trim().isEmpty){
       CommonToast.instance.show(context, Localized.text('ox_discovery.content_empty_tips'));
+      _postMomentTag = false;
       return;
     }
 
     if(widget.sendMomentsType == EOptionMomentsType.group) return _postMomentToGroup(content:content,mentions:getReplyUser,hashTags:hashTags);
 
     if(currentPageType == EMomentType.quote && noteDB != null){
-      event = await Moment.sharedInstance.sendQuoteRepost(noteDB.noteId,content,hashTags:hashTags,mentions:getReplyUser);
+      event = await Moment.sharedInstance.sendQuoteRepost(
+        noteDB.noteId,
+        content,
+        hashTags: hashTags,
+        mentions: getReplyUser,
+        relayKinds: _relaySelectionType.relayKinds,
+      );
     }else{
       switch (_visibleType) {
         case VisibleType.everyone:
           OXLoading.show();
-          event = await Moment.sharedInstance.sendPublicNote(content,hashTags: getHashTags,mentions: getReplyUser);
+          event = await Moment.sharedInstance.sendPublicNote(
+            content,
+            hashTags: getHashTags,
+            mentions: getReplyUser,
+            relayKinds: _relaySelectionType.relayKinds,
+          );
           break;
         case VisibleType.allContact:
           _updateProgressStatus(0);
@@ -781,6 +969,57 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
     }
 
     OXNavigator.pop(context);
+  }
+
+  Future<void> _showNoOutboxRelaysDialog() async {
+    final result = await OXCommonHintDialog.show<int>(
+      context,
+      title: 'No Outbox Relays',
+      content: 'No outbox relays are configured. Please configure outbox relays in settings, or select "General Relays" or "All" to send.',
+      isRowAction: true,
+      actionList: [
+        OXCommonHintAction.cancel(onTap: () {
+          OXNavigator.pop(context, 0);
+        }),
+        OXCommonHintAction(
+          text: () => 'Configure',
+          style: OXHintActionStyle.theme,
+          onTap: () {
+            OXNavigator.pop(context, 1);
+          },
+        ),
+        OXCommonHintAction(
+          text: () => 'Select General',
+          style: OXHintActionStyle.gray,
+          onTap: () {
+            OXNavigator.pop(context, 2);
+          },
+        ),
+        OXCommonHintAction(
+          text: () => 'Select All',
+          style: OXHintActionStyle.gray,
+          onTap: () {
+            OXNavigator.pop(context, 3);
+          },
+        ),
+      ],
+    );
+
+    if (result == 1) {
+      // Go to configure outbox relays
+      OXNavigator.pop(context);
+      OXModuleService.invoke('ox_usercenter', 'showRelayPage', [context]);
+    } else if (result == 2) {
+      // Select General Relays
+      setState(() {
+        _relaySelectionType = RelaySelectionType.general;
+      });
+    } else if (result == 3) {
+      // Select All
+      setState(() {
+        _relaySelectionType = RelaySelectionType.all;
+      });
+    }
   }
 
   void _postMomentToGroup({required String content,required List<String>? mentions,required List<String>? hashTags}) async{
