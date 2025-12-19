@@ -13,10 +13,11 @@ import 'package:ox_network/network_manager.dart';
 import 'package:ox_network/src/db_tools.dart';
 import 'package:ox_network/src/utils/log_util.dart';
 import 'package:ox_network/src/widgets/common_loading.dart';
-import 'package:chatcore/chat-core.dart';
 import 'dart:convert' as convert;
 
 import 'package:ox_network/src/widgets/common_toast.dart';
+import 'package:socks5_proxy/socks.dart' as socks5;
+import 'dart:async';
 
 ///Network status codes
 class NetworkCode {
@@ -52,16 +53,12 @@ String _getRequestTypeString(RequestType type) {
   switch (type) {
     case RequestType.GET:
       return 'GET';
-      break;
     case RequestType.POST:
       return 'POST';
-      break;
     case RequestType.UPLOAD:
       return 'UPLOAD';
-      break;
     default:
       return 'POST';
-      break;
   }
 }
 
@@ -97,16 +94,112 @@ class OXNetwork {
     if (proxyAddress.length == 0) {
       return;
     }
+    
+    // Parse proxy address
+    // Format: "host:port" or "host:port:type" (type from system API)
+    final parts = proxyAddress.split(':');
+    if (parts.length < 2) {
+      return;
+    }
+    
+    final proxyHost = parts[0];
+    final proxyPort = int.tryParse(parts[1]) ?? 0;
+    
+    if (proxyPort == 0) {
+      return;
+    }
+    
+    // Get proxy type from system API if available
+    // Format: "host:port:type" where type is kCFProxyTypeSOCKS, kCFProxyTypeHTTP, etc.
+    String? proxyType;
+    if (parts.length >= 3) {
+      proxyType = parts.sublist(2).join(':'); // Handle case where type might contain colons
+    }
+    
+    // Determine if this is a SOCKS5 proxy based on actual type from system
+    // kCFProxyTypeSOCKS = "kCFProxyTypeSOCKS" (SOCKS proxy)
+    // kCFProxyTypeHTTP = "kCFProxyTypeHTTP" (HTTP proxy)
+    // kCFProxyTypeHTTPS = "kCFProxyTypeHTTPS" (HTTPS proxy)
+    final isSocks5Proxy = proxyType != null && 
+                          (proxyType == 'kCFProxyTypeSOCKS' || 
+                           proxyType.toLowerCase().contains('socks'));
+    
     // Setting The proxy dio version 5.0.1 setting method is supported
     IOHttpClientAdapter adapter = IOHttpClientAdapter();
     adapter.onHttpClientCreate = (HttpClient client) {
-      client.findProxy = (Uri url) {
-        return HttpClient.findProxyFromEnvironment(url, environment: {
-          'http_proxy': proxyAddress,
-          'https_proxy': proxyAddress,
-        });
-      };
-      client.authenticateProxy = (String host, int port, String scheme, String? realm) => Future.value(true);
+      if (isSocks5Proxy) {
+        // Use connectionFactory for SOCKS5 proxy
+        client.connectionFactory = (Uri uri, String? proxyHostParam, int? proxyPortParam) async {
+          try {
+            // Create SOCKS5 proxy settings using socks5_proxy package
+            final proxySettings = socks5.ProxySettings(
+              InternetAddress(proxyHost),
+              proxyPort,
+            );
+            
+            final isSecure = uri.scheme == 'https';
+            final targetPort = uri.port != 0 ? uri.port : (isSecure ? 443 : 80);
+            
+            // Connect via SOCKS5
+            // SOCKS5 protocol supports domain names, so we need to resolve the hostname first
+            // or use the hostname directly if SocksTCPClient supports it
+            // Try to resolve hostname to IP address first
+            InternetAddress targetAddress;
+            try {
+              final addresses = await InternetAddress.lookup(uri.host);
+              targetAddress = addresses.first;
+            } catch (e) {
+              // If resolution fails, try using the hostname directly
+              // Some SOCKS5 implementations support domain names
+              targetAddress = InternetAddress(uri.host, type: InternetAddressType.any);
+            }
+            
+            final socket = await socks5.SocksTCPClient.connect(
+              [proxySettings],
+              targetAddress,
+              targetPort,
+            );
+            
+            // For HTTPS, wrap with secure socket
+            if (isSecure) {
+              final secureSocket = await socket.secure(
+                uri.host,
+                onBadCertificate: (cert) => true,
+              );
+              return ConnectionTask.fromSocket(
+                Future.value(secureSocket as Socket), 
+                () async => await secureSocket.close(),
+              );
+            }
+            
+            return ConnectionTask.fromSocket(
+              Future.value(socket as Socket), 
+              () async => await socket.close(),
+            );
+          } catch (e) {
+            LogUtil.e('[OXNetwork] SOCKS5 connection failed: $e');
+            rethrow;
+          }
+        };
+      } else {
+        // Use HTTP proxy for other ports
+        client.findProxy = (Uri url) {
+          try {
+            final result = HttpClient.findProxyFromEnvironment(url, environment: {
+              'http_proxy': proxyAddress,
+              'https_proxy': proxyAddress,
+            });
+            return result;
+          } catch (e) {
+            return 'DIRECT';
+          }
+        };
+        
+        client.authenticateProxy = (String host, int port, String scheme, String? realm) {
+          return Future.value(true);
+        };
+      }
+      
       client.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
       return null;
     };
@@ -207,9 +300,6 @@ class OXNetwork {
     late Response response;
     try {
       response = await _dio.request(url, data: data, options: _option);
-      LogUtil.log(key:'NetWork Request ==>>', content:'url: $url');
-      // LogUtil.log(key:'NetWork Request ==>>', content:'data: $data');
-      // LogUtil.log(key:'NetWork Request ==>>', content:'response: $response');
     } on DioError catch (e) {
       if (_showLoading) Navigator.pop(context);
       NetworkError error = handleError(e);
@@ -225,6 +315,7 @@ class OXNetwork {
       _saveDataToCache(cacheKey, response);
     }
     if (_showLoading) Navigator.pop(context);
+    
     return NetworkResponse(
       response.statusCode ?? NetworkCode.NETWORK_ERROR,
       response.statusMessage ?? '',

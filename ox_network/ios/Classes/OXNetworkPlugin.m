@@ -24,12 +24,23 @@
     NSDictionary *proxySettings = (__bridge NSDictionary *)(CFNetworkCopySystemProxySettings());
     NSArray *proxies = (__bridge NSArray *)(CFNetworkCopyProxiesForURL((__bridge CFURLRef _Nonnull)([NSURL URLWithString:url]), (__bridge CFDictionaryRef _Nonnull)(proxySettings)));
     NSDictionary *settings = [proxies firstObject];
-    NSString *hostName = settings[@"kCFProxyHostNameKey"];
-    NSNumber *portName = settings[@"kCFProxyPortNumberKey"];
+    NSString *hostName = settings[(__bridge NSString *)kCFProxyHostNameKey];
+    NSNumber *portName = settings[(__bridge NSString *)kCFProxyPortNumberKey];
+    CFStringRef proxyTypeRef = (__bridge CFStringRef)settings[(__bridge NSString *)kCFProxyTypeKey];
+    
     if (hostName == nil || portName == nil) {
         result(@"");
     } else {
-        result([NSString stringWithFormat:@"%@:%@", hostName, portName]);
+        // Return format: "host:port:type" or "host:port" if type is unknown
+        // Convert CFStringRef to NSString for comparison
+        NSString *proxyType = nil;
+        if (proxyTypeRef != NULL) {
+            proxyType = (__bridge NSString *)proxyTypeRef;
+            // Return the actual type string (e.g., "kCFProxyTypeSOCKS", "kCFProxyTypeHTTP")
+            result([NSString stringWithFormat:@"%@:%@:%@", hostName, portName, proxyType]);
+        } else {
+            result([NSString stringWithFormat:@"%@:%@", hostName, portName]);
+        }
     }
 }
 
