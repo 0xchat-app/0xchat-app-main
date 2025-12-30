@@ -4,6 +4,7 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_wallet/widget/common_card.dart';
 import 'package:cashu_dart/cashu_dart.dart';
+import 'package:cashu_dart/core/nuts/define.dart';
 
 class ProofSelectionCard extends StatefulWidget {
   final List<ProofIsar> items;
@@ -36,11 +37,13 @@ class _ProofSelectionCardState extends State<ProofSelectionCard> {
 
   Widget _buildItem(context, index) {
     final proof = widget.items[index];
+    final isPending = proof.state == TokenState.inFlight;
     bool isSelected = _selectedItem.contains(proof);
 
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: (){
+        if (isPending) return;
         if(_selectedItem.contains(proof)){
           _selectedItem.remove(proof);
         }else{
@@ -51,15 +54,18 @@ class _ProofSelectionCardState extends State<ProofSelectionCard> {
         }
         setState(() {});
       },
-      child: CommonCardItem(
-        label: proof.amount,
-        content: proof.keysetId,
-        action: widget.enableSelection ? CommonImage(
-          iconName: isSelected ? 'icon_item_selected.png' : 'icon_item_unselected.png',
-          size: 24.px,
-          package: 'ox_wallet',
-          useTheme: true,
-        ) : Container(),
+      child: Opacity(
+        opacity: isPending ? 0.5 : 1.0,
+        child: CommonCardItem(
+          label: proof.amount,
+          content: proof.keysetId,
+          action: widget.enableSelection ? CommonImage(
+            iconName: isSelected ? 'icon_item_selected.png' : 'icon_item_unselected.png',
+            size: 24.px,
+            package: 'ox_wallet',
+            useTheme: true,
+          ) : Container(),
+        ),
       ),
     );
   }

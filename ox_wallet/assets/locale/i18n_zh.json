@@ -86,5 +86,6 @@
   "how_to_operate": "它是如何工作的？",
   "backup_funds_instruction": "备份资金流程自动合并和计算最小的凭证，以实现高效存储，同时增强安全性。但是，请注意，一旦恢复完成，旧的Cashu令牌将失效，因此请确保安全执行该过程",
   "download_button": "下载",
-  "some_proofs_spendable_hint": "部分凭证已被使用，但其他凭证仍可使用。您想兑换可用凭证吗？"
+  "some_proofs_spendable_hint": "部分凭证已被使用，但其他凭证仍可使用。您想兑换可用凭证吗？",
+  "send_max_button": "发送全部"
 }

@@ -60,7 +60,11 @@ class _WalletSendEcashPageState extends State<WalletSendEcashPage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               MintIndicatorItem(mint: _mint,onChanged: _onChanged),
-              SatsAmountCard(controller: _amountController,).setPaddingOnly(top: 12.px),
+              SatsAmountCard(
+                controller: _amountController,
+                maxBalance: _mint?.balance,
+                onSendMax: _onSendMax,
+              ).setPaddingOnly(top: 12.px),
               _buildDescription(),
               SendP2PKOptionWidget(option: p2pkOption,).setPaddingOnly(top: 24.px),
               SafeArea(
@@ -128,6 +132,13 @@ class _WalletSendEcashPageState extends State<WalletSendEcashPage> {
     setState(() {
       _mint = mint;
     });
+  }
+
+  void _onSendMax() {
+    final balance = _mint?.balance ?? 0;
+    if (balance > 0) {
+      _amountController.text = balance.toString();
+    }
   }
 
   @override

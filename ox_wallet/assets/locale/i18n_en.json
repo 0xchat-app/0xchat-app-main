@@ -86,5 +86,6 @@
   "how_to_operate": "How does it work?",
   "backup_funds_instruction": "The backup funds process automatically consolidates and calculates the smallest proofs for efficient storage while enhancing security. However, please be aware that once the recovery is completed, the old Cashu token becomes invalid, so ensure the process is carried out securely",
   "download_button": "Download",
-  "some_proofs_spendable_hint": "Some proofs have already been spent, but others remain spendable. Would you like to redeem the spendable proofs?"
+  "some_proofs_spendable_hint": "Some proofs have already been spent, but others remain spendable. Would you like to redeem the spendable proofs?",
+  "send_max_button": "Send Max"
 }
