@@ -6,7 +6,7 @@
 
 Follow the steps below to run the project:
 
-* Ensure you're using Flutter version `3.19.6`. Switch to this version before proceeding.
+* Ensure you're using Flutter version `3.29.3`. Switch to this version before proceeding.
 
 
 * First, you'll need to run the provided shell script in the main project directory:
