@@ -62,12 +62,20 @@ class ProofHelper {
   ) async {
     final keysets = await KeysetStore.getKeyset(mintURL: mintURL);
     final usableProofs = await ProofStore.getProofs(ids: keysets.map((e) => e.keysetId).toList());
+    // Drop burned proofs when state is known
+    usableProofs.removeWhere((p) => p.state == TokenState.burned);
     if (orderAsc) {
       usableProofs.sort((a, b) => a.amount.compareTo(b.amount));
     } else {
       usableProofs.sort((a, b) => b.amount.compareTo(a.amount));
     }
     return usableProofs;
+  }
+
+  /// Persist proof states (live / pending) back to local DB.
+  static Future<void> saveProofStates(List<ProofIsar> proofs) async {
+    if (proofs.isEmpty) return;
+    await ProofStore.addProofs(proofs);
   }
 
   static Future<ProofResponse> _getProofsWithRequest({
@@ -78,7 +86,14 @@ class ProofHelper {
   }) async {
     List<ProofIsar> result = <ProofIsar>[];
     final amount = proofRequest.amount;
-    final totalProofs = proofRequest.proofs ?? await getProofs(mint.mintURL, true);
+    var totalProofs = proofRequest.proofs ?? await getProofs(mint.mintURL, true);
+    // Prioritize stored live proofs over pending without extra network call
+    totalProofs.sort((a, b) {
+      int priority(ProofIsar p) => p.state == TokenState.inFlight ? 1 : 0;
+      final diff = priority(a) - priority(b);
+      if (diff != 0) return diff;
+      return b.amountNum.compareTo(a.amountNum); // keep larger amounts first (existing behavior)
+    });
 
     // Try find available proofs can be combined to match the requested amount without considering input fee
     if (canIgnoreInputFee) {
@@ -447,6 +462,7 @@ class ProofHelper {
     IMintIsar? mint,
   }) async {
     final burnedProofs = <ProofIsar>[];
+    final liveOrPending = <ProofIsar>[];
     if (mint != null) {
       final response = await mint.tokenCheckAction(mintURL: mint.mintURL, proofs: proofs);
       if (!response.isSuccess) return false;
@@ -454,13 +470,25 @@ class ProofHelper {
         throw Exception('[E][Cashu - checkProofsAvailable] '
             'The length of states(${response.data.length}) and proofs(${proofs.length}) is not consistent');
       }
+      final nowMs = DateTime.now().millisecondsSinceEpoch;
       for (int i = 0; i < proofs.length; i++) {
-        if (response.data[i] == TokenState.burned) {
-          burnedProofs.add(proofs[i]);
+        final state = response.data[i];
+        final updated = proofs[i].copyWith(
+          stateRaw: state.index,
+          lastCheckedMs: nowMs,
+        );
+        if (state == TokenState.burned) {
+          burnedProofs.add(updated);
+        } else {
+          liveOrPending.add(updated);
         }
       }
     } else {
       burnedProofs.addAll(proofs);
+    }
+
+    if (liveOrPending.isNotEmpty) {
+      await saveProofStates(liveOrPending);
     }
 
     return await ProofStore.deleteProofs(burnedProofs);

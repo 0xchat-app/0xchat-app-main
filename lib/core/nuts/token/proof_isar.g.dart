@@ -37,10 +37,20 @@ const ProofIsarSchema = CollectionSchema(
       name: r'keysetId',
       type: IsarType.string,
     ),
-    r'secret': PropertySchema(
+    r'lastCheckedMs': PropertySchema(
       id: 4,
+      name: r'lastCheckedMs',
+      type: IsarType.long,
+    ),
+    r'secret': PropertySchema(
+      id: 5,
       name: r'secret',
       type: IsarType.string,
+    ),
+    r'stateRaw': PropertySchema(
+      id: 6,
+      name: r'stateRaw',
+      type: IsarType.long,
     )
   },
   estimateSize: _proofIsarEstimateSize,
@@ -100,7 +110,9 @@ void _proofIsarSerialize(
   writer.writeString(offsets[1], object.amount);
   writer.writeString(offsets[2], object.dleqPlainText);
   writer.writeString(offsets[3], object.keysetId);
-  writer.writeString(offsets[4], object.secret);
+  writer.writeLong(offsets[4], object.lastCheckedMs);
+  writer.writeString(offsets[5], object.secret);
+  writer.writeLong(offsets[6], object.stateRaw);
 }
 
 ProofIsar _proofIsarDeserialize(
@@ -114,7 +126,9 @@ ProofIsar _proofIsarDeserialize(
     amount: reader.readString(offsets[1]),
     dleqPlainText: reader.readString(offsets[2]),
     keysetId: reader.readString(offsets[3]),
-    secret: reader.readString(offsets[4]),
+    lastCheckedMs: reader.readLongOrNull(offsets[4]) ?? 0,
+    secret: reader.readString(offsets[5]),
+    stateRaw: reader.readLongOrNull(offsets[6]) ?? 0,
   );
   object.id = id;
   return object;
@@ -136,7 +150,11 @@ P _proofIsarDeserializeProp<P>(
     case 3:
       return (reader.readString(offset)) as P;
     case 4:
+      return (reader.readLongOrNull(offset) ?? 0) as P;
+    case 5:
       return (reader.readString(offset)) as P;
+    case 6:
+      return (reader.readLongOrNull(offset) ?? 0) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -990,6 +1008,62 @@ extension ProofIsarQueryFilter
     });
   }
 
+  QueryBuilder<ProofIsar, ProofIsar, QAfterFilterCondition>
+      lastCheckedMsEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'lastCheckedMs',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<ProofIsar, ProofIsar, QAfterFilterCondition>
+      lastCheckedMsGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'lastCheckedMs',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<ProofIsar, ProofIsar, QAfterFilterCondition>
+      lastCheckedMsLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'lastCheckedMs',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<ProofIsar, ProofIsar, QAfterFilterCondition>
+      lastCheckedMsBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'lastCheckedMs',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
   QueryBuilder<ProofIsar, ProofIsar, QAfterFilterCondition> secretEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -1119,6 +1193,59 @@ extension ProofIsarQueryFilter
       ));
     });
   }
+
+  QueryBuilder<ProofIsar, ProofIsar, QAfterFilterCondition> stateRawEqualTo(
+      int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'stateRaw',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<ProofIsar, ProofIsar, QAfterFilterCondition> stateRawGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'stateRaw',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<ProofIsar, ProofIsar, QAfterFilterCondition> stateRawLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'stateRaw',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<ProofIsar, ProofIsar, QAfterFilterCondition> stateRawBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'stateRaw',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
 }
 
 extension ProofIsarQueryObject
@@ -1176,6 +1303,18 @@ extension ProofIsarQuerySortBy on QueryBuilder<ProofIsar, ProofIsar, QSortBy> {
     });
   }
 
+  QueryBuilder<ProofIsar, ProofIsar, QAfterSortBy> sortByLastCheckedMs() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastCheckedMs', Sort.asc);
+    });
+  }
+
+  QueryBuilder<ProofIsar, ProofIsar, QAfterSortBy> sortByLastCheckedMsDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastCheckedMs', Sort.desc);
+    });
+  }
+
   QueryBuilder<ProofIsar, ProofIsar, QAfterSortBy> sortBySecret() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'secret', Sort.asc);
@@ -1185,6 +1324,18 @@ extension ProofIsarQuerySortBy on QueryBuilder<ProofIsar, ProofIsar, QSortBy> {
   QueryBuilder<ProofIsar, ProofIsar, QAfterSortBy> sortBySecretDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'secret', Sort.desc);
+    });
+  }
+
+  QueryBuilder<ProofIsar, ProofIsar, QAfterSortBy> sortByStateRaw() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'stateRaw', Sort.asc);
+    });
+  }
+
+  QueryBuilder<ProofIsar, ProofIsar, QAfterSortBy> sortByStateRawDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'stateRaw', Sort.desc);
     });
   }
 }
@@ -1251,6 +1402,18 @@ extension ProofIsarQuerySortThenBy
     });
   }
 
+  QueryBuilder<ProofIsar, ProofIsar, QAfterSortBy> thenByLastCheckedMs() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastCheckedMs', Sort.asc);
+    });
+  }
+
+  QueryBuilder<ProofIsar, ProofIsar, QAfterSortBy> thenByLastCheckedMsDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastCheckedMs', Sort.desc);
+    });
+  }
+
   QueryBuilder<ProofIsar, ProofIsar, QAfterSortBy> thenBySecret() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'secret', Sort.asc);
@@ -1260,6 +1423,18 @@ extension ProofIsarQuerySortThenBy
   QueryBuilder<ProofIsar, ProofIsar, QAfterSortBy> thenBySecretDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'secret', Sort.desc);
+    });
+  }
+
+  QueryBuilder<ProofIsar, ProofIsar, QAfterSortBy> thenByStateRaw() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'stateRaw', Sort.asc);
+    });
+  }
+
+  QueryBuilder<ProofIsar, ProofIsar, QAfterSortBy> thenByStateRawDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'stateRaw', Sort.desc);
     });
   }
 }
@@ -1295,10 +1470,22 @@ extension ProofIsarQueryWhereDistinct
     });
   }
 
+  QueryBuilder<ProofIsar, ProofIsar, QDistinct> distinctByLastCheckedMs() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'lastCheckedMs');
+    });
+  }
+
   QueryBuilder<ProofIsar, ProofIsar, QDistinct> distinctBySecret(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'secret', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<ProofIsar, ProofIsar, QDistinct> distinctByStateRaw() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'stateRaw');
     });
   }
 }
@@ -1335,9 +1522,21 @@ extension ProofIsarQueryProperty
     });
   }
 
+  QueryBuilder<ProofIsar, int, QQueryOperations> lastCheckedMsProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'lastCheckedMs');
+    });
+  }
+
   QueryBuilder<ProofIsar, String, QQueryOperations> secretProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'secret');
+    });
+  }
+
+  QueryBuilder<ProofIsar, int, QQueryOperations> stateRawProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'stateRaw');
     });
   }
 }

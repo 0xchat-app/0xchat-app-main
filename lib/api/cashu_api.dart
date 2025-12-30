@@ -77,27 +77,35 @@ class CashuAPI {
           'The length of states(${response.data.length}) and proofs(${proofs.length}) is not consistent');
     }
 
-    var validAmount = 0;
     var burnedAmount = 0;
     final burnedProofs = <ProofIsar>[];
+    final liveOrPendingProofs = <ProofIsar>[];
+    final nowMs = DateTime.now().millisecondsSinceEpoch;
 
     for (int i = 0; i < response.data.length; i++) {
-      final proof = proofs[i];
-      switch (response.data[i]) {
+      final proof = proofs[i].copyWith(
+        stateRaw: response.data[i].index,
+        lastCheckedMs: nowMs,
+      );
+      switch (proof.state) {
         case TokenState.live:
-          validAmount += proof.amountNum;
-          break ;
+          liveOrPendingProofs.add(proof);
+          break;
         case TokenState.burned:
           burnedAmount += proof.amountNum;
           burnedProofs.add(proof);
           break ;
         case TokenState.inFlight:
+          liveOrPendingProofs.add(proof);
           break ;
       }
     }
 
     // Delete the proofs before updating the assets; otherwise, the updated asset data will be inaccurate.
     await ProofHelper.deleteProofs(proofs: burnedProofs);
+    if (liveOrPendingProofs.isNotEmpty) {
+      await ProofHelper.saveProofStates(liveOrPendingProofs);
+    }
     await CashuManager.shared.updateMintBalance(mint);
 
     return burnedAmount;

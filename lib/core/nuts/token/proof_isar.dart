@@ -4,6 +4,7 @@ import 'package:isar/isar.dart';
 
 import '../../../utils/tools.dart';
 import '../../DHKE_helper.dart';
+import '../define.dart';
 
 part 'proof_isar.g.dart';
 
@@ -16,7 +17,10 @@ class ProofIsar {
     required this.C,
     required this.dleqPlainText,
     this.witness = '',
-  }) : dleq = dleqFromRaw(dleqPlainText);
+    this.stateRaw = 0,
+    this.lastCheckedMs = 0,
+  })  : 
+        dleq = dleqFromRaw(dleqPlainText);
 
   Id id = Isar.autoIncrement;
 
@@ -33,6 +37,12 @@ class ProofIsar {
   /// The unblinded signature for this secret, signed by the mints private key.
   final String C;
 
+  /// Persisted token state (TokenState.index). Default live.
+  int stateRaw;
+
+  /// Last time we checked state (epoch ms). 0 means unknown.
+  int lastCheckedMs;
+
   @Ignore()
   String witness;
 
@@ -48,11 +58,26 @@ class ProofIsar {
   @ignore
   String get Y => DHKEHelper.hashToCurve(secret);
 
+  /// Safe getter for TokenState with default to live when out of bounds.
+  @ignore
+  TokenState get state {
+    if (stateRaw < 0 || stateRaw >= TokenState.values.length) {
+      return TokenState.live;
+    }
+    return TokenState.values[stateRaw];
+  }
+
+  @ignore
+  DateTime? get lastChecked =>
+      lastCheckedMs > 0 ? DateTime.fromMillisecondsSinceEpoch(lastCheckedMs) : null;
+
   Map<String, dynamic> toJson() => {
     'id': keysetId,
     'amount': int.tryParse(amount) ?? 0,
     'secret': secret,
     'C': C,
+    'state': stateRaw,
+    'lastChecked': lastCheckedMs,
     if (witness.isNotEmpty)
       'witness': witness
   };
@@ -97,6 +122,11 @@ class ProofIsar {
       witness = '';
     }
 
+    final stateRaw = map['state'];
+    final lastChecked = map['lastChecked'];
+    final parsedState = stateRaw is int ? stateRaw : 0;
+    final parsedChecked = lastChecked is int ? lastChecked : 0;
+
     final dleqRaw = map['dleq'];
     var dleqPlainText = '';
     try {
@@ -110,6 +140,8 @@ class ProofIsar {
       C: Tools.getValueAs<String>(map, 'C', ''),
       witness: witness,
       dleqPlainText: dleqPlainText,
+      stateRaw: parsedState,
+      lastCheckedMs: parsedChecked,
     );
   }
 
@@ -127,6 +159,11 @@ class ProofIsar {
       witness = '';
     }
 
+    final stateRaw = map['state'];
+    final lastChecked = map['lastChecked'];
+    final parsedState = stateRaw is int ? stateRaw : 0;
+    final parsedChecked = lastChecked is int ? lastChecked : 0;
+
     final dleqRaw = map['d'];
     var dleqPlainText = '';
     try {
@@ -140,6 +177,8 @@ class ProofIsar {
       C: Tools.getValueAs<String>(map, 'c', ''),
       witness: witness,
       dleqPlainText: dleqPlainText,
+      stateRaw: parsedState,
+      lastCheckedMs: parsedChecked,
     );
   }
 
@@ -150,11 +189,15 @@ class ProofIsar {
       secret: Tools.getValueAs<String>(map, 'secret', ''),
       C: Tools.getValueAs<String>(map, 'C', ''),
       dleqPlainText: Tools.getValueAs<String>(map, 'dleqPlainText', ''),
+      stateRaw: Tools.getValueAs<int>(map, 'state', 0),
+      lastCheckedMs: Tools.getValueAs<int>(map, 'lastChecked', 0),
     );
   }
 
   ProofIsar copyWith({
     String? id,
+    int? stateRaw,
+    int? lastCheckedMs,
   }) {
     final newData = {
       ...{
@@ -162,10 +205,16 @@ class ProofIsar {
         'amount': amount,
         'secret': secret,
         'C': C,
-        'dleqPlainText': dleqPlainText
+        'dleqPlainText': dleqPlainText,
+        'state': stateRaw ?? this.stateRaw,
+        'lastChecked': lastCheckedMs ?? this.lastCheckedMs,
       },
       if (id != null)
         'id': id,
+      if (stateRaw != null)
+        'state': stateRaw,
+      if (lastCheckedMs != null)
+        'lastChecked': lastCheckedMs,
     };
     return ProofIsar.fromMap(newData);
   }
