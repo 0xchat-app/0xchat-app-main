@@ -4,8 +4,6 @@ mainPath=$(pwd)
 mainProjectName=${mainPath##*/}
 
 #Submodule directory
-baseFrameworkPath=${mainPath}/packages/base_framework
-businessModulesPath=${mainPath}/packages/business_modules
 oxchatCorePath=${mainPath}/packages/0xchat-core
 nostrDartPath=${mainPath}/packages/nostr-dart
 webrtcPath=${mainPath}/packages/flutter-webrtc
@@ -26,15 +24,6 @@ check(){
 checkoutBranch(){
     submoduleName=$1
     echo "--------------------------- Module Name：${submoduleName##*/} ---------------------------"
-    if [[ ${submoduleName##*/} == ${mainProjectName} ]]
-    then
-        if [[ ! "$(ls -A ${baseFrameworkPath})" || ! "$(ls -A ${businessModulesPath})" ]]
-        then
-            git submodule init
-            check "git submodule update"
-        	git submodule update
-        fi
-    fi
 
     cd $1
 
@@ -59,8 +48,6 @@ checkoutBranch(){
 
 checkoutBranchByAll(){
     checkoutBranch ${mainPath} $1
-    checkoutBranch ${baseFrameworkPath} $2
-    checkoutBranch ${businessModulesPath} $3
     checkoutBranch ${oxchatCorePath}
     checkoutBranch ${nostrDartPath}
     checkoutBranch ${webrtcPath}
@@ -87,28 +74,22 @@ executePubGet(){
 
 usage() {
     echo "Usage:"
-    echo "ox_pub_get.sh [-m Main Project Branch Name] [-b Base Framework Branch Name] [-s Business Modules Name]"
+    echo "ox_pub_get.sh [-m Main Project Branch Name]"
     exit -1
 }
 
 
 case $# in
     0)
-       checkoutBranchByAll main main main
+       checkoutBranchByAll main
     ;;
     2)
-       if [[ $1 == '-m' || $1 == '-b' || $1 == '-s' ]]
+       if [[ $1 == '-m' ]]
        then
-       	while getopts ':m:b:s:' OPT; do
+       	while getopts ':m:' OPT; do
            case $OPT in
                m)
-                   checkoutBranchByAll $OPTARG main main
-               ;;
-               b)
-                   checkoutBranchByAll main $OPTARG main
-               ;;
-               s)
-                   checkoutBranchByAll main main $OPTARG
+                   checkoutBranchByAll $OPTARG
                ;;
                ?)
                    usage
@@ -119,47 +100,10 @@ case $# in
 	usage
        fi
     ;;
-    4)
-        if [[ $1 = '-m' && $3 = '-b' ]]
-        then
-           checkoutBranchByAll $2 $4 main
-        elif [[ $1 = '-m' && $3 = '-s' ]]
-        then
-           checkoutBranchByAll $2 main $4
-        elif [[ $1 = '-b' && $3 = '-s' ]]
-        then
-           checkoutBranchByAll main $2 $4
-        else
-            usage
-        fi
-    ;;
-    6)
-        while getopts ':m:b:s:' OPT; do
-            case $OPT in
-                m)
-                    checkoutBranch ${mainPath} $OPTARG
-                ;;
-                b)
-                    checkoutBranch ${baseFrameworkPath} $OPTARG
-                ;;
-                s)
-                    checkoutBranch ${businessModulesPath} $OPTARG
-                ;;
-                ?)
-                    usage
-                ;;
-            esac
-        done
-    ;;
     *)
     usage
     ;;
 esac
-
-executePubGet ${baseFrameworkPath}
-
-executePubGet ${businessModulesPath}
-
 
 cd ${mainPath}
 
