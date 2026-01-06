@@ -1,6 +1,3 @@
-[submodule "packages/business_modules"]
-	path = packages/business_modules
-	url = https://github.com/0xchat-app/0xchat-app-business.git
 [submodule "packages/0xchat-core"]
 	path = packages/0xchat-core
 	url = https://github.com/0xchat-app//0xchat-core.git
