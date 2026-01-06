@@ -100,3 +100,5 @@ build/
 pubspec.lock
 Podfile.lock
 /zapstore
+
+packages/base_framework/ox_common/lib/const/config/
