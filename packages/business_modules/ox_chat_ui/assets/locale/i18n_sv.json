@@ -1,0 +1,22 @@
+{
+  "record_hint": "Håll intryckt för att spela in, släpp för att skicka efter ${durationInSeconds} sekund",
+  "input_more_album": "Album",
+  "input_more_camera": "Kamera",
+  "input_more_video": "Video",
+  "input_more_call": "Ring",
+  "input_more_zaps": "Zaps",
+  "channel_join": "Gå med i Kanalen",
+  "group_join": "Gå med i gruppen",
+  "group_request": "Begäran om att gå med i gruppen",
+  "channel_badge_requirements": "Det krävs badge för att skicka meddelanden i den här kanalen",
+  "friend_requirements": "Det går inte att skicka meddelanden, eftersom de inte längre är en vän",
+  "giphy_emoji": "Emojis",
+  "giphy_gif": "GIFs",
+  "giphy_sticker": "Stickers",
+  "giphy_collect": "Samla",
+  "giphy_search": "Sök",
+  "giphy_tips": "Drivs av GIPHY",
+  "chat_input_hint_text": "Meddelande",
+  "giphy_use_hint": "Aktivera Giphy-funktionen för att stödja sändning av GIF-bilder och ha roligare i chatten. Eftersom vi använder Giphys API-gränssnitt kommer en förfrågan till Giphy API att avslöja din IP-adress för Giphys tjänst. Godkänner du att aktivera det?",
+  "giphy_continue": "Fortsätt"
+}

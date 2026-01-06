@@ -1,0 +1,22 @@
+{
+  "record_hint": "रिकॉर्ड करने के लिए दबाएँ, ${durationInSeconds} सेकंड के बाद भेजने के लिए छोड़ें",
+  "input_more_album": "एल्बम",
+  "input_more_camera": "कैमरा",
+  "input_more_video": "वीडियो",
+  "input_more_call": "कॉल",
+  "input_more_zaps": "Zaps",
+  "channel_join": "चैनल में शामिल हों",
+  "group_join": "समूह में शामिल हों",
+  "group_request": "समूह में शामिल होने का अनुरोध",
+  "channel_badge_requirements": "इस चैनल में मैसेज भेजने के लिए बैज आवश्यकता है",
+  "friend_requirements": "वे अब दोस्त नहीं हैं, इसलिए मैसेज नहीं भेज सकते",
+  "giphy_emoji": "इमोजीज़",
+  "giphy_gif": "जीआईएफ",
+  "giphy_sticker": "स्टीकर्स",
+  "giphy_collect": "इकट्ठा करना",
+  "giphy_search": "खोजें",
+  "giphy_tips": "जीआईएफ़ द्वारा संचालित",
+  "chat_input_hint_text": "संदेश",
+  "giphy_use_hint": "GIF छवियों को भेजने का समर्थन करने और चैट में अधिक मज़ा लेने के लिए Giphy सुविधा सक्षम करें। हालाँकि, चूंकि हम Giphy के API इंटरफ़ेस का उपयोग करते हैं, इसलिए Giphy API का अनुरोध करने से आपका IP पता Giphy सेवा के सामने प्रकट हो जाएगा। क्या आप इसे सक्षम करने के लिए सहमत हैं?",
+  "giphy_continue": "जारी रखें"
+}

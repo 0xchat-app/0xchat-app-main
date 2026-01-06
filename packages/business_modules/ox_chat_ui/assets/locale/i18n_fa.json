@@ -1,0 +1,23 @@
+{
+  "record_hint": "برای ضبط نگه دارید، پس از ${durationInSeconds} ثانیه برای ارسال رها کنید",
+  "input_more_album": "آلبوم",
+  "input_more_camera": "دوربین",
+  "input_more_video": "ویدئو",
+  "input_more_call": "تماس",
+  "input_more_zaps": "زاپ‌ها",
+  "input_more_nuts": "Cashu Nuts",
+  "channel_join": "عضو شدن در کانال",
+  "group_join": "عضو شدن در گروه",
+  "group_request": "درخواست عضویت در گروه",
+  "channel_badge_requirements": "ارسال پیام در این کانال نیاز به دریافت نشان دارد",
+  "friend_requirements": "نمی‌توانید پیام ارسال کنید، زیرا دیگر دوست نیستند",
+  "giphy_emoji": "ایموجی‌ها",
+  "giphy_gif": "GIF‌ها",
+  "giphy_sticker": "استیکرها",
+  "giphy_collect": "جمع‌آوری",
+  "giphy_search": "جستجو",
+  "giphy_tips": "پشتیبانی شده توسط GIPHY",
+  "chat_input_hint_text": "پیامی بنویسید...",
+  "giphy_use_hint": "ویژگی Giphy را فعال کنید تا از ارسال تصاویر GIF پشتیبانی کرده و از چت کردن لذت بیشتری ببرید. با این حال، چون ما از رابط API Giphy استفاده می‌کنیم، درخواست از API Giphy آدرس IP شما را به سرویس Giphy نشان خواهد داد. آیا موافق به فعال‌سازی آن هستید؟",
+  "giphy_continue": "ادامه"
+}

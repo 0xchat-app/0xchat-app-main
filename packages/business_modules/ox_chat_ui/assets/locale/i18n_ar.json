@@ -1,0 +1,22 @@
+{
+  "record_hint": "اضغط للتسجيل، اترك بعد ${durationInSeconds} ثانية للإرسال",
+  "input_more_album": "ألبوم",
+  "input_more_camera": "كاميرا",
+  "input_more_video": "فيديو",
+  "input_more_call": "مكالمة",
+  "input_more_zaps": "زابس",
+  "channel_join": "انضم للقناة",
+  "group_join": "انضم إلى المجموعة",
+  "group_request": "طلب الانضمام إلى المجموعة",
+  "channel_badge_requirements": "الإرسال في هذه القناة يتطلب شارة",
+  "friend_requirements": "لا يمكن الإرسال، لأنه لم يعد صديقًا",
+  "giphy_emoji": "إيموجي",
+  "giphy_gif": "صور متحركة",
+  "giphy_sticker": "ملصقات",
+  "giphy_collect": "جمع",
+  "giphy_search": "بحث",
+  "giphy_tips": "مدعوم من GIPHY",
+  "chat_input_hint_text": "رسالة",
+  "giphy_use_hint": "قم بتمكين ميزة Giphy لدعم إرسال صور GIF والاستمتاع بمزيد من المرح في الدردشة. ومع ذلك، نظرًا لأننا نستخدم واجهة برمجة تطبيقات Giphy، فإن طلب واجهة برمجة تطبيقات Giphy سيعرض عنوان IP الخاص بك لخدمة Giphy. هل توافق على تمكينها؟",
+  "giphy_continue": "استمر"
+}

@@ -1,0 +1,16 @@
+{
+  "str_call_duration": "دورانیہ: ${time}",
+  "str_call_canceled": "منسوخ ہو گیا",
+  "str_call_other_canceled": "دوسری طرف سے منسوخ کر دیا گیا",
+  "str_call_rejected": "مسترد کر دیا گیا",
+  "str_call_other_rejected": "دوسری طرف سے مسترد کر دیا گیا",
+  "str_call_not_answered": "کال کا جواب نہیں دیا گیا",
+  "str_call_other_not_answered": "کال کا جواب نہیں دیا گیا",
+  "str_invite_you_to_a_voice_call": "آپ کو کال پر مدعو کیا گیا ہے...",
+  "str_invite_you_to_a_video_call": "آپ کو ویڈیو کال پر مدعو کیا گیا ہے...",
+  "str_call_connecting": "جوڑ رہا ہے...",
+  "str_call_busy": "لائن مصروف ہے",
+  "str_voice_call_in_use": "وائس کال استعمال میں ہے",
+  "str_foreground_service_notification": "بیک گراؤنڈ سروس آپ کی کال کو جاری رکھے گی جب آپ ایپس تبدیل کریں گے",
+  "str_foreground_service_active": "بیک گراؤنڈ سروس آپ کی کال کو برقرار رکھنے کے لیے چل رہی ہے"
+}

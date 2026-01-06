@@ -1,0 +1,22 @@
+{
+  "record_hint": "Hoidke allalaadimiseks all, vabastage pärast ${durationInSeconds} sekundit",
+  "input_more_album": "Album",
+  "input_more_camera": "Kaamera",
+  "input_more_video": "Video",
+  "input_more_call": "Kõne",
+  "input_more_zaps": "Zaps",
+  "channel_join": "Liitu Kanaliga",
+  "group_join": "Liitu grupiga",
+  "group_request": "Soov liituda grupiga",
+  "channel_badge_requirements": "Selles kanalis sõnumite saatmiseks on vajalik märkmete nõue",
+  "friend_requirements": "Sõnumite saatmine pole võimalik, kuna nad pole enam sõbrad",
+  "giphy_emoji": "Emotikonid",
+  "giphy_gif": "GIFid",
+  "giphy_sticker": "Kleebised",
+  "giphy_collect": "Koguma",
+  "giphy_search": "Otsing",
+  "giphy_tips": "Powered by GIPHY",
+  "chat_input_hint_text": "Sõnum",
+  "giphy_use_hint": "Luba Giphy funktsioon, et toetada GIF-piltide saatmist ja nautida rohkem lõbu vestlemisel. Kuid kuna kasutame Giphy API-liidest, siis Giphy API taotlemine paljastab teie IP-aadressi Giphy teenusele. Kas nõustute selle lubamisega?",
+  "giphy_continue": "Jätka"
+}

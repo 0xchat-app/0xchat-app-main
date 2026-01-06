@@ -1,0 +1,14 @@
+{
+  "str_call_duration": "ระยะเวลา: ${time}",
+  "str_call_canceled": "ยกเลิกแล้ว",
+  "str_call_other_canceled": "ฝ่ายอื่นได้ยกเลิก",
+  "str_call_rejected": "ถูกปฏิเสธ",
+  "str_call_other_rejected": "ฝ่ายอื่นได้ปฏิเสธ",
+  "str_call_not_answered": "ไม่ตอบรับสาย",
+  "str_call_other_not_answered": "ไม่มีการตอบรับสาย",
+  "str_invite_you_to_a_voice_call": "เชิญคุณเข้าร่วมสาย...",
+  "str_invite_you_to_a_video_call": "เชิญคุณเข้าร่วมการโทรทางวิดีโอ...",
+  "str_call_connecting": "กำลังเชื่อมต่อ...",
+  "str_call_busy": "สายติด",
+  "str_voice_call_in_use": "การโทรเสียงกำลังใช้งาน"
+}

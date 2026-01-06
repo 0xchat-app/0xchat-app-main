@@ -1,0 +1,22 @@
+{
+  "record_hint": "Удерживайте для записи, отпустите для отправки после ${durationInSeconds} секунды",
+  "input_more_album": "Альбом",
+  "input_more_camera": "Камера",
+  "input_more_video": "Видео",
+  "input_more_call": "Звонок",
+  "input_more_zaps": "Запсы",
+  "channel_join": "Присоединиться к каналу",
+  "group_join": "Присоединиться к группе",
+  "group_request": "Запрос на присоединение к группе",
+  "channel_badge_requirements": "Отправка сообщений в этом канале требует наличия значка",
+  "friend_requirements": "Невозможно отправить сообщение, так как больше не является другом",
+  "giphy_emoji": "Эмодзи",
+  "giphy_gif": "GIFы",
+  "giphy_sticker": "Стикеры",
+  "giphy_collect": "Собирать",
+  "giphy_search": "Поиск",
+  "giphy_tips": "Поддерживается GIPHY",
+  "chat_input_hint_text": "Сообщение",
+  "giphy_use_hint": "Включите функцию Giphy, чтобы поддерживать отправку изображений GIF и наслаждаться большим удовольствием в чате. Однако, поскольку мы используем интерфейс API Giphy, запрос API Giphy раскроет ваш IP-адрес службе Giphy. Вы согласны включить это?",
+  "giphy_continue": "Продолжить"
+}

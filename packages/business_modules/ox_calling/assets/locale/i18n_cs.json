@@ -1,0 +1,14 @@
+{
+  "str_call_duration": "Doba trvání: ${time}",
+  "str_call_canceled": "Zrušeno",
+  "str_call_other_canceled": "Druhá strana zrušila",
+  "str_call_rejected": "Odchozí hovor",
+  "str_call_other_rejected": "Druhá strana odmítla",
+  "str_call_not_answered": "Hovor nebyl přijat",
+  "str_call_other_not_answered": "Hovor nebyl přijat druhou stranou",
+  "str_invite_you_to_a_voice_call": "Pozve vás k hovoru...",
+  "str_invite_you_to_a_video_call": "Pozve vás k videohovoru...",
+  "str_call_connecting": "Připojování...",
+  "str_call_busy": "Linka je obsazená",
+  "str_voice_call_in_use": "Hlasový hovor je používán"
+}

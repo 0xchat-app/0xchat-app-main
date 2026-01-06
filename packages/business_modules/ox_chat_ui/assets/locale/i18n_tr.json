@@ -1,0 +1,22 @@
+{
+  "record_hint": "Kaydetmek için basılı tutun, ${durationInSeconds} saniye sonra göndermek için bırakın",
+  "input_more_album": "Albüm",
+  "input_more_camera": "Kamera",
+  "input_more_video": "Video",
+  "input_more_call": "Ara",
+  "input_more_zaps": "Zaps",
+  "channel_join": "Kanala Katıl",
+  "group_join": "Gruba Katıl",
+  "group_request": "Gruba katılmak için istek",
+  "channel_badge_requirements": "Bu kanala mesaj gönderme rozet gereksinimleri var",
+  "friend_requirements": "Daha fazla arkadaş olmadıkları için mesaj gönderilemiyor",
+  "giphy_emoji": "Emojiler",
+  "giphy_gif": "GIF'ler",
+  "giphy_sticker": "Çıkartmalar",
+  "giphy_collect": "Toplamak",
+  "giphy_search": "Ara",
+  "giphy_tips": "GIPHY Tarafından Desteklenmektedir",
+  "chat_input_hint_text": "Mesaj yazın",
+  "giphy_use_hint": "GIF görüntüleri göndermeyi desteklemek ve sohbette daha fazla eğlenmek için Giphy özelliğini etkinleştirin. Ancak, Giphy'nin API arayüzünü kullandığımız için, Giphy API'si istemek IP adresinizi Giphy hizmetine maruz bırakacaktır. Etkinleştirmeyi kabul ediyor musunuz?",
+  "giphy_continue": "Devam et"
+}

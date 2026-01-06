@@ -1,0 +1,22 @@
+{
+  "record_hint": "Κρατήστε πατημένο για εγγραφή, αφήστε για αποστολή μετά από ${durationInSeconds} δευτερόλεπτα",
+  "input_more_album": "Άλμπουμ",
+  "input_more_camera": "Κάμερα",
+  "input_more_video": "Βίντεο",
+  "input_more_call": "Κλήση",
+  "input_more_zaps": "Zaps",
+  "channel_join": "Εγγραφή στο Κανάλι",
+  "group_join": "Γίνετε μέλος της ομάδας",
+  "group_request": "Αίτημα για συμμετοχή στην ομάδα",
+  "channel_badge_requirements": "Η αποστολή μηνυμάτων σε αυτό το κανάλι έχει απαιτήσεις για το διακριτικό",
+  "friend_requirements": "Δεν είναι δυνατή η αποστολή μηνύματος, καθώς δεν είναι πλέον φίλοι",
+  "giphy_emoji": "Emojis",
+  "giphy_gif": "GIFs",
+  "giphy_sticker": "Sticker",
+  "giphy_collect": "Συλλέγω",
+  "giphy_search": "Αναζήτηση",
+  "giphy_tips": "Υποστηρίζεται από GIPHY",
+  "chat_input_hint_text": "Μήνυμα",
+  "giphy_use_hint": "Ενεργοποιήστε τη λειτουργία Giphy για να υποστηρίξετε την αποστολή εικόνων GIF και να απολαύσετε περισσότερη διασκέδαση στη συνομιλία. Ωστόσο, επειδή χρησιμοποιούμε το API interface του Giphy, η αίτηση για το API του Giphy θα αποκαλύψει τη διεύθυνση IP σας στην υπηρεσία Giphy. Συμφωνείτε να την ενεργοποιήσετε;",
+  "giphy_continue": "Συνέχεια"
+}

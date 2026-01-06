@@ -1,0 +1,22 @@
+{
+  "record_hint": "Mantén premut per gravar, allibera per enviar després de ${durationInSeconds} segons",
+  "input_more_album": "Àlbum",
+  "input_more_camera": "Càmera",
+  "input_more_video": "Vídeo",
+  "input_more_call": "Trucada",
+  "input_more_zaps": "Zaps",
+  "channel_join": "Unir-se al Canal",
+  "group_join": "Uneix-te al grup",
+  "group_request": "Sol·licitud per unir-se al grup",
+  "channel_badge_requirements": "L'enviament de missatges en aquest canal té requisits de distintiu",
+  "friend_requirements": "No es pot enviar missatges, ja que ja no són amics",
+  "giphy_emoji": "Emojis",
+  "giphy_gif": "GIFs",
+  "giphy_sticker": "Adhesius",
+  "giphy_collect": "Recull",
+  "giphy_search": "Cerca",
+  "giphy_tips": "Suportat per GIPHY",
+  "chat_input_hint_text": "Missatge",
+  "giphy_use_hint": "Activa la funció Giphy per donar suport a l'enviament d'imatges GIF i gaudir de més diversió en les xerrades. Tanmateix, com que utilitzem la interfície API de Giphy, sol·licitar l'API de Giphy exposarà la teva adreça IP al servei de Giphy. Estàs d'acord a activar-ho?",
+  "giphy_continue": "Continua"
+}

@@ -1,0 +1,16 @@
+{
+  "str_call_duration": "通话时长：${time}",
+  "str_call_canceled": "已取消",
+  "str_call_other_canceled": "对方已取消",
+  "str_call_rejected": "已拒绝",
+  "str_call_other_rejected": "对方已拒绝",
+  "str_call_not_answered": "无应答",
+  "str_call_other_not_answered": "对方无应答",
+  "str_invite_you_to_a_voice_call": "邀请您通话...",
+  "str_invite_you_to_a_video_call": "邀请您视频通话...",
+  "str_call_connecting": "正在连接...",
+  "str_call_busy": "忙线未接听",
+  "str_voice_call_in_use": "语音通话中",
+  "str_foreground_service_notification": "后台服务将在您切换应用时保持通话活跃",
+  "str_foreground_service_active": "后台服务正在运行以维持您的通话"
+}

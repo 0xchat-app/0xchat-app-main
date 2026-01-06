@@ -1,0 +1,22 @@
+{
+  "record_hint": "Giữ để ghi âm, thả để gửi sau ${durationInSeconds} giây",
+  "input_more_album": "Album",
+  "input_more_camera": "Máy ảnh",
+  "input_more_video": "Video",
+  "input_more_call": "Gọi",
+  "input_more_zaps": "Zaps",
+  "channel_join": "Tham gia kênh",
+  "group_join": "Tham gia nhóm",
+  "group_request": "Yêu cầu tham gia nhóm",
+  "channel_badge_requirements": "Gửi tin nhắn trong kênh này cần phải có Huy hiệu",
+  "friend_requirements": "Không thể gửi tin nhắn, vì không còn là bạn nữa",
+  "giphy_emoji": "Emojis",
+  "giphy_gif": "GIFs",
+  "giphy_sticker": "Sticker",
+  "giphy_collect": "Sưu tầm",
+  "giphy_search": "Tìm kiếm",
+  "giphy_tips": "Hỗ trợ bởi GIPHY",
+  "chat_input_hint_text": "Tin nhắn",
+  "giphy_use_hint": "Bật tính năng Giphy để hỗ trợ gửi hình ảnh GIF và tận hưởng thêm nhiều niềm vui khi trò chuyện. Tuy nhiên, vì chúng tôi sử dụng giao diện API của Giphy, yêu cầu API của Giphy sẽ tiết lộ địa chỉ IP của bạn cho dịch vụ Giphy. Bạn có đồng ý bật nó không?",
+  "giphy_continue": "Tiếp tục"
+}

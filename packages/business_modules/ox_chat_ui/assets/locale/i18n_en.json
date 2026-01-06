@@ -1,0 +1,23 @@
+{
+  "record_hint": "Hold to record, release to send after ${durationInSeconds} second",
+  "input_more_album": "Album",
+  "input_more_camera": "Camera",
+  "input_more_video": "Video",
+  "input_more_call": "Call",
+  "input_more_zaps": "Zaps",
+  "input_more_nuts": "Cashu Nuts",
+  "channel_join": "Join Channel",
+  "group_join": "Join Group",
+  "group_request": "Request to join Group",
+  "channel_badge_requirements": "Sending messages in this channel has Badge requirements",
+  "friend_requirements": "Unable to message, as they're no longer a friend",
+  "giphy_emoji": "Emojis",
+  "giphy_gif": "GIFs",
+  "giphy_sticker": "Stickers",
+  "giphy_collect": "Collect",
+  "giphy_search": "Search",
+  "giphy_tips": "Powered By GIPHY",
+  "chat_input_hint_text": "Write a message...",
+  "giphy_use_hint": "Enable the Giphy feature to support sending GIF images and enjoy more fun in chatting. However, since we use Giphy's API interface, requesting the Giphy API will expose your IP address to the Giphy service. Do you agree to enable it?",
+  "giphy_continue": "Continue"
+}

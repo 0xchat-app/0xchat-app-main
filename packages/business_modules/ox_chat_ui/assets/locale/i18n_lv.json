@@ -1,0 +1,22 @@
+{
+  "record_hint": "Turiet nuspaustą, kad įrašytumėte, paleiskite, kad galėtumėte siųsti po ${durationInSeconds} sekundžių",
+  "input_more_album": "Albumas",
+  "input_more_camera": "Fotoaparatas",
+  "input_more_video": "Vaizdas",
+  "input_more_call": "Skambutis",
+  "input_more_zaps": "Zaps",
+  "channel_join": "Prisijungti prie Kanalo",
+  "group_join": "Pievienoties grupai",
+  "group_request": "Pieprasījums pievienoties grupai",
+  "channel_badge_requirements": "Šiame kanale žinučių siuntimui reikia žymės reikalavimų",
+  "friend_requirements": "Negalima siųsti žinučių, nes jie daugiau nėra draugai",
+  "giphy_emoji": "Emocijas",
+  "giphy_gif": "GIF",
+  "giphy_sticker": "Uzlīmes",
+  "giphy_collect": "Savākt",
+  "giphy_search": "Meklēt",
+  "giphy_tips": "Powered by GIPHY",
+  "chat_input_hint_text": "Ziņa",
+  "giphy_use_hint": "Iespējojiet Giphy funkciju, lai atbalstītu GIF attēlu sūtīšanu un baudītu vairāk jautrības čatošanā. Tomēr, tā kā mēs izmantojam Giphy API saskarni, pieprasot Giphy API, jūsu IP adrese tiks pakļauta Giphy pakalpojumam. Vai piekrītat to iespējot?",
+  "giphy_continue": "Turpināt"
+}

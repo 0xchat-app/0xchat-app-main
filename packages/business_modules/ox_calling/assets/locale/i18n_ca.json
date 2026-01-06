@@ -1,0 +1,14 @@
+{
+  "str_call_duration": "Durada: ${time}",
+  "str_call_canceled": "Cancel·lat",
+  "str_call_other_canceled": "L'altra part ha cancel·lat",
+  "str_call_rejected": "Trucada sortint",
+  "str_call_other_rejected": "L'altra part ha rebutjat",
+  "str_call_not_answered": "La trucada no s'ha respost",
+  "str_call_other_not_answered": "L'altra part no ha respost la trucada",
+  "str_invite_you_to_a_voice_call": "Et convida a una trucada...",
+  "str_invite_you_to_a_video_call": "Et convida a una trucada de vídeo...",
+  "str_call_connecting": "Connectant...",
+  "str_call_busy": "Línia ocupada",
+  "str_voice_call_in_use": "Trucada de veu en ús"
+}

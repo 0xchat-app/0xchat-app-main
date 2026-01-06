@@ -1,0 +1,16 @@
+{
+  "str_call_duration": "Duración: ${time}",
+  "str_call_canceled": "Cancelado",
+  "str_call_other_canceled": "La otra parte ha cancelado",
+  "str_call_rejected": "Rechazado",
+  "str_call_other_rejected": "La otra parte ha rechazado",
+  "str_call_not_answered": "Llamada no contestada",
+  "str_call_other_not_answered": "La llamada no fue contestada",
+  "str_invite_you_to_a_voice_call": "Te invita a una llamada...",
+  "str_invite_you_to_a_video_call": "Te invita a una llamada de video...",
+  "str_call_connecting": "Conectando...",
+  "str_call_busy": "Línea ocupada",
+  "str_voice_call_in_use": "Llamada de voz en uso",
+  "str_foreground_service_notification": "El servicio en segundo plano mantendrá tu llamada activa cuando cambies de aplicación",
+  "str_foreground_service_active": "El servicio en segundo plano está activo para mantener tu llamada"
+}

@@ -1,0 +1,22 @@
+{
+  "record_hint": "Tahan untuk merekam, lepaskan untuk mengirim setelah ${durationInSeconds} detik",
+  "input_more_album": "Album",
+  "input_more_camera": "Kamera",
+  "input_more_video": "Video",
+  "input_more_call": "Panggilan",
+  "input_more_zaps": "Zaps",
+  "channel_join": "Bergabung dengan Saluran",
+  "group_join": "Bergabung dengan grup",
+  "group_request": "Permintaan untuk bergabung dengan grup",
+  "channel_badge_requirements": "Mengirim pesan di saluran ini memiliki persyaratan badge",
+  "friend_requirements": "Tidak dapat mengirim pesan, karena mereka bukan teman lagi",
+  "giphy_emoji": "Emoji",
+  "giphy_gif": "GIFs",
+  "giphy_sticker": "Stiker",
+  "giphy_collect": "Mengumpulkan",
+  "giphy_search": "Cari",
+  "giphy_tips": "Didukung oleh GIPHY",
+  "chat_input_hint_text": "Pesan",
+  "giphy_use_hint": "Aktifkan fitur Giphy untuk mendukung pengiriman gambar GIF dan nikmati lebih banyak kesenangan dalam obrolan. Namun, karena kami menggunakan antarmuka API Giphy, permintaan API Giphy akan mengekspos alamat IP Anda ke layanan Giphy. Apakah Anda setuju untuk mengaktifkannya?",
+  "giphy_continue": "Lanjutkan"
+}

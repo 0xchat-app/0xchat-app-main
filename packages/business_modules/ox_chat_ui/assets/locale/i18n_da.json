@@ -1,0 +1,22 @@
+{
+  "record_hint": "Hold for at optage, slip for at sende efter ${durationInSeconds} sekunder",
+  "input_more_album": "Album",
+  "input_more_camera": "Kamera",
+  "input_more_video": "Video",
+  "input_more_call": "Opkald",
+  "input_more_zaps": "Zaps",
+  "channel_join": "Tilmeld dig kanalen",
+  "group_join": "Deltag i gruppen",
+  "group_request": "Anmodning om at deltage i gruppen",
+  "channel_badge_requirements": "Kravene til at sende beskeder i denne kanal er badge-krav",
+  "friend_requirements": "Det er ikke muligt at sende beskeder, da de ikke længere er venner",
+  "giphy_emoji": "Emojis",
+  "giphy_gif": "GIFs",
+  "giphy_sticker": "Klistermærker",
+  "giphy_collect": "Samle",
+  "giphy_search": "Søg",
+  "giphy_tips": "Leveret af GIPHY",
+  "chat_input_hint_text": "Besked",
+  "giphy_use_hint": "Aktivér Giphy-funktionen for at understøtte afsendelse af GIF-billeder og få mere sjov i chatten. Da vi bruger Giphys API-interface, vil anmodning til Giphy API dog udsætte din IP-adresse for Giphy-tjenesten. Er du enig i at aktivere det?",
+  "giphy_continue": "Fortsæt"
+}

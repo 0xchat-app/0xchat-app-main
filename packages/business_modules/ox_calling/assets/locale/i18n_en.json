@@ -1,0 +1,16 @@
+{
+  "str_call_duration": "Duration: ${time}",
+  "str_call_canceled": "Canceled",
+  "str_call_other_canceled": "The other party has cancelled",
+  "str_call_rejected": "Rejected",
+  "str_call_other_rejected": "The other party has rejected",
+  "str_call_not_answered": "Call not ansered",
+  "str_call_other_not_answered": "Call wasn't answered",
+  "str_invite_you_to_a_voice_call": "Invites you to a call...",
+  "str_invite_you_to_a_video_call": "Invites you to a video call...",
+  "str_call_connecting": "Connecting...",
+  "str_call_busy": "Line busy",
+  "str_voice_call_in_use": "Voice call in use",
+  "str_foreground_service_notification": "Background service will keep your call active when you switch apps",
+  "str_foreground_service_active": "Background service is running to maintain your call"
+}

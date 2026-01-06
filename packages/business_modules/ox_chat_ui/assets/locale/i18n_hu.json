@@ -1,0 +1,22 @@
+{
+  "record_hint": "Nyomva tartásra rögzítés, ${durationInSeconds} másodperc után küldés",
+  "input_more_album": "Album",
+  "input_more_camera": "Kamera",
+  "input_more_video": "Videó",
+  "input_more_call": "Hívás",
+  "input_more_zaps": "Zaps",
+  "channel_join": "Csatlakozás a Csoportba",
+  "group_join": "Csatlakozás a csoporthoz",
+  "group_request": "Kérelem a csoporthoz való csatlakozáshoz",
+  "channel_badge_requirements": "Ehhez a csoportban üzenetek küldéséhez jelvénykövetelmények szükségesek",
+  "friend_requirements": "Nem lehet üzenetet küldeni, mivel már nem barátok",
+  "giphy_emoji": "Emojis",
+  "giphy_gif": "GIFs",
+  "giphy_sticker": "Matricák",
+  "giphy_collect": "Gyűjt",
+  "giphy_search": "Keresés",
+  "giphy_tips": "Powered by GIPHY",
+  "chat_input_hint_text": "Üzenet",
+  "giphy_use_hint": "Engedélyezze a Giphy funkciót GIF képek küldésének támogatásához és több szórakozáshoz a csevegésben. Azonban, mivel a Giphy API interfészt használjuk, a Giphy API kérése kiteszi az IP címét a Giphy szolgáltatásnak. Egyetért az engedélyezéssel?",
+  "giphy_continue": "Folytatás"
+}

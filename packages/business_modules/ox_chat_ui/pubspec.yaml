@@ -1,0 +1,55 @@
+name: ox_chat_ui
+description: >
+  Actively maintained, community-driven chat UI implementation with an
+  optional Firebase BaaS.
+version: 1.6.6
+homepage: https://flyer.chat
+repository: https://github.com/flyerhq/flutter_chat_ui
+
+publish_to: none
+
+environment:
+  sdk: ">=2.18.0 <3.0.0"
+  flutter: ">=2.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  reflectable: ^4.0.5
+  diffutil_dart: ^3.0.0
+  equatable: ^2.0.5
+  flutter_parsed_text:
+    path: ./flutter_parsed_text
+  meta: ^1.8.0
+  photo_view: ^0.14.0
+  scroll_to_index: ^3.0.1
+  url_launcher: ^6.1.6
+  visibility_detector: ^0.3.3
+  emoji_picker_flutter: 1.5.4
+  flutter_sound: ^9.23.1
+  just_audio: ^0.9.31
+  syncfusion_flutter_sliders: ^20.4.51
+  flutter_chat_types:  #Message type template
+    path: ./flutter_chat_types
+  flutter_link_previewer:
+    path: ./flutter_link_previewer
+  ox_common:
+    path: ../../base_framework/ox_common
+  ox_localizable:
+    path: ../../base_framework/ox_localizable
+  ox_module_service:
+    path: ../../base_framework/ox_module_service
+
+
+dev_dependencies:
+#  dart_code_metrics: ^4.21.3
+  flutter_test:
+    sdk: flutter
+  build_runner: ^2.0.6
+  json_serializable: ^6.5.4
+
+flutter:
+  assets:
+    - assets/images/
+    - assets/locale/

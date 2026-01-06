@@ -1,0 +1,14 @@
+{
+  "str_call_duration": "時長：${time}",
+  "str_call_canceled": "已取消",
+  "str_call_other_canceled": "對方已取消",
+  "str_call_rejected": "已拒絕",
+  "str_call_other_rejected": "對方已拒絕",
+  "str_call_not_answered": "未接電話",
+  "str_call_other_not_answered": "對方未接",
+  "str_invite_you_to_a_voice_call": "邀請您通話...",
+  "str_invite_you_to_a_video_call": "邀請您視訊通話...",
+  "str_call_connecting": "正在連接...",
+  "str_call_busy": "忙線未接聽",
+  "str_voice_call_in_use": "語音通話中"
+}

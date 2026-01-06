@@ -1,0 +1,22 @@
+{
+  "record_hint": "Утримуйте для запису, відпустіть для відправлення через ${durationInSeconds} секунд",
+  "input_more_album": "Альбом",
+  "input_more_camera": "Камера",
+  "input_more_video": "Відео",
+  "input_more_call": "Дзвінок",
+  "input_more_zaps": "Zaps",
+  "channel_join": "Приєднатися до каналу",
+  "group_join": "Приєднатися до групи",
+  "group_request": "Запит на приєднання до групи",
+  "channel_badge_requirements": "Відправлення повідомлень на цьому каналі вимагає значків",
+  "friend_requirements": "Неможливо відправити повідомлення, оскільки вони вже не є друзями",
+  "giphy_emoji": "Емодзі",
+  "giphy_gif": "GIFs",
+  "giphy_sticker": "Наліпки",
+  "giphy_collect": "Збирати",
+  "giphy_search": "Пошук",
+  "giphy_tips": "Підтримується GIPHY",
+  "chat_input_hint_text": "Повідомлення",
+  "giphy_use_hint": "Увімкніть функцію Giphy, щоб підтримувати надсилання GIF-зображень і насолоджуватися більшою розвагою в чаті. Однак, оскільки ми використовуємо інтерфейс API Giphy, запит API Giphy виявить вашу IP-адресу службі Giphy. Ви погоджуєтеся ввімкнути це?",
+  "giphy_continue": "Продовжити"
+}

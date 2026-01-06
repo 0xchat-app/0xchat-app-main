@@ -1,0 +1,22 @@
+{
+  "record_hint": "Tieni premuto per registrare, rilascia per inviare dopo ${durationInSeconds} secondo",
+  "input_more_album": "Album",
+  "input_more_camera": "Fotocamera",
+  "input_more_video": "Video",
+  "input_more_call": "Chiama",
+  "input_more_zaps": "Zaps",
+  "channel_join": "Unisciti al Canale",
+  "group_join": "Unirsi al gruppo",
+  "group_request": "Richiesta di unirsi al gruppo",
+  "channel_badge_requirements": "L'invio di messaggi in questo canale ha requisiti di badge",
+  "friend_requirements": "Impossibile inviare messaggi, poiché non sono più un amico",
+  "giphy_emoji": "Emoji",
+  "giphy_gif": "GIF",
+  "giphy_sticker": "Adesivi",
+  "giphy_collect": "Raccogliere",
+  "giphy_search": "Cerca",
+  "giphy_tips": "Powered by GIPHY",
+  "chat_input_hint_text": "Messaggio",
+  "giphy_use_hint": "Abilita la funzione Giphy per supportare l'invio di immagini GIF e divertirti di più in chat. Tuttavia, poiché utilizziamo l'interfaccia API di Giphy, richiedere l'API di Giphy esporrà il tuo indirizzo IP al servizio Giphy. Sei d'accordo ad abilitarla?",
+  "giphy_continue": "Continua"
+}

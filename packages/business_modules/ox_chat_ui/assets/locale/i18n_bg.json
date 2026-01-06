@@ -1,0 +1,22 @@
+{
+  "record_hint": "Задръжте, за да записвате, освободете, за да изпратите след ${durationInSeconds} секунди",
+  "input_more_album": "Албум",
+  "input_more_camera": "Камера",
+  "input_more_video": "Видео",
+  "input_more_call": "Обаждане",
+  "input_more_zaps": "Zaps",
+  "channel_join": "Присъединете се към канала",
+  "group_join": "Присъедини се към групата",
+  "group_request": "Искане за присъединяване към групата",
+  "channel_badge_requirements": "Изпращането на съобщения в този канал изисква значка",
+  "friend_requirements": "Не може да се изпращат съобщения, тъй като вече не са приятели",
+  "giphy_emoji": "Емоджита",
+  "giphy_gif": "GIFs",
+  "giphy_sticker": "Стикери",
+  "giphy_collect": "Съберете",
+  "giphy_search": "Търсене",
+  "giphy_tips": "Поддържа се от GIPHY",
+  "chat_input_hint_text": "Съобщение",
+  "giphy_use_hint": "Активирайте функцията Giphy, за да поддържате изпращането на GIF изображения и да се наслаждавате на повече забавление в чатовете. Въпреки това, тъй като използваме API интерфейса на Giphy, заявката към Giphy API ще разкрие вашия IP адрес на услугата Giphy. Съгласни ли сте да го активирате?",
+  "giphy_continue": "Продължи"
+}

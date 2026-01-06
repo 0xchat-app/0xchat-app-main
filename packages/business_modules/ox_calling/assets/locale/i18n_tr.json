@@ -1,0 +1,14 @@
+{
+  "str_call_duration": "Süre: ${time}",
+  "str_call_canceled": "İptal Edildi",
+  "str_call_other_canceled": "Diğer taraf iptal etti",
+  "str_call_rejected": "Giden Çağrı",
+  "str_call_other_rejected": "Diğer taraf reddetti",
+  "str_call_not_answered": "Çağrı yanıtlanmadı",
+  "str_call_other_not_answered": "Çağrı yanıtlanmadı",
+  "str_invite_you_to_a_voice_call": "Sizi bir çağrıya davet ediyor...",
+  "str_invite_you_to_a_video_call": "Sizi bir video çağrısına davet ediyor...",
+  "str_call_connecting": "Bağlanıyor...",
+  "str_call_busy": "Hat meşgul",
+  "str_voice_call_in_use": "Sesli arama kullanılıyor"
+}

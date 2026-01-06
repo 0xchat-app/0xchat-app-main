@@ -1,0 +1,22 @@
+{
+  "record_hint": "按住錄製，${durationInSeconds}秒後鬆開以傳送",
+  "input_more_album": "相簿",
+  "input_more_camera": "相機",
+  "input_more_video": "影片",
+  "input_more_call": "通話",
+  "input_more_zaps": "打電",
+  "channel_join": "加入頻道",
+  "group_join": "加入群組",
+  "group_request": "請求加入群組",
+  "channel_badge_requirements": "在此頻道內發送訊息需有徽章要求",
+  "friend_requirements": "由於對方已非您的朋友，無法發送訊息",
+  "giphy_emoji": "表情符號",
+  "giphy_gif": "動圖",
+  "giphy_sticker": "貼紙",
+  "giphy_collect": "收集",
+  "giphy_search": "搜尋",
+  "giphy_tips": "由GIPHY提供技術支持",
+  "chat_input_hint_text": "輸入訊息",
+  "giphy_use_hint": "啟用Giphy功能以支持發送GIF圖像，並在聊天中享受更多樂趣。然而，由於我們使用Giphy的API接口，請求Giphy API會將您的IP地址暴露給Giphy服務。您同意啟用它嗎？",
+  "giphy_continue": "繼續"
+}

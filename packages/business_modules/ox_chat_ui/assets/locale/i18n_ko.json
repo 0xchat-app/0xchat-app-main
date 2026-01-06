@@ -1,0 +1,22 @@
+{
+  "record_hint": "${durationInSeconds}초 후 보내려면 누르고 있음, 놓으면 전송",
+  "input_more_album": "앨범",
+  "input_more_camera": "카메라",
+  "input_more_video": "비디오",
+  "input_more_call": "통화",
+  "input_more_zaps": "잡스",
+  "channel_join": "채널 참여",
+  "group_join": "그룹 참여",
+  "group_request": "그룹 가입 요청",
+  "channel_badge_requirements": "이 채널에서 메시지를 보내려면 배지 필요",
+  "friend_requirements": "더 이상 친구가 아니라 메시지를 보낼 수 없습니다",
+  "giphy_emoji": "이모티콘",
+  "giphy_gif": "GIFs",
+  "giphy_sticker": "스티커",
+  "giphy_collect": "수집",
+  "giphy_search": "검색",
+  "giphy_tips": "GIPHY 제공",
+  "chat_input_hint_text": "메시지",
+  "giphy_use_hint": "Giphy 기능을 활성화하여 GIF 이미지를 보내고 채팅을 더 즐겁게 즐기세요. 그러나 Giphy의 API 인터페이스를 사용하기 때문에 Giphy API를 요청하면 IP 주소가 Giphy 서비스에 노출됩니다. 활성화에 동의하십니까?",
+  "giphy_continue": "계속"
+}

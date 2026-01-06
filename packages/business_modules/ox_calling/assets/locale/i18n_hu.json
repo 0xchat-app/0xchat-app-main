@@ -1,0 +1,14 @@
+{
+  "str_call_duration": "Időtartam: ${time}",
+  "str_call_canceled": "Törölve",
+  "str_call_other_canceled": "A másik fél törölte",
+  "str_call_rejected": "Kimenő hívás",
+  "str_call_other_rejected": "A másik fél elutasította",
+  "str_call_not_answered": "A hívás nem lett felvéve",
+  "str_call_other_not_answered": "A másik fél nem vette fel a hívást",
+  "str_invite_you_to_a_voice_call": "Meghív téged egy hívásra...",
+  "str_invite_you_to_a_video_call": "Meghív téged egy videohívásra...",
+  "str_call_connecting": "Csatlakozás...",
+  "str_call_busy": "Foglalt",
+  "str_voice_call_in_use": "Hanghívás használatban van"
+}
