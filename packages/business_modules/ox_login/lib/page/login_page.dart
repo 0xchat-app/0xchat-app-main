@@ -12,7 +12,6 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/nip46_status_notifier.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
-import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
@@ -224,8 +223,9 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget buildAmberLoginWidget() {
     bool isAndroid = Platform.isAndroid;
-    String text = isAndroid ? Localized.text('ox_login.login_with_amber') : Localized.text('ox_login.login_with_aegis');
-    GestureTapCallback? onTap = isAndroid ? _loginWithAmber : _loginWithNostrAegis;
+    // On Android, use external signer (NIP-55), on iOS use Aegis
+    String text = isAndroid ? Localized.text('ox_login.login_with_external_signer') : Localized.text('ox_login.login_with_aegis');
+    GestureTapCallback? onTap = isAndroid ? _loginWithExternalSigner : _loginWithNostrAegis;
     String iconName = isAndroid ? "icon_login_amber.png" : "icon_login_aegis.png";
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
@@ -301,21 +301,44 @@ class _LoginPageState extends State<LoginPage> {
     OXNavigator.popToRoot(context);
   }
 
-  void _loginWithAmber() async {
-    bool isInstalled = await CoreMethodChannel.isInstalledAmber();
-    if (mounted && !isInstalled) {
-      CommonToast.instance.show(context, Localized.text('ox_login.str_not_installed_amber'));
+  /// Login with external signer (NIP-55)
+  /// Queries all installed signers and lets user choose if multiple are available
+  void _loginWithExternalSigner() async {
+    // Query all installed external signers
+    List<Map<String, String>> signers = await CoreMethodChannel.getInstalledExternalSigners();
+    
+    if (signers.isEmpty) {
+      if (mounted) {
+        CommonToast.instance.show(context, Localized.text('ox_login.str_no_signer_installed'));
+      }
       return;
     }
-    // Set signer to amber to ensure Content Provider is used first
-    await ExternalSignerTool.setSigner('amber');
+    
+    String? selectedPackageName;
+    
+    if (signers.length == 1) {
+      // Only one signer available, use it directly
+      selectedPackageName = signers[0]['packageName'];
+    } else {
+      // Multiple signers available, show selection dialog
+      selectedPackageName = await _showSignerSelectionDialog(signers);
+    }
+    
+    if (selectedPackageName == null) return;
+    
+    // Set the selected signer by package name
+    await ExternalSignerTool.setSignerByPackageName(selectedPackageName);
+    
     String? signature = await ExternalSignerTool.getPubKey();
     if (signature == null) {
-      CommonToast.instance.show(context, Localized.text('ox_login.sign_request_rejected'));
+      if (mounted) {
+        CommonToast.instance.show(context, Localized.text('ox_login.sign_request_rejected'));
+      }
       return;
     }
     await OXLoading.show();
     String decodeSignature = signature;
+    // Handle both hex and npub formats from signer
     if (signature.startsWith('npub')) {
       decodeSignature = UserDBISAR.decodePubkey(signature) ?? '';
     }
@@ -325,7 +348,9 @@ class _LoginPageState extends State<LoginPage> {
     userDB = await OXUserInfoManager.sharedInstance.handleSwitchFailures(userDB, currentUserPubKey);
     if (userDB == null) {
       await OXLoading.dismiss();
-      CommonToast.instance.show(context, Localized.text('ox_login.pub_key_regular_failed'));
+      if (mounted) {
+        CommonToast.instance.show(context, Localized.text('ox_login.pub_key_regular_failed'));
+      }
       return;
     }
     Account.sharedInstance.reloadProfileFromRelay(userDB.pubKey).then((value) {
@@ -335,6 +360,51 @@ class _LoginPageState extends State<LoginPage> {
     OXUserInfoManager.sharedInstance.loginSuccess(userDB, isAmber: true);
     await OXLoading.dismiss();
     OXNavigator.popToRoot(context);
+  }
+
+  /// Show a bottom sheet dialog for user to select a signer
+  Future<String?> _showSignerSelectionDialog(List<Map<String, String>> signers) async {
+    return showModalBottomSheet<String>(
+      context: context,
+      backgroundColor: ThemeColor.color190,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16.px)),
+      ),
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: EdgeInsets.all(16.px),
+                child: Text(
+                  Localized.text('ox_login.select_signer'),
+                  style: TextStyle(
+                    color: ThemeColor.titleColor,
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              Divider(height: 1, color: ThemeColor.color160),
+              ...signers.map((signer) => ListTile(
+                leading: Icon(Icons.security, color: ThemeColor.gradientMainStart),
+                title: Text(
+                  signer['appName'] ?? signer['packageName'] ?? 'Unknown',
+                  style: TextStyle(color: ThemeColor.titleColor, fontSize: 16.sp),
+                ),
+                subtitle: Text(
+                  signer['packageName'] ?? '',
+                  style: TextStyle(color: ThemeColor.color120, fontSize: 12.sp),
+                ),
+                onTap: () => Navigator.of(context).pop(signer['packageName']),
+              )),
+              SizedBox(height: 16.px),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   void _serviceWebView() {
