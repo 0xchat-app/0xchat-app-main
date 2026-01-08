@@ -4,6 +4,7 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:chatcore/chat-core.dart';
+import 'package:ox_discovery/model/moment_extension_model.dart';
 
 class SearchNoteView extends StatefulWidget {
   final String searchQuery;
@@ -82,29 +83,49 @@ class _SearchNoteViewState extends State<SearchNoteView>
       setState(() {});
     }
     try {
-      List<NoteDBISAR> noteList = await Moment.sharedInstance.searchNotesWithKeyword(
-        keyword,
-        notesCallBack: (List<NoteDBISAR> newNotes) {
-          // Real-time callback: add new notes as they arrive
-          if (mounted) {
-            setState(() {
-              // Avoid duplicates
-              Set<String> existingIds = _notes.map((n) => n.noteId).toSet();
-              for (var note in newNotes) {
-                if (!existingIds.contains(note.noteId)) {
-                  _notes.add(note);
-                  existingIds.add(note.noteId);
+      List<NoteDBISAR> noteList = [];
+      
+      // Check if keyword is a hashtag (starts with #)
+      if (keyword.startsWith('#')) {
+        // Extract tag name (remove #)
+        String tagName = keyword.substring(1);
+        if (tagName.isNotEmpty) {
+          // Use hashtag search instead of text search
+          List<NoteDBISAR>? hashtagResults = await Moment.sharedInstance.loadHashTagsFromRelay(
+            [tagName],
+            limit: 100,
+          );
+          noteList = hashtagResults ?? [];
+          // Filter out reactions
+          noteList = noteList.where((note) => !note.isReaction).toList();
+        }
+      } else {
+        // Use regular keyword search for non-hashtag queries
+        noteList = await Moment.sharedInstance.searchNotesWithKeyword(
+          keyword,
+          notesCallBack: (List<NoteDBISAR> newNotes) {
+            // Real-time callback: add new notes as they arrive
+            if (mounted) {
+              setState(() {
+                // Avoid duplicates
+                Set<String> existingIds = _notes.map((n) => n.noteId).toSet();
+                for (var note in newNotes) {
+                  if (!existingIds.contains(note.noteId)) {
+                    _notes.add(note);
+                    existingIds.add(note.noteId);
+                  }
                 }
-              }
-              // Sort by createAt from new to old (descending)
-              _notes.sort((a, b) => b.createAt.compareTo(a.createAt));
-              if (_notes.isNotEmpty) {
-                updateStateView(CommonStateView.CommonStateView_None);
-              }
-            });
-          }
-        },
-      );
+                // Sort by createAt from new to old (descending)
+                _notes.sort((a, b) => b.createAt.compareTo(a.createAt));
+                if (_notes.isNotEmpty) {
+                  updateStateView(CommonStateView.CommonStateView_None);
+                }
+              });
+            }
+          },
+        );
+      }
+      
       // Final update with all results
       if (mounted) {
         setState(() {

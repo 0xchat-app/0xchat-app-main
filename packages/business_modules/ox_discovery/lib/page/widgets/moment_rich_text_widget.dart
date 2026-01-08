@@ -251,7 +251,7 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget>
         if (href != null) {
           // Handle custom link formats
           if (href.startsWith('moment://hashtag/')) {
-            _onTextTap('#${href.substring(18)}', context);
+            _onTextTap('#${href.substring(17)}', context);
           } else if (href.startsWith('moment://nostr/')) {
             String nostrLink = href.substring(15);
             List<String> list = _dealWithText(nostrLink);
