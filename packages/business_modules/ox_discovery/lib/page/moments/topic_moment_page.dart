@@ -11,7 +11,6 @@ import 'package:ox_common/widgets/common_pull_refresher.dart';
 import 'package:ox_discovery/model/moment_extension_model.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
-import '../../enum/moment_enum.dart';
 import '../../model/moment_ui_model.dart';
 import '../widgets/moment_widget.dart';
 import 'moments_page.dart';
@@ -32,7 +31,7 @@ class _TopicMomentPageState extends State<TopicMomentPage> {
 
   int? _lastTimestamp;
 
-  final int _limit = 50;
+  final int _limit = 30; // Reduced from 50 to 30 for better initial performance
 
   @override
   void initState() {
@@ -60,22 +59,7 @@ class _TopicMomentPageState extends State<TopicMomentPage> {
         enablePullUp: true,
         onRefresh: () => _updateNotesList(true),
         onLoading: () => _updateNotesList(false),
-        child: SingleChildScrollView(
-          child: Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: 24.px,
-            ),
-            margin: EdgeInsets.only(
-              bottom: 100.px,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _getMomentListWidget(),
-              ],
-            ),
-          ),
-        ),
+        child: _getMomentListWidget(),
       ),
     );
   }
@@ -85,11 +69,16 @@ class _TopicMomentPageState extends State<TopicMomentPage> {
     if(modelList == null) return const SizedBox();
     if(modelList.isEmpty) return _noDataWidget();
     return ListView.builder(
-      primary: false,
-      controller: null,
-      physics: const NeverScrollableScrollPhysics(),
-      shrinkWrap: true,
+      padding: EdgeInsets.only(
+        left: 24.px,
+        right: 24.px,
+        bottom: 100.px,
+      ),
       itemCount: modelList.length,
+      // Performance optimizations
+      addAutomaticKeepAlives: true,
+      addRepaintBoundaries: true,
+      cacheExtent: 200, // Cache 200px worth of items off-screen
       itemBuilder: (context, index) {
         NotedUIModel notedUIModel = modelList[index];
         return MomentWidget(
@@ -140,6 +129,10 @@ class _TopicMomentPageState extends State<TopicMomentPage> {
 
     list = list.where((NoteDBISAR note) => !note.isReaction).toList();
 
+    // Clear list on refresh, append on load more
+    if(isInit) {
+      notesList = [];
+    }
     (notesList ??= []).addAll(list.map((note) => NotedUIModel(noteDB: note)));
     _lastTimestamp = list.isEmpty ? null : list.last.createAt;
     if(mounted){
