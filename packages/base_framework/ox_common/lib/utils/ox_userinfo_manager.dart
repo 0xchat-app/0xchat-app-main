@@ -105,31 +105,48 @@ class OXUserInfoManager {
     final String? localPubKey = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_PUBKEY);
     if (localPubKey != null) {
       await UserConfigTool.compatibleOldAmberStatus(localPubKey);
+      
+      // Try to get saved signer package name first (new approach)
+      String? savedSignerPackageName = await OXCacheManager.defaultOXCacheManager.getForeverData('${localPubKey}${StorageKeyTool.KEY_SIGNER_PACKAGE_NAME}');
+      
+      // Fallback to old isAmber flag for backward compatibility
       final bool? localIsLoginAmber = await OXCacheManager.defaultOXCacheManager.getForeverData('${localPubKey}${StorageKeyTool.KEY_IS_LOGIN_AMBER}');
-      if (localPubKey.isNotEmpty && localIsLoginAmber != null && localIsLoginAmber) {
-        bool isInstalled = await CoreMethodChannel.isInstalledAmber();
-        if (isInstalled) {
-          // Set signer to amber to ensure Content Provider is used first
-          await ExternalSignerTool.setSigner('amber');
-          String? signature = await ExternalSignerTool.getPubKey();
-          if (signature == null) {
-            signatureVerifyFailed = true;
-            return;
-          }
-          String decodeSignature = UserDB.decodePubkey(signature) ?? '';
-          if (decodeSignature.isNotEmpty) {
-            await initDB(localPubKey);
-            UserDBISAR? tempUserDB = await Account.sharedInstance.loginWithPubKey(localPubKey, SignerApplication.androidSigner);
-            if (tempUserDB != null) {
-              UserConfigTool.compatibleOld(tempUserDB);
-              currentUserInfo = tempUserDB;
-              _initDatas();
+      
+      if (localPubKey.isNotEmpty && (savedSignerPackageName != null || (localIsLoginAmber != null && localIsLoginAmber))) {
+        // Determine which signer to use
+        String? signerPackageName = savedSignerPackageName;
+        if (signerPackageName == null && localIsLoginAmber == true) {
+          // Backward compatibility: use Amber if only old flag exists
+          signerPackageName = 'com.greenart7c3.nostrsigner';
+        }
+        
+        if (signerPackageName != null) {
+          // Check if the signer is installed
+          bool isInstalled = await CoreMethodChannel.isAppInstalled(signerPackageName);
+          if (isInstalled) {
+            // Set signer by package name
+            await ExternalSignerTool.setSignerByPackageName(signerPackageName);
+            String? signature = await ExternalSignerTool.getPubKey();
+            if (signature == null) {
+              signatureVerifyFailed = true;
               return;
             }
-          } else {
-            signatureVerifyFailed = true;
-            return;
+            String decodeSignature = UserDB.decodePubkey(signature) ?? '';
+            if (decodeSignature.isNotEmpty) {
+              await initDB(localPubKey);
+              UserDBISAR? tempUserDB = await Account.sharedInstance.loginWithPubKey(localPubKey, SignerApplication.androidSigner);
+              if (tempUserDB != null) {
+                UserConfigTool.compatibleOld(tempUserDB);
+                currentUserInfo = tempUserDB;
+                _initDatas();
+                return;
+              }
+            } else {
+              signatureVerifyFailed = true;
+              return;
+            }
           }
+          // If signer is not installed, skip auto-login and let user choose again
         }
       } else if (localPubKey.isNotEmpty) {
         await initDB(localPubKey);
@@ -152,7 +169,19 @@ class OXUserInfoManager {
   Future<void> loginSuccess(UserDBISAR userDB, {bool isAmber = false}) async {
     currentUserInfo = Account.sharedInstance.me;
     OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUBKEY, userDB.pubKey);
-    OXCacheManager.defaultOXCacheManager.saveForeverData('${userDB.pubKey}${StorageKeyTool.KEY_IS_LOGIN_AMBER}', isAmber);
+    
+    // Save signer package name if using external signer
+    final signerConfig = ExternalSignerTool.getCurrentConfig();
+    if (signerConfig != null) {
+      // Save the actual signer package name
+      OXCacheManager.defaultOXCacheManager.saveForeverData('${userDB.pubKey}${StorageKeyTool.KEY_SIGNER_PACKAGE_NAME}', signerConfig.packageName);
+      // Also save isAmber for backward compatibility
+      OXCacheManager.defaultOXCacheManager.saveForeverData('${userDB.pubKey}${StorageKeyTool.KEY_IS_LOGIN_AMBER}', signerConfig.packageName == 'com.greenart7c3.nostrsigner');
+    } else {
+      // Fallback to old isAmber logic for backward compatibility
+      OXCacheManager.defaultOXCacheManager.saveForeverData('${userDB.pubKey}${StorageKeyTool.KEY_IS_LOGIN_AMBER}', isAmber);
+    }
+    
     UserConfigTool.saveUser(userDB);
     await _initDatas();
     UserConfigTool.defaultNotificationValue();

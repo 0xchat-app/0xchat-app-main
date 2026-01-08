@@ -283,9 +283,22 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
   }
 
   void signerCheck() async {
-    final bool? localIsLoginAmber = await OXCacheManager.defaultOXCacheManager.getForeverData('${OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey??''}${StorageKeyTool.KEY_IS_LOGIN_AMBER}');
-    if (localIsLoginAmber != null && localIsLoginAmber) {
-      bool isInstalled = await CoreMethodChannel.isInstalledAmber();
+    final String? pubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
+    if (pubKey == null) return;
+    
+    // Check for saved signer package name first (new approach)
+    String? signerPackageName = await OXCacheManager.defaultOXCacheManager.getForeverData('${pubKey}${StorageKeyTool.KEY_SIGNER_PACKAGE_NAME}');
+    
+    // Fallback to old isAmber flag for backward compatibility
+    if (signerPackageName == null) {
+      final bool? localIsLoginAmber = await OXCacheManager.defaultOXCacheManager.getForeverData('${pubKey}${StorageKeyTool.KEY_IS_LOGIN_AMBER}');
+      if (localIsLoginAmber == true) {
+        signerPackageName = 'com.greenart7c3.nostrsigner'; // Amber
+      }
+    }
+    
+    if (signerPackageName != null) {
+      bool isInstalled = await CoreMethodChannel.isAppInstalled(signerPackageName);
       if (mounted && (!isInstalled || OXUserInfoManager.sharedInstance.signatureVerifyFailed)){
         String showTitle = '';
         String showContent = '';

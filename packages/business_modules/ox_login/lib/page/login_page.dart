@@ -357,7 +357,8 @@ class _LoginPageState extends State<LoginPage> {
       UserConfigTool.saveUser(value);
       UserConfigTool.updateSettingFromDB(value.settings);
     });
-    OXUserInfoManager.sharedInstance.loginSuccess(userDB, isAmber: true);
+    // loginSuccess will automatically save the signer package name from ExternalSignerTool.getCurrentConfig()
+    OXUserInfoManager.sharedInstance.loginSuccess(userDB);
     await OXLoading.dismiss();
     OXNavigator.popToRoot(context);
   }
