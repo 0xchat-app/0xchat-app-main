@@ -2,7 +2,6 @@ import 'dart:ui';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
-import 'package:ox_common/utils/ox_moment_manager.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
@@ -37,7 +36,7 @@ class NotificationsMomentsPage extends StatefulWidget {
 }
 
 class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
-  final int _limit = 50;
+  final int _limit = 30; // Reduced from 50 to 30 for better initial performance
   int? _lastTimestamp;
   final RefreshController _refreshController = RefreshController();
   final List<AggregatedNotification> _aggregatedNotifications = [];
@@ -103,17 +102,16 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
       enablePullDown: false,
       enablePullUp: true,
       onLoading: () => _loadNotificationData(),
-      child: SingleChildScrollView(
-        child: ListView.builder(
-          primary: false,
-          padding: EdgeInsets.zero,
-          physics: const NeverScrollableScrollPhysics(),
-          shrinkWrap: true,
-          itemCount: _aggregatedNotifications.length,
-          itemBuilder: (context, index) {
-            return _notificationsItemWidget(notification: _aggregatedNotifications[index]);
-          },
-        ),
+      child: ListView.builder(
+        padding: EdgeInsets.zero,
+        itemCount: _aggregatedNotifications.length,
+        // Performance optimizations
+        addAutomaticKeepAlives: true,
+        addRepaintBoundaries: true,
+        cacheExtent: 200, // Cache 200px worth of items off-screen
+        itemBuilder: (context, index) {
+          return _notificationsItemWidget(notification: _aggregatedNotifications[index]);
+        },
       ),
     );
   }
