@@ -113,17 +113,17 @@ class FileStorageServer {
   }
 
   static List<FileStorageServer> get defaultFileStorageServers => List.from([
+        BlossomServer(
+          url: 'https://blossom.band',
+          name: 'blossom.band',
+          canEdit: false,
+          description: 'https://blossom.band',
+        ),
         Nip96Server(
           url: 'https://pomf2.lain.la',
           name: 'pomf2.lain.la',
           canEdit: false,
           description: 'https://pomf2.lain.la',
-        ),
-        BlossomServer(
-          url: 'https://nosto.re',
-          name: 'nosto.re',
-          canEdit: false,
-          description: 'https://nosto.re',
         ),
         FileDropServer(
           url: 'https://filedrop.besoeasy.com',
@@ -137,12 +137,6 @@ class FileStorageServer {
           canEdit: false,
           description: 'https://nostr.build',
         ),
-        Nip96Server(
-          url: 'https://void.cat',
-          name: 'void.cat',
-          canEdit: false,
-          description: 'https://void.cat',
-        )
       ]);
 }
 
