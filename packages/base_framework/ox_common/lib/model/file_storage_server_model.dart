@@ -125,6 +125,12 @@ class FileStorageServer {
           canEdit: false,
           description: 'https://nosto.re',
         ),
+        FileDropServer(
+          url: 'https://filedrop.besoeasy.com',
+          name: 'filedrop.besoeasy.com',
+          canEdit: false,
+          description: 'https://filedrop.besoeasy.com',
+        ),
         Nip96Server(
           url: 'https://nostr.build',
           name: 'nostr.build',
