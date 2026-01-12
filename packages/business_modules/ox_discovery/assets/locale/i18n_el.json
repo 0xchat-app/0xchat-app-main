@@ -83,5 +83,8 @@
   "member": "Μέλος",
   "members": "Μέλη",
   "like_fail_tips": "Αποτυχία να αρέσει!",
-  "open_group": "Ανοιχτές Ομάδες"
+  "open_group": "Ανοιχτές Ομάδες",
+  "save_draft_dialog_content": "Θέλετε να αποθηκεύσετε αυτό το προσχέδιο;",
+  "discard_draft": "Απόρριψη",
+  "save_draft": "Αποθήκευση"
 }

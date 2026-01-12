@@ -83,5 +83,8 @@
   "member": "Üzv",
   "members": "Üzvlər",
   "like_fail_tips": "Bəyənmə uğursuz oldu!",
-  "open_group": "Açıq Qruplar"
+  "open_group": "Açıq Qruplar",
+  "save_draft_dialog_content": "Bu layihəni saxlamaq istəyirsiniz?",
+  "discard_draft": "Ləğv et",
+  "save_draft": "Saxla"
 }

@@ -83,5 +83,8 @@
   "member": "メンバー",
   "members": "メンバー",
   "like_fail_tips": "いいねに失敗しました！",
-  "open_group": "公開グループ"
+  "open_group": "公開グループ",
+  "save_draft_dialog_content": "この下書きを保存しますか？",
+  "discard_draft": "破棄",
+  "save_draft": "保存"
 }

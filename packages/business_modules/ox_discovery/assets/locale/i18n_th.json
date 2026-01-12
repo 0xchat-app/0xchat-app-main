@@ -83,5 +83,8 @@
   "member": "สมาชิก",
   "members": "สมาชิก",
   "like_fail_tips": "กดถูกใจล้มเหลว!",
-  "open_group": "กลุ่มเปิด"
+  "open_group": "กลุ่มเปิด",
+  "save_draft_dialog_content": "คุณต้องการบันทึกร่างนี้หรือไม่?",
+  "discard_draft": "ยกเลิก",
+  "save_draft": "บันทึก"
 }

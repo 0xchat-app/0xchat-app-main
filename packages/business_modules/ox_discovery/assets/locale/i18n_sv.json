@@ -83,5 +83,8 @@
   "member": "Medlem",
   "members": "Medlemmar",
   "like_fail_tips": "Misslyckades att gilla!",
-  "open_group": "Öppna Grupper"
+  "open_group": "Öppna Grupper",
+  "save_draft_dialog_content": "Vill du spara denna utkast?",
+  "discard_draft": "Kasta",
+  "save_draft": "Spara"
 }

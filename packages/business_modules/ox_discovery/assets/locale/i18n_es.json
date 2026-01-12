@@ -83,5 +83,8 @@
   "member": "Miembro",
   "members": "Miembros",
   "like_fail_tips": "Error al dar me gusta!",
-  "open_group": "Grupos Abiertos"
+  "open_group": "Grupos Abiertos",
+  "save_draft_dialog_content": "¿Desea guardar este borrador?",
+  "discard_draft": "Descartar",
+  "save_draft": "Guardar"
 }

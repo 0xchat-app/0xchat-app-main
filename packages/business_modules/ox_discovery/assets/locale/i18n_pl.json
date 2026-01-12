@@ -83,5 +83,8 @@
   "member": "Członek",
   "members": "Członkowie",
   "like_fail_tips": "Nie udało się polubić!",
-  "open_group": "Otwarte Grupy"
+  "open_group": "Otwarte Grupy",
+  "save_draft_dialog_content": "Czy chcesz zapisać ten szkic?",
+  "discard_draft": "Odrzuć",
+  "save_draft": "Zapisz"
 }

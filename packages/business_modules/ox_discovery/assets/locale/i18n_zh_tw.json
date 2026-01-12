@@ -83,5 +83,8 @@
   "member": "個成員",
   "members": "個成員",
   "like_fail_tips": "按讚失敗！",
-  "open_group": "開放群組"
+  "open_group": "開放群組",
+  "save_draft_dialog_content": "是否保存草稿？",
+  "discard_draft": "不保存",
+  "save_draft": "保存"
 }

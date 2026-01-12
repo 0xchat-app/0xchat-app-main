@@ -83,5 +83,8 @@
   "member": "Üye",
   "members": "Üyeler",
   "like_fail_tips": "Beğenme başarısız!",
-  "open_group": "Açık Gruplar"
+  "open_group": "Açık Gruplar",
+  "save_draft_dialog_content": "Bu taslağı kaydetmek ister misiniz?",
+  "discard_draft": "At",
+  "save_draft": "Kaydet"
 }

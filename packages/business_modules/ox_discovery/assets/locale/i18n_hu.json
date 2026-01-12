@@ -83,5 +83,8 @@
   "member": "Tag",
   "members": "Tagok",
   "like_fail_tips": "Kedvelés sikertelen!",
-  "open_group": "Nyitott Csoportok"
+  "open_group": "Nyitott Csoportok",
+  "save_draft_dialog_content": "Szeretné elmenteni ezt a vázlatot?",
+  "discard_draft": "Elvetés",
+  "save_draft": "Mentés"
 }

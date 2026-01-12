@@ -83,5 +83,8 @@
   "member": "عضو",
   "members": "أعضاء",
   "like_fail_tips": "فشل في الإعجاب!",
-  "open_group": "مجموعات مفتوحة"
+  "open_group": "مجموعات مفتوحة",
+  "save_draft_dialog_content": "هل تريد حفظ هذا المسودة؟",
+  "discard_draft": "تجاهل",
+  "save_draft": "حفظ"
 }

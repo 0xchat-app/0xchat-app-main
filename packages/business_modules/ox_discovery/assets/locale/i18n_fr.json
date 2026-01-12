@@ -83,5 +83,8 @@
   "member": "Membre",
   "members": "Membres",
   "like_fail_tips": "Échec du j'aime!",
-  "open_group": "Groupes Ouverts"
+  "open_group": "Groupes Ouverts",
+  "save_draft_dialog_content": "Voulez-vous enregistrer ce brouillon?",
+  "discard_draft": "Ignorer",
+  "save_draft": "Enregistrer"
 }

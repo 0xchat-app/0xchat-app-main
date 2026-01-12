@@ -83,5 +83,8 @@
   "member": "رکن",
   "members": "اراکین",
   "like_fail_tips": "پسند کرنے میں ناکامی!",
-  "open_group": "اوپن گروپس"
+  "open_group": "اوپن گروپس",
+  "save_draft_dialog_content": "کیا آپ یہ مسودہ محفوظ کرنا چاہتے ہیں؟",
+  "discard_draft": "رد کریں",
+  "save_draft": "محفوظ کریں"
 }

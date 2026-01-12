@@ -83,5 +83,8 @@
   "member": "Membro",
   "members": "Membri",
   "like_fail_tips": "Impossibile mettere Mi piace!",
-  "open_group": "Gruppi Aperti"
+  "open_group": "Gruppi Aperti",
+  "save_draft_dialog_content": "Vuoi salvare questa bozza?",
+  "discard_draft": "Scarta",
+  "save_draft": "Salva"
 }

@@ -83,5 +83,8 @@
   "member": "Член",
   "members": "Члени",
   "like_fail_tips": "Не вдалося вподобати!",
-  "open_group": "Відкриті Групи"
+  "open_group": "Відкриті Групи",
+  "save_draft_dialog_content": "Чи хочете зберегти цей чернетку?",
+  "discard_draft": "Скасувати",
+  "save_draft": "Зберегти"
 }

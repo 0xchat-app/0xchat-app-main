@@ -83,5 +83,8 @@
   "member": "Dalībnieks",
   "members": "Dalībnieki",
   "like_fail_tips": "Neizdevās atzīmēt kā patīkamu!",
-  "open_group": "Atvērtās Grupas"
+  "open_group": "Atvērtās Grupas",
+  "save_draft_dialog_content": "Vai vēlaties saglabāt šo melnrakstu?",
+  "discard_draft": "Atmest",
+  "save_draft": "Saglabāt"
 }

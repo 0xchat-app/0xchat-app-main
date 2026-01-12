@@ -83,5 +83,8 @@
   "member": "Член",
   "members": "Члены",
   "like_fail_tips": "Не удалось поставить лайк!",
-  "open_group": "Открытые группы"
+  "open_group": "Открытые группы",
+  "save_draft_dialog_content": "Хотите сохранить этот черновик?",
+  "discard_draft": "Отменить",
+  "save_draft": "Сохранить"
 }

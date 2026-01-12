@@ -880,10 +880,10 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> with WidgetsBindi
     }
    await OXCommonHintDialog.show(context,
         title: '',
-        content: 'Whether to reserve this edit ?',
+        content: Localized.text('ox_discovery.save_draft_dialog_content'),
         actionList: [
           OXCommonHintAction(
-            text: () => 'UnSave',
+            text: () => Localized.text('ox_discovery.discard_draft'),
             style: OXHintActionStyle.gray,
             onTap: () {
               _optionDraft(null);
@@ -891,7 +891,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> with WidgetsBindi
             },
           ),
           OXCommonHintAction.sure(
-              text: 'Save',
+              text: Localized.text('ox_discovery.save_draft'),
               onTap: () async {
                 _saveCreateMomentDraft();
                 OXNavigator.pop(context);

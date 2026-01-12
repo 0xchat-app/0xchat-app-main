@@ -83,5 +83,8 @@
   "member": "Liige",
   "members": "Liikmed",
   "like_fail_tips": "Meeldimine ebaõnnestus!",
-  "open_group": "Avatud Grupid"
+  "open_group": "Avatud Grupid",
+  "save_draft_dialog_content": "Kas soovite selle mustandi salvestada?",
+  "discard_draft": "Loobu",
+  "save_draft": "Salvesta"
 }

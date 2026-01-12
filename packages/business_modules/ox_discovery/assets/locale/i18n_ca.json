@@ -83,5 +83,8 @@
   "member": "Membre",
   "members": "Membres",
   "like_fail_tips": "No s'ha pogut agradar!",
-  "open_group": "Grups Oberts"
+  "open_group": "Grups Oberts",
+  "save_draft_dialog_content": "Vols desar aquest esborrany?",
+  "discard_draft": "Descartar",
+  "save_draft": "Desar"
 }

@@ -83,5 +83,8 @@
   "member": "Anggota",
   "members": "Anggota",
   "like_fail_tips": "Gagal menyukai!",
-  "open_group": "Grup Terbuka"
+  "open_group": "Grup Terbuka",
+  "save_draft_dialog_content": "Apakah Anda ingin menyimpan draf ini?",
+  "discard_draft": "Buang",
+  "save_draft": "Simpan"
 }

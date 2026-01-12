@@ -83,5 +83,8 @@
   "member": "Member",
   "members": "Members",
   "like_fail_tips": "Fail to like!",
-  "open_group": "Open Groups"
+  "open_group": "Open Groups",
+  "save_draft_dialog_content": "Do you want to save this draft?",
+  "discard_draft": "Discard",
+  "save_draft": "Save"
 }

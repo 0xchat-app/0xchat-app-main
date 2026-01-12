@@ -83,5 +83,8 @@
   "member": "सदस्य",
   "members": "सदस्य",
   "like_fail_tips": "पसंद असफल!",
-  "open_group": "खुले समूह"
+  "open_group": "खुले समूह",
+  "save_draft_dialog_content": "क्या आप इस मसौदे को सहेजना चाहते हैं?",
+  "discard_draft": "त्यागें",
+  "save_draft": "सहेजें"
 }

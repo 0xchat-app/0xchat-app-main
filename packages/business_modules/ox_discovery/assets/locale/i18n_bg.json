@@ -83,5 +83,8 @@
   "member": "Член",
   "members": "Членове",
   "like_fail_tips": "Неуспешно харесване!",
-  "open_group": "Отворени групи"
+  "open_group": "Отворени групи",
+  "save_draft_dialog_content": "Искате ли да запазите този чернова?",
+  "discard_draft": "Отхвърли",
+  "save_draft": "Запази"
 }

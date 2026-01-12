@@ -83,5 +83,8 @@
   "member": "Mitglied",
   "members": "Mitglieder",
   "like_fail_tips": "Gefällt mir fehlgeschlagen!",
-  "open_group": "Offene Gruppen"
+  "open_group": "Offene Gruppen",
+  "save_draft_dialog_content": "Möchten Sie diesen Entwurf speichern?",
+  "discard_draft": "Verwerfen",
+  "save_draft": "Speichern"
 }

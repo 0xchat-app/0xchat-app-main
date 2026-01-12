@@ -83,5 +83,8 @@
   "member": "عضو",
   "members": "اعضا",
   "like_fail_tips": "پسندیدن ناموفق بود!",
-  "open_group": "گروه‌های باز"
+  "open_group": "گروه‌های باز",
+  "save_draft_dialog_content": "آیا می‌خواهید این پیش‌نویس را ذخیره کنید؟",
+  "discard_draft": "رد کردن",
+  "save_draft": "ذخیره"
 }

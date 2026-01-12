@@ -83,5 +83,8 @@
   "member": "Medlem",
   "members": "Medlemmer",
   "like_fail_tips": "Kunne ikke lide!",
-  "open_group": "Åbne Grupper"
+  "open_group": "Åbne Grupper",
+  "save_draft_dialog_content": "Vil du gemme denne kladde?",
+  "discard_draft": "Kassér",
+  "save_draft": "Gem"
 }

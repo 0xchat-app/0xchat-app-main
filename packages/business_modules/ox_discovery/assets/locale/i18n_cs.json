@@ -83,5 +83,8 @@
   "member": "Člen",
   "members": "Členové",
   "like_fail_tips": "Nepodařilo se označit jako oblíbené!",
-  "open_group": "Otevřené Skupiny"
+  "open_group": "Otevřené Skupiny",
+  "save_draft_dialog_content": "Chcete uložit tento koncept?",
+  "discard_draft": "Zahodit",
+  "save_draft": "Uložit"
 }

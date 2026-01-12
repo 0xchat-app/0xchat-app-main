@@ -83,5 +83,8 @@
   "member": "Thành viên",
   "members": "Thành viên",
   "like_fail_tips": "Không thể thích!",
-  "open_group": "Nhóm Mở"
+  "open_group": "Nhóm Mở",
+  "save_draft_dialog_content": "Bạn có muốn lưu bản nháp này không?",
+  "discard_draft": "Hủy",
+  "save_draft": "Lưu"
 }

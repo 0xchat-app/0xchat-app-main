@@ -83,5 +83,8 @@
   "member": "Lid",
   "members": "Leden",
   "like_fail_tips": "Vind-ik-leuk mislukt!",
-  "open_group": "Open Groepen"
+  "open_group": "Open Groepen",
+  "save_draft_dialog_content": "Wilt u dit concept opslaan?",
+  "discard_draft": "Weggooien",
+  "save_draft": "Opslaan"
 }

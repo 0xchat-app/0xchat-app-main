@@ -83,5 +83,8 @@
   "member": "멤버",
   "members": "멤버들",
   "like_fail_tips": "좋아요 실패!",
-  "open_group": "오픈 그룹"
+  "open_group": "오픈 그룹",
+  "save_draft_dialog_content": "이 초안을 저장하시겠습니까?",
+  "discard_draft": "삭제",
+  "save_draft": "저장"
 }
