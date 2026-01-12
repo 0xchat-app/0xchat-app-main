@@ -24,6 +24,7 @@ import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 
 import '../../enum/moment_enum.dart';
+import '../../manager/moment_draft_manager.dart';
 import '../../model/moment_extension_model.dart';
 import '../../model/moment_ui_model.dart';
 import '../../utils/album_utils.dart';
@@ -89,7 +90,7 @@ class CreateMomentsPage extends StatefulWidget {
   State<CreateMomentsPage> createState() => _CreateMomentsPageState();
 }
 
-class _CreateMomentsPageState extends State<CreateMomentsPage> {
+class _CreateMomentsPageState extends State<CreateMomentsPage> with WidgetsBindingObserver {
   String _chatRelay = 'wss://relay.0xchat.com';
   Map<String,UserDBISAR> draftCueUserMap = {};
 
@@ -122,6 +123,10 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
   // Relay selection for sending posts
   RelaySelectionType _relaySelectionType = RelaySelectionType.outbox;
 
+  // Auto-save timers
+  Timer? _debounceTimer;
+  Timer? _periodicSaveTimer;
+
 
   @override
   void initState() {
@@ -130,58 +135,79 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
     //   _getUploadMediaContent();
     // }
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _initDraft();
+    _setupAutoSave();
   }
 
   @override
   void dispose() {
+    // Save draft before disposing
+    _saveDraftImmediately();
+    _debounceTimer?.cancel();
+    _periodicSaveTimer?.cancel();
+    _textController.removeListener(_onTextChanged);
+    WidgetsBinding.instance.removeObserver(this);
     _processController.process.dispose();
     super.dispose();
   }
 
-  void _initDraft(){
-    CreateMomentDraft? createMomentMediaDraft;
-    CreateMomentDraft? createMomentContentDraft;
-    if(widget.groupId != null){
-      createMomentMediaDraft = OXMomentCacheManager.sharedInstance.createGroupMomentMediaDraft;
-      createMomentContentDraft = OXMomentCacheManager.sharedInstance.createGroupMomentContentDraft;
-    }else{
-      createMomentMediaDraft = OXMomentCacheManager.sharedInstance.createMomentMediaDraft;
-      createMomentContentDraft = OXMomentCacheManager.sharedInstance.createMomentContentDraft;
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    // Save draft when app goes to background
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
+      _saveDraftImmediately();
     }
+  }
 
+  void _initDraft() async {
+    // Initialize draft manager and load drafts from persistent storage
+    await MomentDraftManager.shared.setup();
 
+    // Set currentPageType first from widget, then check for drafts
+    currentPageType = widget.type;
+    preImageList = widget.imageList;
     videoPath = widget.videoPath;
     videoImagePath = widget.videoImagePath;
-    if(createMomentMediaDraft != null && currentPageType != EMomentType.content){
 
-      _textController.text = createMomentMediaDraft.content;
-      _visibleType = createMomentMediaDraft.visibleType;
-      _selectedContacts = createMomentMediaDraft.selectedContacts;
-      draftCueUserMap = createMomentMediaDraft.draftCueUserMap ?? {};
+    // Load draft if available and clear immediately after loading (show once only)
+    final isGroup = widget.groupId != null;
+    final cacheManager = OXMomentCacheManager.sharedInstance;
+    final loadedDraft = isGroup 
+        ? cacheManager.createGroupMomentMediaDraft
+        : cacheManager.createMomentMediaDraft;
+    
+    if(loadedDraft != null){
+      _textController.text = loadedDraft.content;
+      _visibleType = loadedDraft.visibleType;
+      _selectedContacts = loadedDraft.selectedContacts;
+      draftCueUserMap = loadedDraft.draftCueUserMap ?? {};
+
+      // Override with draft type if draft has media
+      if(loadedDraft.type != EMomentType.content) {
+        currentPageType = loadedDraft.type;
+      }
 
       if(currentPageType == EMomentType.video){
-        videoPath = createMomentMediaDraft.videoPath ?? '';
-        videoImagePath = createMomentMediaDraft.videoImagePath ?? '';
+        videoPath = loadedDraft.videoPath ?? videoPath;
+        videoImagePath = loadedDraft.videoImagePath ?? videoImagePath;
       }
 
       if(currentPageType == EMomentType.picture){
-        addImageList = createMomentMediaDraft.imageList ?? [];
+        addImageList = loadedDraft.imageList ?? [];
       }
+      
+      // Clear draft immediately after loading (unified draft)
+      MomentDraftManager.shared.saveDraft(
+        isGroup: isGroup,
+        draft: null,
+      );
     }
 
-    if(createMomentContentDraft != null && currentPageType == EMomentType.content){
-
-      _textController.text = createMomentContentDraft.content;
-      _visibleType = createMomentContentDraft.visibleType;
-      _selectedContacts = createMomentContentDraft.selectedContacts;
-      draftCueUserMap = createMomentContentDraft.draftCueUserMap ?? {};
+    if (mounted) {
+      setState(() {});
     }
-
-    currentPageType = widget.type;
-    preImageList = widget.imageList;
-    setState(() {});
-
   }
 
   @override
@@ -344,6 +370,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
                 currentPageType = EMomentType.picture;
                 addImageList = [...addImageList,...imageList];
                 setState(() {});
+                _triggerDebounceSave();
               });
             },
           ),
@@ -361,7 +388,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
                     currentPageType = EMomentType.picture;
                     addImageList = [...addImageList,...imageList];
                     setState(() {});
-
+                    _triggerDebounceSave();
                   });
             },
           ),
@@ -383,6 +410,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
                     videoPath = imageList[0];
                     videoImagePath = imageList[1];
                     setState(() {});
+                    _triggerDebounceSave();
 
                     // OXNavigator.presentPage(
                     //   context,
@@ -500,10 +528,12 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
           currentPageType = null;
         }
         setState(() {});
+        _triggerDebounceSave();
       },
       addImageCallback: (List<String> newImageList) {
         addImageList = [...addImageList, ...newImageList];
         setState(() {});
+        _triggerDebounceSave();
       },
     );
   }
@@ -520,6 +550,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
           videoImagePath = null;
           currentPageType = null;
           setState(() {});
+          _triggerDebounceSave();
         }
     );
   }
@@ -560,6 +591,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
                   if(getName != null){
                     draftCueUserMap['@${getName}'] = db;
                     setState(() {});
+                    _triggerDebounceSave();
                   }
                 }
               },
@@ -662,6 +694,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
             _visibleType = type;
             _selectedContacts = items;
           });
+          _triggerDebounceSave();
         },
       ),
     );
@@ -909,6 +942,9 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
       return;
     }
 
+    // Clear draft immediately when sending (before actual send)
+    _optionDraft(null);
+
     if(widget.sendMomentsType == EOptionMomentsType.group) return _postMomentToGroup(content:content,mentions:getReplyUser,hashTags:hashTags);
 
     if(currentPageType == EMomentType.quote && noteDB != null){
@@ -964,7 +1000,6 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
 
     await OXLoading.dismiss();
     if(event?.status ?? false){
-      _optionDraft(null);
       CommonToast.instance.show(context, Localized.text('ox_chat.sent_successfully'));
     }
 
@@ -1025,6 +1060,10 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
   void _postMomentToGroup({required String content,required List<String>? mentions,required List<String>? hashTags}) async{
     String? groupId = widget.groupId;
     if(groupId == null) return CommonToast.instance.show(context, 'groupId is empty !');
+    
+    // Clear draft immediately when sending (before actual send)
+    _optionDraft(null);
+    
     List<String> previous = Nip29.getPrevious([[groupId]]);
     NoteDBISAR? noteDB = widget.notedUIModel?.noteDB;
     OKEvent result;
@@ -1037,7 +1076,6 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
     await OXLoading.dismiss();
 
     if(result.status){
-      _optionDraft(null);
       CommonToast.instance.show(context, Localized.text('ox_chat.sent_successfully'));
     }
 
@@ -1106,20 +1144,63 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
 
   void _optionDraft(CreateMomentDraft? draft){
     final sharedInstance = OXMomentCacheManager.sharedInstance;
+    final isGroup = widget.groupId != null;
 
-    if(widget.groupId != null){
-      if(currentPageType != EMomentType.content){
-        sharedInstance.createGroupMomentMediaDraft = draft;
-        return;
-      }
-      sharedInstance.createGroupMomentContentDraft = draft;
+    // Update in-memory cache
+    if(isGroup){
+      sharedInstance.createGroupMomentMediaDraft = draft;
     } else {
-      if(currentPageType != EMomentType.content){
-        sharedInstance.createMomentMediaDraft = draft;
-        return;
-      }
-      sharedInstance.createMomentContentDraft = draft;
+      sharedInstance.createMomentMediaDraft = draft;
     }
+
+    // Save to persistent storage
+    MomentDraftManager.shared.saveDraft(
+      isGroup: isGroup,
+      draft: draft,
+    );
+  }
+
+  // Setup auto-save mechanism
+  void _setupAutoSave() {
+    // Initialize draft manager
+    MomentDraftManager.shared.setup();
+
+    // Listen to text changes for debounce save
+    _textController.addListener(_onTextChanged);
+
+    // Setup periodic save (every 30 seconds as fallback)
+    _periodicSaveTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
+      if (mounted) {
+        _saveDraftImmediately();
+      }
+    });
+  }
+
+  // Handle text changes with debounce
+  void _onTextChanged() {
+    _triggerDebounceSave();
+  }
+
+  // Trigger debounce save (3 seconds after last change)
+  void _triggerDebounceSave() {
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(seconds: 3), () {
+      if (mounted) {
+        _saveDraftImmediately();
+      }
+    });
+  }
+
+  // Save draft immediately
+  void _saveDraftImmediately() {
+    // Only save if there's content
+    if (_textController.text.isEmpty && 
+        _getImageList().isEmpty && 
+        videoPath == null) {
+      return;
+    }
+
+    _saveCreateMomentDraft();
   }
 }
 
