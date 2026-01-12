@@ -8,6 +8,7 @@ import 'package:ox_common/utils/chat_prompt_tone.dart';
 import 'package:ox_common/utils/file_utils.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
+import 'package:ox_common/business_interface/ox_wallet/interface.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -122,6 +123,32 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
   }
 
   Future<void> claimEcash() async {
+    // Check if wallet is available before claiming
+    final isWalletAvailable = OXWalletInterface.isWalletAvailable() ?? false;
+    if (!isWalletAvailable) {
+      OXCommonHintDialog.show(
+        context,
+        title: Localized.text('ox_usercenter.str_setup_cashu_wallet_title'),
+        content: Localized.text('ox_usercenter.str_setup_cashu_wallet_hint'),
+        actionList: [
+          OXCommonHintAction.cancel(
+            onTap: () {
+              OXNavigator.pop(context);
+            },
+          ),
+          OXCommonHintAction.sure(
+            text: Localized.text('ox_usercenter.str_setup_cashu_wallet_confirm'),
+            onTap: () {
+              OXNavigator.pop(context);
+              OXWalletInterface.openWalletHomePage();
+            },
+          ),
+        ],
+        isRowAction: true,
+      );
+      return;
+    }
+
     final balance = await NpubCash.balance();
     if(balance != null && balance > 0){
       OXCommonHintDialog.show(

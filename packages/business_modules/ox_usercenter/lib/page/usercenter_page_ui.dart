@@ -560,6 +560,32 @@ extension UserCenterPageUI on UserCenterPageState{
   }
 
   Future<void> claimEcash() async {
+    // Check if wallet is available before claiming
+    final isWalletAvailable = OXWalletInterface.isWalletAvailable() ?? false;
+    if (!isWalletAvailable) {
+      OXCommonHintDialog.show(
+        context,
+        title: Localized.text('ox_usercenter.str_setup_cashu_wallet_title'),
+        content: Localized.text('ox_usercenter.str_setup_cashu_wallet_hint'),
+        actionList: [
+          OXCommonHintAction.cancel(
+            onTap: () {
+              OXNavigator.pop(context);
+            },
+          ),
+          OXCommonHintAction.sure(
+            text: Localized.text('ox_usercenter.str_setup_cashu_wallet_confirm'),
+            onTap: () {
+              OXNavigator.pop(context);
+              OXWalletInterface.openWalletHomePage();
+            },
+          ),
+        ],
+        isRowAction: true,
+      );
+      return;
+    }
+
     final balance = await NpubCash.balance();
     if(balance != null && balance > 0){
       OXCommonHintDialog.show(

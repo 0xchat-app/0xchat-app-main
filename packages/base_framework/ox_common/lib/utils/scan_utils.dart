@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cashu_dart/cashu_dart.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_common/business_interface/ox_wallet/interface.dart';
 import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/log_util.dart';
@@ -213,6 +214,32 @@ extension ScanAnalysisHandlerEx on ScanUtils {
       return Cashu.isCashuToken(str);
     },
     action: (String token, BuildContext context) async {
+      // Check if wallet is available before redeeming
+      final isWalletAvailable = OXWalletInterface.isWalletAvailable() ?? false;
+      if (!isWalletAvailable) {
+        OXCommonHintDialog.show(
+          context,
+          title: Localized.text('ox_usercenter.str_setup_cashu_wallet_title'),
+          content: Localized.text('ox_usercenter.str_setup_cashu_wallet_hint'),
+          actionList: [
+            OXCommonHintAction.cancel(
+              onTap: () {
+                OXNavigator.pop(context);
+              },
+            ),
+            OXCommonHintAction.sure(
+              text: Localized.text('ox_usercenter.str_setup_cashu_wallet_confirm'),
+              onTap: () {
+                OXNavigator.pop(context);
+                OXWalletInterface.openWalletHomePage();
+              },
+            ),
+          ],
+          isRowAction: true,
+        );
+        return;
+      }
+
       final response = await Cashu.redeemEcash(ecashString: token);
       if (!response.isSuccess) return ;
       final (memo, amount) = response.data;

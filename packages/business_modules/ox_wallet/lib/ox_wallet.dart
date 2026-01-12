@@ -105,16 +105,17 @@ class OXWallet extends OXFlutterModule {
     if (context == null) return false;
 
     OXCommonHintDialog.show(context,
-        title: Localized.text('ox_common.tips'),
-        content: 'Please activate your ecash wallet before claim',
+        title: Localized.text('ox_usercenter.str_setup_cashu_wallet_title'),
+        content: Localized.text('ox_usercenter.str_setup_cashu_wallet_hint'),
         actionList: [
           OXCommonHintAction.cancel(onTap: () {
             OXNavigator.pop(context);
           }),
           OXCommonHintAction.sure(
-              text: 'Activate',
+              text: Localized.text('ox_usercenter.str_setup_cashu_wallet_confirm'),
               onTap: () {
-                OXNavigator.pushReplacement(context, WalletPage());
+                OXNavigator.pop(context);
+                openWalletHomePage();
               }),
         ],
         isRowAction: true);
