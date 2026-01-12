@@ -19,6 +19,7 @@ class _SearchNoteViewState extends State<SearchNoteView>
     with CommonStateViewMixin {
 
   List<NoteDBISAR> _notes = [];
+  String _currentSearchKeyword = ''; // Track current search keyword to ignore stale callbacks
 
   @override
   void initState() {
@@ -69,18 +70,20 @@ class _SearchNoteViewState extends State<SearchNoteView>
   void _searchNotes(String keyword) async {
     if (keyword.isEmpty) {
       _notes.clear();
+      _currentSearchKeyword = '';
       updateStateView(CommonStateView.CommonStateView_NoData);
       setState(() {});
       return;
     }
-    // Show loading during search
-    if (!OXLoading.isShow) {
-      OXLoading.show();
-    }
-    // Clear previous results
+    // Update current search keyword and clear previous results immediately
+    _currentSearchKeyword = keyword;
     _notes.clear();
     if (mounted) {
       setState(() {});
+    }
+    // Show loading during search
+    if (!OXLoading.isShow) {
+      OXLoading.show();
     }
     try {
       List<NoteDBISAR> noteList = [];
@@ -95,9 +98,12 @@ class _SearchNoteViewState extends State<SearchNoteView>
             [tagName],
             limit: 100,
           );
-          noteList = hashtagResults ?? [];
-          // Filter out reactions
-          noteList = noteList.where((note) => !note.isReaction).toList();
+          // Only use results if this is still the current search
+          if (_currentSearchKeyword == keyword && mounted) {
+            noteList = hashtagResults ?? [];
+            // Filter out reactions
+            noteList = noteList.where((note) => !note.isReaction).toList();
+          }
         }
       } else {
         // Use regular keyword search for non-hashtag queries
@@ -105,7 +111,8 @@ class _SearchNoteViewState extends State<SearchNoteView>
           keyword,
           notesCallBack: (List<NoteDBISAR> newNotes) {
             // Real-time callback: add new notes as they arrive
-            if (mounted) {
+            // Only process if this is still the current search keyword
+            if (_currentSearchKeyword == keyword && mounted) {
               setState(() {
                 // Avoid duplicates
                 Set<String> existingIds = _notes.map((n) => n.noteId).toSet();
@@ -127,7 +134,8 @@ class _SearchNoteViewState extends State<SearchNoteView>
       }
       
       // Final update with all results
-      if (mounted) {
+      // Only update if this is still the current search keyword
+      if (_currentSearchKeyword == keyword && mounted) {
         setState(() {
           _notes.clear();
           _notes.addAll(noteList);
@@ -150,7 +158,12 @@ class _SearchNoteViewState extends State<SearchNoteView>
   void didUpdateWidget(covariant SearchNoteView oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.searchQuery != oldWidget.searchQuery) {
+      // Clear results immediately when search query changes
       _notes.clear();
+      _currentSearchKeyword = '';
+      if (mounted) {
+        setState(() {});
+      }
       _searchNotes(widget.searchQuery);
     }
   }
