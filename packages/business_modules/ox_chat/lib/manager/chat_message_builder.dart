@@ -41,13 +41,24 @@ class ChatMessageBuilder {
 
     final repliedMessage = message.repliedMessage;
     
-    // Determine vertical line color based on message sender
+    // Determine vertical line color and background color based on message sender
     // If currentUserIsAuthor is not provided, check from message author
     final isSender = currentUserIsAuthor ?? 
         (OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey == message.author.id);
     final lineColor = isSender
         ? Colors.white
         : ThemeColor.gradientMainStart;
+    
+    // Background color: light for sender's messages, dark for receiver's messages
+    final backgroundColor = isSender
+        ? Colors.black.withOpacity(0.1)  // Light background for sender
+        : ThemeColor.color190;  // Dark background for receiver
+    
+    // Text color: white for sender's messages (on light background with gradient bubble), 
+    // original color for receiver's messages
+    final textColor = isSender
+        ? Colors.white
+        : ThemeColor.color120;
     
     return GestureDetector(
       onTap: () => onTap?.call(repliedMessage),
@@ -57,7 +68,7 @@ class ChatMessageBuilder {
         ),
         child: Container(
           decoration: BoxDecoration(
-            color: ThemeColor.color190,
+            color: backgroundColor,
             border: Border(
               left: BorderSide(
                 color: lineColor,
@@ -77,7 +88,7 @@ class ChatMessageBuilder {
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              color: ThemeColor.color120,
+              color: textColor,
               fontSize: 12,
             ),
           ),
