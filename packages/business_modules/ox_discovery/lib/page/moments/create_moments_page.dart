@@ -126,6 +126,9 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> with WidgetsBindi
   // Auto-save timers
   Timer? _debounceTimer;
   Timer? _periodicSaveTimer;
+  
+  // Flag to prevent auto-save during sending
+  bool _isSending = false;
 
 
   @override
@@ -142,8 +145,10 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> with WidgetsBindi
 
   @override
   void dispose() {
-    // Save draft before disposing
-    _saveDraftImmediately();
+    // Don't save draft if we're sending (draft should already be cleared)
+    if (!_isSending) {
+      _saveDraftImmediately();
+    }
     _debounceTimer?.cancel();
     _periodicSaveTimer?.cancel();
     _textController.removeListener(_onTextChanged);
@@ -155,8 +160,8 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> with WidgetsBindi
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    // Save draft when app goes to background
-    if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
+    // Save draft when app goes to background (but not if we're sending)
+    if (!_isSending && (state == AppLifecycleState.paused || state == AppLifecycleState.inactive)) {
       _saveDraftImmediately();
     }
   }
@@ -942,7 +947,9 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> with WidgetsBindi
       return;
     }
 
-    // Clear draft immediately when sending (before actual send)
+    // Stop auto-save and clear draft immediately when sending (before actual send)
+    _isSending = true;
+    _stopAutoSave();
     _optionDraft(null);
 
     if(widget.sendMomentsType == EOptionMomentsType.group) return _postMomentToGroup(content:content,mentions:getReplyUser,hashTags:hashTags);
@@ -1061,7 +1068,9 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> with WidgetsBindi
     String? groupId = widget.groupId;
     if(groupId == null) return CommonToast.instance.show(context, 'groupId is empty !');
     
-    // Clear draft immediately when sending (before actual send)
+    // Stop auto-save and clear draft immediately when sending (before actual send)
+    _isSending = true;
+    _stopAutoSave();
     _optionDraft(null);
     
     List<String> previous = Nip29.getPrevious([[groupId]]);
@@ -1193,6 +1202,11 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> with WidgetsBindi
 
   // Save draft immediately
   void _saveDraftImmediately() {
+    // Don't save if we're in the process of sending
+    if (_isSending) {
+      return;
+    }
+    
     // Only save if there's content
     if (_textController.text.isEmpty && 
         _getImageList().isEmpty && 
@@ -1201,6 +1215,13 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> with WidgetsBindi
     }
 
     _saveCreateMomentDraft();
+  }
+  
+  // Stop auto-save mechanism
+  void _stopAutoSave() {
+    _debounceTimer?.cancel();
+    _periodicSaveTimer?.cancel();
+    _textController.removeListener(_onTextChanged);
   }
 }
 
