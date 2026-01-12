@@ -410,16 +410,40 @@ class MessageState extends State<Message> {
 
   Widget _bubbleBuilder(BuildContext context, BorderRadius borderRadius, bool currentUserIsAuthor, bool enlargeEmojis) {
 
-    Widget bubble;
+    // Check if message has translation
+    final translatedText = widget.message.metadata?['translated_text'] as String?;
+    final hasTranslation = translatedText != null && translatedText.isNotEmpty;
+    final hasRepliedMessage = widget.message.repliedMessageId != null && widget.message.repliedMessageId!.isNotEmpty;
 
     var useBubbleBg = !widget.message.viewWithoutBubble;
     if (enlargeEmojis) {
       useBubbleBg = widget.message.hasReactions;
     }
 
+    // Build bubble content with reply message inside if needed
+    Widget bubbleContent;
+    if (hasRepliedMessage) {
+      bubbleContent = IntrinsicWidth(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            widget.uiConfig.repliedMessageBuilder?.call(
+              widget.message,
+              messageWidth: contentMaxWidth,
+            ) ?? const SizedBox(),
+            _messageBuilder(context, useBubbleBg),
+          ],
+        ),
+      );
+    } else {
+      bubbleContent = _messageBuilder(context, useBubbleBg);
+    }
+
+    Widget bubble;
     if (widget.bubbleBuilder != null) {
       bubble = widget.bubbleBuilder!(
-        _messageBuilder(context),
+        bubbleContent,
         message: widget.message,
         nextMessageInGroup: widget.roundBorder,
       );
@@ -439,15 +463,10 @@ class MessageState extends State<Message> {
         ) : null,
         child: ClipRRect(
           borderRadius: borderRadius,
-          child: _messageBuilder(context, useBubbleBg),
+          child: bubbleContent,
         ),
       );
     }
-
-    // Check if message has translation
-    final translatedText = widget.message.metadata?['translated_text'] as String?;
-    final hasTranslation = translatedText != null && translatedText.isNotEmpty;
-    final hasRepliedMessage = widget.message.repliedMessageId != null && widget.message.repliedMessageId!.isNotEmpty;
 
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -464,14 +483,6 @@ class MessageState extends State<Message> {
                 crossAxisAlignment: currentUserIsAuthor ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                 children: [
                   bubble,
-                  if (hasRepliedMessage)
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: widget.uiConfig.repliedMessageBuilder?.call(
-                        widget.message,
-                        messageWidth: contentMaxWidth,
-                      ),
-                    ),
                   if (hasTranslation)
                     _buildTranslationWidget(translatedText, currentUserIsAuthor),
                 ],

@@ -34,11 +34,21 @@ class ChatMessageBuilder {
   static Widget buildRepliedMessageView(types.Message message, {
     required int messageWidth,
     Function(types.Message? message)? onTap,
+    bool? currentUserIsAuthor,
   }) {
     final repliedMessageId = message.repliedMessageId;
     if (repliedMessageId == null || repliedMessageId.isEmpty) return SizedBox();
 
     final repliedMessage = message.repliedMessage;
+    
+    // Determine vertical line color based on message sender
+    // If currentUserIsAuthor is not provided, check from message author
+    final isSender = currentUserIsAuthor ?? 
+        (OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey == message.author.id);
+    final lineColor = isSender
+        ? Colors.white
+        : ThemeColor.gradientMainStart;
+    
     return GestureDetector(
       onTap: () => onTap?.call(repliedMessage),
       child: ConstrainedBox(
@@ -47,12 +57,21 @@ class ChatMessageBuilder {
         ),
         child: Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(Adapt.px(12)),
             color: ThemeColor.color190,
+            border: Border(
+              left: BorderSide(
+                color: lineColor,
+                width: 4,
+              ),
+            ),
           ),
-          margin: EdgeInsets.only(top: Adapt.px(2)),
-          padding: EdgeInsets.symmetric(
-              horizontal: Adapt.px(12), vertical: Adapt.px(4)),
+          margin: EdgeInsets.only(bottom: Adapt.px(8)),
+          padding: EdgeInsets.only(
+            left: Adapt.px(12),
+            right: Adapt.px(12),
+            top: Adapt.px(4),
+            bottom: Adapt.px(4),
+          ),
           child: Text(
             repliedMessage?.replyDisplayContent ?? '[Not Found]',
             maxLines: 3,
