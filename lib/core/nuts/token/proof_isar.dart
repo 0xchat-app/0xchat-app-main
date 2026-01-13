@@ -182,41 +182,20 @@ class ProofIsar {
     );
   }
 
-  static ProofIsar fromMap(Map<String, Object?> map) {
-    return ProofIsar(
-      keysetId: Tools.getValueAs<String>(map, 'id', ''),
-      amount: Tools.getValueAs<String>(map, 'amount', '0'),
-      secret: Tools.getValueAs<String>(map, 'secret', ''),
-      C: Tools.getValueAs<String>(map, 'C', ''),
-      dleqPlainText: Tools.getValueAs<String>(map, 'dleqPlainText', ''),
-      stateRaw: Tools.getValueAs<int>(map, 'state', 0),
-      lastCheckedMs: Tools.getValueAs<int>(map, 'lastChecked', 0),
-    );
-  }
-
   ProofIsar copyWith({
     String? id,
     int? stateRaw,
     int? lastCheckedMs,
   }) {
-    final newData = {
-      ...{
-        'id': id,
-        'amount': amount,
-        'secret': secret,
-        'C': C,
-        'dleqPlainText': dleqPlainText,
-        'state': stateRaw ?? this.stateRaw,
-        'lastChecked': lastCheckedMs ?? this.lastCheckedMs,
-      },
-      if (id != null)
-        'id': id,
-      if (stateRaw != null)
-        'state': stateRaw,
-      if (lastCheckedMs != null)
-        'lastChecked': lastCheckedMs,
-    };
-    return ProofIsar.fromMap(newData);
+    return ProofIsar(
+      keysetId: id ?? keysetId,
+      amount: amount,
+      secret: secret,
+      C: C,
+      dleqPlainText: dleqPlainText,
+      stateRaw: stateRaw ?? this.stateRaw,
+      lastCheckedMs: lastCheckedMs ?? this.lastCheckedMs,
+    );
   }
 
   static Map<String, dynamic> dleqFromRaw(String dleqPlainText) {
