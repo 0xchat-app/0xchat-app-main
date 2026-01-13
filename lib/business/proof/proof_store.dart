@@ -7,8 +7,21 @@ class ProofStore {
   static Future<bool> addProofs(List<ProofIsar> proofs) async {
     if (proofs.isEmpty) return true;
 
-    await CashuIsarDB.putAll(proofs);
-    return true;
+    return CashuIsarDB.shared.isar.writeTxn(() async {
+      final collection = CashuIsarDB.shared.isar.proofIsars;
+      for (var proof in proofs) {
+        final old = await collection
+            .filter()
+            .secretEqualTo(proof.secret)
+            .keysetIdEqualTo(proof.keysetId)
+            .findFirst();
+        if (old != null) {
+          proof.id = old.id;
+        }
+        collection.put(proof);
+      }
+      return true;
+    });
   }
 
   static Future<List<ProofIsar>> getProofs({List<String> ids = const [], String c = ''}) async {
