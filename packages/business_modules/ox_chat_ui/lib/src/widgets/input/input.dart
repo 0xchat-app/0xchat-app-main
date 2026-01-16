@@ -216,11 +216,21 @@ class InputState extends State<Input>{
           },
           textController: _textController);
     } else if (inputType == InputType.inputTypeVoice){
-      contentWidget = InputVoicePage(onPressed: (_path, duration) {
-        if(widget.onVoiceSend != null){
-          widget.onVoiceSend!(_path, duration);
-        }
-      }, onCancel: () { },);
+      // Voice recording is disabled on desktop platforms (Linux/macOS)
+      if (PlatformUtils.isDesktop) {
+        contentWidget = Container(
+          padding: EdgeInsets.all(20),
+          child: Center(
+            child: Text('Voice recording is not supported on this platform'),
+          ),
+        );
+      } else {
+        contentWidget = InputVoicePage(onPressed: (_path, duration) {
+          if(widget.onVoiceSend != null){
+            widget.onVoiceSend!(_path, duration);
+          }
+        }, onCancel: () { },);
+      }
     }
 
     final animationDuration = Duration(milliseconds: 200);
@@ -318,11 +328,16 @@ class InputState extends State<Input>{
   }
 
   Widget _buildVoiceButton(){
+    // Hide voice button on desktop platforms (Linux/macOS)
     if(PlatformUtils.isDesktop) return SizedBox().setPadding(EdgeInsets.symmetric(horizontal: _itemSpacing));
     return AttachmentButton(
       isLoading: widget.isAttachmentUploading ?? false,
       // onPressed: widget.onAttachmentPressed,
       onPressed: (){
+        // Voice recording is disabled on desktop platforms
+        if (PlatformUtils.isDesktop) {
+          return;
+        }
         changeInputType(InputType.inputTypeVoice);
       },
       padding: EdgeInsets.symmetric(horizontal: _itemSpacing),
