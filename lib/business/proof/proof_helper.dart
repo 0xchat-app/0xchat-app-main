@@ -508,12 +508,14 @@ class ProofHelper {
       return target + ((subsetLength * inputFeePPK + 999) ~/ 1000); // ceil(length * inputFee / 1000)
     }
 
+    proofs = proofs.where((p) => p.state != TokenState.inFlight).toList();
+
     // Early exit if the total sum of nums is less than the adjusted target
     if (proofs.totalAmount < adjustedTarget(proofs.length)) {
       return null;
     }
 
-    // Sort nums in descending order to try larger elements first for better efficiency
+    // Sort in ascending order so large elements aren't pruned too early (target grows with subset length due to fee)
     proofs.sort((p1, p2) => p1.amountNum.compareTo(p2.amountNum));
 
     // Use a map to store possible sums and corresponding subsets
