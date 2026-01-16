@@ -76,7 +76,7 @@ class ChatMessageBuilder {
               ),
             ),
           ),
-          margin: EdgeInsets.only(bottom: Adapt.px(8)),
+          // margin: EdgeInsets.only(bottom: Adapt.px(4)),
           padding: EdgeInsets.only(
             left: Adapt.px(12),
             right: Adapt.px(12),
