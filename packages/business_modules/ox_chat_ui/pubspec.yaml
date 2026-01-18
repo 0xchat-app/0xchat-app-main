@@ -28,7 +28,7 @@ dependencies:
   visibility_detector: ^0.3.3
   emoji_picker_flutter: 1.5.4
   flutter_sound:
-    path: ../../base_framework/flutter_sound_local
+    path: ./flutter_sound_local
   just_audio: ^0.9.31
   syncfusion_flutter_sliders: ^20.4.51
   flutter_chat_types:  #Message type template
