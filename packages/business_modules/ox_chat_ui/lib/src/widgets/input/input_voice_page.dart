@@ -11,8 +11,8 @@ import 'package:ox_localizable/ox_localizable.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-// Import stub file since flutter_sound is commented out in pubspec.yaml for Linux/macOS compatibility
-import 'flutter_sound_stub.dart';
+// Import flutter_sound - will use stub package on macOS/Linux via dependency_overrides
+import 'package:flutter_sound/flutter_sound.dart';
 
 class InputVoicePage extends StatefulWidget {
   final Function(String path, Duration duration) onPressed;
