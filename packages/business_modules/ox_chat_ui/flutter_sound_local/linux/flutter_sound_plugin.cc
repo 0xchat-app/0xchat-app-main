@@ -12,7 +12,10 @@
   (G_TYPE_CHECK_INSTANCE_CAST((obj), flutter_sound_plugin_get_type(), \
                               FlutterSoundPlugin))
 
-// Structure definition is in the header file, no need to redefine here
+struct _FlutterSoundPlugin {
+  GObject parent_instance;
+};
+
 G_DEFINE_TYPE(FlutterSoundPlugin, flutter_sound_plugin, g_object_get_type())
 
 static void flutter_sound_plugin_handle_method_call(

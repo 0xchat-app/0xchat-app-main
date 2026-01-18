@@ -15,15 +15,9 @@ G_BEGIN_DECLS
 #endif
 
 typedef struct _FlutterSoundPlugin FlutterSoundPlugin;
-typedef struct _FlutterSoundPluginClass FlutterSoundPluginClass;
-
-struct _FlutterSoundPlugin {
-  GObject parent_instance;
-};
-
-struct _FlutterSoundPluginClass {
+typedef struct {
   GObjectClass parent_class;
-};
+} FlutterSoundPluginClass;
 
 GType flutter_sound_plugin_get_type(void) G_GNUC_CONST;
 
