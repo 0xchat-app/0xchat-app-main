@@ -5,10 +5,13 @@
 
 G_BEGIN_DECLS
 
+// Define FLUTTER_PLUGIN_EXPORT only if not already defined by another plugin
+#ifndef FLUTTER_PLUGIN_EXPORT
 #ifdef FLUTTER_PLUGIN_IMPL
 #define FLUTTER_PLUGIN_EXPORT
 #else
 #define FLUTTER_PLUGIN_EXPORT extern
+#endif
 #endif
 
 typedef struct _FlutterSoundPlugin FlutterSoundPlugin;
