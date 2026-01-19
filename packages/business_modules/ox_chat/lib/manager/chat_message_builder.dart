@@ -41,19 +41,17 @@ class ChatMessageBuilder {
 
     final repliedMessage = message.repliedMessage;
     
-    // Determine vertical line color and background color based on message sender
-    // If currentUserIsAuthor is not provided, check from message author
     final isSender = currentUserIsAuthor ?? 
         (OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey == message.author.id);
     final lineColor = Colors.white;
     
-    // Background: gradient for sender's messages, solid color for receiver's messages
-    final backgroundColor = ThemeColor.color190;  // Will use gradient for receiver
+    final backgroundColor = ThemeColor.color190; 
+
+    final textColor = ThemeColor.color120;
     
-    // Text color: white for sender's messages (on light background with gradient bubble), 
-    // original color for receiver's messages
-    final textColor = isSender
-        ? ThemeColor.color120 :Colors.white;
+    // Get author name from replied message
+    final authorName = repliedMessage?.author.sourceObject?.getUserShowName() ?? '';
+    final messageContent = repliedMessage?.replyDisplayContent ?? '[Not Found]';
     
     return Padding(
       padding: EdgeInsets.fromLTRB(Adapt.px(4), Adapt.px(6), Adapt.px(4), Adapt.px(0)),
@@ -86,13 +84,28 @@ class ChatMessageBuilder {
               top: Adapt.px(12),
               bottom: Adapt.px(12),
             ),
-            child: Text(
-              repliedMessage?.replyDisplayContent ?? '[Not Found]',
+            child: RichText(
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: textColor,
-                fontSize: 14.sp,
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: '$authorName:\n',
+                    style: TextStyle(
+                      color: textColor,
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  TextSpan(
+                    text: messageContent,
+                    style: TextStyle(
+                      color: textColor,
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.normal,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

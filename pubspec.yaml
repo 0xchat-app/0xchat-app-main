@@ -97,8 +97,9 @@ dependency_overrides:
       path: packages/url_launcher/url_launcher_linux
   nostr_core_dart:
     path: packages/nostr-dart
-  nostr_mls_package:
-    path: packages/nostr-mls-package
+  # nostr_mls_package:
+  #   path: packages/nostr-mls-package
+  # Temporarily disabled to avoid bundling Rust code
 
 
 # For information on the generic Dart part of this file, see the
