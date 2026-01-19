@@ -718,7 +718,7 @@ extension UIMessageEx on types.Message {
       return '';
     }
     final authorName = author.getUserShowName();
-    return '$authorName: $messagePreviewText';
+    return '$authorName:\n$messagePreviewText';
   }
 
   String get messagePreviewText {

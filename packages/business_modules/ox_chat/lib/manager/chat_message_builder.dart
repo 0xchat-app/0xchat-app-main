@@ -45,51 +45,55 @@ class ChatMessageBuilder {
     // If currentUserIsAuthor is not provided, check from message author
     final isSender = currentUserIsAuthor ?? 
         (OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey == message.author.id);
-    final lineColor = isSender
-        ? Colors.white
-        : ThemeColor.gradientMainStart;
+    final lineColor = Colors.white;
     
-    // Background color: light for sender's messages, dark for receiver's messages
-    final backgroundColor = isSender
-        ? Colors.black.withOpacity(0.1)  // Light background for sender
-        : ThemeColor.color190;  // Dark background for receiver
+    // Background: gradient for sender's messages, solid color for receiver's messages
+    final backgroundColor = ThemeColor.color190;  // Will use gradient for receiver
     
     // Text color: white for sender's messages (on light background with gradient bubble), 
     // original color for receiver's messages
     final textColor = isSender
-        ? Colors.white
-        : ThemeColor.color120;
+        ? ThemeColor.color120 :Colors.white;
     
-    return GestureDetector(
-      onTap: () => onTap?.call(repliedMessage),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxWidth: messageWidth.toDouble(),
-        ),
-        child: Container(
-          decoration: BoxDecoration(
-            color: backgroundColor,
-            border: Border(
-              left: BorderSide(
-                color: lineColor,
-                width: 4,
+    return Padding(
+      padding: EdgeInsets.fromLTRB(Adapt.px(4), Adapt.px(6), Adapt.px(4), Adapt.px(0)),
+      child: GestureDetector(
+        onTap: () => onTap?.call(repliedMessage),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: messageWidth.toDouble(),
+          ),
+          child: Container(
+            decoration: BoxDecoration(
+              color: backgroundColor,
+              borderRadius: isSender
+                  ? BorderRadius.only(
+                      topLeft: Radius.circular(Adapt.px(12)),
+                    )
+                  : BorderRadius.only(
+                      topRight: Radius.circular(Adapt.px(12)),
+                    ),
+              border: Border(
+                left: BorderSide(
+                  color: lineColor,
+                  width: 4,
+                ),
               ),
             ),
-          ),
-          // margin: EdgeInsets.only(bottom: Adapt.px(4)),
-          padding: EdgeInsets.only(
-            left: Adapt.px(12),
-            right: Adapt.px(12),
-            top: Adapt.px(4),
-            bottom: Adapt.px(4),
-          ),
-          child: Text(
-            repliedMessage?.replyDisplayContent ?? '[Not Found]',
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: textColor,
-              fontSize: 12,
+            padding: EdgeInsets.only(
+              left: Adapt.px(12),
+              right: Adapt.px(12),
+              top: Adapt.px(12),
+              bottom: Adapt.px(12),
+            ),
+            child: Text(
+              repliedMessage?.replyDisplayContent ?? '[Not Found]',
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: textColor,
+                fontSize: 14.sp,
+              ),
             ),
           ),
         ),
