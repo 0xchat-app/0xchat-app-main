@@ -41,19 +41,13 @@ class ChatMessageBuilder {
 
     final repliedMessage = message.repliedMessage;
     
-    // Determine vertical line color and background color based on message sender
-    // If currentUserIsAuthor is not provided, check from message author
     final isSender = currentUserIsAuthor ?? 
         (OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey == message.author.id);
     final lineColor = Colors.white;
     
-    // Background: gradient for sender's messages, solid color for receiver's messages
-    final backgroundColor = ThemeColor.color190;  // Will use gradient for receiver
-    
-    // Text color: white for sender's messages (on light background with gradient bubble), 
-    // original color for receiver's messages
-    final textColor = isSender
-        ? ThemeColor.color120 :Colors.white;
+    final backgroundColor = ThemeColor.color190; 
+
+    final textColor = ThemeColor.color120;
     
     return Padding(
       padding: EdgeInsets.fromLTRB(Adapt.px(4), Adapt.px(6), Adapt.px(4), Adapt.px(0)),
