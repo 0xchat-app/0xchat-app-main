@@ -41,6 +41,15 @@ class OXChatBinding {
 
   final List<OXChatObserver> _observers = <OXChatObserver>[];
 
+  // Batch processing for message callbacks
+  Timer? _messageCallbackTimer;
+  final List<MessageDBISAR> _pendingPrivateMessages = [];
+  final List<MessageDBISAR> _pendingSecretMessages = [];
+  final List<MessageDBISAR> _pendingChannelMessages = [];
+  final List<MessageDBISAR> _pendingGroupMessages = [];
+  static const Duration _messageCallbackBatchDelay = const Duration(milliseconds: 200);
+  static const int _messageCallbackBatchThreshold = 10; // Trigger batch mode when 10+ messages
+
   String? Function(MessageDBISAR messageDB)? sessionMessageTextBuilder;
   bool Function(MessageDBISAR messageDB)? msgIsReaded;
 
@@ -278,8 +287,8 @@ class OXChatBinding {
       } else if (messageDB.chatType == null || sessionModel.chatType == ChatType.chatRelayGroup) {
         RelayGroupDBISAR? relayGroupDB = RelayGroup.sharedInstance.myGroups[messageDB.groupId]?.value;
         if (relayGroupDB == null) return;
-        sessionModel.avatar = relayGroupDB.picture ?? '';
-        sessionModel.chatName = relayGroupDB.name ?? messageDB.groupId;
+        sessionModel.avatar = relayGroupDB.picture;
+        sessionModel.chatName = relayGroupDB.name.isNotEmpty ? relayGroupDB.name : messageDB.groupId;
       } else {
         GroupDBISAR? groupDBDB = Groups.sharedInstance.myGroups[messageDB.groupId]?.value;
         if (groupDBDB == null) return;
@@ -537,9 +546,96 @@ class OXChatBinding {
   }
 
   void privateChatMessageCallBack(MessageDBISAR message) async {
-    syncChatSessionTable(message);
-    for (OXChatObserver observer in _observers) {
-      observer.didPrivateMessageCallBack(message);
+    _pendingPrivateMessages.add(message);
+    _scheduleBatchMessageCallback();
+  }
+
+  void _scheduleBatchMessageCallback({bool immediate = false}) {
+    _messageCallbackTimer?.cancel();
+    
+    // If immediate or batch threshold reached, process immediately
+    final totalPending = _pendingPrivateMessages.length + 
+                        _pendingSecretMessages.length + 
+                        _pendingChannelMessages.length + 
+                        _pendingGroupMessages.length;
+    
+    if (immediate || totalPending >= OXChatBinding._messageCallbackBatchThreshold) {
+      _processBatchMessageCallbacks();
+    } else {
+      _messageCallbackTimer = Timer(_messageCallbackBatchDelay, () {
+        _processBatchMessageCallbacks();
+      });
+    }
+  }
+
+  void _processBatchMessageCallbacks() {
+    _messageCallbackTimer?.cancel();
+    _messageCallbackTimer = null;
+
+    // Process private messages
+    if (_pendingPrivateMessages.isNotEmpty) {
+      final messages = List<MessageDBISAR>.from(_pendingPrivateMessages);
+      _pendingPrivateMessages.clear();
+      
+      // Batch sync session table
+      for (var message in messages) {
+        syncChatSessionTable(message);
+      }
+      
+      // Batch notify observers
+      for (OXChatObserver observer in _observers) {
+        for (var message in messages) {
+          observer.didPrivateMessageCallBack(message);
+        }
+      }
+    }
+
+    // Process secret messages
+    if (_pendingSecretMessages.isNotEmpty) {
+      final messages = List<MessageDBISAR>.from(_pendingSecretMessages);
+      _pendingSecretMessages.clear();
+      
+      for (var message in messages) {
+        syncChatSessionTable(message);
+      }
+      
+      for (OXChatObserver observer in _observers) {
+        for (var message in messages) {
+          observer.didSecretChatMessageCallBack(message);
+        }
+      }
+    }
+
+    // Process channel messages
+    if (_pendingChannelMessages.isNotEmpty) {
+      final messages = List<MessageDBISAR>.from(_pendingChannelMessages);
+      _pendingChannelMessages.clear();
+      
+      for (var message in messages) {
+        syncChatSessionTable(message);
+      }
+      
+      for (OXChatObserver observer in _observers) {
+        for (var message in messages) {
+          observer.didChannalMessageCallBack(message);
+        }
+      }
+    }
+
+    // Process group messages
+    if (_pendingGroupMessages.isNotEmpty) {
+      final messages = List<MessageDBISAR>.from(_pendingGroupMessages);
+      _pendingGroupMessages.clear();
+      
+      for (var message in messages) {
+        syncChatSessionTable(message);
+      }
+      
+      for (OXChatObserver observer in _observers) {
+        for (var message in messages) {
+          observer.didGroupMessageCallBack(message);
+        }
+      }
     }
   }
 
@@ -550,24 +646,18 @@ class OXChatBinding {
   }
 
   void secretChatMessageCallBack(MessageDBISAR message) async {
-    syncChatSessionTable(message);
-    for (OXChatObserver observer in _observers) {
-      observer.didSecretChatMessageCallBack(message);
-    }
+    _pendingSecretMessages.add(message);
+    _scheduleBatchMessageCallback();
   }
 
   void channalMessageCallBack(MessageDBISAR messageDB) async {
-    syncChatSessionTable(messageDB);
-    for (OXChatObserver observer in _observers) {
-      observer.didChannalMessageCallBack(messageDB);
-    }
+    _pendingChannelMessages.add(messageDB);
+    _scheduleBatchMessageCallback();
   }
 
   void groupMessageCallBack(MessageDBISAR messageDB) async {
-    syncChatSessionTable(messageDB);
-    for (OXChatObserver observer in _observers) {
-      observer.didGroupMessageCallBack(messageDB);
-    }
+    _pendingGroupMessages.add(messageDB);
+    _scheduleBatchMessageCallback();
   }
 
   void messageDeleteCallback(List<MessageDBISAR> delMessages) {
@@ -757,24 +847,32 @@ class OXChatBinding {
   }
 
   void offlinePrivateMessageFinishCallBack() {
+    // Process any pending messages before finishing
+    _scheduleBatchMessageCallback(immediate: true);
     for (OXChatObserver observer in _observers) {
       observer.didOfflinePrivateMessageFinishCallBack();
     }
   }
 
   void offlineSecretMessageFinishCallBack() {
+    // Process any pending messages before finishing
+    _scheduleBatchMessageCallback(immediate: true);
     for (OXChatObserver observer in _observers) {
       observer.didOfflineSecretMessageFinishCallBack();
     }
   }
 
   void offlineChannelMessageFinishCallBack() {
+    // Process any pending messages before finishing
+    _scheduleBatchMessageCallback(immediate: true);
     for (OXChatObserver observer in _observers) {
       observer.didOfflineChannelMessageFinishCallBack();
     }
   }
 
   void offlineGroupMessageFinishCallBack() {
+    // Process any pending messages before finishing
+    _scheduleBatchMessageCallback(immediate: true);
     for (OXChatObserver observer in _observers) {
       observer.didOfflineGroupMessageFinishCallBack();
     }
