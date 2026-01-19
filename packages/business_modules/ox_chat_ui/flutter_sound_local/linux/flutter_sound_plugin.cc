@@ -12,10 +12,17 @@
   (G_TYPE_CHECK_INSTANCE_CAST((obj), flutter_sound_plugin_get_type(), \
                               FlutterSoundPlugin))
 
+// Define the structure only once
+// Use a guard to prevent redefinition if this file is accidentally included
+#ifndef FLUTTER_SOUND_PLUGIN_STRUCT_DEFINED
+#define FLUTTER_SOUND_PLUGIN_STRUCT_DEFINED
 struct _FlutterSoundPlugin {
   GObject parent_instance;
 };
+#endif
 
+// G_DEFINE_TYPE must be called after the structure definition
+// and only once per translation unit
 G_DEFINE_TYPE(FlutterSoundPlugin, flutter_sound_plugin, g_object_get_type())
 
 static void flutter_sound_plugin_handle_method_call(
