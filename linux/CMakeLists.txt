@@ -42,8 +42,8 @@ endif()
 function(APPLY_STANDARD_SETTINGS TARGET)
   target_compile_features(${TARGET} PUBLIC cxx_std_14)
   target_compile_options(${TARGET} PRIVATE -Wall -Werror)
-  # Allow unused variable warnings to avoid rive_common plugin compilation errors
-  target_compile_options(${TARGET} PRIVATE -Wno-unused-variable)
+  # Allow unused variable and function warnings to avoid rive_common plugin compilation errors
+  target_compile_options(${TARGET} PRIVATE -Wno-unused-variable -Wno-unused-function)
   target_compile_options(${TARGET} PRIVATE "$<$<NOT:$<CONFIG:Debug>>:-O3>")
   target_compile_definitions(${TARGET} PRIVATE "$<$<NOT:$<CONFIG:Debug>>:NDEBUG>")
 endfunction()
