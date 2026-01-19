@@ -52,7 +52,18 @@ class MessageDataController with OXChatObserver {
   bool get isMessageLoading => !(messageLoadingCompleter?.isCompleted ?? true);
   Future get messageLoading => messageLoadingCompleter?.future ?? Future.value();
 
+  // Batch processing and debounce for UI updates
+  Timer? _notifyUpdateTimer;
+  bool _hasPendingUpdate = false;
+  static const Duration _debounceDelay = const Duration(milliseconds: 100);
+  static const Duration _batchDelay = const Duration(milliseconds: 300);
+  int _consecutiveMessageCount = 0;
+  DateTime? _lastMessageTime;
+  static const int _batchThreshold = 5; // Trigger batch mode when receiving 5+ messages quickly
+
   void dispose() {
+    _notifyUpdateTimer?.cancel();
+    _notifyUpdateTimer = null;
     removeMessageReactionsListener();
     OXChatBinding.sharedInstance.removeObserver(this);
   }
@@ -148,7 +159,10 @@ extension MessageDataControllerInterface on MessageDataController {
 
     _addMessageToList(_messages, message);
     _scheduleExpirationTask(message);
+    
+    // Update message count for batch detection
     if (needNotifyUpdate) {
+      _updateMessageCount();
       _notifyUpdateMessages();
     }
   }
@@ -168,7 +182,7 @@ extension MessageDataControllerInterface on MessageDataController {
       messageId: messageId,
     );
     if (isSuccess) {
-      _notifyUpdateMessages();
+      _notifyUpdateMessages(immediate: false);
     }
   }
 
@@ -189,7 +203,7 @@ extension MessageDataControllerInterface on MessageDataController {
     );
 
     if (isSuccess) {
-      _notifyUpdateMessages();
+      _notifyUpdateMessages(immediate: false);
     }
   }
 
@@ -287,7 +301,7 @@ extension MessageDataControllerInterface on MessageDataController {
         _checkUIMessageInfo(uiMsg);
       }
     }
-    _notifyUpdateMessages();
+    _notifyUpdateMessages(immediate: true);
 
     if (isLoadOlderData) {
       _hasMoreOldMessage = result.length >= loadMsgCount;
@@ -358,7 +372,7 @@ extension MessageDataControllerInterface on MessageDataController {
       }
     }
 
-    _notifyUpdateMessages();
+    _notifyUpdateMessages(immediate: true);
 
     _hasMoreOldMessage = olderMessages.length >= beforeCount;
     _hasMoreNewMessage = newerMessages.length >= afterCount;
@@ -392,12 +406,12 @@ extension MessageDataControllerInterface on MessageDataController {
       }
     }
 
-    _notifyUpdateMessages();
+    _notifyUpdateMessages(immediate: true);
 
     await scrollAction?.call();
 
     _replaceMessages(insertedMessages);
-    _notifyUpdateMessages();
+    _notifyUpdateMessages(immediate: true);
 
     completer.complete();
   }
@@ -416,9 +430,63 @@ extension MessageDataControllerInterface on MessageDataController {
 
 extension MessageDataControllerPrivate on MessageDataController {
 
-  void _notifyUpdateMessages() {
+  void _notifyUpdateMessages({bool immediate = false}) {
+    // Cancel existing timer if any
+    _notifyUpdateTimer?.cancel();
+    _notifyUpdateTimer = null;
+    
+    _hasPendingUpdate = true;
+    
+    // Determine delay based on whether we're in batch mode
+    final delay = _isInBatchMode() && !immediate ? MessageDataController._batchDelay : MessageDataController._debounceDelay;
+    
+    _notifyUpdateTimer = Timer(delay, () {
+      if (_hasPendingUpdate) {
+        _performUpdate();
+      }
+    });
+  }
+  
+  void _performUpdate() {
+    _notifyUpdateTimer?.cancel();
+    _notifyUpdateTimer = null;
+    _hasPendingUpdate = false;
+    
+    // Update UI with current messages
     messageValueNotifier.value = [..._messages];
     updateMessageReactionsListener();
+  }
+  
+  bool _isInBatchMode() {
+    // Check if we're receiving messages rapidly (batch mode)
+    final now = DateTime.now();
+    if (_lastMessageTime != null) {
+      final timeSinceLastMessage = now.difference(_lastMessageTime!);
+      if (timeSinceLastMessage < const Duration(milliseconds: 500)) {
+        // Messages arriving quickly, likely batch scenario
+        return _consecutiveMessageCount >= MessageDataController._batchThreshold;
+      } else {
+        // Reset counter if too much time has passed
+        _consecutiveMessageCount = 0;
+      }
+    }
+    _lastMessageTime = now;
+    return false;
+  }
+  
+  void _updateMessageCount() {
+    final now = DateTime.now();
+    if (_lastMessageTime != null) {
+      final timeSinceLastMessage = now.difference(_lastMessageTime!);
+      if (timeSinceLastMessage < const Duration(milliseconds: 500)) {
+        _consecutiveMessageCount++;
+      } else {
+        _consecutiveMessageCount = 1;
+      }
+    } else {
+      _consecutiveMessageCount = 1;
+    }
+    _lastMessageTime = now;
   }
 
   Future _receiveMessageHandler(MessageDBISAR message) async {
@@ -430,9 +498,16 @@ extension MessageDataControllerPrivate on MessageDataController {
     final lastMessageTime = _messages.lastOrNull?.createdAt;
     if (_hasMoreOldMessage && lastMessageTime != null && message.createTime < (lastMessageTime ~/ 1000)) return ;
 
-    final uiMessage = await _addMessageWithMessageDB(message);
+    // Use batch mode for rapid message reception
+    final isBatchMode = _isInBatchMode();
+    final uiMessage = await _addMessageWithMessageDB(message, needNotifyUpdate: !isBatchMode);
     if (uiMessage != null) {
       galleryCache.tryAddPreviewImage(message: uiMessage);
+      // If in batch mode, update count but don't notify yet
+      if (isBatchMode) {
+        _updateMessageCount();
+        _notifyUpdateMessages();
+      }
     }
   }
 
