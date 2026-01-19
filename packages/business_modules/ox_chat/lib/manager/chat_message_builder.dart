@@ -49,6 +49,10 @@ class ChatMessageBuilder {
 
     final textColor = ThemeColor.color120;
     
+    // Get author name from replied message
+    final authorName = repliedMessage?.author.sourceObject?.getUserShowName() ?? '';
+    final messageContent = repliedMessage?.replyDisplayContent ?? '[Not Found]';
+    
     return Padding(
       padding: EdgeInsets.fromLTRB(Adapt.px(4), Adapt.px(6), Adapt.px(4), Adapt.px(0)),
       child: GestureDetector(
@@ -80,13 +84,28 @@ class ChatMessageBuilder {
               top: Adapt.px(12),
               bottom: Adapt.px(12),
             ),
-            child: Text(
-              repliedMessage?.replyDisplayContent ?? '[Not Found]',
+            child: RichText(
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: textColor,
-                fontSize: 14.sp,
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: '$authorName:\n',
+                    style: TextStyle(
+                      color: textColor,
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  TextSpan(
+                    text: messageContent,
+                    style: TextStyle(
+                      color: textColor,
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.normal,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
