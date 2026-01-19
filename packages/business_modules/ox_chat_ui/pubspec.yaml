@@ -27,7 +27,8 @@ dependencies:
   url_launcher: ^6.1.6
   visibility_detector: ^0.3.3
   emoji_picker_flutter: 1.5.4
-  flutter_sound: ^9.23.1
+  flutter_sound:
+    path: ./flutter_sound_local
   just_audio: ^0.9.31
   syncfusion_flutter_sliders: ^20.4.51
   flutter_chat_types:  #Message type template

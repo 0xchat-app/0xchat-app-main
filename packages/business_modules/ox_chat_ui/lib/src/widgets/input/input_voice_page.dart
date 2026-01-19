@@ -3,13 +3,16 @@ import 'dart:io';
 
 import 'package:audio_session/audio_session.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_sound/flutter_sound.dart';
-import 'package:flutter_sound_platform_interface/flutter_sound_recorder_platform_interface.dart';
+// Conditionally import flutter_sound - use stub on desktop platforms where package is not available
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/platform_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+
+// Import flutter_sound - will use stub package on macOS/Linux via dependency_overrides
+import 'package:flutter_sound/flutter_sound.dart';
 
 class InputVoicePage extends StatefulWidget {
   final Function(String path, Duration duration) onPressed;
@@ -36,9 +39,11 @@ class _InputVoicePageState extends State<InputVoicePage> with SingleTickerProvid
   late AnimationController _progressController;
   late Animation<double> _progressAnimation;
 
-
-  FlutterSoundRecorder recorderModule = FlutterSoundRecorder();
-  FlutterSoundPlayer playerModule = FlutterSoundPlayer();
+  // Only initialize on supported platforms (not Linux/macOS)
+  FlutterSoundRecorder? recorderModule;
+  FlutterSoundPlayer? playerModule;
+  
+  bool get _isSupportedPlatform => !PlatformUtils.isDesktop;
 
   @override
   void initState() {
@@ -59,10 +64,26 @@ class _InputVoicePageState extends State<InputVoicePage> with SingleTickerProvid
           widget.onPressed(_path, Duration(milliseconds: _longPressDuration.toInt()));
         }
       });
-    initAudio();
+    
+    if (_isSupportedPlatform) {
+      recorderModule = FlutterSoundRecorder();
+      playerModule = FlutterSoundPlayer();
+      initAudio();
+    }
   }
 
   void _onLongPressStart(LongPressStartDetails details) async {
+    if (!_isSupportedPlatform) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Center(
+            child: Text('Voice recording is not supported on this platform'),
+          ),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
     setState(() {
       _isLongPressing = true;
     });
@@ -166,6 +187,25 @@ class _InputVoicePageState extends State<InputVoicePage> with SingleTickerProvid
 
   @override
   Widget build(BuildContext context) {
+    if (!_isSupportedPlatform) {
+      return Container(
+        decoration: BoxDecoration(
+          color: ThemeColor.color190,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Text(
+              'Voice recording is not supported on this platform',
+              style: TextStyle(fontSize: 14),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      );
+    }
+    
     durationInSeconds = (_longPressDuration / 1000);
     return Container(
       decoration: BoxDecoration(
@@ -253,10 +293,13 @@ class _InputVoicePageState extends State<InputVoicePage> with SingleTickerProvid
   }
 
   void initAudio() async {
+    if (!_isSupportedPlatform || recorderModule == null || playerModule == null) {
+      return;
+    }
     //Start recording
-    await recorderModule.openRecorder();
+    await recorderModule!.openRecorder();
     //Set up a subscription timer.
-    await recorderModule
+    await recorderModule!
         .setSubscriptionDuration(const Duration(milliseconds: 10));
 
     //Configure the audio
@@ -278,9 +321,9 @@ class _InputVoicePageState extends State<InputVoicePage> with SingleTickerProvid
       androidAudioFocusGainType: AndroidAudioFocusGainType.gain,
       androidWillPauseWhenDucked: true,
     ));
-    await playerModule.closePlayer();
-    await playerModule.openPlayer();
-    await playerModule
+    await playerModule!.closePlayer();
+    await playerModule!.openPlayer();
+    await playerModule!
         .setSubscriptionDuration(const Duration(milliseconds: 10));
   }
 
@@ -310,6 +353,9 @@ class _InputVoicePageState extends State<InputVoicePage> with SingleTickerProvid
 
   /// Start recording
   Future _startRecorder() async {
+    if (!_isSupportedPlatform || recorderModule == null) {
+      return;
+    }
     await _stopRecorder();
     try {
       final status = await getPermissionStatus();
@@ -329,7 +375,7 @@ class _InputVoicePageState extends State<InputVoicePage> with SingleTickerProvid
       final path = Platform.isAndroid ? '${tempDir.path}/$time.aac' : '${tempDir.path}/$time.wav';
       _path = path;
 
-      await recorderModule.startRecorder(
+      await recorderModule!.startRecorder(
           toFile: path,
           codec: Platform.isIOS ? Codec.pcm16WAV : Codec.aacADTS,
           bitRate: 1411200,
@@ -337,7 +383,7 @@ class _InputVoicePageState extends State<InputVoicePage> with SingleTickerProvid
           audioSource: AudioSource.microphone);
 
       /// Monitor the recording
-      recorderModule.onProgress!.listen((e) {
+      recorderModule!.onProgress!.listen((e) {
         final date = new DateTime.fromMillisecondsSinceEpoch(
             e.duration.inMilliseconds,
             isUtc: true);
@@ -366,8 +412,11 @@ class _InputVoicePageState extends State<InputVoicePage> with SingleTickerProvid
 
   /// End recording
   Future _stopRecorder() async {
+    if (!_isSupportedPlatform || recorderModule == null) {
+      return;
+    }
     try {
-      await recorderModule.stopRecorder();
+      await recorderModule!.stopRecorder();
       print('stopRecorder===> fliePath:$_path');
       // widget.stopRecord!(_path, num);
     } catch (err) {
@@ -376,55 +425,69 @@ class _InputVoicePageState extends State<InputVoicePage> with SingleTickerProvid
   }
   ///Start playback, and here a callback for the playback state is implemented
   void startPlayer(path, {Function(dynamic)? callBack}) async {
+    if (!_isSupportedPlatform || playerModule == null) {
+      callBack?.call(0);
+      return;
+    }
     try {
       if (path.contains('http')) {
-        await playerModule.startPlayer(
+        await playerModule!.startPlayer(
             fromURI: path,
             codec: Codec.mp3,
             sampleRate: 44000,
             whenFinished: () {
               stopPlayer();
-              callBack!(0);
+              callBack?.call(0);
             });
       } else {
         //Determine if the file exists
         if (await _fileExists(path)) {
-          if (playerModule.isPlaying) {
-            await playerModule.stopPlayer();
+          if (playerModule!.isPlaying) {
+            await playerModule!.stopPlayer();
           }
-          await playerModule.startPlayer(
+          await playerModule!.startPlayer(
               fromURI: path,
               codec: Codec.aacADTS,
               sampleRate: 44000,
               whenFinished: () {
                 stopPlayer();
-                callBack!(0);
+                callBack?.call(0);
               });
         } else {}
       }
       //Monitor playback progress
-      playerModule.onProgress!.listen((e) {});
-      callBack!(1);
+      playerModule!.onProgress!.listen((e) {});
+      callBack?.call(1);
     } catch (err) {
-      callBack!(0);
+      callBack?.call(0);
     }
   }
 
   /// End playback
   void stopPlayer() async {
+    if (!_isSupportedPlatform || playerModule == null) {
+      return;
+    }
     try {
-      await playerModule.stopPlayer();
+      await playerModule!.stopPlayer();
     } catch (err) {}
   }
 
   /// Retrieve the playback status
-  Future<PlayerState> getPlayState() async =>
-      await playerModule.getPlayerState();
+  Future<PlayerState> getPlayState() async {
+    if (!_isSupportedPlatform || playerModule == null) {
+      return PlayerState.isStopped;
+    }
+    return await playerModule!.getPlayerState();
+  }
 
   /// Release the player
   void releaseFlauto() async {
+    if (!_isSupportedPlatform || playerModule == null) {
+      return;
+    }
     try {
-      await playerModule.closePlayer();
+      await playerModule!.closePlayer();
     } catch (e) {
       print(e);
     }
@@ -440,8 +503,10 @@ class _InputVoicePageState extends State<InputVoicePage> with SingleTickerProvid
   @override
   void dispose() {
     _progressController.dispose();
-    recorderModule.closeRecorder();
-    playerModule.closePlayer();
+    if (_isSupportedPlatform) {
+      recorderModule?.closeRecorder();
+      playerModule?.closePlayer();
+    }
     super.dispose();
   }
 }

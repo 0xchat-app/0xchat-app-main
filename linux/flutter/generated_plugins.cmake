@@ -7,6 +7,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   bitsdojo_window_linux
   emoji_picker_flutter
   file_selector_linux
+  flutter_sound
   flutter_webrtc
   isar_flutter_libs
   ox_calling
@@ -17,7 +18,6 @@ list(APPEND FLUTTER_PLUGIN_LIST
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST
-  flutter_zxing
   nostr_mls_package
   tor
 )
