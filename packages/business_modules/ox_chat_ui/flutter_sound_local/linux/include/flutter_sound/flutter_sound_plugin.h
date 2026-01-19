@@ -19,7 +19,7 @@ typedef struct {
   GObjectClass parent_class;
 } FlutterSoundPluginClass;
 
-GType flutter_sound_plugin_get_type(void) G_GNUC_CONST;
+FLUTTER_PLUGIN_EXPORT GType flutter_sound_plugin_get_type();
 
 FLUTTER_PLUGIN_EXPORT void flutter_sound_plugin_register_with_registrar(
     FlPluginRegistrar* registrar);
