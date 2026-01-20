@@ -55,6 +55,8 @@ add_subdirectory(${FLUTTER_MANAGED_DIR})
 # System-level dependencies.
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(GTK REQUIRED IMPORTED_TARGET gtk+-3.0)
+# OpenSSL for tor plugin and other FFI plugins that depend on it
+pkg_check_modules(OPENSSL REQUIRED openssl)
 
 add_definitions(-DAPPLICATION_ID="${APPLICATION_ID}")
 
@@ -75,6 +77,8 @@ apply_standard_settings(${BINARY_NAME})
 # Add dependency libraries. Add any application-specific dependencies here.
 target_link_libraries(${BINARY_NAME} PRIVATE flutter)
 target_link_libraries(${BINARY_NAME} PRIVATE PkgConfig::GTK)
+# Link OpenSSL for tor plugin and other FFI plugins that depend on it
+target_link_libraries(${BINARY_NAME} PRIVATE ${OPENSSL_LIBRARIES})
 
 # Run the Flutter tool portions of the build. This must not be removed.
 add_dependencies(${BINARY_NAME} flutter_assemble)
