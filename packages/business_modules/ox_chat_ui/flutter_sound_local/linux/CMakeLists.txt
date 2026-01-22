@@ -14,8 +14,10 @@ add_library(${PLUGIN_NAME} SHARED
 apply_standard_settings(${PLUGIN_NAME})
 
 set_target_properties(${PLUGIN_NAME} PROPERTIES
-  CXX_VISIBILITY_PRESET hidden)
+  CXX_VISIBILITY_PRESET default)
 target_compile_definitions(${PLUGIN_NAME} PRIVATE FLUTTER_PLUGIN_IMPL)
+# Export symbols so they can be found by the linker
+target_compile_options(${PLUGIN_NAME} PRIVATE -fvisibility=default)
 
 target_include_directories(${PLUGIN_NAME} INTERFACE
   "include")

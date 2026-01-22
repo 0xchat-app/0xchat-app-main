@@ -8,7 +8,7 @@ G_BEGIN_DECLS
 // Define FLUTTER_PLUGIN_EXPORT only if not already defined by another plugin
 #ifndef FLUTTER_PLUGIN_EXPORT
 #ifdef FLUTTER_PLUGIN_IMPL
-#define FLUTTER_PLUGIN_EXPORT
+#define FLUTTER_PLUGIN_EXPORT __attribute__((visibility("default")))
 #else
 #define FLUTTER_PLUGIN_EXPORT extern
 #endif
