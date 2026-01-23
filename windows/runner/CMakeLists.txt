@@ -36,5 +36,13 @@ target_link_libraries(${BINARY_NAME} PRIVATE flutter flutter_wrapper_app)
 target_link_libraries(${BINARY_NAME} PRIVATE "dwmapi.lib")
 target_include_directories(${BINARY_NAME} PRIVATE "${CMAKE_SOURCE_DIR}")
 
+# Include flutter_sound plugin headers to fix missing function declaration
+# This ensures FlutterSoundPluginRegisterWithRegistrar is found even if
+# generated_plugin_registrant.cc doesn't include the header
+target_include_directories(${BINARY_NAME} PRIVATE
+  "${CMAKE_SOURCE_DIR}/flutter/ephemeral/.plugin_symlinks/flutter_sound/windows/include"
+  "${CMAKE_CURRENT_SOURCE_DIR}/../packages/business_modules/ox_chat_ui/flutter_sound_local/windows/include"
+)
+
 # Run the Flutter tool portions of the build. This must not be removed.
 add_dependencies(${BINARY_NAME} flutter_assemble)
