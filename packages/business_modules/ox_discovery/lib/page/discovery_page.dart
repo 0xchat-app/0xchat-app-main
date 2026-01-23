@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:chatcore/chat-core.dart';
@@ -105,6 +106,9 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
 
   bool _isLogin = false;
 
+  // Check if napp tab should be shown (hidden on Linux)
+  bool get _showNappTab => !Platform.isLinux;
+
   @override
   void initState() {
     super.initState();
@@ -114,11 +118,18 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
     getMomentPublicFilter();
     getNappFilter();
     pageType = EDiscoveryPageTypeEx.changeIntToEnum(widget.typeInt);
-    // Initialize TabController with 3 tabs: Moments, NApp, Groups
+    // Calculate tab count and initial index based on platform
+    int tabCount = _showNappTab ? 3 : 2;
     int initialIndex = 0; // Default to Moments
-    if (widget.typeInt == 2) initialIndex = 1; // NApp
-    else if (widget.typeInt == 3) initialIndex = 2; // Groups
-    _tabController = TabController(length: 3, vsync: this, initialIndex: initialIndex);
+    if (_showNappTab) {
+      if (widget.typeInt == 2) initialIndex = 1; // NApp
+      else if (widget.typeInt == 3) initialIndex = 2; // Groups
+    } else {
+      // On Linux, napp is hidden, so adjust indices
+      if (widget.typeInt == 2) initialIndex = 0; // NApp -> default to Moments
+      else if (widget.typeInt == 3) initialIndex = 1; // Groups
+    }
+    _tabController = TabController(length: tabCount, vsync: this, initialIndex: initialIndex);
     _pageController = PageController(initialPage: initialIndex);
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
@@ -132,23 +143,36 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
   void _loadData() {
     tabItems = [
       CommonCategoryTitleItem(title: EDiscoveryPageType.moment.text),
-      CommonCategoryTitleItem(title: EDiscoveryPageType.napp.text),
+      if (_showNappTab) CommonCategoryTitleItem(title: EDiscoveryPageType.napp.text),
       CommonCategoryTitleItem(title: EDiscoveryPageType.group.text),
     ];
   }
 
   void _updatePageType(int index) {
     setState(() {
-      switch (index) {
-        case 0:
-          pageType = EDiscoveryPageType.moment;
-          break;
-        case 1:
-          pageType = EDiscoveryPageType.napp;
-          break;
-        case 2:
-          pageType = EDiscoveryPageType.group;
-          break;
+      if (_showNappTab) {
+        // With napp tab: 0=moment, 1=napp, 2=group
+        switch (index) {
+          case 0:
+            pageType = EDiscoveryPageType.moment;
+            break;
+          case 1:
+            pageType = EDiscoveryPageType.napp;
+            break;
+          case 2:
+            pageType = EDiscoveryPageType.group;
+            break;
+        }
+      } else {
+        // Without napp tab (Linux): 0=moment, 1=group
+        switch (index) {
+          case 0:
+            pageType = EDiscoveryPageType.moment;
+            break;
+          case 1:
+            pageType = EDiscoveryPageType.group;
+            break;
+        }
       }
     });
   }
@@ -187,6 +211,8 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
         physics: const BouncingScrollPhysics(),
         controller: _pageController,
         onPageChanged: (index) {
+          // PageView children array is automatically adjusted based on _showNappTab
+          // So page index directly maps to tab index
           setState(() {
             _tabController.index = index;
           });
@@ -203,9 +229,10 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
             publicMomentsPageType: publicMomentsPageType,
             newMomentsBottom: widget.isSecondPage ? 60.px : 138.px,
           ),
-          NAppPage(
-            filterType: _nappFilterType,
-          ),
+          if (_showNappTab)
+            NAppPage(
+              filterType: _nappFilterType,
+            ),
           GroupsPage(
             key: groupsPageState,
             groupType: _groupType,
@@ -248,6 +275,8 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
                 _tabController.index = value;
               });
               _updatePageType(value);
+              // PageView children are automatically adjusted based on _showNappTab
+              // So tab index directly maps to page index
               _pageController.animateToPage(
                 value,
                 duration: const Duration(milliseconds: 2),
@@ -317,7 +346,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
           width: Adapt.px(24),
         ),
       ];
-    } else if (currentTabIndex == 2) {
+    } else if (currentTabIndex == (_showNappTab ? 2 : 1)) {
       // Groups tab actions
       return [
         GestureDetector(
@@ -346,7 +375,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
           width: Adapt.px(24),
         ),
       ];
-    } else if (currentTabIndex == 1) {
+    } else if (_showNappTab && currentTabIndex == 1) {
       // NApp tab actions
       return [
         GestureDetector(
