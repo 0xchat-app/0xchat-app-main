@@ -1,5 +1,5 @@
 name: flutter_sound
-description: Local flutter_sound package with macOS/Linux/Windows stub implementations
+description: Local flutter_sound package with macOS/Linux/windows stub implementations
 version: 9.30.0
 homepage: https://github.com/dooboolab/flutter_sound
 
@@ -33,4 +33,4 @@ flutter:
       linux:
         pluginClass: FlutterSoundPlugin
       windows:
-        pluginClass: FlutterSoundPlugin
+        pluginClass: FlutterSoundPluginCApi
