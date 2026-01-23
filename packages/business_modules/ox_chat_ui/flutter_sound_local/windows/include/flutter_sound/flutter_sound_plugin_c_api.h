@@ -16,6 +16,10 @@ extern "C" {
 FLUTTER_PLUGIN_EXPORT void FlutterSoundPluginCApiRegisterWithRegistrar(
     FlutterDesktopPluginRegistrarRef registrar);
 
+// Alias for compatibility with generated code that expects FlutterSoundPluginRegisterWithRegistrar
+FLUTTER_PLUGIN_EXPORT void FlutterSoundPluginRegisterWithRegistrar(
+    FlutterDesktopPluginRegistrarRef registrar);
+
 #if defined(__cplusplus)
 }  // extern "C"
 #endif

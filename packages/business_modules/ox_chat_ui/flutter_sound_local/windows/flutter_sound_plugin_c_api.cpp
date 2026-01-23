@@ -10,3 +10,9 @@ void FlutterSoundPluginCApiRegisterWithRegistrar(
       flutter::PluginRegistrarManager::GetInstance()
           ->GetRegistrar<flutter::PluginRegistrarWindows>(registrar));
 }
+
+// Alias for compatibility with generated code that expects FlutterSoundPluginRegisterWithRegistrar
+void FlutterSoundPluginRegisterWithRegistrar(
+    FlutterDesktopPluginRegistrarRef registrar) {
+  FlutterSoundPluginCApiRegisterWithRegistrar(registrar);
+}
