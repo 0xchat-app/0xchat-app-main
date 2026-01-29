@@ -41,7 +41,9 @@ endif()
 # of modifying this function.
 function(APPLY_STANDARD_SETTINGS TARGET)
   target_compile_features(${TARGET} PUBLIC cxx_std_14)
-  target_compile_options(${TARGET} PRIVATE -Wall -Werror)
+  target_compile_options(${TARGET} PRIVATE -Wall)
+  # Treat warnings as errors only in Release/Profile so Debug builds can succeed (some plugins warn in Debug)
+  target_compile_options(${TARGET} PRIVATE "$<$<NOT:$<CONFIG:Debug>>:-Werror>")
   # Allow unused variable and function warnings to avoid rive_common plugin compilation errors
   target_compile_options(${TARGET} PRIVATE -Wno-unused-variable -Wno-unused-function)
   target_compile_options(${TARGET} PRIVATE "$<$<NOT:$<CONFIG:Debug>>:-O3>")
