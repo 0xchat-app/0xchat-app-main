@@ -4,6 +4,7 @@ import 'package:flutter_link_previewer/flutter_link_previewer.dart'
     show LinkPreview;
 import 'package:flutter_parsed_text/flutter_parsed_text.dart';
 import 'package:ox_common/const/common_constant.dart';
+import 'package:ox_common/utils/emoji_style.dart' as emoji_style_util;
 import 'package:ox_common/utils/web_url_helper.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -161,9 +162,13 @@ class TextMessage extends StatelessWidget {
     final boldTextStyle = isMessageSender
         ? theme.sentMessageBodyBoldTextStyle
         : theme.receivedMessageBodyBoldTextStyle;
-    final emojiTextStyle = isMessageSender
+    final themeEmojiStyle = isMessageSender
         ? theme.sentEmojiMessageTextStyle
         : theme.receivedEmojiMessageTextStyle;
+    final emojiTextStyle = emoji_style_util.emojiTextStyle(
+      fontSize: themeEmojiStyle.fontSize,
+      color: themeEmojiStyle.color,
+    ).merge(themeEmojiStyle);
 
     if (enlargeEmojis) {
       if (options.isTextSelectable) {

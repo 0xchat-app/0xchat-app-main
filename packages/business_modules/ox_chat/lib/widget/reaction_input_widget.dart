@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/emoji_style.dart';
 import 'package:ox_common/utils/ox_default_emoji.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -133,9 +134,7 @@ class ReactionInputWidgetState extends State<ReactionInputWidget> {
       },
       child: Text(
         data.emoji,
-        style: TextStyle(
-          fontSize: emojiSize.sp,
-        ),
+        style: emojiTextStyle(fontSize: emojiSize.sp),
       ),
     );
   }

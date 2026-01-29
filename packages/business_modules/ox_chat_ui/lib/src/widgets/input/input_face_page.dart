@@ -1,5 +1,6 @@
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_common/utils/emoji_style.dart';
 import 'package:ox_common/utils/theme_color.dart';
 
 class InputFacePage extends StatefulWidget {
@@ -24,6 +25,7 @@ class _InputFacePageState extends State<InputFacePage> {
         config: Config(
           columns: (screenWidth / 60).floor(),
           emojiSizeMax: 30,
+          emojiTextStyle: emojiTextStyle(fontSize: 30),
           // Issue: https://github.com/flutter/flutter/issues/28894
           verticalSpacing: 0,
           horizontalSpacing: 0,

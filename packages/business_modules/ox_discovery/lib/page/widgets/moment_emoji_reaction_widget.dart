@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:ox_common/mixin/common_navigator_observer_mixin.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/emoji_style.dart';
 import 'package:ox_common/utils/ox_default_emoji.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
@@ -87,8 +88,8 @@ class _MomentEmojiReactionWidgetState extends State<MomentEmojiReactionWidget> w
                 children: emojiReactionMap.keys.map((emojiStr) {
                   return RichText(
                     text: TextSpan(
-                      text: emojiStr, // 默认样式
-                      style: TextStyle(
+                      text: emojiStr,
+                      style: emojiTextStyle(
                         fontSize: 24.px,
                         color: ThemeColor.color100,
                       ),
@@ -155,9 +156,7 @@ class _MomentEmojiReactionWidgetState extends State<MomentEmojiReactionWidget> w
       onTap: () => _reactionOnTap(data),
       child: Text(
         data.emoji,
-        style: TextStyle(
-          fontSize: 24.px,
-        ),
+        style: emojiTextStyle(fontSize: 24.px),
       ),
     );
   }
