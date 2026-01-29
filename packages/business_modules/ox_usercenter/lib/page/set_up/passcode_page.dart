@@ -47,40 +47,45 @@ class _PasscodePageState extends State<PasscodePage> {
 
   @override
   Widget build(BuildContext context) {
+    final minHeight = MediaQuery.sizeOf(context).height;
     return Scaffold(
       backgroundColor: ThemeColor.color200,
-      body: Column(
-        children: [
-          CommonAppBar(
-            title: 'str_passcode'.localized(),
-            centerTitle: true,
-            useLargeTitle: false,
-            backgroundColor: Colors.transparent,
+      body: SingleChildScrollView(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: minHeight),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CommonAppBar(
+                title: 'str_passcode'.localized(),
+                centerTitle: true,
+                useLargeTitle: false,
+                backgroundColor: Colors.transparent,
+              ),
+              SizedBox(height: 36.px),
+              abbrText(widget.type == 0 ? 'str_create_passcode'.localized() : 'str_confirm_passcode'.localized(), 24, ThemeColor.color0),
+              SizedBox(height: 36.px),
+              Container(
+                height: 56.px,
+                alignment: Alignment.topCenter,
+                child: ListView.builder(
+                  padding: const EdgeInsets.only(bottom: 0),
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  scrollDirection: Axis.horizontal,
+                  itemBuilder: _itemBuild,
+                  itemCount: 6,
+                ),
+              ),
+              SizedBox(height: 24.px),
+              SecureKeypad(
+                key: _globalKeySecureKeypad,
+                onChanged: _keypadValue,
+              ),
+              SizedBox(height: 89.px),
+            ],
           ),
-          SizedBox(height: 36.px),
-          abbrText(widget.type == 0 ? 'str_create_passcode'.localized() : 'str_confirm_passcode'.localized(), 24, ThemeColor.color0),
-          SizedBox(height: 36.px),
-          Container(
-            height: 56.px,
-            alignment: Alignment.topCenter,
-            child: ListView.builder(
-              padding: const EdgeInsets.only(bottom: 0),
-              physics: const NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              scrollDirection: Axis.horizontal,
-              itemBuilder: _itemBuild,
-              itemCount: 6,
-            ),
-          ),
-          const Expanded(
-            child: SizedBox(),
-          ),
-          SecureKeypad(
-            key: _globalKeySecureKeypad,
-            onChanged: _keypadValue,
-          ),
-          SizedBox(height: 89.px),
-        ],
+        ),
       ),
     );
   }
