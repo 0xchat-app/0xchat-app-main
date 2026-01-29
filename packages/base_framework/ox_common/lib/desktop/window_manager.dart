@@ -1,8 +1,10 @@
 
+import 'dart:io';
+
+import 'package:flutter/material.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/utils/platform_utils.dart';
 import 'package:window_manager/window_manager.dart';
-import 'package:flutter/material.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 
 class OXWindowManager with WindowListener {
@@ -55,9 +57,15 @@ class OXWindowManager with WindowListener {
     saveWindowInfo();
   }
 
-  /// Emitted when the window is going to be closed.
+  /// Emitted when the window is going to be closed (close button or dock Quit).
+  /// On Linux: exit the app so the window does not pop up again (dock re-activate).
+  /// On macOS/Windows: keep hide (close to tray / stay in dock) behavior.
   void onWindowClose() {
-    windowManager.hide();
+    if (Platform.isLinux) {
+      exit(0);
+    } else {
+      windowManager.hide();
+    }
   }
 
   /// Emitted when the window gains focus.
