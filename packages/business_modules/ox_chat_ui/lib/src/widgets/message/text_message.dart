@@ -32,6 +32,7 @@ class TextMessage extends StatelessWidget {
     this.userAgent,
     this.maxLimit,
     this.onSecondaryTap,
+    this.contextMenuBuilder,
   }) : messageText = message.text;
 
   /// See [Message.emojiEnlargementBehavior].
@@ -66,6 +67,9 @@ class TextMessage extends StatelessWidget {
   final ChatUIConfig uiConfig;
 
   final GestureTapCallback? onSecondaryTap;
+
+  /// When non-null, right-click shows this widget inside the selection overlay (one layer, one tap to close).
+  final Widget Function()? contextMenuBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -187,6 +191,7 @@ class TextMessage extends StatelessWidget {
       maxLimit: maxLimit,
       isMessageSender: isMessageSender,
       onSecondaryTap: onSecondaryTap,
+      contextMenuBuilder: contextMenuBuilder,
       maxLines: 100,
     );
   }
@@ -207,6 +212,7 @@ class TextMessageText extends StatelessWidget {
     this.maxLimit,
     required this.isMessageSender,
     this.onSecondaryTap,
+    this.contextMenuBuilder,
   }) : messageText = message.text;
 
   final ChatUIConfig uiConfig;
@@ -239,6 +245,9 @@ class TextMessageText extends StatelessWidget {
   final bool isMessageSender;
 
   final GestureTapCallback? onSecondaryTap;
+
+  /// When non-null, right-click shows this widget inside the selection overlay (one layer, one tap to close).
+  final Widget Function()? contextMenuBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -397,6 +406,7 @@ class TextMessageText extends StatelessWidget {
       textWidthBasis: TextWidthBasis.longestLine,
       textScaler: MediaQuery.of(context).textScaler,
       onSecondaryTap: onSecondaryTap,
+      buildContextMenu: contextMenuBuilder,
     );
   }
 }

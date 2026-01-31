@@ -71,6 +71,10 @@ class ParsedText extends StatelessWidget {
 
   final GestureTapCallback? onSecondaryTap;
 
+  /// When non-null, right-click shows this widget inside the selection overlay (one layer, one tap to close).
+  /// When null, [onSecondaryTap] is used and a separate popup may appear (can require two taps to close on Linux).
+  final Widget Function()? buildContextMenu;
+
   /// Creates a parsedText widget
   ///
   /// [text] paramtere should not be null and is always required.
@@ -93,6 +97,7 @@ class ParsedText extends StatelessWidget {
     this.selectable = false,
     this.regexOptions = const RegexOptions(),
     this.onSecondaryTap,
+    this.buildContextMenu,
   }) : super(key: key);
 
   @override
@@ -201,6 +206,21 @@ class ParsedText extends StatelessWidget {
         textDirection: textDirection,
         contextMenuBuilder: (_, editableState) {
           editableState.widget.controller.selection = TextSelection.collapsed(offset: -1);
+          if (buildContextMenu != null && onSecondaryTap != null) {
+            final isDesktop = defaultTargetPlatform != TargetPlatform.android &&
+                defaultTargetPlatform != TargetPlatform.iOS;
+            if (isDesktop) {
+              editableState.hideToolbar();
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                onSecondaryTap?.call();
+              });
+              return const SizedBox.shrink();
+            }
+            return AdaptiveTextSelectionToolbar(
+              anchors: editableState.contextMenuAnchors,
+              children: [buildContextMenu!()],
+            );
+          }
           onSecondaryTap?.call();
           return const SizedBox.shrink();
         },

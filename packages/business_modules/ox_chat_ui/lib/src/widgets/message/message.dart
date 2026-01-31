@@ -610,6 +610,7 @@ class MessageState extends State<Message> {
           onSecondaryTap: () {
             _popController.showMenu();
           },
+          contextMenuBuilder: () => _buildLongPressMenu(),
         );
         break ;
       case types.MessageType.video:
