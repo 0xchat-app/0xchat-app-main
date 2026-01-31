@@ -207,8 +207,8 @@ class ParsedText extends StatelessWidget {
         contextMenuBuilder: (_, editableState) {
           editableState.widget.controller.selection = TextSelection.collapsed(offset: -1);
           if (buildContextMenu != null && onSecondaryTap != null) {
-            final isDesktop = defaultTargetPlatform != TargetPlatform.android &&
-                defaultTargetPlatform != TargetPlatform.iOS;
+            final isDesktop = foundation.defaultTargetPlatform != foundation.TargetPlatform.android &&
+                foundation.defaultTargetPlatform != foundation.TargetPlatform.iOS;
             if (isDesktop) {
               editableState.hideToolbar();
               WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -216,10 +216,8 @@ class ParsedText extends StatelessWidget {
               });
               return const SizedBox.shrink();
             }
-            return AdaptiveTextSelectionToolbar(
-              anchors: editableState.contextMenuAnchors,
-              children: [buildContextMenu!()],
-            );
+            // Mobile: do nothing, do not trigger our menu from this path (menu only via onLongPress)
+            return const SizedBox.shrink();
           }
           onSecondaryTap?.call();
           return const SizedBox.shrink();
