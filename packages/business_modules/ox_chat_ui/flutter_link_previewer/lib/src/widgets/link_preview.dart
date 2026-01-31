@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_linkify/flutter_linkify.dart' hide UrlLinkifier;
+import 'package:ox_common/utils/platform_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/web_url_helper.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
@@ -339,22 +340,29 @@ class _LinkPreviewState extends State<LinkPreview>
       widget.previewData?.description == null &&
       widget.previewData?.image?.url != null;
 
-  Widget _imageWidget(String imageUrl, String linkUrl, double width) =>
-      GestureDetector(
-        onTap: widget.openOnPreviewImageTap ? () => _onOpen(linkUrl) : null,
-        child: Container(
-          constraints: BoxConstraints(
-            maxHeight: width,
-          ),
-          width: width,
-          child: widget.imageBuilder != null
-              ? widget.imageBuilder!(imageUrl)
-              : Image.network(
-                  imageUrl,
-                  fit: BoxFit.contain,
-                ),
+  /// Max size for link preview image on desktop only (do not affect mobile).
+  static const double _kLinkPreviewImageMaxSizeDesktop = 400.0;
+
+  Widget _imageWidget(String imageUrl, String linkUrl, double width) {
+    final effectiveSize = PlatformUtils.isDesktop && width > _kLinkPreviewImageMaxSizeDesktop
+        ? _kLinkPreviewImageMaxSizeDesktop
+        : width;
+    return GestureDetector(
+      onTap: widget.openOnPreviewImageTap ? () => _onOpen(linkUrl) : null,
+      child: Container(
+        constraints: BoxConstraints(
+          maxHeight: effectiveSize,
         ),
-      );
+        width: effectiveSize,
+        child: widget.imageBuilder != null
+            ? widget.imageBuilder!(imageUrl)
+            : Image.network(
+                imageUrl,
+                fit: BoxFit.contain,
+              ),
+      ),
+    );
+  }
 
   Widget _linkify() => SelectableLinkify(
         linkifiers: const [EmailLinkifier(), UrlLinkifier()],

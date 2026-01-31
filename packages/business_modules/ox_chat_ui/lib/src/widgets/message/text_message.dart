@@ -5,6 +5,7 @@ import 'package:flutter_link_previewer/flutter_link_previewer.dart'
 import 'package:flutter_parsed_text/flutter_parsed_text.dart';
 import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/utils/emoji_style.dart' as emoji_style_util;
+import 'package:ox_common/utils/platform_utils.dart';
 import 'package:ox_common/utils/web_url_helper.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -78,7 +79,12 @@ class TextMessage extends StatelessWidget {
             isConsistsOfEmojis(emojiEnlargementBehavior, message);
     final theme = InheritedChatTheme.of(context).theme;
     final user = InheritedUser.of(context).user;
-    final width = MediaQuery.of(context).size.width;
+    double width = MediaQuery.of(context).size.width;
+    // Cap link preview width on desktop so preview image does not span full screen
+    if (PlatformUtils.isDesktop) {
+      const kLinkPreviewMaxWidth = 400.0;
+      if (width > kLinkPreviewMaxWidth) width = kLinkPreviewMaxWidth;
+    }
 
     if (usePreviewData && onPreviewDataFetched != null) {
       var urlRegexp = RegExp(WebURLHelper.regexLink, caseSensitive: false);
