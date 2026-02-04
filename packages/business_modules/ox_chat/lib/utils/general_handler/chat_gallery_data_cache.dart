@@ -20,12 +20,15 @@ class ChatGalleryDataCache {
 
   Future initializePreviewImages(List<types.Message> messages) async {
 
+    var index = 0;
     for (var message in messages) {
       await tryAddPreviewImage(
         message: message,
         isInsertToFirst: false,
         isWaitInitialize: false,
       );
+      // Yield to GTK event loop on Linux every 10 items to avoid "not responding"
+      if (Platform.isLinux && ++index % 10 == 0) await Future.delayed(Duration.zero);
     }
 
     _initializeCompleter.complete();

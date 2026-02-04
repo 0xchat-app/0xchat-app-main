@@ -294,12 +294,15 @@ extension MessageDataControllerInterface on MessageDataController {
     }
 
     final result = <types.Message>[];
+    var index = 0;
     for (var newMsg in newMessages) {
       final uiMsg = await _addMessageWithMessageDB(newMsg, needNotifyUpdate: false);
       if (uiMsg != null) {
         result.add(uiMsg);
         _checkUIMessageInfo(uiMsg);
       }
+      // Yield to GTK event loop on Linux every 5 messages to avoid "not responding"
+      if (Platform.isLinux && ++index % 5 == 0) await Future.delayed(Duration.zero);
     }
     _notifyUpdateMessages(immediate: true);
 
@@ -364,12 +367,14 @@ extension MessageDataControllerInterface on MessageDataController {
     ].removeDuplicates((msg) => msg.messageId);
 
     final result = <types.Message>[];
+    var nearbyIndex = 0;
     for (var newMsg in messages) {
       final uiMsg = await _addMessageWithMessageDB(newMsg, needNotifyUpdate: false);
       if (uiMsg != null) {
         result.add(uiMsg);
         _checkUIMessageInfo(uiMsg);
       }
+      if (Platform.isLinux && ++nearbyIndex % 5 == 0) await Future.delayed(Duration.zero);
     }
 
     _notifyUpdateMessages(immediate: true);

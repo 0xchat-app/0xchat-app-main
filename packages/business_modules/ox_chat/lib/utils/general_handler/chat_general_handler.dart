@@ -206,11 +206,11 @@ class ChatGeneralHandler {
     });
   }
 
-  /// On Linux, defer to after first frame so session page paints first and avoids "not responding".
+  /// On Linux, defer to after first frame and yield to GTK event loop so app does not report "not responding".
   Future initializeMessage() async {
     if (Platform.isLinux) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _runInitializeMessage();
+        Future.delayed(Duration.zero, () => _runInitializeMessage());
       });
       return;
     }
@@ -218,6 +218,8 @@ class ChatGeneralHandler {
   }
 
   Future _runInitializeMessage() async {
+    if (_disposed) return;
+    if (Platform.isLinux) await Future.delayed(Duration.zero);
     if (_disposed) return;
     final anchorMsgId = this.anchorMsgId;
     if (anchorMsgId != null && anchorMsgId.isNotEmpty) {
@@ -231,10 +233,11 @@ class ChatGeneralHandler {
         loadMsgCount: ChatPageConfig.messagesPerPage,
       );
       if (_disposed) return;
+      if (Platform.isLinux) await Future.delayed(Duration.zero);
+      if (_disposed) return;
       // Try request more messages
       final chatType = session.coreChatType;
       if (chatType != null) {
-        // Try request newer messages
         int? since = messages.firstOrNull?.createdAt;
         if (since != null) since ~/= 1000;
         Messages.recoverMessagesFromRelay(
@@ -244,6 +247,8 @@ class ChatGeneralHandler {
         );
       }
     }
+    if (_disposed) return;
+    if (Platform.isLinux) await Future.delayed(Duration.zero);
     if (_disposed) return;
     initializeImageGallery();
   }
