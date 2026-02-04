@@ -1,4 +1,7 @@
+import 'dart:io' show Platform;
+
 import 'package:chatcore/chat-core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:ox_chat/model/constant.dart';
@@ -91,6 +94,9 @@ class ChatMessagePage extends StatefulWidget {
     }
     if (isPushWithReplace) {
       return OXNavigator.pushReplacement(context, pageWidget);
+    }
+    if (Platform.isLinux && kDebugMode) {
+      debugPrint('[LINUX_DIAG] ChatMessagePage.open: about to push, chatId=${communityItem.chatId}');
     }
     return OXNavigator.pushPage(context, (context) => pageWidget!);
   }

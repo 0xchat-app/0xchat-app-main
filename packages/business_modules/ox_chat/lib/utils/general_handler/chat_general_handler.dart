@@ -5,6 +5,7 @@ import 'dart:io';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
@@ -207,8 +208,17 @@ class ChatGeneralHandler {
   }
 
   /// On Linux, defer to after first frame and yield to GTK event loop so app does not report "not responding".
+  /// Set env OXCHAT_LINUX_SKIP_SESSION_LOAD=1 to skip message/gallery load (for diagnosing freeze).
   Future initializeMessage() async {
+    if (Platform.isLinux && kDebugMode) {
+      debugPrint('[LINUX_DIAG] initializeMessage called, chatId=${session.chatId}');
+    }
     if (Platform.isLinux) {
+      final skipLoad = Platform.environment['OXCHAT_LINUX_SKIP_SESSION_LOAD'] == '1';
+      if (skipLoad && kDebugMode) {
+        debugPrint('[LINUX_DIAG] OXCHAT_LINUX_SKIP_SESSION_LOAD=1, skipping load');
+        return;
+      }
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Future.delayed(Duration.zero, () => _runInitializeMessage());
       });
@@ -219,23 +229,27 @@ class ChatGeneralHandler {
 
   Future _runInitializeMessage() async {
     if (_disposed) return;
+    if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] _runInitializeMessage start');
     if (Platform.isLinux) await Future.delayed(Duration.zero);
     if (_disposed) return;
     final anchorMsgId = this.anchorMsgId;
     if (anchorMsgId != null && anchorMsgId.isNotEmpty) {
+      if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] loadNearbyMessage start');
       await dataController.loadNearbyMessage(
         targetMessageId: anchorMsgId,
         beforeCount: ChatPageConfig.messagesPerPage,
         afterCount: ChatPageConfig.messagesPerPage,
       );
+      if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] loadNearbyMessage done');
     } else {
+      if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] loadMoreMessage start');
       final messages = await dataController.loadMoreMessage(
         loadMsgCount: ChatPageConfig.messagesPerPage,
       );
+      if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] loadMoreMessage done, count=${messages.length}');
       if (_disposed) return;
       if (Platform.isLinux) await Future.delayed(Duration.zero);
       if (_disposed) return;
-      // Try request more messages
       final chatType = session.coreChatType;
       if (chatType != null) {
         int? since = messages.firstOrNull?.createdAt;
@@ -250,7 +264,9 @@ class ChatGeneralHandler {
     if (_disposed) return;
     if (Platform.isLinux) await Future.delayed(Duration.zero);
     if (_disposed) return;
+    if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] initializeImageGallery start');
     initializeImageGallery();
+    if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] initializeImageGallery done');
   }
 
   /// Limit gallery load on Linux to avoid memory spike.
@@ -258,6 +274,7 @@ class ChatGeneralHandler {
 
   Future initializeImageGallery() async {
     if (_disposed) return;
+    if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] getLocalMessage (gallery) start');
     final messageList = await dataController.getLocalMessage(
       messageTypes: [
         MessageType.image,
@@ -266,8 +283,11 @@ class ChatGeneralHandler {
       ],
       limit: Platform.isLinux ? kGalleryLoadLimit : null,
     );
+    if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] getLocalMessage done, count=${messageList.length}');
     if (_disposed) return;
+    if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] initializePreviewImages start');
     dataController.galleryCache.initializePreviewImages(messageList);
+    if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] initializePreviewImages done');
   }
 
   void dispose() {

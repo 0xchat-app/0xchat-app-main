@@ -1,4 +1,6 @@
+import 'dart:io' show Platform;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_chat/manager/chat_data_cache.dart';
@@ -70,6 +72,7 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
   @override
   void initState() {
     super.initState();
+    if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] CommonChatWidget initState');
 
     tryInitDraft();
     tryInitReply();
@@ -95,8 +98,9 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
   void tryInitReply() async {
     final replyMessageId = session.replyMessageId ?? '';
     if (replyMessageId.isEmpty) return ;
-
+    if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] tryInitReply start getLocalMessageWithIds');
     final message = (await dataController.getLocalMessageWithIds([replyMessageId])).firstOrNull;
+    if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] tryInitReply done');
     if (message == null) return ;
 
     handler.replyHandler.updateReplyMessage(message);
