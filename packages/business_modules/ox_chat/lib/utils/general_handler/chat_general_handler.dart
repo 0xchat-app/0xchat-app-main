@@ -119,6 +119,9 @@ class ChatGeneralHandler {
 
   bool isPreviewMode = false;
 
+  /// Set in dispose(); used so deferred _runInitializeMessage (Linux) does not run after exit.
+  bool _disposed = false;
+
   static types.User _defaultAuthor() {
     UserDBISAR? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
     return types.User(
@@ -215,6 +218,7 @@ class ChatGeneralHandler {
   }
 
   Future _runInitializeMessage() async {
+    if (_disposed) return;
     final anchorMsgId = this.anchorMsgId;
     if (anchorMsgId != null && anchorMsgId.isNotEmpty) {
       await dataController.loadNearbyMessage(
@@ -226,7 +230,7 @@ class ChatGeneralHandler {
       final messages = await dataController.loadMoreMessage(
         loadMsgCount: ChatPageConfig.messagesPerPage,
       );
-
+      if (_disposed) return;
       // Try request more messages
       final chatType = session.coreChatType;
       if (chatType != null) {
@@ -240,7 +244,7 @@ class ChatGeneralHandler {
         );
       }
     }
-
+    if (_disposed) return;
     initializeImageGallery();
   }
 
@@ -248,6 +252,7 @@ class ChatGeneralHandler {
   static const int kGalleryLoadLimit = 200;
 
   Future initializeImageGallery() async {
+    if (_disposed) return;
     final messageList = await dataController.getLocalMessage(
       messageTypes: [
         MessageType.image,
@@ -256,10 +261,12 @@ class ChatGeneralHandler {
       ],
       limit: Platform.isLinux ? kGalleryLoadLimit : null,
     );
+    if (_disposed) return;
     dataController.galleryCache.initializePreviewImages(messageList);
   }
 
   void dispose() {
+    _disposed = true;
     dataController.dispose();
     highlightMessageHandler.dispose();
   }
