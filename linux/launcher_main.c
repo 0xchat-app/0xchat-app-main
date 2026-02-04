@@ -1,6 +1,6 @@
 /*
  * Launcher for oxchat_app_main: sets FD limit (ulimit) and GDK_BACKEND=x11,
- * then exec's the real app (oxchat_app_main.bin). Users run this binary;
+ * then exec's the real app (oxchat_runtime). Users run this binary;
  * no script required.
  */
 #define _GNU_SOURCE
@@ -11,7 +11,7 @@
 #include <unistd.h>
 #include <sys/resource.h>
 
-#define REAL_BIN "oxchat_app_main.bin"
+#define REAL_BIN "oxchat_runtime"
 #define FD_LIMIT 65536
 
 static char *dirname_copy(const char *path) {

@@ -94,13 +94,14 @@ set_target_properties(${BINARY_NAME}
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/intermediates_do_not_run"
 )
 
-# Copy real app to .bin for bundle; launcher will exec it (so users run one binary, no script).
-set(REAL_APP_BIN_PATH "${CMAKE_BINARY_DIR}/oxchat_app_main.bin")
+# Copy real app to oxchat_runtime for bundle; launcher will exec it (so users run one binary, no script).
+set(REAL_APP_BIN_NAME "oxchat_runtime")
+set(REAL_APP_BIN_PATH "${CMAKE_BINARY_DIR}/${REAL_APP_BIN_NAME}")
 add_custom_command(TARGET ${BINARY_NAME} POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${BINARY_NAME}> "${REAL_APP_BIN_PATH}"
   COMMENT "Copy real app to ${REAL_APP_BIN_PATH} for bundle")
 
-# Launcher: sets FD limit (setrlimit) + GDK_BACKEND=x11, then exec's oxchat_app_main.bin.
+# Launcher: sets FD limit (setrlimit) + GDK_BACKEND=x11, then exec's oxchat_runtime.
 # Users run oxchat_app_main (this); no need for run_with_gdk_fix.sh.
 add_executable(launcher launcher_main.c)
 set_target_properties(launcher PROPERTIES
@@ -130,8 +131,8 @@ install(CODE "
 set(INSTALL_BUNDLE_DATA_DIR "${CMAKE_INSTALL_PREFIX}/data")
 set(INSTALL_BUNDLE_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib")
 
-# Real app as .bin (launcher exec's it); launcher as main executable so users run oxchat_app_main.
-install(PROGRAMS "${REAL_APP_BIN_PATH}" DESTINATION "${CMAKE_INSTALL_PREFIX}" RENAME "oxchat_app_main.bin" COMPONENT Runtime)
+# Real app as oxchat_runtime (launcher exec's it); launcher as main executable so users run oxchat_app_main.
+install(PROGRAMS "${REAL_APP_BIN_PATH}" DESTINATION "${CMAKE_INSTALL_PREFIX}" RENAME "${REAL_APP_BIN_NAME}" COMPONENT Runtime)
 install(TARGETS launcher RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}"
   RENAME "${BINARY_NAME}" COMPONENT Runtime)
 
@@ -146,6 +147,16 @@ foreach(bundled_library ${PLUGIN_BUNDLED_LIBRARIES})
     DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
     COMPONENT Runtime)
 endforeach(bundled_library)
+
+# Isar loads libisar.so from the executable directory (bundle root), but plugin libs
+# are installed to bundle/lib/. Copy libisar.so to bundle root so DynamicLibrary.open finds it.
+install(CODE "
+  set(lib_dir \"${CMAKE_INSTALL_PREFIX}/lib\")
+  set(root_dir \"${CMAKE_INSTALL_PREFIX}\")
+  if(EXISTS \"\${lib_dir}/libisar.so\")
+    file(COPY \"\${lib_dir}/libisar.so\" DESTINATION \"\${root_dir}\")
+  endif()
+" COMPONENT Runtime)
 
 # Copy the native assets provided by the build.dart from all packages.
 set(NATIVE_ASSETS_DIR "${PROJECT_BUILD_DIR}native_assets/linux/")
