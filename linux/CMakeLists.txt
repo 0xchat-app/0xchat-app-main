@@ -1,6 +1,6 @@
 # Project-level configuration.
 cmake_minimum_required(VERSION 3.10)
-project(runner LANGUAGES CXX)
+project(runner LANGUAGES C CXX)
 
 # The name of the executable created for the application. Change this to change
 # the on-disk name of your application.
@@ -94,6 +94,20 @@ set_target_properties(${BINARY_NAME}
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/intermediates_do_not_run"
 )
 
+# Copy real app to .bin for bundle; launcher will exec it (so users run one binary, no script).
+set(REAL_APP_BIN_PATH "${CMAKE_BINARY_DIR}/oxchat_app_main.bin")
+add_custom_command(TARGET ${BINARY_NAME} POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${BINARY_NAME}> "${REAL_APP_BIN_PATH}"
+  COMMENT "Copy real app to ${REAL_APP_BIN_PATH} for bundle")
+
+# Launcher: sets FD limit (setrlimit) + GDK_BACKEND=x11, then exec's oxchat_app_main.bin.
+# Users run oxchat_app_main (this); no need for run_with_gdk_fix.sh.
+add_executable(launcher launcher_main.c)
+set_target_properties(launcher PROPERTIES
+  RUNTIME_OUTPUT_NAME "${BINARY_NAME}"
+  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+)
+add_dependencies(launcher ${BINARY_NAME})
 
 # Generated plugin build rules, which manage building the plugins and adding
 # them to the application.
@@ -116,8 +130,10 @@ install(CODE "
 set(INSTALL_BUNDLE_DATA_DIR "${CMAKE_INSTALL_PREFIX}/data")
 set(INSTALL_BUNDLE_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib")
 
-install(TARGETS ${BINARY_NAME} RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}"
-  COMPONENT Runtime)
+# Real app as .bin (launcher exec's it); launcher as main executable so users run oxchat_app_main.
+install(PROGRAMS "${REAL_APP_BIN_PATH}" DESTINATION "${CMAKE_INSTALL_PREFIX}" RENAME "oxchat_app_main.bin" COMPONENT Runtime)
+install(TARGETS launcher RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}"
+  RENAME "${BINARY_NAME}" COMPONENT Runtime)
 
 install(FILES "${FLUTTER_ICU_DATA_FILE}" DESTINATION "${INSTALL_BUNDLE_DATA_DIR}"
   COMPONENT Runtime)
