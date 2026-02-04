@@ -99,9 +99,11 @@ class MainState extends State<MainApp>
       notNetworInitWow();
     }
     BootConfig.instance.batchUpdateUserBadges();
-    timer = Timer.periodic(Duration(seconds: 5), (Timer t) {
-      printMemoryUsage();
-    });
+    // Disabled on Linux: ProcessInfo.currentRss opens /proc every 5s and can trigger
+    // "Too many open files" (errno 24) when FD limit is reached. Use Flutter DevTools Memory tab.
+    // timer = Timer.periodic(Duration(seconds: 5), (Timer t) {
+    //   printMemoryUsage();
+    // });
     showErrorDialogIfNeeded();
 
     if (!Adapt.isInitialized) {
