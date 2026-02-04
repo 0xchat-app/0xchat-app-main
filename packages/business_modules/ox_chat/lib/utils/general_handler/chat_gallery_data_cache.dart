@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'dart:io' show Platform;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_chat/utils/custom_message_utils.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
@@ -31,6 +32,7 @@ class ChatGalleryDataCache {
       if (Platform.isLinux && ++index % 10 == 0) await Future.delayed(Duration.zero);
     }
 
+    if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] initializePreviewImages (cache) loop done');
     _initializeCompleter.complete();
   }
 

@@ -265,7 +265,7 @@ class ChatGeneralHandler {
     if (Platform.isLinux) await Future.delayed(Duration.zero);
     if (_disposed) return;
     if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] initializeImageGallery start');
-    initializeImageGallery();
+    await initializeImageGallery();
     if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] initializeImageGallery done');
   }
 
@@ -286,8 +286,9 @@ class ChatGeneralHandler {
     if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] getLocalMessage done, count=${messageList.length}');
     if (_disposed) return;
     if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] initializePreviewImages start');
-    dataController.galleryCache.initializePreviewImages(messageList);
+    await dataController.galleryCache.initializePreviewImages(messageList);
     if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] initializePreviewImages done');
+    if (Platform.isLinux) await Future.delayed(Duration.zero);
   }
 
   void dispose() {
