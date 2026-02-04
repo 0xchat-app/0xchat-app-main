@@ -203,7 +203,18 @@ class ChatGeneralHandler {
     });
   }
 
+  /// On Linux, defer to after first frame so session page paints first and avoids "not responding".
   Future initializeMessage() async {
+    if (Platform.isLinux) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _runInitializeMessage();
+      });
+      return;
+    }
+    await _runInitializeMessage();
+  }
+
+  Future _runInitializeMessage() async {
     final anchorMsgId = this.anchorMsgId;
     if (anchorMsgId != null && anchorMsgId.isNotEmpty) {
       await dataController.loadNearbyMessage(
