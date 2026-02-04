@@ -233,6 +233,9 @@ class ChatGeneralHandler {
     initializeImageGallery();
   }
 
+  /// Limit gallery load on Linux to avoid memory spike.
+  static const int kGalleryLoadLimit = 200;
+
   Future initializeImageGallery() async {
     final messageList = await dataController.getLocalMessage(
       messageTypes: [
@@ -240,6 +243,7 @@ class ChatGeneralHandler {
         MessageType.encryptedImage,
         MessageType.template,
       ],
+      limit: Platform.isLinux ? kGalleryLoadLimit : null,
     );
     dataController.galleryCache.initializePreviewImages(messageList);
   }

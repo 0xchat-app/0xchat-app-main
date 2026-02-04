@@ -107,6 +107,12 @@ class OXCachedNetworkImage extends StatelessWidget {
 extension OXCachedImageProviderEx on CachedNetworkImageProvider {
 
   static Map<String, Size> sizeCache = {};
+  /// Max entries to avoid unbounded growth (e.g. Linux long sessions).
+  static const int kSizeCacheMaxEntries = 500;
+  /// FIFO key order for eviction (oldest first).
+  static final List<String> _sizeCacheKeys = [];
+
+  static int get sizeCacheLength => sizeCache.length;
 
   static String _cacheKeyWithBase64(String imageBase64) {
     return md5.convert(utf8.encode(imageBase64)).toString();
@@ -119,7 +125,16 @@ extension OXCachedImageProviderEx on CachedNetworkImageProvider {
 
     decodeImageFromList(_base64ToBytes(imageBase64)).then((image) {
       final size = Size(image.width.toDouble(), image.height.toDouble());
-      sizeCache[cacheKey] = size;
+      if (Platform.isLinux &&
+          sizeCache.length >= kSizeCacheMaxEntries &&
+          _sizeCacheKeys.isNotEmpty) {
+        final oldest = _sizeCacheKeys.removeAt(0);
+        sizeCache.remove(oldest);
+      }
+      if (!sizeCache.containsKey(cacheKey)) {
+        _sizeCacheKeys.add(cacheKey);
+        sizeCache[cacheKey] = size;
+      }
     });
 
     return null;

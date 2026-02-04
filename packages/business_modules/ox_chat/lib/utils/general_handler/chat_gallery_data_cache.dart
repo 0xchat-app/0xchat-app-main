@@ -1,5 +1,6 @@
 
 import 'dart:async';
+import 'dart:io' show Platform;
 
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_chat/utils/custom_message_utils.dart';
@@ -10,6 +11,8 @@ class ChatGalleryDataCache {
 
   List<PreviewImage> gallery = [];
   Set<String> messageIdCache = {};
+  /// Cap gallery list to avoid unbounded growth (e.g. Linux long sessions).
+  static const int kGalleryMaxCount = 500;
 
   Completer _initializeCompleter = Completer();
 
@@ -64,6 +67,13 @@ class ChatGalleryDataCache {
       gallery.insert(0, model);
     } else {
       gallery.add(model);
+    }
+    // On Linux only: keep gallery bounded (FIFO trim) to avoid memory growth
+    if (Platform.isLinux) {
+      while (gallery.length > kGalleryMaxCount) {
+        final removed = gallery.removeAt(0);
+        messageIdCache.remove(removed.id);
+      }
     }
   }
 }
