@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:chatcore/chat-core.dart';
@@ -264,7 +265,9 @@ extension MessageDataControllerInterface on MessageDataController {
     required int loadMsgCount,
     bool isLoadOlderData = true,
   }) async {
+    if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] loadMoreMessage: await messageLoading');
     await messageLoading;
+    if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] loadMoreMessage: after messageLoading');
     final completer = Completer();
     this.messageLoadingCompleter = completer;
 
@@ -279,6 +282,7 @@ extension MessageDataControllerInterface on MessageDataController {
       if (firstMessageDate != null) since = firstMessageDate ~/ 1000;
     }
 
+    if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] loadMoreMessage: before loadMessagesFromDB');
     final newMessages = (await Messages.loadMessagesFromDB(
       receiver: params.receiver,
       groupId: params.groupId,
@@ -287,6 +291,7 @@ extension MessageDataControllerInterface on MessageDataController {
       since: since,
       limit: loadMsgCount,
     ))['messages'] ?? <MessageDBISAR>[];
+    if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] loadMoreMessage: after loadMessagesFromDB count=${newMessages.length}');
 
     if (newMessages is! List<MessageDBISAR>) {
       assert(false, 'result is not List<MessageDBISAR>');
@@ -295,6 +300,7 @@ extension MessageDataControllerInterface on MessageDataController {
 
     final result = <types.Message>[];
     var index = 0;
+    if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] loadMoreMessage: loop start');
     for (var newMsg in newMessages) {
       final uiMsg = await _addMessageWithMessageDB(newMsg, needNotifyUpdate: false);
       if (uiMsg != null) {
@@ -304,6 +310,7 @@ extension MessageDataControllerInterface on MessageDataController {
       // Yield to GTK event loop on Linux every 5 messages to avoid "not responding"
       if (Platform.isLinux && ++index % 5 == 0) await Future.delayed(Duration.zero);
     }
+    if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] loadMoreMessage: loop done');
     _notifyUpdateMessages(immediate: true);
 
     if (isLoadOlderData) {
