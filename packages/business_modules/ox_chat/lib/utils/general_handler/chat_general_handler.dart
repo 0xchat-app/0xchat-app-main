@@ -123,9 +123,8 @@ class ChatGeneralHandler {
   /// Set in dispose(); used so deferred _runInitializeMessage (Linux) does not run after exit.
   bool _disposed = false;
 
-  /// On Linux only: serializes session load so only one _runInitializeMessage runs at a time (avoids main-thread overlap).
-  static Completer<void>? _linuxPreviousLoadCompleter;
-  Completer<void>? _linuxMyLoadCompleter;
+  /// On Linux: smaller first batch so main thread stays responsive; user can scroll for more.
+  static const int kLinuxInitialMessageCount = 8;
 
   static types.User _defaultAuthor() {
     UserDBISAR? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
@@ -211,8 +210,8 @@ class ChatGeneralHandler {
     });
   }
 
-  /// On Linux, defer to after first frame and serialize load (one session at a time) so main thread never has overlapping loads.
-  /// Set env OXCHAT_LINUX_SKIP_SESSION_LOAD=1 to skip message/gallery load (for diagnosing freeze).
+  /// On Linux: defer to post-frame and use smaller first batch to reduce main-thread work.
+  /// Set env OXCHAT_LINUX_SKIP_SESSION_LOAD=1 to skip load (for diagnosing freeze).
   Future initializeMessage() async {
     if (Platform.isLinux && kDebugMode) {
       debugPrint('[LINUX_DIAG] initializeMessage called, chatId=${session.chatId}');
@@ -224,7 +223,7 @@ class ChatGeneralHandler {
         return;
       }
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        Future.delayed(Duration.zero, () => _runInitializeMessage());
+        _runInitializeMessage();
       });
       return;
     }
@@ -233,31 +232,20 @@ class ChatGeneralHandler {
 
   Future _runInitializeMessage() async {
     if (_disposed) return;
-    if (Platform.isLinux) {
-      await (_linuxPreviousLoadCompleter?.future ?? Future.value());
-      if (_disposed) return;
-      _linuxMyLoadCompleter = Completer<void>();
-      _linuxPreviousLoadCompleter = _linuxMyLoadCompleter;
-    }
-    if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] _runInitializeMessage start');
     if (Platform.isLinux) await Future.delayed(Duration.zero);
     if (_disposed) return;
-    try {
+    final initialCount = Platform.isLinux ? kLinuxInitialMessageCount : ChatPageConfig.messagesPerPage;
     final anchorMsgId = this.anchorMsgId;
     if (anchorMsgId != null && anchorMsgId.isNotEmpty) {
-      if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] loadNearbyMessage start');
       await dataController.loadNearbyMessage(
         targetMessageId: anchorMsgId,
-        beforeCount: ChatPageConfig.messagesPerPage,
-        afterCount: ChatPageConfig.messagesPerPage,
+        beforeCount: initialCount,
+        afterCount: initialCount,
       );
-      if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] loadNearbyMessage done');
     } else {
-      if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] loadMoreMessage start');
       final messages = await dataController.loadMoreMessage(
-        loadMsgCount: ChatPageConfig.messagesPerPage,
+        loadMsgCount: initialCount,
       );
-      if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] loadMoreMessage done, count=${messages.length}');
       if (_disposed) return;
       if (Platform.isLinux) await Future.delayed(Duration.zero);
       if (_disposed) return;
@@ -273,20 +261,7 @@ class ChatGeneralHandler {
       }
     }
     if (_disposed) return;
-    if (Platform.isLinux) await Future.delayed(Duration.zero);
-    if (_disposed) return;
-    if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] initializeImageGallery start');
     await initializeImageGallery();
-    if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] initializeImageGallery done');
-    } finally {
-      if (Platform.isLinux && _linuxMyLoadCompleter != null) {
-        _linuxMyLoadCompleter!.complete();
-        if (_linuxPreviousLoadCompleter == _linuxMyLoadCompleter) {
-          _linuxPreviousLoadCompleter = null;
-        }
-        _linuxMyLoadCompleter = null;
-      }
-    }
   }
 
   /// Limit gallery load on Linux to avoid memory spike.
@@ -313,13 +288,6 @@ class ChatGeneralHandler {
 
   void dispose() {
     _disposed = true;
-    if (Platform.isLinux && _linuxMyLoadCompleter != null) {
-      _linuxMyLoadCompleter!.complete();
-      if (_linuxPreviousLoadCompleter == _linuxMyLoadCompleter) {
-        _linuxPreviousLoadCompleter = null;
-      }
-      _linuxMyLoadCompleter = null;
-    }
     dataController.dispose();
     highlightMessageHandler.dispose();
   }
