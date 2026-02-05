@@ -226,7 +226,14 @@ class ChatGeneralHandler {
         const timeout = Duration(seconds: 12);
         try {
           await _runInitializeMessage().timeout(timeout, onTimeout: () {
-            if (kDebugMode) debugPrint('[LINUX] session load timed out after ${timeout.inSeconds}s – likely blocking call; run with debugger and Pause to see stack.');
+            if (kDebugMode) {
+              final msg = '[LINUX] session load timed out after ${timeout.inSeconds}s. Check last [LINUX_DIAG] in console to see which step is blocking.';
+              debugPrint(msg);
+              try {
+                final f = File('/tmp/oxchat_freeze.log');
+                f.writeAsStringSync('${DateTime.now().toIso8601String()}\n$msg\n', mode: FileMode.write);
+              } catch (_) {}
+            }
           });
         } catch (e, st) {
           if (kDebugMode) debugPrint('[LINUX] session load error: $e\n$st');
