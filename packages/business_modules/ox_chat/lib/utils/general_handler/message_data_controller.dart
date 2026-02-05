@@ -504,13 +504,16 @@ extension MessageDataControllerPrivate on MessageDataController {
   }
   
   void _performUpdate() {
+    if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] _performUpdate start');
     _notifyUpdateTimer?.cancel();
     _notifyUpdateTimer = null;
     _hasPendingUpdate = false;
     
     // Update UI with current messages
     messageValueNotifier.value = [..._messages];
+    if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] _performUpdate after value assign');
     updateMessageReactionsListener();
+    if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] _performUpdate done');
   }
   
   bool _isInBatchMode() {

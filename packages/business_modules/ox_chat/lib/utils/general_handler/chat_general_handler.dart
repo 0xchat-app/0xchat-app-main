@@ -276,6 +276,7 @@ class ChatGeneralHandler {
     }
     if (_disposed) return;
     await initializeImageGallery();
+    if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] _runInitializeMessage done');
   }
 
   /// Limit gallery load on Linux to avoid memory spike.
@@ -298,6 +299,7 @@ class ChatGeneralHandler {
     await dataController.galleryCache.initializePreviewImages(messageList);
     if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] initializePreviewImages done');
     if (Platform.isLinux) await Future.delayed(Duration.zero);
+    if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] initializeImageGallery done');
   }
 
   void dispose() {
