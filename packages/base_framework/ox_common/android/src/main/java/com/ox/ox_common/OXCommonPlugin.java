@@ -19,6 +19,8 @@ import com.ox.ox_common.activitys.PermissionActivity;
 import com.ox.ox_common.activitys.SelectPicsActivity;
 import com.ox.ox_common.provides.CustomAnalyzeCallback;
 import com.ox.ox_common.utils.ClipboardHelper;
+import com.ox.ox_common.utils.Saver;
+import com.ox.ox_common.utils.AppPath;
 import com.uuzuche.lib_zxing.activity.CodeUtils;
 
 import java.io.File;
@@ -141,6 +143,11 @@ public class OXCommonPlugin implements FlutterPlugin, MethodCallHandler, Activit
                     }
                     mResult = null;
                 }
+                break;
+            case "handleWebViewDownload":
+                String downloadUrl = call.argument("url");
+                String downloadType = call.argument("type");
+                handleWebViewDownload(downloadUrl, downloadType, result);
                 break;
             default:
                 result.notImplemented();
@@ -354,5 +361,55 @@ public class OXCommonPlugin implements FlutterPlugin, MethodCallHandler, Activit
             }
         }
         return result;
+    }
+
+    /**
+     * Handle media file download request from WebView
+     * @param url The URL of the media file to download
+     * @param type The type of media: "image", "video", "audio", or "file"
+     * @param result Flutter method channel result
+     */
+    private void handleWebViewDownload(String url, String type, Result result) {
+        if (url == null || url.isEmpty()) {
+            if (result != null) {
+                result.error("INVALID_URL", "Download URL is empty", null);
+            }
+            return;
+        }
+
+        // Use Saver to handle download based on media type
+        Saver saver = new Saver(mContext);
+        Saver.IFinishListener finishListener = new Saver.IFinishListener() {
+            @Override
+            public void onSuccess(Saver.FileInfo fileInfo) {
+                Log.d(TAG, "Download successful: " + fileInfo.getPath());
+                if (result != null) {
+                    result.success(true);
+                }
+            }
+
+            @Override
+            public void onFailed(String errorMsg) {
+                Log.e(TAG, "Download failed: " + errorMsg);
+                if (result != null) {
+                    result.error("DOWNLOAD_FAILED", errorMsg, null);
+                }
+            }
+        };
+
+        // Handle download based on media type
+        if ("image".equalsIgnoreCase(type)) {
+            // Save image to gallery
+            saver.saveImgToGallery(url, finishListener);
+        } else if ("video".equalsIgnoreCase(type)) {
+            // Save video to gallery
+            saver.saveVideoToGallery(url, finishListener);
+        } else if ("audio".equalsIgnoreCase(type)) {
+            // Save audio to music directory
+            saver.saveMusicFileToMusic(url, finishListener);
+        } else {
+            // Save as general file to download directory
+            saver.saveFileToDownload(url, finishListener);
+        }
     }
 }

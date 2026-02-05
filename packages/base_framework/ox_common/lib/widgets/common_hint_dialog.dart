@@ -410,7 +410,7 @@ class OXCommonHintDialog extends StatelessWidget {
   }) {
     actionList ??= [
       OXCommonHintAction.sure(
-          text: Localized.text('ox_common.complete'), onTap: sureOnTap)
+          text: Localized.text('ox_common.confirm'), onTap: sureOnTap)
     ];
     if (showCancelButton) {
       actionList.insert(0, OXCommonHintAction.cancel());
@@ -449,15 +449,27 @@ class OXCommonHintDialog extends StatelessWidget {
         Function(BuildContext)? onDialogContextCreated,
       }) {
     final completer = Completer<bool>();
+    BuildContext? dialogContext;
     OXCommonHintDialog.show(
       context,
       title: title,
       content: content,
       isRowAction: true,
       showCancelButton: true,
-      onDialogContextCreated: onDialogContextCreated,
+      onDialogContextCreated: (ctx) {
+        dialogContext = ctx;
+        if (onDialogContextCreated != null) {
+          onDialogContextCreated(ctx);
+        }
+      },
       sureOnTap: () {
-        completer.complete(true);
+        // Close dialog first, then complete the future
+        if (dialogContext != null) {
+          OXNavigator.pop(dialogContext!);
+        }
+        if (!completer.isCompleted) {
+          completer.complete(true);
+        }
       },
     ).then((value) {
       if (!completer.isCompleted) {

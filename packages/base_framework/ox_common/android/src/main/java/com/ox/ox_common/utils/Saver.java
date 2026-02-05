@@ -620,9 +620,11 @@ public class Saver {
 
     private FileInfo copyImgToPicture(String originFilePath, String fileName) {
         ContentValues values = new ContentValues();
-        values.put(MediaStore.Images.Media.DISPLAY_NAME, fileName);
-        values.put(MediaStore.Images.Media.TITLE, fileName);
-        values.put(MediaStore.Images.Media.DESCRIPTION, fileName);
+        // Generate unique file name to avoid conflicts
+        String uniqueFileName = generateUniqueFileName(fileName, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        values.put(MediaStore.Images.Media.DISPLAY_NAME, uniqueFileName);
+        values.put(MediaStore.Images.Media.TITLE, uniqueFileName);
+        values.put(MediaStore.Images.Media.DESCRIPTION, uniqueFileName);
         values.put(MediaStore.Images.Media.MIME_TYPE, getMIMEType(fileName));
         return copy(originFilePath, values, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
     }
@@ -652,6 +654,75 @@ public class Saver {
         return copy(originFilePath, values, MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
     }
 
+
+    /**
+     * Generate unique file name to avoid conflicts
+     * @param originalFileName Original file name
+     * @param uri MediaStore URI
+     * @return Unique file name with number suffix if needed
+     */
+    private String generateUniqueFileName(String originalFileName, Uri uri) {
+        ContentResolver resolver = context.getContentResolver();
+        String displayNameColumn = null;
+        String selectionColumn = null;
+        
+        // Determine column name based on URI type
+        if (uri.equals(MediaStore.Images.Media.EXTERNAL_CONTENT_URI)) {
+            displayNameColumn = MediaStore.Images.Media.DISPLAY_NAME;
+            selectionColumn = MediaStore.Images.Media.DISPLAY_NAME;
+        } else if (uri.equals(MediaStore.Video.Media.EXTERNAL_CONTENT_URI)) {
+            displayNameColumn = MediaStore.Video.Media.DISPLAY_NAME;
+            selectionColumn = MediaStore.Video.Media.DISPLAY_NAME;
+        } else if (uri.equals(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI)) {
+            displayNameColumn = MediaStore.Audio.Media.DISPLAY_NAME;
+            selectionColumn = MediaStore.Audio.Media.DISPLAY_NAME;
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && uri.equals(MediaStore.Downloads.EXTERNAL_CONTENT_URI)) {
+            displayNameColumn = MediaStore.Downloads.DISPLAY_NAME;
+            selectionColumn = MediaStore.Downloads.DISPLAY_NAME;
+        }
+        
+        if (displayNameColumn == null) {
+            return originalFileName;
+        }
+        
+        // Extract file name and extension
+        int lastDot = originalFileName.lastIndexOf('.');
+        String baseName = lastDot > 0 ? originalFileName.substring(0, lastDot) : originalFileName;
+        String extension = lastDot > 0 ? originalFileName.substring(lastDot) : "";
+        
+        // Check if file name already exists
+        String selection = selectionColumn + "=?";
+        String[] selectionArgs = {originalFileName};
+        Cursor cursor = resolver.query(uri, new String[]{displayNameColumn}, selection, selectionArgs, null);
+        
+        if (cursor == null || cursor.getCount() == 0) {
+            if (cursor != null) {
+                cursor.close();
+            }
+            return originalFileName;
+        }
+        cursor.close();
+        
+        // File name exists, generate unique name with number suffix
+        int counter = 1;
+        String uniqueFileName;
+        do {
+            uniqueFileName = baseName + " (" + counter + ")" + extension;
+            selectionArgs[0] = uniqueFileName;
+            cursor = resolver.query(uri, new String[]{displayNameColumn}, selection, selectionArgs, null);
+            boolean exists = cursor != null && cursor.getCount() > 0;
+            if (cursor != null) {
+                cursor.close();
+            }
+            if (!exists) {
+                return uniqueFileName;
+            }
+            counter++;
+        } while (counter < 1000); // Safety limit
+        
+        // Fallback: use timestamp
+        return baseName + "_" + System.currentTimeMillis() + extension;
+    }
 
     private FileInfo copy(String originFilePath, ContentValues values, Uri uri) {
 
