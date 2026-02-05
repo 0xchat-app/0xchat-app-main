@@ -62,9 +62,16 @@ class MessageDataController with OXChatObserver {
   DateTime? _lastMessageTime;
   static const int _batchThreshold = 5; // Trigger batch mode when receiving 5+ messages quickly
 
+  bool _disposed = false;
+
   void dispose() {
+    _disposed = true;
     _notifyUpdateTimer?.cancel();
     _notifyUpdateTimer = null;
+    if (messageLoadingCompleter != null && !messageLoadingCompleter!.isCompleted) {
+      messageLoadingCompleter!.complete();
+    }
+    messageLoadingCompleter = null;
     removeMessageReactionsListener();
     OXChatBinding.sharedInstance.removeObserver(this);
   }
@@ -265,8 +272,10 @@ extension MessageDataControllerInterface on MessageDataController {
     required int loadMsgCount,
     bool isLoadOlderData = true,
   }) async {
+    if (_disposed) return [];
     if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] loadMoreMessage: await messageLoading');
     await messageLoading;
+    if (_disposed) return [];
     if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] loadMoreMessage: after messageLoading');
     final completer = Completer();
     this.messageLoadingCompleter = completer;
@@ -291,10 +300,15 @@ extension MessageDataControllerInterface on MessageDataController {
       since: since,
       limit: loadMsgCount,
     ))['messages'] ?? <MessageDBISAR>[];
+    if (_disposed) {
+      completer.complete();
+      return [];
+    }
     if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] loadMoreMessage: after loadMessagesFromDB count=${newMessages.length}');
 
     if (newMessages is! List<MessageDBISAR>) {
       assert(false, 'result is not List<MessageDBISAR>');
+      completer.complete();
       return [];
     }
 
@@ -302,13 +316,25 @@ extension MessageDataControllerInterface on MessageDataController {
     var index = 0;
     if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] loadMoreMessage: loop start');
     for (var newMsg in newMessages) {
+      if (_disposed) {
+        completer.complete();
+        return result;
+      }
       final uiMsg = await _addMessageWithMessageDB(newMsg, needNotifyUpdate: false);
+      if (_disposed) {
+        completer.complete();
+        return result;
+      }
       if (uiMsg != null) {
         result.add(uiMsg);
         _checkUIMessageInfo(uiMsg);
       }
       // Yield to GTK event loop on Linux every 5 messages to avoid "not responding"
       if (Platform.isLinux && ++index % 5 == 0) await Future.delayed(Duration.zero);
+    }
+    if (_disposed) {
+      completer.complete();
+      return result;
     }
     if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] loadMoreMessage: loop done');
     _notifyUpdateMessages(immediate: true);
@@ -344,12 +370,18 @@ extension MessageDataControllerInterface on MessageDataController {
     required int beforeCount,
     required int afterCount,
   }) async {
+    if (_disposed) return [];
     await messageLoading;
+    if (_disposed) return [];
     final completer = Completer();
     this.messageLoadingCompleter = completer;
 
     final message = await Messages.sharedInstance.loadMessageDBFromDB(targetMessageId);
     if (message == null) return [];
+    if (_disposed) {
+      completer.complete();
+      return [];
+    }
 
     final loadParams = chatTypeKey.messageLoaderParams;
     List<MessageDBISAR> olderMessages = (await Messages.loadMessagesFromDB(
@@ -359,6 +391,10 @@ extension MessageDataControllerInterface on MessageDataController {
       until: message.createTime,
       limit: beforeCount,
     ))['messages'] ?? <MessageDBISAR>[];
+    if (_disposed) {
+      completer.complete();
+      return [];
+    }
     List<MessageDBISAR> newerMessages = (await Messages.loadMessagesFromDB(
       receiver: loadParams.receiver,
       groupId: loadParams.groupId,
@@ -376,7 +412,15 @@ extension MessageDataControllerInterface on MessageDataController {
     final result = <types.Message>[];
     var nearbyIndex = 0;
     for (var newMsg in messages) {
+      if (_disposed) {
+        completer.complete();
+        return result;
+      }
       final uiMsg = await _addMessageWithMessageDB(newMsg, needNotifyUpdate: false);
+      if (_disposed) {
+        completer.complete();
+        return result;
+      }
       if (uiMsg != null) {
         result.add(uiMsg);
         _checkUIMessageInfo(uiMsg);
