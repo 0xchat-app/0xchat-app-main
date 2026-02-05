@@ -126,5 +126,11 @@
   "signer_disconnected": "签名器已断开连接，请确保签名器应用已打开",
   "signer_connecting": "正在连接签名器...",
   "signer_waiting": "等待签名确认...",
-  "signer_signature": "签名已确认"
+  "signer_signature": "签名已确认",
+  "download_confirm": "下载确认",
+  "download_confirm_message": "确定要下载这个{type}吗？",
+  "media_type_image": "图片",
+  "media_type_video": "视频",
+  "media_type_audio": "音频",
+  "media_type_file": "文件"
 }

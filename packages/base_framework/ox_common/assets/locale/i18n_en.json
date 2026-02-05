@@ -126,5 +126,11 @@
   "signer_disconnected": "Signer disconnected. Please make sure the signer app is open.",
   "signer_connecting": "Connecting to signer...",
   "signer_waiting": "Waiting for signature approval...",
-  "signer_signature": "Signature approved."
+  "signer_signature": "Signature approved.",
+  "download_confirm": "Download Confirmation",
+  "download_confirm_message": "Are you sure you want to download this {type}?",
+  "media_type_image": "Image",
+  "media_type_video": "Video",
+  "media_type_audio": "Audio",
+  "media_type_file": "File"
 }
