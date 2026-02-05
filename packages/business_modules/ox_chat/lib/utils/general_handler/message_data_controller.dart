@@ -24,12 +24,9 @@ import 'chat_gallery_data_cache.dart';
 
 // #region agent log
 void _dataCtrlDebugLog(String location, String message, [Map<String, dynamic>? data]) {
-  try {
-    final logFile = File('/Users/bear/Desktop/jenkins/.cursor/debug.log');
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
-    final logEntry = '{"timestamp":$timestamp,"location":"$location","message":"$message","data":${data != null ? data.toString().replaceAll('"', '\\"') : 'null'},"hypothesisId":"A"}\n';
-    logFile.writeAsStringSync(logEntry, mode: FileMode.append);
-  } catch (_) {}
+  final now = DateTime.now();
+  final ts = '${now.hour.toString().padLeft(2,'0')}:${now.minute.toString().padLeft(2,'0')}:${now.second.toString().padLeft(2,'0')}.${now.millisecond.toString().padLeft(3,'0')}';
+  debugPrint('[DEBUG][$ts] $location: $message ${data != null ? data.toString() : ''}');
 }
 // #endregion
 
