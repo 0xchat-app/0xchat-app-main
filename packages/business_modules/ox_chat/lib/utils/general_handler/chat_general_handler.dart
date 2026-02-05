@@ -222,8 +222,15 @@ class ChatGeneralHandler {
         debugPrint('[LINUX_DIAG] OXCHAT_LINUX_SKIP_SESSION_LOAD=1, skipping load');
         return;
       }
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _runInitializeMessage();
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        const timeout = Duration(seconds: 12);
+        try {
+          await _runInitializeMessage().timeout(timeout, onTimeout: () {
+            if (kDebugMode) debugPrint('[LINUX] session load timed out after ${timeout.inSeconds}s – likely blocking call; run with debugger and Pause to see stack.');
+          });
+        } catch (e, st) {
+          if (kDebugMode) debugPrint('[LINUX] session load error: $e\n$st');
+        }
       });
       return;
     }
