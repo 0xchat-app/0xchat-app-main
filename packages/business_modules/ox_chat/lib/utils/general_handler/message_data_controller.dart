@@ -64,6 +64,9 @@ class MessageDataController with OXChatObserver {
 
   bool _disposed = false;
 
+  /// On Linux, incremented each time _performUpdate runs; used to cancel stale drip-feed callbacks.
+  int _linuxDripGeneration = 0;
+
   void dispose() {
     _disposed = true;
     _notifyUpdateTimer?.cancel();
@@ -508,21 +511,36 @@ extension MessageDataControllerPrivate on MessageDataController {
     _notifyUpdateTimer?.cancel();
     _notifyUpdateTimer = null;
     _hasPendingUpdate = false;
-    
-    // On Linux: phase 1 = few messages (quick first paint); phase 2 = full list after delay to avoid
-    // back-to-back heavy rebuilds that trigger "not responding" (ChatList diff + 5 bubbles in one frame).
+
+    // Linux-only: single policy to avoid "not responding" — never push many messages in one frame.
+    // 1) First frame: at most 2 messages for minimal first paint. 2) Then add exactly one per frame
+    // until full list. 3) Generation guard so a new _performUpdate cancels any in-flight drip.
     if (Platform.isLinux) {
       final messagesToSet = [..._messages];
-      const int kLinuxFirstFrameMaxMessages = 4;
-      if (messagesToSet.length > kLinuxFirstFrameMaxMessages) {
-        messageValueNotifier.value = messagesToSet.sublist(messagesToSet.length - kLinuxFirstFrameMaxMessages);
-        Future.delayed(const Duration(milliseconds: 200), () {
-          messageValueNotifier.value = messagesToSet;
-          updateMessageReactionsListener();
-        });
-      } else {
+      const int kLinuxFirstFrameMaxMessages = 2;
+      _linuxDripGeneration += 1;
+      final generation = _linuxDripGeneration;
+
+      if (messagesToSet.length <= kLinuxFirstFrameMaxMessages) {
         messageValueNotifier.value = messagesToSet;
         updateMessageReactionsListener();
+      } else {
+        int shownCount = kLinuxFirstFrameMaxMessages;
+        messageValueNotifier.value = messagesToSet.sublist(messagesToSet.length - shownCount);
+
+        void scheduleNext() {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (_disposed || generation != _linuxDripGeneration) return;
+            if (shownCount >= messagesToSet.length) {
+              updateMessageReactionsListener();
+              return;
+            }
+            shownCount += 1;
+            messageValueNotifier.value = messagesToSet.sublist(messagesToSet.length - shownCount);
+            scheduleNext();
+          });
+        }
+        scheduleNext();
       }
     } else {
       messageValueNotifier.value = [..._messages];
