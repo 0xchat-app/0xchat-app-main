@@ -509,14 +509,14 @@ extension MessageDataControllerPrivate on MessageDataController {
     _notifyUpdateTimer = null;
     _hasPendingUpdate = false;
     
-    // On Linux: phase 1 sync (few messages) to see if rebuild runs; phase 2 next frame for full list.
-    // If we never see ValueListenableBuilder build log, the block is before/outside our rebuild (e.g. frame pipeline).
+    // On Linux: phase 1 = few messages (quick first paint); phase 2 = full list after delay to avoid
+    // back-to-back heavy rebuilds that trigger "not responding" (ChatList diff + 5 bubbles in one frame).
     if (Platform.isLinux) {
       final messagesToSet = [..._messages];
       const int kLinuxFirstFrameMaxMessages = 4;
       if (messagesToSet.length > kLinuxFirstFrameMaxMessages) {
         messageValueNotifier.value = messagesToSet.sublist(messagesToSet.length - kLinuxFirstFrameMaxMessages);
-        WidgetsBinding.instance.addPostFrameCallback((_) {
+        Future.delayed(const Duration(milliseconds: 200), () {
           messageValueNotifier.value = messagesToSet;
           updateMessageReactionsListener();
         });
