@@ -147,6 +147,9 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
     return ValueListenableBuilder(
         valueListenable: dataController.messageValueNotifier,
         builder: (BuildContext context, messages, Widget? child) {
+          if (Platform.isLinux && kDebugMode) {
+            debugPrint('[LINUX_DIAG] ValueListenableBuilder build messages.length=${messages?.length ?? 0}');
+          }
           return Chat(
             key: chatWidgetKey,
             uiConfig: ChatUIConfig(
