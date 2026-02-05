@@ -509,23 +509,21 @@ extension MessageDataControllerPrivate on MessageDataController {
     _notifyUpdateTimer = null;
     _hasPendingUpdate = false;
     
-    // On Linux, do a two-phase update so the first Chat rebuild is light (avoids "not responding").
-    // Phase 1: show only last few messages; phase 2: next frame set full list.
+    // On Linux: phase 1 sync (few messages) to see if rebuild runs; phase 2 next frame for full list.
+    // If we never see ValueListenableBuilder build log, the block is before/outside our rebuild (e.g. frame pipeline).
     if (Platform.isLinux) {
       final messagesToSet = [..._messages];
       const int kLinuxFirstFrameMaxMessages = 4;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (messagesToSet.length > kLinuxFirstFrameMaxMessages) {
-          messageValueNotifier.value = messagesToSet.sublist(messagesToSet.length - kLinuxFirstFrameMaxMessages);
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            messageValueNotifier.value = messagesToSet;
-            updateMessageReactionsListener();
-          });
-        } else {
+      if (messagesToSet.length > kLinuxFirstFrameMaxMessages) {
+        messageValueNotifier.value = messagesToSet.sublist(messagesToSet.length - kLinuxFirstFrameMaxMessages);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
           messageValueNotifier.value = messagesToSet;
           updateMessageReactionsListener();
-        }
-      });
+        });
+      } else {
+        messageValueNotifier.value = messagesToSet;
+        updateMessageReactionsListener();
+      }
     } else {
       messageValueNotifier.value = [..._messages];
       updateMessageReactionsListener();
