@@ -1,4 +1,4 @@
-import 'dart:io' show Platform, File, FileMode;
+import 'dart:io' show Platform;
 
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/foundation.dart';
@@ -231,8 +231,26 @@ class _ChatMessagePageState extends State<ChatMessagePage> {
   }
 
   Future<void> _handelDMRelay() async {
+    // #region agent log
+    _debugLog('_handelDMRelay:ENTER', 'Starting DM relay handling', {'chatId': session.chatId});
+    final startTime = DateTime.now().millisecondsSinceEpoch;
+    // #endregion
+    
+    // #region agent log
+    _debugLog('_handelDMRelay:CONNECT_DM_START', 'Calling connectUserDMRelays (fire-and-forget)');
+    // #endregion
     Contacts.sharedInstance.connectUserDMRelays(session.chatId);
+    
+    // #region agent log
+    _debugLog('_handelDMRelay:RELOAD_PROFILE_START', 'Calling reloadProfileFromRelay (await)', {'pubkey': otherUser?.pubKey ?? ''});
+    final reloadStartTime = DateTime.now().millisecondsSinceEpoch;
+    // #endregion
     await Account.sharedInstance.reloadProfileFromRelay(otherUser?.pubKey ?? '');
+    // #region agent log
+    final reloadDuration = DateTime.now().millisecondsSinceEpoch - reloadStartTime;
+    _debugLog('_handelDMRelay:RELOAD_PROFILE_DONE', 'reloadProfileFromRelay completed', {'durationMs': reloadDuration});
+    // #endregion
+    
     if (otherUser?.dmRelayList?.isNotEmpty == false) {
       handler.sendSystemMessage(
         Localized.text('ox_chat.user_dmrelay_not_set_hint_message'),
@@ -241,6 +259,9 @@ class _ChatMessagePageState extends State<ChatMessagePage> {
       );
     } else {
       // connect to other uer dm relays
+      // #region agent log
+      _debugLog('_handelDMRelay:CONNECT_DM_2ND', 'Calling connectUserDMRelays second time');
+      // #endregion
       Contacts.sharedInstance.connectUserDMRelays(session.chatId).then((result) {
          if (!result && mounted) {
            handler.sendSystemMessage(
@@ -259,5 +280,9 @@ class _ChatMessagePageState extends State<ChatMessagePage> {
         );
       }
     }
+    // #region agent log
+    final totalDuration = DateTime.now().millisecondsSinceEpoch - startTime;
+    _debugLog('_handelDMRelay:EXIT', 'DM relay handling completed', {'totalDurationMs': totalDuration});
+    // #endregion
   }
 }
