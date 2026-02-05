@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
@@ -548,21 +549,21 @@ extension MessageDataControllerPrivate on MessageDataController {
     _notifyUpdateTimer = null;
     _hasPendingUpdate = false;
 
-    // Linux: use Timer instead of addPostFrameCallback to avoid being blocked by
-    // network operations that can stall the frame scheduler for 20+ seconds.
-    // The frame scheduler relies on the event loop being responsive, but relay
-    // connections and DNS lookups can monopolize it.
+    // Linux: use scheduleMicrotask for highest priority execution.
+    // The frame scheduler can be blocked by network I/O callbacks flooding the event queue.
+    // Microtasks run before event queue items, so this ensures UI updates happen promptly.
     if (Platform.isLinux) {
       final messagesToSet = [..._messages];
       _linuxDripGeneration += 1;
       final generation = _linuxDripGeneration;
-      // Use Timer.run (essentially Timer(Duration.zero, ...)) to schedule on event loop
-      // without depending on frame scheduling which can be blocked by network I/O.
-      Timer.run(() {
+      // Use scheduleMicrotask for immediate execution with highest priority
+      scheduleMicrotask(() {
         if (_disposed || generation != _linuxDripGeneration) return;
-        if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] _performUpdate Timer.run executing, msgCount=${messagesToSet.length}');
+        if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] _performUpdate microtask executing, msgCount=${messagesToSet.length}');
         messageValueNotifier.value = messagesToSet;
         updateMessageReactionsListener();
+        // Force schedule a frame to ensure ValueListenableBuilder rebuilds promptly
+        SchedulerBinding.instance.scheduleFrame();
       });
     } else {
       messageValueNotifier.value = [..._messages];
