@@ -123,6 +123,10 @@ class ChatGeneralHandler {
   /// Set in dispose(); used so deferred _runInitializeMessage (Linux) does not run after exit.
   bool _disposed = false;
 
+  /// On Linux only: serializes session load so only one _runInitializeMessage runs at a time (avoids main-thread overlap).
+  static Completer<void>? _linuxPreviousLoadCompleter;
+  Completer<void>? _linuxMyLoadCompleter;
+
   static types.User _defaultAuthor() {
     UserDBISAR? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
     return types.User(
@@ -207,7 +211,7 @@ class ChatGeneralHandler {
     });
   }
 
-  /// On Linux, defer to after first frame and yield to GTK event loop so app does not report "not responding".
+  /// On Linux, defer to after first frame and serialize load (one session at a time) so main thread never has overlapping loads.
   /// Set env OXCHAT_LINUX_SKIP_SESSION_LOAD=1 to skip message/gallery load (for diagnosing freeze).
   Future initializeMessage() async {
     if (Platform.isLinux && kDebugMode) {
@@ -229,9 +233,16 @@ class ChatGeneralHandler {
 
   Future _runInitializeMessage() async {
     if (_disposed) return;
+    if (Platform.isLinux) {
+      await (_linuxPreviousLoadCompleter?.future ?? Future.value());
+      if (_disposed) return;
+      _linuxMyLoadCompleter = Completer<void>();
+      _linuxPreviousLoadCompleter = _linuxMyLoadCompleter;
+    }
     if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] _runInitializeMessage start');
     if (Platform.isLinux) await Future.delayed(Duration.zero);
     if (_disposed) return;
+    try {
     final anchorMsgId = this.anchorMsgId;
     if (anchorMsgId != null && anchorMsgId.isNotEmpty) {
       if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] loadNearbyMessage start');
@@ -267,6 +278,15 @@ class ChatGeneralHandler {
     if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] initializeImageGallery start');
     await initializeImageGallery();
     if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] initializeImageGallery done');
+    } finally {
+      if (Platform.isLinux && _linuxMyLoadCompleter != null) {
+        _linuxMyLoadCompleter!.complete();
+        if (_linuxPreviousLoadCompleter == _linuxMyLoadCompleter) {
+          _linuxPreviousLoadCompleter = null;
+        }
+        _linuxMyLoadCompleter = null;
+      }
+    }
   }
 
   /// Limit gallery load on Linux to avoid memory spike.
@@ -293,6 +313,13 @@ class ChatGeneralHandler {
 
   void dispose() {
     _disposed = true;
+    if (Platform.isLinux && _linuxMyLoadCompleter != null) {
+      _linuxMyLoadCompleter!.complete();
+      if (_linuxPreviousLoadCompleter == _linuxMyLoadCompleter) {
+        _linuxPreviousLoadCompleter = null;
+      }
+      _linuxMyLoadCompleter = null;
+    }
     dataController.dispose();
     highlightMessageHandler.dispose();
   }
