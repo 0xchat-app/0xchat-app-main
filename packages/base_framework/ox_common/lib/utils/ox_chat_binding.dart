@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'package:chatcore/chat-core.dart';
+import 'package:flutter/foundation.dart' show kIsWeb, defaultTargetPlatform, TargetPlatform;
+import 'package:flutter/widgets.dart' show WidgetsBinding;
 import 'package:isar/isar.dart';
 import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/chat_type.dart';
@@ -550,17 +552,26 @@ class OXChatBinding {
     _scheduleBatchMessageCallback();
   }
 
+  static bool get _isLinux => !kIsWeb && defaultTargetPlatform == TargetPlatform.linux;
+
   void _scheduleBatchMessageCallback({bool immediate = false}) {
     _messageCallbackTimer?.cancel();
     
-    // If immediate or batch threshold reached, process immediately
-    final totalPending = _pendingPrivateMessages.length + 
-                        _pendingSecretMessages.length + 
-                        _pendingChannelMessages.length + 
+    final totalPending = _pendingPrivateMessages.length +
+                        _pendingSecretMessages.length +
+                        _pendingChannelMessages.length +
                         _pendingGroupMessages.length;
-    
-    if (immediate || totalPending >= OXChatBinding._messageCallbackBatchThreshold) {
-      _processBatchMessageCallbacks();
+    final runNow = immediate || totalPending >= OXChatBinding._messageCallbackBatchThreshold;
+
+    if (runNow) {
+      // On Linux defer to next frame to avoid stacking with UI (e.g. second session open).
+      if (_isLinux) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _processBatchMessageCallbacks();
+        });
+      } else {
+        _processBatchMessageCallbacks();
+      }
     } else {
       _messageCallbackTimer = Timer(_messageCallbackBatchDelay, () {
         _processBatchMessageCallbacks();

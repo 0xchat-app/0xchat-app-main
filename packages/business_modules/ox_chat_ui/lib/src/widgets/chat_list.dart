@@ -1,4 +1,5 @@
 import 'package:diffutil_dart/diffutil.dart';
+import 'package:flutter/foundation.dart' show kIsWeb, defaultTargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_common/utils/adapt.dart';
@@ -128,12 +129,21 @@ class _ChatListState extends State<ChatList>
     }
   }
 
+  static bool get _isLinux => !kIsWeb && defaultTargetPlatform == TargetPlatform.linux;
+
   @override
   void didUpdateWidget(covariant ChatList oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    final oldList = [...headerItems, ...bodyItems,];
     final newList = [...widget.items];
+    // On Linux skip diff/animation path to avoid main-thread freeze (direct replace + setState).
+    if (_isLinux) {
+      headerItems = [];
+      bodyItems = newList;
+      setState(() {});
+      return;
+    }
+    final oldList = [...headerItems, ...bodyItems];
     _calculateDiffs(oldList, newList);
   }
 
