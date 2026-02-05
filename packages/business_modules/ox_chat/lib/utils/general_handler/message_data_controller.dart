@@ -509,10 +509,18 @@ extension MessageDataControllerPrivate on MessageDataController {
     _notifyUpdateTimer = null;
     _hasPendingUpdate = false;
     
-    // Update UI with current messages
-    messageValueNotifier.value = [..._messages];
-    if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] _performUpdate after value assign');
-    updateMessageReactionsListener();
+    // On Linux, defer notifier update to next frame to avoid blocking the main thread
+    // in the same tick as timer callback (reduces "not responding" when rebuilding Chat).
+    if (Platform.isLinux) {
+      final messagesToSet = [..._messages];
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        messageValueNotifier.value = messagesToSet;
+        updateMessageReactionsListener();
+      });
+    } else {
+      messageValueNotifier.value = [..._messages];
+      updateMessageReactionsListener();
+    }
     if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] _performUpdate done');
   }
   
