@@ -1,4 +1,4 @@
-import 'dart:io' show Platform;
+import 'dart:io' show Platform, File, FileMode;
 
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/foundation.dart';
@@ -20,9 +20,19 @@ import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/model/chat_session_model_isar.dart';
-import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_localizable/ox_localizable.dart';
+
+// #region agent log
+void _debugLog(String location, String message, [Map<String, dynamic>? data]) {
+  try {
+    final logFile = File('/Users/bear/Desktop/jenkins/.cursor/debug.log');
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    final logEntry = '{"timestamp":$timestamp,"location":"$location","message":"$message","data":${data != null ? data.toString().replaceAll('"', '\\"') : 'null'},"hypothesisId":"E"}\n';
+    logFile.writeAsStringSync(logEntry, mode: FileMode.append);
+  } catch (_) {}
+}
+// #endregion
 
 class ChatMessagePage extends StatefulWidget {
 
@@ -45,12 +55,30 @@ class ChatMessagePage extends StatefulWidget {
     bool isLongPressShow = false,
     int fromWhere = 0,//0 session; 1 contacts.
   }) async {
+    // #region agent log
+    _debugLog('ChatMessagePage.open:START', 'open called', {'chatId': communityItem.chatId, 'chatType': communityItem.chatType});
+    final openStartTime = DateTime.now().millisecondsSinceEpoch;
+    // #endregion
+
+    // #region agent log
+    _debugLog('ChatMessagePage.open:BEFORE_HANDLER', 'creating ChatGeneralHandler');
+    final handlerStartTime = DateTime.now().millisecondsSinceEpoch;
+    // #endregion
 
     final handler = ChatGeneralHandler(
       session: communityItem,
       anchorMsgId: anchorMsgId,
       unreadMessageCount: unreadMessageCount ?? 0,
     );
+
+    // #region agent log
+    _debugLog('ChatMessagePage.open:AFTER_HANDLER', 'handler created', {'durationMs': DateTime.now().millisecondsSinceEpoch - handlerStartTime});
+    // #endregion
+
+    // #region agent log
+    _debugLog('ChatMessagePage.open:BEFORE_INIT_MSG', 'calling initializeMessage');
+    // #endregion
+
     handler.initializeMessage();
 
     Widget? pageWidget;
@@ -95,10 +123,18 @@ class ChatMessagePage extends StatefulWidget {
     if (isPushWithReplace) {
       return OXNavigator.pushReplacement(context, pageWidget);
     }
+    // #region agent log
+    _debugLog('ChatMessagePage.open:BEFORE_PUSH', 'about to pushPage', {'totalSetupMs': DateTime.now().millisecondsSinceEpoch - openStartTime});
+    final pushStartTime = DateTime.now().millisecondsSinceEpoch;
+    // #endregion
     if (Platform.isLinux && kDebugMode) {
       debugPrint('[LINUX_DIAG] ChatMessagePage.open: about to push, chatId=${communityItem.chatId}');
     }
-    return OXNavigator.pushPage(context, (context) => pageWidget!);
+    final result = await OXNavigator.pushPage(context, (context) => pageWidget!);
+    // #region agent log
+    _debugLog('ChatMessagePage.open:AFTER_PUSH', 'pushPage returned', {'pushDurationMs': DateTime.now().millisecondsSinceEpoch - pushStartTime});
+    // #endregion
+    return result;
   }
 }
 

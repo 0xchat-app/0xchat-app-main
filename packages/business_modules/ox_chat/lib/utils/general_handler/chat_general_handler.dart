@@ -85,6 +85,17 @@ import 'message_data_controller.dart';
 
 part 'chat_send_message_handler.dart';
 
+// #region agent log
+void _handlerDebugLog(String location, String message, [Map<String, dynamic>? data]) {
+  try {
+    final logFile = File('/Users/bear/Desktop/jenkins/.cursor/debug.log');
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    final logEntry = '{"timestamp":$timestamp,"location":"$location","message":"$message","data":${data != null ? data.toString().replaceAll('"', '\\"') : 'null'},"hypothesisId":"C"}\n';
+    logFile.writeAsStringSync(logEntry, mode: FileMode.append);
+  } catch (_) {}
+}
+// #endregion
+
 class ChatGeneralHandler {
 
   ChatGeneralHandler({
@@ -94,11 +105,42 @@ class ChatGeneralHandler {
     int unreadMessageCount = 0,
   }) : author = author ?? _defaultAuthor(),
        fileEncryptionType = _fileEncryptionType(session) {
+    // #region agent log
+    _handlerDebugLog('ChatGeneralHandler:CTOR_START', 'constructor started', {'chatId': session.chatId});
+    final ctorStart = DateTime.now().millisecondsSinceEpoch;
+    // #endregion
+
+    // #region agent log
+    final t1 = DateTime.now().millisecondsSinceEpoch;
+    // #endregion
     setupDataController();
+    // #region agent log
+    _handlerDebugLog('ChatGeneralHandler:AFTER_DATA_CTRL', 'setupDataController done', {'durationMs': DateTime.now().millisecondsSinceEpoch - t1});
+    final t2 = DateTime.now().millisecondsSinceEpoch;
+    // #endregion
+
     setupOtherUserIfNeeded();
+    // #region agent log
+    _handlerDebugLog('ChatGeneralHandler:AFTER_OTHER_USER', 'setupOtherUserIfNeeded done', {'durationMs': DateTime.now().millisecondsSinceEpoch - t2});
+    final t3 = DateTime.now().millisecondsSinceEpoch;
+    // #endregion
+
     setupReplyHandler();
+    // #region agent log
+    _handlerDebugLog('ChatGeneralHandler:AFTER_REPLY', 'setupReplyHandler done', {'durationMs': DateTime.now().millisecondsSinceEpoch - t3});
+    final t4 = DateTime.now().millisecondsSinceEpoch;
+    // #endregion
+
     setupMentionHandlerIfNeeded();
+    // #region agent log
+    _handlerDebugLog('ChatGeneralHandler:AFTER_MENTION', 'setupMentionHandlerIfNeeded done', {'durationMs': DateTime.now().millisecondsSinceEpoch - t4});
+    final t5 = DateTime.now().millisecondsSinceEpoch;
+    // #endregion
+
     setupHighlightMessageHandler(session, unreadMessageCount);
+    // #region agent log
+    _handlerDebugLog('ChatGeneralHandler:CTOR_DONE', 'constructor finished', {'totalMs': DateTime.now().millisecondsSinceEpoch - ctorStart, 'highlightMs': DateTime.now().millisecondsSinceEpoch - t5});
+    // #endregion
   }
 
   final types.User author;
@@ -213,6 +255,9 @@ class ChatGeneralHandler {
   /// On Linux: defer to post-frame and use smaller first batch to reduce main-thread work.
   /// Set env OXCHAT_LINUX_SKIP_SESSION_LOAD=1 to skip load (for diagnosing freeze).
   Future initializeMessage() async {
+    // #region agent log
+    _handlerDebugLog('ChatGeneralHandler:INIT_MSG_START', 'initializeMessage called', {'isLinux': Platform.isLinux});
+    // #endregion
     if (Platform.isLinux && kDebugMode) {
       debugPrint('[LINUX_DIAG] initializeMessage called, chatId=${session.chatId}');
     }
@@ -222,10 +267,20 @@ class ChatGeneralHandler {
         debugPrint('[LINUX_DIAG] OXCHAT_LINUX_SKIP_SESSION_LOAD=1, skipping load');
         return;
       }
+      // #region agent log
+      _handlerDebugLog('ChatGeneralHandler:INIT_MSG_LINUX_DEFER', 'deferring to postFrameCallback');
+      // #endregion
       WidgetsBinding.instance.addPostFrameCallback((_) async {
+        // #region agent log
+        _handlerDebugLog('ChatGeneralHandler:POST_FRAME_CB_START', 'postFrameCallback executing');
+        final pfStart = DateTime.now().millisecondsSinceEpoch;
+        // #endregion
         const timeout = Duration(seconds: 12);
         try {
           await _runInitializeMessage().timeout(timeout, onTimeout: () {
+            // #region agent log
+            _handlerDebugLog('ChatGeneralHandler:TIMEOUT', 'session load timed out after 12s');
+            // #endregion
             if (kDebugMode) {
               final msg = '[LINUX] session load timed out after ${timeout.inSeconds}s. Check last [LINUX_DIAG] in console to see which step is blocking.';
               debugPrint(msg);
@@ -235,7 +290,13 @@ class ChatGeneralHandler {
               } catch (_) {}
             }
           });
+          // #region agent log
+          _handlerDebugLog('ChatGeneralHandler:POST_FRAME_CB_DONE', 'postFrameCallback finished', {'durationMs': DateTime.now().millisecondsSinceEpoch - pfStart});
+          // #endregion
         } catch (e, st) {
+          // #region agent log
+          _handlerDebugLog('ChatGeneralHandler:POST_FRAME_CB_ERROR', 'error in postFrameCallback', {'error': e.toString()});
+          // #endregion
           if (kDebugMode) debugPrint('[LINUX] session load error: $e\n$st');
         }
       });
@@ -245,21 +306,39 @@ class ChatGeneralHandler {
   }
 
   Future _runInitializeMessage() async {
+    // #region agent log
+    _handlerDebugLog('ChatGeneralHandler:RUN_INIT_START', '_runInitializeMessage started');
+    final runInitStart = DateTime.now().millisecondsSinceEpoch;
+    // #endregion
     if (_disposed) return;
     if (Platform.isLinux) await Future.delayed(Duration.zero);
     if (_disposed) return;
     final initialCount = Platform.isLinux ? kLinuxInitialMessageCount : ChatPageConfig.messagesPerPage;
     final anchorMsgId = this.anchorMsgId;
     if (anchorMsgId != null && anchorMsgId.isNotEmpty) {
+      // #region agent log
+      _handlerDebugLog('ChatGeneralHandler:LOAD_NEARBY_START', 'loadNearbyMessage started');
+      final loadStart = DateTime.now().millisecondsSinceEpoch;
+      // #endregion
       await dataController.loadNearbyMessage(
         targetMessageId: anchorMsgId,
         beforeCount: initialCount,
         afterCount: initialCount,
       );
+      // #region agent log
+      _handlerDebugLog('ChatGeneralHandler:LOAD_NEARBY_DONE', 'loadNearbyMessage done', {'durationMs': DateTime.now().millisecondsSinceEpoch - loadStart});
+      // #endregion
     } else {
+      // #region agent log
+      _handlerDebugLog('ChatGeneralHandler:LOAD_MORE_START', 'loadMoreMessage started', {'initialCount': initialCount});
+      final loadStart = DateTime.now().millisecondsSinceEpoch;
+      // #endregion
       final messages = await dataController.loadMoreMessage(
         loadMsgCount: initialCount,
       );
+      // #region agent log
+      _handlerDebugLog('ChatGeneralHandler:LOAD_MORE_DONE', 'loadMoreMessage done', {'durationMs': DateTime.now().millisecondsSinceEpoch - loadStart, 'msgCount': messages.length});
+      // #endregion
       if (_disposed) return;
       if (Platform.isLinux) await Future.delayed(Duration.zero);
       if (_disposed) return;
@@ -275,7 +354,14 @@ class ChatGeneralHandler {
       }
     }
     if (_disposed) return;
+    // #region agent log
+    _handlerDebugLog('ChatGeneralHandler:GALLERY_START', 'initializeImageGallery started');
+    final galleryStart = DateTime.now().millisecondsSinceEpoch;
+    // #endregion
     await initializeImageGallery();
+    // #region agent log
+    _handlerDebugLog('ChatGeneralHandler:RUN_INIT_DONE', '_runInitializeMessage finished', {'totalMs': DateTime.now().millisecondsSinceEpoch - runInitStart, 'galleryMs': DateTime.now().millisecondsSinceEpoch - galleryStart});
+    // #endregion
     if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] _runInitializeMessage done');
   }
 

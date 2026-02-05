@@ -22,10 +22,28 @@ import 'package:ox_common/widgets/common_file_cache_manager.dart';
 
 import 'chat_gallery_data_cache.dart';
 
+// #region agent log
+void _dataCtrlDebugLog(String location, String message, [Map<String, dynamic>? data]) {
+  try {
+    final logFile = File('/Users/bear/Desktop/jenkins/.cursor/debug.log');
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    final logEntry = '{"timestamp":$timestamp,"location":"$location","message":"$message","data":${data != null ? data.toString().replaceAll('"', '\\"') : 'null'},"hypothesisId":"A"}\n';
+    logFile.writeAsStringSync(logEntry, mode: FileMode.append);
+  } catch (_) {}
+}
+// #endregion
+
 class MessageDataController with OXChatObserver {
 
   MessageDataController(this.chatTypeKey) {
+    // #region agent log
+    _dataCtrlDebugLog('MessageDataController:CTOR', 'constructor called, adding observer', {'observerCount': OXChatBinding.sharedInstance.observerCount});
+    final t = DateTime.now().millisecondsSinceEpoch;
+    // #endregion
     OXChatBinding.sharedInstance.addObserver(this);
+    // #region agent log
+    _dataCtrlDebugLog('MessageDataController:CTOR_DONE', 'observer added', {'durationMs': DateTime.now().millisecondsSinceEpoch - t, 'newObserverCount': OXChatBinding.sharedInstance.observerCount});
+    // #endregion
   }
 
   ChatTypeKey chatTypeKey;
@@ -275,6 +293,10 @@ extension MessageDataControllerInterface on MessageDataController {
     required int loadMsgCount,
     bool isLoadOlderData = true,
   }) async {
+    // #region agent log
+    _dataCtrlDebugLog('MessageDataController:LOAD_MORE_START', 'loadMoreMessage called', {'loadMsgCount': loadMsgCount});
+    final loadMoreStart = DateTime.now().millisecondsSinceEpoch;
+    // #endregion
     if (_disposed) return [];
     if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] loadMoreMessage: await messageLoading');
     await messageLoading;
@@ -294,6 +316,10 @@ extension MessageDataControllerInterface on MessageDataController {
       if (firstMessageDate != null) since = firstMessageDate ~/ 1000;
     }
 
+    // #region agent log
+    _dataCtrlDebugLog('MessageDataController:DB_QUERY_START', 'calling loadMessagesFromDB');
+    final dbStart = DateTime.now().millisecondsSinceEpoch;
+    // #endregion
     if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] loadMoreMessage: before loadMessagesFromDB');
     final newMessages = (await Messages.loadMessagesFromDB(
       receiver: params.receiver,
@@ -303,6 +329,9 @@ extension MessageDataControllerInterface on MessageDataController {
       since: since,
       limit: loadMsgCount,
     ))['messages'] ?? <MessageDBISAR>[];
+    // #region agent log
+    _dataCtrlDebugLog('MessageDataController:DB_QUERY_DONE', 'loadMessagesFromDB returned', {'durationMs': DateTime.now().millisecondsSinceEpoch - dbStart, 'resultCount': newMessages.length});
+    // #endregion
     if (_disposed) {
       completer.complete();
       return [];
@@ -317,6 +346,10 @@ extension MessageDataControllerInterface on MessageDataController {
 
     final result = <types.Message>[];
     var index = 0;
+    // #region agent log
+    _dataCtrlDebugLog('MessageDataController:LOOP_START', 'processing messages loop');
+    final loopStart = DateTime.now().millisecondsSinceEpoch;
+    // #endregion
     if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] loadMoreMessage: loop start');
     for (var newMsg in newMessages) {
       if (_disposed) {
@@ -339,8 +372,14 @@ extension MessageDataControllerInterface on MessageDataController {
       completer.complete();
       return result;
     }
+    // #region agent log
+    _dataCtrlDebugLog('MessageDataController:LOOP_DONE', 'processing loop finished', {'durationMs': DateTime.now().millisecondsSinceEpoch - loopStart, 'processedCount': result.length});
+    // #endregion
     if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] loadMoreMessage: loop done');
     _notifyUpdateMessages(immediate: true);
+    // #region agent log
+    _dataCtrlDebugLog('MessageDataController:LOAD_MORE_DONE', 'loadMoreMessage finished', {'totalMs': DateTime.now().millisecondsSinceEpoch - loadMoreStart});
+    // #endregion
 
     if (isLoadOlderData) {
       _hasMoreOldMessage = result.length >= loadMsgCount;
@@ -512,36 +551,17 @@ extension MessageDataControllerPrivate on MessageDataController {
     _notifyUpdateTimer = null;
     _hasPendingUpdate = false;
 
-    // Linux-only: single policy to avoid "not responding" — never push many messages in one frame.
-    // 1) First frame: at most 2 messages for minimal first paint. 2) Then add exactly one per frame
-    // until full list. 3) Generation guard so a new _performUpdate cancels any in-flight drip.
+    // Linux: always defer list update to next frame so we never build Chat in same tick as load.
+    // Even 1 message ("kkk") can freeze when built in same frame; deferring avoids that.
     if (Platform.isLinux) {
       final messagesToSet = [..._messages];
-      const int kLinuxFirstFrameMaxMessages = 2;
       _linuxDripGeneration += 1;
       final generation = _linuxDripGeneration;
-
-      if (messagesToSet.length <= kLinuxFirstFrameMaxMessages) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_disposed || generation != _linuxDripGeneration) return;
         messageValueNotifier.value = messagesToSet;
         updateMessageReactionsListener();
-      } else {
-        int shownCount = kLinuxFirstFrameMaxMessages;
-        messageValueNotifier.value = messagesToSet.sublist(messagesToSet.length - shownCount);
-
-        void scheduleNext() {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (_disposed || generation != _linuxDripGeneration) return;
-            if (shownCount >= messagesToSet.length) {
-              updateMessageReactionsListener();
-              return;
-            }
-            shownCount += 1;
-            messageValueNotifier.value = messagesToSet.sublist(messagesToSet.length - shownCount);
-            scheduleNext();
-          });
-        }
-        scheduleNext();
-      }
+      });
     } else {
       messageValueNotifier.value = [..._messages];
       updateMessageReactionsListener();

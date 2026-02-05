@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'package:chatcore/chat-core.dart';
-import 'package:flutter/foundation.dart' show kIsWeb, defaultTargetPlatform, TargetPlatform;
+import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb, debugPrint, defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/widgets.dart' show WidgetsBinding;
 import 'package:isar/isar.dart';
 import 'package:ox_common/model/chat_session_model_isar.dart';
@@ -42,6 +42,10 @@ class OXChatBinding {
   }
 
   final List<OXChatObserver> _observers = <OXChatObserver>[];
+  
+  // #region agent log
+  int get observerCount => _observers.length;
+  // #endregion
 
   // Batch processing for message callbacks
   Timer? _messageCallbackTimer;
@@ -834,6 +838,15 @@ class OXChatBinding {
   }
 
   void sessionUpdate() {
+    // On Linux defer entire observer loop to next frame to test if freeze is in this path.
+    if (_isLinux) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        for (OXChatObserver observer in _observers) {
+          observer.didSessionUpdate();
+        }
+      });
+      return;
+    }
     for (OXChatObserver observer in _observers) {
       observer.didSessionUpdate();
     }

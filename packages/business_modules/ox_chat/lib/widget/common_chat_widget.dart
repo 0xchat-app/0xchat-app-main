@@ -1,4 +1,4 @@
-import 'dart:io' show Platform;
+import 'dart:io' show Platform, File, FileMode;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +25,17 @@ import 'package:ox_common/widgets/avatar.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
 
 import '../utils/general_handler/chat_highlight_message_handler.dart';
+
+// #region agent log
+void _widgetDebugLog(String location, String message, [Map<String, dynamic>? data]) {
+  try {
+    final logFile = File('/Users/bear/Desktop/jenkins/.cursor/debug.log');
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    final logEntry = '{"timestamp":$timestamp,"location":"$location","message":"$message","data":${data != null ? data.toString().replaceAll('"', '\\"') : 'null'},"hypothesisId":"D"}\n';
+    logFile.writeAsStringSync(logEntry, mode: FileMode.append);
+  } catch (_) {}
+}
+// #endregion
 
 class CommonChatWidget extends StatefulWidget {
 
@@ -72,11 +83,32 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
   @override
   void initState() {
     super.initState();
+    // #region agent log
+    _widgetDebugLog('CommonChatWidget:INIT_STATE_START', 'initState started');
+    final initStart = DateTime.now().millisecondsSinceEpoch;
+    // #endregion
     if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] CommonChatWidget initState');
 
+    // #region agent log
+    final t1 = DateTime.now().millisecondsSinceEpoch;
+    // #endregion
     tryInitDraft();
+    // #region agent log
+    _widgetDebugLog('CommonChatWidget:AFTER_DRAFT', 'tryInitDraft done', {'durationMs': DateTime.now().millisecondsSinceEpoch - t1});
+    final t2 = DateTime.now().millisecondsSinceEpoch;
+    // #endregion
+
     tryInitReply();
+    // #region agent log
+    _widgetDebugLog('CommonChatWidget:AFTER_REPLY', 'tryInitReply done', {'durationMs': DateTime.now().millisecondsSinceEpoch - t2});
+    final t3 = DateTime.now().millisecondsSinceEpoch;
+    // #endregion
+
     mentionStateInitialize();
+    // #region agent log
+    _widgetDebugLog('CommonChatWidget:AFTER_MENTION', 'mentionStateInitialize done', {'durationMs': DateTime.now().millisecondsSinceEpoch - t3});
+    // #endregion
+
     if (!handler.isPreviewMode) {
       PromptToneManager.sharedInstance.isCurrencyChatPage = dataController.isInCurrentSession;
       OXChatBinding.sharedInstance.msgIsReaded = dataController.isInCurrentSession;
@@ -84,7 +116,13 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       handler.chatWidgetKey = chatWidgetKey;
+      // #region agent log
+      _widgetDebugLog('CommonChatWidget:POST_FRAME', 'postFrameCallback executed');
+      // #endregion
     });
+    // #region agent log
+    _widgetDebugLog('CommonChatWidget:INIT_STATE_DONE', 'initState finished', {'totalMs': DateTime.now().millisecondsSinceEpoch - initStart});
+    // #endregion
   }
 
   void tryInitDraft() {
@@ -124,6 +162,10 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
   
   @override
   Widget build(BuildContext context) {
+    // #region agent log
+    _widgetDebugLog('CommonChatWidget:BUILD_START', 'build called');
+    final buildStart = DateTime.now().millisecondsSinceEpoch;
+    // #endregion
     if (widget.handler.isPreviewMode) {
       return Column(
         children: [
@@ -133,7 +175,7 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
       );
     }
 
-    return Scaffold(
+    final scaffold = Scaffold(
       backgroundColor: ThemeColor.color200,
       resizeToAvoidBottomInset: false,
       appBar: widget.navBar,
@@ -141,16 +183,24 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
         child: buildChatContentWidget(),
       ),
     );
+    // #region agent log
+    _widgetDebugLog('CommonChatWidget:BUILD_DONE', 'build finished', {'durationMs': DateTime.now().millisecondsSinceEpoch - buildStart});
+    // #endregion
+    return scaffold;
   }
 
   Widget buildChatContentWidget() {
     return ValueListenableBuilder(
         valueListenable: dataController.messageValueNotifier,
         builder: (BuildContext context, messages, Widget? child) {
+          // #region agent log
+          _widgetDebugLog('CommonChatWidget:VLB_BUILD_START', 'ValueListenableBuilder build', {'messageCount': messages.length});
+          final vlbStart = DateTime.now().millisecondsSinceEpoch;
+          // #endregion
           if (Platform.isLinux && kDebugMode) {
-            debugPrint('[LINUX_DIAG] ValueListenableBuilder build messages.length=${messages?.length ?? 0}');
+            debugPrint('[LINUX_DIAG] ValueListenableBuilder build messages.length=${messages.length}');
           }
-          return Chat(
+          final chatWidget = Chat(
             key: chatWidgetKey,
             uiConfig: ChatUIConfig(
               avatarBuilder: (message) => OXUserAvatar(
@@ -297,6 +347,13 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
               pageFocusNode.requestFocus();
             },
           );
+          if (Platform.isLinux && kDebugMode) {
+            debugPrint('[LINUX_DIAG] ValueListenableBuilder build done');
+          }
+          // #region agent log
+          _widgetDebugLog('CommonChatWidget:VLB_BUILD_DONE', 'Chat widget created', {'durationMs': DateTime.now().millisecondsSinceEpoch - vlbStart});
+          // #endregion
+          return chatWidget;
         }
     );
   }

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:chatcore/chat-core.dart';
+import 'package:flutter/foundation.dart' show kDebugMode, defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -268,7 +269,10 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     _refreshController.refreshCompleted();
   }
 
+  static bool get _isLinux => defaultTargetPlatform == TargetPlatform.linux;
+
   void _merge() {
+    final Stopwatch? sw = (_isLinux && kDebugMode) ? (Stopwatch()..start()) : null;
     _msgDatas.clear();
     _scaleList.clear();
     _isLogin = OXUserInfoManager.sharedInstance.isLogin;
@@ -277,6 +281,10 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
         setState(() {
           updateStateView(CommonStateView.CommonStateView_NotLogin);
         });
+      }
+      if (sw != null) {
+        sw.stop();
+        debugPrint('[LINUX_TIMING] _merge (not login) ${sw.elapsedMilliseconds}ms');
       }
       return;
     }
@@ -308,6 +316,10 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
         });
       }
     }
+    if (sw != null) {
+      sw.stop();
+      debugPrint('[LINUX_TIMING] _merge ${_msgDatas.length} sessions ${sw.elapsedMilliseconds}ms');
+    }
   }
 
   @override
@@ -324,7 +336,7 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
       item.unreadCount = 0;
       MsgNotification(msgNum: _allUnreadCount).dispatch(context);
     });
-    OXChatBinding.sharedInstance.updateChatSession(item.chatId ?? '', unreadCount: 0);
+    OXChatBinding.sharedInstance.updateChatSession(item.chatId, unreadCount: 0);
   }
 
   void _updateReadStatus() {
