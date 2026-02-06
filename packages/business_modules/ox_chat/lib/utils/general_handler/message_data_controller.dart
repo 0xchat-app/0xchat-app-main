@@ -629,10 +629,19 @@ extension MessageDataControllerPrivate on MessageDataController {
   Future<types.Message?> _addMessageWithMessageDB(MessageDBISAR message, {
     bool needNotifyUpdate = true,
   }) async {
+    // #region agent log
+    final addMsgStart = DateTime.now().millisecondsSinceEpoch;
+    // #endregion
     try {
       var uiMsg = await message.toChatUIMessage(
         asyncUpdateHandler: (newMessage) => _asyncUpdateHandler(newMessage, message.messageId),
       );
+      // #region agent log
+      final toChatUIMessageDuration = DateTime.now().millisecondsSinceEpoch - addMsgStart;
+      if (toChatUIMessageDuration > 30) {
+        debugPrint('[ADD_MSG_DB] toChatUIMessage took ${toChatUIMessageDuration}ms for msgId=${message.messageId} type=${message.type}');
+      }
+      // #endregion
       if (uiMsg == null) return null;
 
       if (message.messageId == ChatMessageHelper.logger?.messageId) {
@@ -640,6 +649,12 @@ extension MessageDataControllerPrivate on MessageDataController {
         ChatMessageHelper.logger?.print('_addMessageWithMessageDB - message: $message');
       }
       addMessage(uiMsg, needNotifyUpdate: needNotifyUpdate);
+      // #region agent log
+      final addMsgTotal = DateTime.now().millisecondsSinceEpoch - addMsgStart;
+      if (addMsgTotal > 50) {
+        debugPrint('[ADD_MSG_DB] TOTAL took ${addMsgTotal}ms for msgId=${message.messageId}');
+      }
+      // #endregion
       return uiMsg;
     } catch(e) {
       ChatLogUtils.error(

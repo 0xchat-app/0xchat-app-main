@@ -1,6 +1,6 @@
-
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
@@ -402,6 +402,10 @@ class ChatMessageHelper {
     Function(String content, MessageType messageType)? asyncParseCallback,
     VoidCallback? isMentionMessageCallback,
   }) async {
+    // #region agent log
+    final createUIStart = DateTime.now().millisecondsSinceEpoch;
+    // #endregion
+    
     // Logger
     MessageCheckLogger? logger;
     if ((remoteId ?? messageId) == ChatMessageHelper.logger?.messageId) {
@@ -410,9 +414,21 @@ class ChatMessageHelper {
 
     if (messageId == null && remoteId == null) return null;
 
+    // #region agent log
+    final getUserStart = DateTime.now().millisecondsSinceEpoch;
+    // #endregion
     final author = await _getUser(authorPubkey);
+    // #region agent log
+    final getUserDuration = DateTime.now().millisecondsSinceEpoch - getUserStart;
+    if (getUserDuration > 10) {
+      debugPrint('[CREATE_UI_MSG] _getUser took ${getUserDuration}ms for $authorPubkey');
+    }
+    // #endregion
     if (author == null) return null;
 
+    // #region agent log
+    final parseStart = DateTime.now().millisecondsSinceEpoch;
+    // #endregion
     final contentRaw = _getContentString(contentString);
     final (content, messageType) = await _parseWithContent(
       content: contentRaw,
@@ -423,15 +439,49 @@ class ChatMessageHelper {
       isMentionMessageCallback: isMentionMessageCallback,
       logger: logger,
     );
+    // #region agent log
+    final parseDuration = DateTime.now().millisecondsSinceEpoch - parseStart;
+    if (parseDuration > 10) {
+      debugPrint('[CREATE_UI_MSG] _parseWithContent took ${parseDuration}ms for msgId=$messageId type=$type');
+    }
+    // #endregion
 
     final fileEncryptionType = _getEncryptionType(messageType);
 
+    // #region agent log
+    final replyStart = DateTime.now().millisecondsSinceEpoch;
+    // #endregion
     final repliedMessage = await _getRepliedMessage(
       replyId: replyId,
     );
+    // #region agent log
+    final replyDuration = DateTime.now().millisecondsSinceEpoch - replyStart;
+    if (replyDuration > 10) {
+      debugPrint('[CREATE_UI_MSG] _getRepliedMessage took ${replyDuration}ms for replyId=$replyId');
+    }
+    // #endregion
 
+    // #region agent log
+    final reactionStart = DateTime.now().millisecondsSinceEpoch;
+    // #endregion
     final reactions = await _getReactionInfo(reactionIds);
+    // #region agent log
+    final reactionDuration = DateTime.now().millisecondsSinceEpoch - reactionStart;
+    if (reactionDuration > 10) {
+      debugPrint('[CREATE_UI_MSG] _getReactionInfo took ${reactionDuration}ms for ${reactionIds.length} reactions');
+    }
+    // #endregion
+    
+    // #region agent log
+    final zapsStart = DateTime.now().millisecondsSinceEpoch;
+    // #endregion
     final zapsInfoList = await _getZapsInfo(zapsInfoIds);
+    // #region agent log
+    final zapsDuration = DateTime.now().millisecondsSinceEpoch - zapsStart;
+    if (zapsDuration > 10) {
+      debugPrint('[CREATE_UI_MSG] _getZapsInfo took ${zapsDuration}ms for ${zapsInfoIds.length} zaps');
+    }
+    // #endregion
 
     final messageFactory = await _getMessageFactory(messageType);
     final uiMessage = messageFactory.createMessage(
@@ -475,6 +525,13 @@ class ChatMessageHelper {
       'zapsInfoIds: $zapsInfoIds'
     );
     logger?.print('ChatMessageHelper - createUIMessage: $uiMessage');
+
+    // #region agent log
+    final createUITotal = DateTime.now().millisecondsSinceEpoch - createUIStart;
+    if (createUITotal > 50) {
+      debugPrint('[CREATE_UI_MSG] TOTAL took ${createUITotal}ms for msgId=$messageId type=$type');
+    }
+    // #endregion
 
     return uiMessage;
   }
