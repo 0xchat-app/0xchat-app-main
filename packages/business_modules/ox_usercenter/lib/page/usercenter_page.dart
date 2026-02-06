@@ -77,7 +77,8 @@ class UserCenterPageState extends State<UserCenterPage>
   void initState() {
     super.initState();
     imageCache.clear();
-    imageCache.maximumSize = 10;
+    imageCache.maximumSize = 50; // Allow reasonable number of decoded images
+    imageCache.maximumSizeBytes = 100 * 1024 * 1024; // 100MB cap to prevent memory bloat
     OXUserInfoManager.sharedInstance.addObserver(this);
     OXChatBinding.sharedInstance.addObserver(this);
     OXMomentManager.sharedInstance.addObserver(this);

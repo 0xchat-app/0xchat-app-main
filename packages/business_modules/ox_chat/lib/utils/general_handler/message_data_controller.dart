@@ -102,6 +102,11 @@ class MessageDataController with OXChatObserver {
     messageLoadingCompleter = null;
     removeMessageReactionsListener();
     OXChatBinding.sharedInstance.removeObserver(this);
+    // Release large collections to help GC reclaim memory
+    _messages.clear();
+    _messageIdCache.clear();
+    galleryCache.clear();
+    messageValueNotifier.dispose();
   }
 
   @override

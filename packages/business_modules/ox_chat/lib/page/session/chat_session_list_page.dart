@@ -99,6 +99,7 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   @override
   void dispose() {
     _refreshController.dispose();
+    OXChatBinding.sharedInstance.removeObserver(this);
     WidgetsBinding.instance.removeObserver(this);
     OXUserInfoManager.sharedInstance.removeObserver(this);
     for (var notifier in _scaleList) {
@@ -274,6 +275,11 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   void _merge() {
     final Stopwatch? sw = (_isLinux && kDebugMode) ? (Stopwatch()..start()) : null;
     _msgDatas.clear();
+    // Dispose old ValueNotifiers before clearing to prevent memory leaks.
+    // Without this, each _merge() call leaks all previous ValueNotifiers.
+    for (var notifier in _scaleList) {
+      notifier.dispose();
+    }
     _scaleList.clear();
     _isLogin = OXUserInfoManager.sharedInstance.isLogin;
     if (!_isLogin) {

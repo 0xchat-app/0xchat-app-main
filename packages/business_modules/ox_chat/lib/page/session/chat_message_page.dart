@@ -236,10 +236,10 @@ class _ChatMessagePageState extends State<ChatMessagePage> {
     final startTime = DateTime.now().millisecondsSinceEpoch;
     // #endregion
     
-    // #region agent log
-    _debugLog('_handelDMRelay:CONNECT_DM_START', 'Calling connectUserDMRelays (fire-and-forget)');
-    // #endregion
-    Contacts.sharedInstance.connectUserDMRelays(session.chatId);
+    // Removed first fire-and-forget connectUserDMRelays call.
+    // It was redundant: the second call after profile reload will connect
+    // with up-to-date relay info. The first call added unnecessary connections
+    // to the queue, competing with frame rendering on Linux.
     
     // #region agent log
     _debugLog('_handelDMRelay:RELOAD_PROFILE_START', 'Calling reloadProfileFromRelay (await)', {'pubkey': otherUser?.pubKey ?? ''});

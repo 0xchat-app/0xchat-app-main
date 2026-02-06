@@ -81,4 +81,9 @@ class ChatGalleryDataCache {
       }
     }
   }
+
+  void clear() {
+    gallery.clear();
+    messageIdCache.clear();
+  }
 }
