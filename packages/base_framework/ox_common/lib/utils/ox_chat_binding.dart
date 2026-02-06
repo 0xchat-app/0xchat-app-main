@@ -570,7 +570,17 @@ class OXChatBinding {
     if (runNow) {
       // On Linux defer to next frame to avoid stacking with UI (e.g. second session open).
       if (_isLinux) {
+        // #region agent log
+        final now = DateTime.now();
+        final ts = '${now.hour.toString().padLeft(2,'0')}:${now.minute.toString().padLeft(2,'0')}:${now.second.toString().padLeft(2,'0')}.${now.millisecond.toString().padLeft(3,'0')}';
+        debugPrint('[LINUX_BINDING][$ts] _scheduleBatchMessageCallback: deferring to postFrameCallback, pending=$totalPending');
+        // #endregion
         WidgetsBinding.instance.addPostFrameCallback((_) {
+          // #region agent log
+          final cbNow = DateTime.now();
+          final cbTs = '${cbNow.hour.toString().padLeft(2,'0')}:${cbNow.minute.toString().padLeft(2,'0')}:${cbNow.second.toString().padLeft(2,'0')}.${cbNow.millisecond.toString().padLeft(3,'0')}';
+          debugPrint('[LINUX_BINDING][$cbTs] _processBatchMessageCallbacks:postFrameCallback EXECUTING');
+          // #endregion
           _processBatchMessageCallbacks();
         });
       } else {
@@ -840,10 +850,25 @@ class OXChatBinding {
   void sessionUpdate() {
     // On Linux defer entire observer loop to next frame to test if freeze is in this path.
     if (_isLinux) {
+      // #region agent log
+      final now = DateTime.now();
+      final ts = '${now.hour.toString().padLeft(2,'0')}:${now.minute.toString().padLeft(2,'0')}:${now.second.toString().padLeft(2,'0')}.${now.millisecond.toString().padLeft(3,'0')}';
+      debugPrint('[LINUX_BINDING][$ts] sessionUpdate: deferring to postFrameCallback, observerCount=${_observers.length}');
+      // #endregion
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        // #region agent log
+        final cbNow = DateTime.now();
+        final cbTs = '${cbNow.hour.toString().padLeft(2,'0')}:${cbNow.minute.toString().padLeft(2,'0')}:${cbNow.second.toString().padLeft(2,'0')}.${cbNow.millisecond.toString().padLeft(3,'0')}';
+        debugPrint('[LINUX_BINDING][$cbTs] sessionUpdate:postFrameCallback EXECUTING, observerCount=${_observers.length}');
+        final start = DateTime.now().millisecondsSinceEpoch;
+        // #endregion
         for (OXChatObserver observer in _observers) {
           observer.didSessionUpdate();
         }
+        // #region agent log
+        final dur = DateTime.now().millisecondsSinceEpoch - start;
+        if (dur > 5) debugPrint('[LINUX_BINDING][$cbTs] sessionUpdate:postFrameCallback DONE took ${dur}ms');
+        // #endregion
       });
       return;
     }

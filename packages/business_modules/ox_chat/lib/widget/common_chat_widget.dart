@@ -191,11 +191,19 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
         valueListenable: dataController.messageValueNotifier,
         builder: (BuildContext context, messages, Widget? child) {
           // #region agent log
+          final vlbNow = DateTime.now();
+          final vlbTs = '${vlbNow.hour.toString().padLeft(2,'0')}:${vlbNow.minute.toString().padLeft(2,'0')}:${vlbNow.second.toString().padLeft(2,'0')}.${vlbNow.millisecond.toString().padLeft(3,'0')}';
           _widgetDebugLog('CommonChatWidget:VLB_BUILD_START', 'ValueListenableBuilder build', {'messageCount': messages.length});
           final vlbStart = DateTime.now().millisecondsSinceEpoch;
+          // Cancel the frame watchdog timer now that the build is happening
+          if (Platform.isLinux && messages.length > 0) {
+            dataController.linuxFrameWatchdog?.cancel();
+            dataController.linuxFrameWatchdog = null;
+            debugPrint('[LINUX_WATCHDOG][$vlbTs] Frame rendered! msgCount=${messages.length} watchdogFired=${dataController.linuxFrameWatchdogCount} times');
+          }
           // #endregion
           if (Platform.isLinux && kDebugMode) {
-            debugPrint('[LINUX_DIAG] ValueListenableBuilder build messages.length=${messages.length}');
+            debugPrint('[LINUX_DIAG][$vlbTs] ValueListenableBuilder build messages.length=${messages.length}');
           }
           final chatWidget = Chat(
             key: chatWidgetKey,

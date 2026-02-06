@@ -83,10 +83,19 @@ class MessageDataController with OXChatObserver {
   /// On Linux, incremented each time _performUpdate runs; used to cancel stale drip-feed callbacks.
   int _linuxDripGeneration = 0;
 
+  // #region agent log - frame watchdog for Linux
+  Timer? linuxFrameWatchdog;
+  int linuxFrameWatchdogCount = 0;
+  // #endregion
+
   void dispose() {
     _disposed = true;
     _notifyUpdateTimer?.cancel();
     _notifyUpdateTimer = null;
+    // #region agent log
+    linuxFrameWatchdog?.cancel();
+    linuxFrameWatchdog = null;
+    // #endregion
     if (messageLoadingCompleter != null && !messageLoadingCompleter!.isCompleted) {
       messageLoadingCompleter!.complete();
     }
@@ -544,32 +553,65 @@ extension MessageDataControllerPrivate on MessageDataController {
   }
   
   void _performUpdate() {
-    if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] _performUpdate start');
+    // #region agent log
+    final now = DateTime.now();
+    final ts = '${now.hour.toString().padLeft(2,'0')}:${now.minute.toString().padLeft(2,'0')}:${now.second.toString().padLeft(2,'0')}.${now.millisecond.toString().padLeft(3,'0')}';
+    if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG][$ts] _performUpdate start, msgCount=${_messages.length}');
+    // #endregion
     _notifyUpdateTimer?.cancel();
     _notifyUpdateTimer = null;
     _hasPendingUpdate = false;
 
-    // Linux: use scheduleMicrotask for highest priority execution.
-    // The frame scheduler can be blocked by network I/O callbacks flooding the event queue.
-    // Microtasks run before event queue items, so this ensures UI updates happen promptly.
+    // Set value directly on all platforms (including Linux).
+    // Previously Linux used scheduleMicrotask + scheduleFrame(), but this
+    // added unnecessary indirection without solving the frame delay issue.
+    messageValueNotifier.value = [..._messages];
+    updateMessageReactionsListener();
+
+    // #region agent log - on Linux, add a frame watchdog that periodically re-requests frames
     if (Platform.isLinux) {
-      final messagesToSet = [..._messages];
+      final msgCount = _messages.length;
       _linuxDripGeneration += 1;
       final generation = _linuxDripGeneration;
-      // Use scheduleMicrotask for immediate execution with highest priority
-      scheduleMicrotask(() {
-        if (_disposed || generation != _linuxDripGeneration) return;
-        if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] _performUpdate microtask executing, msgCount=${messagesToSet.length}');
-        messageValueNotifier.value = messagesToSet;
-        updateMessageReactionsListener();
-        // Force schedule a frame to ensure ValueListenableBuilder rebuilds promptly
+      linuxFrameWatchdog?.cancel();
+      linuxFrameWatchdogCount = 0;
+      
+      // Log the scheduleFrame state
+      final hasScheduledFrame = SchedulerBinding.instance.hasScheduledFrame;
+      final schedulerPhase = SchedulerBinding.instance.schedulerPhase;
+      if (kDebugMode) debugPrint('[LINUX_DIAG][$ts] _performUpdate: hasScheduledFrame=$hasScheduledFrame, schedulerPhase=$schedulerPhase');
+      
+      SchedulerBinding.instance.scheduleFrame();
+      
+      // Watchdog: re-request frame every 200ms if VLB build hasn't happened yet.
+      // This helps when the GLib main loop is busy with I/O events and 
+      // doesn't deliver the frame callback promptly.
+      linuxFrameWatchdog = Timer.periodic(const Duration(milliseconds: 200), (timer) {
+        if (_disposed || generation != _linuxDripGeneration) {
+          timer.cancel();
+          return;
+        }
+        linuxFrameWatchdogCount++;
+        final wdNow = DateTime.now();
+        final wdTs = '${wdNow.hour.toString().padLeft(2,'0')}:${wdNow.minute.toString().padLeft(2,'0')}:${wdNow.second.toString().padLeft(2,'0')}.${wdNow.millisecond.toString().padLeft(3,'0')}';
+        final wdHasFrame = SchedulerBinding.instance.hasScheduledFrame;
+        final wdPhase = SchedulerBinding.instance.schedulerPhase;
+        debugPrint('[LINUX_WATCHDOG][$wdTs] Frame not rendered yet, re-requesting #${linuxFrameWatchdogCount} hasScheduledFrame=$wdHasFrame phase=$wdPhase msgCount=$msgCount');
         SchedulerBinding.instance.scheduleFrame();
+        // Safety: stop after 30 seconds
+        if (linuxFrameWatchdogCount > 150) {
+          debugPrint('[LINUX_WATCHDOG][$wdTs] Giving up after 30s');
+          timer.cancel();
+        }
       });
-    } else {
-      messageValueNotifier.value = [..._messages];
-      updateMessageReactionsListener();
     }
-    if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG] _performUpdate done');
+    // #endregion
+    
+    // #region agent log
+    final now2 = DateTime.now();
+    final ts2 = '${now2.hour.toString().padLeft(2,'0')}:${now2.minute.toString().padLeft(2,'0')}:${now2.second.toString().padLeft(2,'0')}.${now2.millisecond.toString().padLeft(3,'0')}';
+    if (Platform.isLinux && kDebugMode) debugPrint('[LINUX_DIAG][$ts2] _performUpdate done');
+    // #endregion
   }
   
   bool _isInBatchMode() {
