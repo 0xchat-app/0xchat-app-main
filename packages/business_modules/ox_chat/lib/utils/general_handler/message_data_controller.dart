@@ -568,12 +568,10 @@ extension MessageDataControllerPrivate on MessageDataController {
     _hasPendingUpdate = false;
 
     // Set value directly on all platforms (including Linux).
-    // Previously Linux used scheduleMicrotask + scheduleFrame(), but this
-    // added unnecessary indirection without solving the frame delay issue.
     messageValueNotifier.value = [..._messages];
     updateMessageReactionsListener();
 
-    // #region agent log - on Linux, add a frame watchdog that periodically re-requests frames
+    // #region agent log - Linux frame rendering fix
     if (Platform.isLinux) {
       final msgCount = _messages.length;
       _linuxDripGeneration += 1;
@@ -581,17 +579,24 @@ extension MessageDataControllerPrivate on MessageDataController {
       linuxFrameWatchdog?.cancel();
       linuxFrameWatchdogCount = 0;
       
-      // Log the scheduleFrame state
       final hasScheduledFrame = SchedulerBinding.instance.hasScheduledFrame;
       final schedulerPhase = SchedulerBinding.instance.schedulerPhase;
       if (kDebugMode) debugPrint('[LINUX_DIAG][$ts] _performUpdate: hasScheduledFrame=$hasScheduledFrame, schedulerPhase=$schedulerPhase');
       
-      SchedulerBinding.instance.scheduleFrame();
+      // KEY FIX: On Linux, scheduleFrame() uses g_idle_add which registers a GLib
+      // IDLE source. GLib idle sources are starved when any I/O events (like relay
+      // connections) are pending at the same or higher priority. This causes frames
+      // to never render while connections are active.
+      //
+      // scheduleWarmUpFrame() uses Timer.run() which becomes a GLib TIMEOUT source.
+      // Timeout sources are regular sources that are dispatched normally, even when
+      // I/O events are pending. This bypasses the GLib idle source starvation.
+      if (kDebugMode) debugPrint('[LINUX_WARMUP][$ts] calling scheduleWarmUpFrame, schedulerPhase=$schedulerPhase');
+      SchedulerBinding.instance.scheduleWarmUpFrame();
+      if (kDebugMode) debugPrint('[LINUX_WARMUP][$ts] scheduleWarmUpFrame returned');
       
-      // Watchdog: re-request frame every 200ms if VLB build hasn't happened yet.
-      // This helps when the GLib main loop is busy with I/O events and 
-      // doesn't deliver the frame callback promptly.
-      linuxFrameWatchdog = Timer.periodic(const Duration(milliseconds: 200), (timer) {
+      // Watchdog: if frame still not rendered after 500ms, force another warmup frame
+      linuxFrameWatchdog = Timer.periodic(const Duration(milliseconds: 500), (timer) {
         if (_disposed || generation != _linuxDripGeneration) {
           timer.cancel();
           return;
@@ -599,13 +604,10 @@ extension MessageDataControllerPrivate on MessageDataController {
         linuxFrameWatchdogCount++;
         final wdNow = DateTime.now();
         final wdTs = '${wdNow.hour.toString().padLeft(2,'0')}:${wdNow.minute.toString().padLeft(2,'0')}:${wdNow.second.toString().padLeft(2,'0')}.${wdNow.millisecond.toString().padLeft(3,'0')}';
-        final wdHasFrame = SchedulerBinding.instance.hasScheduledFrame;
-        final wdPhase = SchedulerBinding.instance.schedulerPhase;
-        debugPrint('[LINUX_WATCHDOG][$wdTs] Frame not rendered yet, re-requesting #${linuxFrameWatchdogCount} hasScheduledFrame=$wdHasFrame phase=$wdPhase msgCount=$msgCount');
-        SchedulerBinding.instance.scheduleFrame();
-        // Safety: stop after 30 seconds
-        if (linuxFrameWatchdogCount > 150) {
-          debugPrint('[LINUX_WATCHDOG][$wdTs] Giving up after 30s');
+        debugPrint('[LINUX_WATCHDOG][$wdTs] Frame not rendered yet, forcing warmUpFrame #${linuxFrameWatchdogCount} msgCount=$msgCount');
+        SchedulerBinding.instance.scheduleWarmUpFrame();
+        if (linuxFrameWatchdogCount > 10) {
+          debugPrint('[LINUX_WATCHDOG][$wdTs] Giving up after 5s');
           timer.cancel();
         }
       });
