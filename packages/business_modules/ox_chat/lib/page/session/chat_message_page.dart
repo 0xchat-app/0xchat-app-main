@@ -1,4 +1,5 @@
-import 'dart:io' show Platform;
+import 'dart:async' show Timer;
+import 'dart:io' show File, FileMode, Platform;
 
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/foundation.dart';
@@ -142,9 +143,29 @@ class _ChatMessagePageState extends State<ChatMessagePage> {
   UserDBISAR? get otherUser => handler.otherUser;
   bool isShowContactMenu = true;
 
+  // #region agent log
+  Timer? _heartbeatTimer;
+  int _heartbeatCount = 0;
+  static int _sessionOpenCount = 0;
+  // #endregion
+
   @override
   void initState() {
     super.initState();
+
+    // #region agent log
+    if (Platform.isLinux && kDebugMode) {
+      _sessionOpenCount++;
+      final sessionId = _sessionOpenCount;
+      _heartbeatTimer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
+        _heartbeatCount++;
+        final now = DateTime.now();
+        final ts = '${now.hour.toString().padLeft(2,'0')}:${now.minute.toString().padLeft(2,'0')}:${now.second.toString().padLeft(2,'0')}.${now.millisecond.toString().padLeft(3,'0')}';
+        try { File('/Users/bear/Desktop/jenkins/.cursor/debug.log').writeAsStringSync('{"sessionId":"debug-session","hypothesisId":"A","location":"chat_message_page.dart:heartbeat","message":"HEARTBEAT","data":{"session":$sessionId,"count":$_heartbeatCount,"ts":"$ts"},"timestamp":${now.millisecondsSinceEpoch}}\n', mode: FileMode.append); } catch(_) {}
+        debugPrint('[HEARTBEAT][$ts] session=$sessionId beat=$_heartbeatCount');
+      });
+    }
+    // #endregion
 
     prepareData();
   }
@@ -157,6 +178,10 @@ class _ChatMessagePageState extends State<ChatMessagePage> {
 
   @override
   void dispose() {
+    // #region agent log
+    _heartbeatTimer?.cancel();
+    _heartbeatTimer = null;
+    // #endregion
     // close other uer dm relays
     Contacts.sharedInstance.closeUserDMRelays(session.chatId);
     super.dispose();
