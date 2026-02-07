@@ -4,6 +4,7 @@ import 'dart:io' show File, FileMode, Platform;
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:ox_chat/model/constant.dart';
 import 'package:ox_chat/page/session/chat_channel_message_page.dart';
@@ -149,6 +150,12 @@ class _ChatMessagePageState extends State<ChatMessagePage> {
   static int _sessionOpenCount = 0;
   // #endregion
 
+  /// On Linux, GLib keeps dispatching the Dart GSource when timers/callbacks are ready,
+  /// so the GDK event source (X11/_NET_WM_PING) gets starved and the WM shows "not responding".
+  /// Periodically scheduling a frame via scheduleWarmUpFrame() uses a timeout source that
+  /// gives the main loop a chance to run the frame pipeline and process platform events.
+  Timer? _platformYieldTimer;
+
   @override
   void initState() {
     super.initState();
@@ -167,6 +174,13 @@ class _ChatMessagePageState extends State<ChatMessagePage> {
     }
     // #endregion
 
+    if (Platform.isLinux) {
+      _platformYieldTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+        if (!mounted) return;
+        SchedulerBinding.instance.scheduleWarmUpFrame();
+      });
+    }
+
     prepareData();
   }
 
@@ -178,6 +192,8 @@ class _ChatMessagePageState extends State<ChatMessagePage> {
 
   @override
   void dispose() {
+    _platformYieldTimer?.cancel();
+    _platformYieldTimer = null;
     // #region agent log
     _heartbeatTimer?.cancel();
     _heartbeatTimer = null;
