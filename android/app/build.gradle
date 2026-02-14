@@ -59,7 +59,7 @@ android {
 
   splits {
     abi {
-      enable true
+      enable false  // Temporarily disable to fix packaging issue
       reset()
       include 'armeabi-v7a', 'arm64-v8a'
       universalApk true
@@ -81,8 +81,8 @@ android {
 
   compileOptions {
     coreLibraryDesugaringEnabled true
-    sourceCompatibility JavaVersion.VERSION_17
-    targetCompatibility JavaVersion.VERSION_17
+    sourceCompatibility JavaVersion.VERSION_21
+    targetCompatibility JavaVersion.VERSION_21
   }
   lint {
     abortOnError false

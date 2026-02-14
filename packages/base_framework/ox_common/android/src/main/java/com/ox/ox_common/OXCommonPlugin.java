@@ -17,6 +17,7 @@ import androidx.core.content.FileProvider;
 
 import com.ox.ox_common.activitys.PermissionActivity;
 import com.ox.ox_common.activitys.SelectPicsActivity;
+import com.ox.ox_common.gecko.GeckoWebViewFactory;
 import com.ox.ox_common.provides.CustomAnalyzeCallback;
 import com.ox.ox_common.utils.ClipboardHelper;
 import com.ox.ox_common.utils.Saver;
@@ -71,6 +72,8 @@ public class OXCommonPlugin implements FlutterPlugin, MethodCallHandler, Activit
         mContext = flutterPluginBinding.getApplicationContext();
         channel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), "ox_common");
         channel.setMethodCallHandler(this);
+        flutterPluginBinding.getPlatformViewRegistry()
+                .registerViewFactory("ox_geckoview", new GeckoWebViewFactory(mContext));
     }
 
     @Override

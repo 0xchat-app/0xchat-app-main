@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:ox_common/widgets/common_webview+nostr.dart';
 import 'package:ox_common/widgets/common_webview_app_bar.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -16,6 +18,20 @@ typedef JavascriptMessageHandler = void Function(JavaScriptMessage message);
 final RegExp _validChannelNames = RegExp(r'^[a-zA-Z_][a-zA-Z0-9_]*$');
 
 typedef UrlCallBack = void Function(String);
+
+/// Returns SOCKS proxy host/port for the given URL when app proxy/Tor is enabled (same logic as OXHttpOverrides).
+/// Used on Android to pass proxy to GeckoView so in-app web content uses the same proxy/Tor.
+({String host, int port})? _getProxyForUrl(String url) {
+  final settings = Config.sharedInstance.getProxy();
+  final shouldUseTor = settings.turnOnTor || TorNetworkHelper.shouldUseTor(url);
+  if (shouldUseTor && TorNetworkHelper.isTorEnabled) {
+    return (host: TorNetworkHelper.torProxyHost.address, port: TorNetworkHelper.torProxyPort);
+  }
+  if (settings.turnOnProxy && !settings.useSystemProxy) {
+    return (host: settings.socksProxyHost, port: settings.socksProxyPort);
+  }
+  return null;
+}
 
 class CommonWebView extends StatefulWidget {
   final String url;
@@ -62,12 +78,19 @@ class CommonWebViewState<T extends CommonWebView> extends State<T>
 
   Map<String, Function> get jsMethods => {};
 
+  /// On Android with proxy/Tor enabled, use GeckoView so web traffic goes through app proxy.
+  bool get _useGeckoView =>
+      Platform.isAndroid &&
+      !widget.isLocalHtmlResource &&
+      _getProxyForUrl(widget.url) != null;
+
   @override
   void initState() {
     super.initState();
-
-    prepareWebViewDelegate();
-    prepareWebViewController();
+    if (!_useGeckoView) {
+      prepareWebViewDelegate();
+      prepareWebViewController();
+    }
   }
 
   void prepareWebViewDelegate() {
@@ -147,6 +170,10 @@ class CommonWebViewState<T extends CommonWebView> extends State<T>
         ? WillPopScope(
             child: _root(),
             onWillPop: () async {
+              if (_useGeckoView) {
+                // GeckoView back handled by system; allow pop
+                return true;
+              }
               if (await currentController.canGoBack()) {
                 currentController.goBack();
                 return false;
@@ -188,6 +215,18 @@ class CommonWebViewState<T extends CommonWebView> extends State<T>
   }
 
   Widget buildWebView() {
+    if (_useGeckoView) {
+      final proxy = _getProxyForUrl(widget.url)!;
+      return AndroidView(
+        viewType: 'ox_geckoview',
+        creationParams: <String, dynamic>{
+          'url': formatUrl(widget.url),
+          'socksHost': proxy.host,
+          'socksPort': proxy.port,
+        },
+        creationParamsCodec: const StandardMessageCodec(),
+      );
+    }
     return WebViewWidget(
       controller: currentController,
     );
