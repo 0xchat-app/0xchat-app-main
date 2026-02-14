@@ -5,6 +5,7 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/utils/widget_tool.dart';
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
@@ -283,10 +284,81 @@ class _SaveAccountPageState extends State<SaveAccountPage>
     userDB.name = widget.userName;
     userDB.about = widget.userAbout;
     userDB.dns = widget.userDns;
-    Account.sharedInstance.updateProfile(userDB);
+    
+    // Upload profile to relay asynchronously without blocking login flow
+    _uploadProfileToRelayAsync(userDB);
+    
     await OXUserInfoManager.sharedInstance.loginSuccess(userDB);
     await OXLoading.dismiss();
     OXNavigator.popToRoot(context);
+  }
+
+  /// Upload profile to relay asynchronously
+  /// This method runs in background and doesn't block the login flow
+  void _uploadProfileToRelayAsync(UserDBISAR userDB) {
+    bool profileUploaded = false;
+    ConnectStatusCallBack? connectionListener;
+    
+    // Use connection status listener to upload profile when relay connects
+    connectionListener = (String relay, int status, List<RelayKind> relayKinds) async {
+      // Only upload once when first general relay connects
+      if (!profileUploaded && 
+          status == 1 && 
+          relayKinds.contains(RelayKind.general)) {
+        profileUploaded = true;
+        
+        // Remove listener to avoid multiple uploads
+        Connect.sharedInstance.removeConnectStatusListener(connectionListener!);
+        
+        try {
+          // Upload profile to relay
+          UserDBISAR? updatedUserDB = await Account.sharedInstance.updateProfile(userDB)
+              .timeout(Duration(seconds: 10), onTimeout: () {
+            LogUtil.w('updateProfile timeout after 10s');
+            return null;
+          });
+          
+          if (updatedUserDB == null) {
+            LogUtil.e('Failed to upload profile to relay during account creation');
+          } else {
+            LogUtil.d('Profile uploaded successfully to relay');
+          }
+        } catch (e, stackTrace) {
+          LogUtil.e('Error uploading profile to relay: $e\n$stackTrace');
+        }
+      }
+    };
+    
+    // Add connection status listener
+    Connect.sharedInstance.addConnectStatusListener(connectionListener);
+    
+    // Also try immediate upload if relay is already connected
+    Future.microtask(() async {
+      List<String> connectedRelays = Connect.sharedInstance.relays(
+        relayKinds: [RelayKind.general, RelayKind.outbox],
+      );
+      
+      if (connectedRelays.isNotEmpty && !profileUploaded) {
+        profileUploaded = true;
+        Connect.sharedInstance.removeConnectStatusListener(connectionListener!);
+        
+        try {
+          UserDBISAR? updatedUserDB = await Account.sharedInstance.updateProfile(userDB)
+              .timeout(Duration(seconds: 10), onTimeout: () {
+            LogUtil.w('updateProfile timeout after 10s');
+            return null;
+          });
+          
+          if (updatedUserDB == null) {
+            LogUtil.e('Failed to upload profile to relay during account creation');
+          } else {
+            LogUtil.d('Profile uploaded successfully to relay');
+          }
+        } catch (e, stackTrace) {
+          LogUtil.e('Error uploading profile to relay: $e\n$stackTrace');
+        }
+      }
+    });
   }
 
   void _clickKey(KeyType keyType) async {
