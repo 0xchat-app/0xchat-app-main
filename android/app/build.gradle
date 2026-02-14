@@ -94,12 +94,24 @@ flutter {
   source '../..'
 }
 
+def geckoviewNoWebRtcAar = file("${rootProject.projectDir}/../packages/base_framework/ox_common/android/libs/geckoview-nightly-no-webrtc.aar")
+
 dependencies {
   implementation fileTree(include: ['*.jar'], dir: 'libs')
   implementation 'androidx.appcompat:appcompat:1.2.0'
   implementation 'androidx.multidex:multidex:2.0.1'
   implementation platform('com.google.firebase:firebase-bom:32.0.0')
   coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.3'
+  // GeckoView no-WebRTC AAR (ox_common uses compileOnly; app must provide it at runtime)
+  if (geckoviewNoWebRtcAar.exists()) {
+    implementation files(geckoviewNoWebRtcAar)
+  } else {
+    throw new GradleException(
+      "geckoview-nightly-no-webrtc.aar is missing. Run: cd packages/base_framework/ox_common/android && ./strip_webrtc_from_geckoview.sh"
+    )
+  }
+  // GeckoView DebugConfig uses SnakeYAML 1.x API (Constructor(Class)); 2.x is incompatible
+  implementation 'org.yaml:snakeyaml:1.33'
 }
 
 def parsePubspecVersion() {
