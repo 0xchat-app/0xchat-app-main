@@ -60,9 +60,10 @@ ext {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'androidx.appcompat:appcompat:1.2.0'
-    // GeckoView (no-WebRTC AAR to avoid conflict with flutter_webrtc). Generate once: ./strip_webrtc_from_geckoview.sh
+    // GeckoView (no-WebRTC AAR). compileOnly so this library does not bundle it (AGP forbids local AAR in AAR).
+    // App module must add implementation for the same AAR. Generate once: ./strip_webrtc_from_geckoview.sh
     if (geckoviewNoWebRtcAar.exists()) {
-        implementation files(geckoviewNoWebRtcAar)
+        compileOnly files(geckoviewNoWebRtcAar)
     } else {
         throw new GradleException(
             "libs/geckoview-nightly-no-webrtc.aar is missing. " +
