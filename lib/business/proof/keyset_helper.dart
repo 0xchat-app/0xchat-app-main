@@ -55,12 +55,13 @@ class KeysetHelper {
     }).toList();
     if (mint.maxNutsVersion >= 1) {
       final stateResponse = await Nut2.requestKeysetsState(mintURL: mint.mintURL);
-      List<KeysetInfoIsar> list = stateResponse.isSuccess ? stateResponse.data : <KeysetInfoIsar>[];
+      final List<KeysetInfoIsar> list = stateResponse.isSuccess ? stateResponse.data : <KeysetInfoIsar>[];
       for (var keysetInfo in list) {
-        final info = cache[keysetInfo.id];
+        final info = cache[keysetInfo.keysetId];
         if (info != null) {
           info.active = keysetInfo.active;
           info.inputFeePPK = keysetInfo.inputFeePPK;
+          info.finalExpiry = keysetInfo.finalExpiry;
         }
       }
     }
@@ -70,13 +71,17 @@ class KeysetHelper {
     return keysets.where((keysetInfo) => keysetInfo.active).toList();
   }
 
+  /// Prefers V2 keyset id when present, otherwise returns first valid (V1 or V2).
   static KeysetInfoIsar? findBetterKeyset(List<KeysetInfoIsar> keysetList) {
     if (keysetList.isEmpty) return null;
 
+    KeysetInfoIsar? firstValid;
     for (var keyset in keysetList) {
-      if (Nut2.isHexKeysetId(keyset.keysetId)) return keyset;
+      if (!Nut2.isHexKeysetId(keyset.keysetId)) continue;
+      firstValid ??= keyset;
+      if (Nut2.isKeysetIdV2(keyset.keysetId)) return keyset;
     }
-    return keysetList.firstOrNull;
+    return firstValid;
   }
 
   static Future<MintKeys?> keysetFetcher(String mintURL, String unit, String keysetId) async {

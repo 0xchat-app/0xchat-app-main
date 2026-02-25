@@ -22,28 +22,33 @@ const KeysetInfoIsarSchema = CollectionSchema(
       name: r'active',
       type: IsarType.bool,
     ),
-    r'inputFeePPK': PropertySchema(
+    r'finalExpiry': PropertySchema(
       id: 1,
+      name: r'finalExpiry',
+      type: IsarType.long,
+    ),
+    r'inputFeePPK': PropertySchema(
+      id: 2,
       name: r'inputFeePPK',
       type: IsarType.long,
     ),
     r'keysetId': PropertySchema(
-      id: 2,
+      id: 3,
       name: r'keysetId',
       type: IsarType.string,
     ),
     r'keysetRaw': PropertySchema(
-      id: 3,
+      id: 4,
       name: r'keysetRaw',
       type: IsarType.string,
     ),
     r'mintURL': PropertySchema(
-      id: 4,
+      id: 5,
       name: r'mintURL',
       type: IsarType.string,
     ),
     r'unit': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'unit',
       type: IsarType.string,
     )
@@ -101,11 +106,12 @@ void _keysetInfoIsarSerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeBool(offsets[0], object.active);
-  writer.writeLong(offsets[1], object.inputFeePPK);
-  writer.writeString(offsets[2], object.keysetId);
-  writer.writeString(offsets[3], object.keysetRaw);
-  writer.writeString(offsets[4], object.mintURL);
-  writer.writeString(offsets[5], object.unit);
+  writer.writeLong(offsets[1], object.finalExpiry);
+  writer.writeLong(offsets[2], object.inputFeePPK);
+  writer.writeString(offsets[3], object.keysetId);
+  writer.writeString(offsets[4], object.keysetRaw);
+  writer.writeString(offsets[5], object.mintURL);
+  writer.writeString(offsets[6], object.unit);
 }
 
 KeysetInfoIsar _keysetInfoIsarDeserialize(
@@ -116,11 +122,12 @@ KeysetInfoIsar _keysetInfoIsarDeserialize(
 ) {
   final object = KeysetInfoIsar(
     active: reader.readBool(offsets[0]),
-    inputFeePPK: reader.readLongOrNull(offsets[1]) ?? 0,
-    keysetId: reader.readString(offsets[2]),
-    keysetRaw: reader.readStringOrNull(offsets[3]) ?? '',
-    mintURL: reader.readString(offsets[4]),
-    unit: reader.readString(offsets[5]),
+    finalExpiry: reader.readLongOrNull(offsets[1]),
+    inputFeePPK: reader.readLongOrNull(offsets[2]) ?? 0,
+    keysetId: reader.readString(offsets[3]),
+    keysetRaw: reader.readStringOrNull(offsets[4]) ?? '',
+    mintURL: reader.readString(offsets[5]),
+    unit: reader.readString(offsets[6]),
   );
   object.id = id;
   return object;
@@ -136,14 +143,16 @@ P _keysetInfoIsarDeserializeProp<P>(
     case 0:
       return (reader.readBool(offset)) as P;
     case 1:
-      return (reader.readLongOrNull(offset) ?? 0) as P;
+      return (reader.readLongOrNull(offset)) as P;
     case 2:
-      return (reader.readString(offset)) as P;
+      return (reader.readLongOrNull(offset) ?? 0) as P;
     case 3:
-      return (reader.readStringOrNull(offset) ?? '') as P;
-    case 4:
       return (reader.readString(offset)) as P;
+    case 4:
+      return (reader.readStringOrNull(offset) ?? '') as P;
     case 5:
+      return (reader.readString(offset)) as P;
+    case 6:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -431,6 +440,80 @@ extension KeysetInfoIsarQueryFilter
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'active',
         value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<KeysetInfoIsar, KeysetInfoIsar, QAfterFilterCondition>
+      finalExpiryIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'finalExpiry',
+      ));
+    });
+  }
+
+  QueryBuilder<KeysetInfoIsar, KeysetInfoIsar, QAfterFilterCondition>
+      finalExpiryIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'finalExpiry',
+      ));
+    });
+  }
+
+  QueryBuilder<KeysetInfoIsar, KeysetInfoIsar, QAfterFilterCondition>
+      finalExpiryEqualTo(int? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'finalExpiry',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<KeysetInfoIsar, KeysetInfoIsar, QAfterFilterCondition>
+      finalExpiryGreaterThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'finalExpiry',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<KeysetInfoIsar, KeysetInfoIsar, QAfterFilterCondition>
+      finalExpiryLessThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'finalExpiry',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<KeysetInfoIsar, KeysetInfoIsar, QAfterFilterCondition>
+      finalExpiryBetween(
+    int? lower,
+    int? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'finalExpiry',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
       ));
     });
   }
@@ -1113,6 +1196,20 @@ extension KeysetInfoIsarQuerySortBy
   }
 
   QueryBuilder<KeysetInfoIsar, KeysetInfoIsar, QAfterSortBy>
+      sortByFinalExpiry() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'finalExpiry', Sort.asc);
+    });
+  }
+
+  QueryBuilder<KeysetInfoIsar, KeysetInfoIsar, QAfterSortBy>
+      sortByFinalExpiryDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'finalExpiry', Sort.desc);
+    });
+  }
+
+  QueryBuilder<KeysetInfoIsar, KeysetInfoIsar, QAfterSortBy>
       sortByInputFeePPK() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'inputFeePPK', Sort.asc);
@@ -1190,6 +1287,20 @@ extension KeysetInfoIsarQuerySortThenBy
       thenByActiveDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'active', Sort.desc);
+    });
+  }
+
+  QueryBuilder<KeysetInfoIsar, KeysetInfoIsar, QAfterSortBy>
+      thenByFinalExpiry() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'finalExpiry', Sort.asc);
+    });
+  }
+
+  QueryBuilder<KeysetInfoIsar, KeysetInfoIsar, QAfterSortBy>
+      thenByFinalExpiryDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'finalExpiry', Sort.desc);
     });
   }
 
@@ -1280,6 +1391,13 @@ extension KeysetInfoIsarQueryWhereDistinct
   }
 
   QueryBuilder<KeysetInfoIsar, KeysetInfoIsar, QDistinct>
+      distinctByFinalExpiry() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'finalExpiry');
+    });
+  }
+
+  QueryBuilder<KeysetInfoIsar, KeysetInfoIsar, QDistinct>
       distinctByInputFeePPK() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'inputFeePPK');
@@ -1326,6 +1444,12 @@ extension KeysetInfoIsarQueryProperty
   QueryBuilder<KeysetInfoIsar, bool, QQueryOperations> activeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'active');
+    });
+  }
+
+  QueryBuilder<KeysetInfoIsar, int?, QQueryOperations> finalExpiryProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'finalExpiry');
     });
   }
 

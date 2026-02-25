@@ -16,6 +16,7 @@ class KeysetInfoIsar {
     required this.active,
     this.keysetRaw = '',
     this.inputFeePPK = 0,
+    this.finalExpiry,
   }) : keyset = keysetFromRaw(keysetRaw);
 
   Id id = Isar.autoIncrement;
@@ -30,16 +31,24 @@ class KeysetInfoIsar {
   Map<String, String> keyset = {};
   int inputFeePPK;
 
+  /// NUT-02: Unix timestamp after which the mint is not obliged to fulfill this keyset.
+  int? finalExpiry;
+
   // for db column
   String keysetRaw = '';
 
   factory KeysetInfoIsar.fromServerMap(Map jsonMap, String mintURL) {
+    final rawExpiry = jsonMap['final_expiry'];
+    final int? finalExpiry = rawExpiry is int
+        ? rawExpiry
+        : (rawExpiry != null ? int.tryParse(rawExpiry.toString()) : null);
     return KeysetInfoIsar(
       keysetId: Tools.getValueAs<String>(jsonMap, 'id', ''),
       mintURL: mintURL,
       unit: Tools.getValueAs<String>(jsonMap, 'unit', ''),
       active: Tools.getValueAs(jsonMap, 'active', false),
       inputFeePPK: Tools.getValueAs(jsonMap, 'input_fee_ppk', 0),
+      finalExpiry: finalExpiry,
     );
   }
 

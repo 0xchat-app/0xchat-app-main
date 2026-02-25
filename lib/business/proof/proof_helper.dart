@@ -645,7 +645,12 @@ class ProofHelper {
       final keyset = (await KeysetStore.getKeyset(id: originId)).firstOrNull;
       if (keyset == null) continue;
 
-      hexKeysetId = Nut2.deriveKeySetId(keyset.keyset);
+      hexKeysetId = Nut2.deriveKeysetIdV2(
+        keyset.keyset,
+        unit: keyset.unit,
+        inputFeePpk: keyset.inputFeePPK,
+        finalExpiry: keyset.finalExpiry,
+      );
       if (hexKeysetId.isNotEmpty) {
         keysetIdMap[originId] = hexKeysetId;
         final newProof = proof.copyWith(id: hexKeysetId);
