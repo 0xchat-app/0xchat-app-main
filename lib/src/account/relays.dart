@@ -29,7 +29,9 @@ class Relays {
     'wss://relay.nostr.band',
     'wss://nos.lol',
     'wss://nostr.wine',
-    'wss://eden.nostr.land'
+    'wss://eden.nostr.land',
+    'wss://nostr.data.haus',
+    'wss://relay.mostr.pub',
   ];
 
   List<String> recommendDMRelays = [
