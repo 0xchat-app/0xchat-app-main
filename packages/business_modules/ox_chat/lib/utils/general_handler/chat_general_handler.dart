@@ -272,7 +272,6 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
           content: Localized.text('ox_chat.message_resend_hint'),
         );
         if (result) {
-          OXNavigator.pop(context);
           resendMessage(context, message);
         }
         break ;
