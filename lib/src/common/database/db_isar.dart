@@ -188,10 +188,20 @@ class DBISAR {
     }
   }
 
+  /// Closes the database using a "take isar reference + defer close" approach to avoid crash on account switch.
+  ///
+  /// Reason: If we synchronously await isar.close() here, the switch-account flow does close then immediately open.
+  /// On iOS the native layer (isar_flutter_libs) can hit a race or use-after-free when close and open run back-to-back, causing a crash.
+  /// Approach: Take a reference to the current [isar] (isarToClose), clear buffers and timer, then return immediately;
+  /// the actual close runs in the background after a delay, so the subsequent [open] can complete first and the old instance is closed afterward, avoiding overlap with the next open in the native layer.
   Future<void> closeDatabase() async {
-    _buffers.clear();
-    _timer?.cancel();
-    _timer = null;
-    if (isar.isOpen) await isar.close();
+    final isarToClose = isar;
+    await _putAll();
+    // Defer close to avoid race with the following open() in the native layer (see method doc above).
+    Future.delayed(const Duration(seconds: 1), () async {
+      if (isarToClose.isOpen) {
+        await isarToClose.close();
+      }
+    });
   }
 }
