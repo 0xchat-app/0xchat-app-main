@@ -478,5 +478,13 @@
     "icon": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://cornychat.com/&size=256",
     "description": "Nostr chat application",
     "metadata": {}
+  },
+  {
+    "id": "nostria",
+    "url": "https://nostria.app/",
+    "name": "Nostria",
+    "icon": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://nostria.app/&size=256",
+    "description": "Nostr app",
+    "metadata": {}
   }
 ]
