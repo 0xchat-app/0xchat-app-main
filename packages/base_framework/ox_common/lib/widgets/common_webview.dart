@@ -78,8 +78,12 @@ class CommonWebViewState<T extends CommonWebView> extends State<T>
 
   Map<String, Function> get jsMethods => {};
 
+  /// Set to true to use GeckoView when proxy/Tor is enabled (requires GeckoView AAR on Android).
+  static const bool _kUseGeckoViewOnAndroid = false;
+
   /// On Android with proxy/Tor enabled, use GeckoView so web traffic goes through app proxy.
   bool get _useGeckoView =>
+      _kUseGeckoViewOnAndroid &&
       Platform.isAndroid &&
       !widget.isLocalHtmlResource &&
       _getProxyForUrl(widget.url) != null;

@@ -32,7 +32,6 @@ android {
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
-        main.java.srcDirs += 'src/main/gecko'
     }
     buildFeatures {
         buildConfig true
@@ -51,25 +50,9 @@ android {
     }
 }
 
-ext {
-    geckoviewChannel = "nightly"
-    geckoviewVersion = "99.0.20220308092232"
-    geckoviewNoWebRtcAar = file("${projectDir}/libs/geckoview-nightly-no-webrtc.aar")
-}
-
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'androidx.appcompat:appcompat:1.2.0'
-    // GeckoView (no-WebRTC AAR). compileOnly so this library does not bundle it (AGP forbids local AAR in AAR).
-    // App module must add implementation for the same AAR. Generate once: ./strip_webrtc_from_geckoview.sh
-    if (geckoviewNoWebRtcAar.exists()) {
-        compileOnly files(geckoviewNoWebRtcAar)
-    } else {
-        throw new GradleException(
-            "libs/geckoview-nightly-no-webrtc.aar is missing. " +
-            "Run: cd packages/base_framework/ox_common/android && ./strip_webrtc_from_geckoview.sh"
-        )
-    }
     implementation 'io.github.lucksiege:pictureselector:v3.11.2'
     // image compress library (Not necessary)
     implementation 'io.github.lucksiege:compress:v3.11.2'
