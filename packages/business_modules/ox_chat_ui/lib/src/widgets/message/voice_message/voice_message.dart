@@ -41,8 +41,7 @@ class VoiceMessage extends StatefulWidget {
   _VoiceMessageState createState() => _VoiceMessageState();
 }
 
-class _VoiceMessageState extends State<VoiceMessage>
-    with TickerProviderStateMixin {
+class _VoiceMessageState extends State<VoiceMessage> {
   List<StreamSubscription> subscriptions = [];
 
   final AudioPlayerSingleton audioPlayerSingleton = AudioPlayerSingleton();
@@ -51,7 +50,11 @@ class _VoiceMessageState extends State<VoiceMessage>
   final double radius = 12;
   PlayerState state = PlayerState.completed;
   String _remainingTime = '';
-  AnimationController? _controller;
+  /// Progress 0.0..1.0 driven by playback position (works with speed and seek).
+  double _progress = 0.0;
+  /// Playback speed: 1.0, 1.5, or 2.0.
+  double _playbackSpeed = 1.0;
+  static const List<double> _speedOptions = [1.0, 1.5, 2.0];
   String? get _playUrl => widget.audioFile?.path;
 
   Color? themeColor;
@@ -77,15 +80,18 @@ class _VoiceMessageState extends State<VoiceMessage>
       if (!mounted) return ;
 
       if (event == PlayerState.completed) {
-        setState(() { state = event; });
-        setAudioUIToDefault();
+        setState(() {
+          state = event;
+          _progress = 1.0;
+        });
+        setAudioUIToDefault(atEnd: true);
         return ;
       }
 
       final isCurrentPlayingUrl = audioPlayerSingleton.getCurrentPlayingUrl() == _playUrl;
       if (!isCurrentPlayingUrl) {
         if (state != PlayerState.completed) {
-          setAudioUIToDefault();
+          setAudioUIToDefault(atEnd: false);
         }
         return ;
       }
@@ -106,24 +112,30 @@ class _VoiceMessageState extends State<VoiceMessage>
 
     final positionChangedSubscription = _player.onPositionChanged.listen((Duration p) {
       if (!mounted) return ;
-      if (state == PlayerState.playing) {
-        setState(() {
-          _remainingTime = widget.formatDuration(p);
-        });
-      }
+      final duration = widget.duration;
+      if (duration == null) return ;
+      final isCurrent = audioPlayerSingleton.getCurrentPlayingUrl() == _playUrl;
+      if (!isCurrent) return ;
+      final progress = duration.inMilliseconds > 0
+          ? (p.inMilliseconds / duration.inMilliseconds).clamp(0.0, 1.0)
+          : 0.0;
+      setState(() {
+        _progress = progress;
+        _remainingTime = widget.formatDuration(p);
+      });
     });
 
     subscriptions.add(stateChangedSubscription);
     subscriptions.add(positionChangedSubscription);
   }
 
-  void setAudioUIToDefault() {
+  void setAudioUIToDefault({bool atEnd = false}) {
     if (mounted) {
       final duration = widget.duration;
       if (duration == null) return ;
-      _controller?.reset();
       setState(() {
         state = PlayerState.completed;
+        _progress = atEnd ? 1.0 : 0.0;
         _remainingTime = widget.formatDuration(duration);
       });
     }
@@ -169,7 +181,7 @@ class _VoiceMessageState extends State<VoiceMessage>
             padding: EdgeInsets.symmetric(horizontal: Adapt.px(10)),
             child: _buildProgressView(),
           ),
-          // _durationWithNoise(context),
+          _buildSpeedButton(),
           _buildTimeView(),
         ],
       );
@@ -204,10 +216,8 @@ class _VoiceMessageState extends State<VoiceMessage>
       );
 
   Widget _buildProgressView() {
-
     final duration = widget.duration;
-    final controller = _controller;
-    if (duration == null || controller == null) {
+    if (duration == null) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 15.0),
         child: CupertinoActivityIndicator(),
@@ -216,37 +226,57 @@ class _VoiceMessageState extends State<VoiceMessage>
 
     final audioDuration = duration.inSeconds;
     final dotCount = _calculateDotCount(audioDuration);
-    return SizedBox(
-      height: Adapt.px(32),
-      child: ListView.builder(
-        shrinkWrap: true,
-        itemCount: dotCount,
-        scrollDirection: Axis.horizontal,
-        itemBuilder: (context, index) =>
-            Padding(
+    final durationMs = duration.inMilliseconds;
+    // Approximate width of the dot row for seek calculation (each dot 6 + padding 2.5*2).
+    const double dotWidth = 6.0 + 2.5 * 2;
+    final double trackWidth = dotCount * dotWidth;
+
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTapDown: (details) => _seekToPosition(details.localPosition.dx, trackWidth, durationMs),
+      onHorizontalDragUpdate: (details) {
+        if (trackWidth <= 0) return;
+        final dx = details.localPosition.dx;
+        setState(() => _progress = (dx / trackWidth).clamp(0.0, 1.0));
+      },
+      onHorizontalDragEnd: (details) {
+        if (audioPlayerSingleton.getCurrentPlayingUrl() != _playUrl) return;
+        final positionMs = (_progress * durationMs).round();
+        _player.seek(Duration(milliseconds: positionMs));
+      },
+      child: SizedBox(
+        height: Adapt.px(32),
+        child: ListView.builder(
+          shrinkWrap: true,
+          itemCount: dotCount,
+          scrollDirection: Axis.horizontal,
+          itemBuilder: (context, index) {
+            final itemProgress = (index + 1) / dotCount;
+            final dotColor = itemProgress <= _progress
+                ? (themeColor ?? Colors.white)
+                : (themeColor ?? Colors.white).withOpacity(0.2);
+            return Padding(
               padding: const EdgeInsets.all(2.5),
-              child: AnimatedBuilder(
-                animation: CurvedAnimation(parent: controller, curve: Curves.ease),
-                builder: (context, child) {
-                  final itemProgress = (index + 1) / dotCount;
-                  var dotColor = themeColor;
-                  if (controller.status == AnimationStatus.forward) {
-                    dotColor = itemProgress <= controller.value ? Colors.white
-                        : Colors.white.withOpacity(0.2);
-                  }
-                  return Container(
-                    width: 6,
-                    height: 6,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: dotColor,
-                    ),
-                  );
-                },
+              child: Container(
+                width: 6,
+                height: 6,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: dotColor,
+                ),
               ),
-            ),
+            );
+          },
+        ),
       ),
     );
+  }
+
+  void _seekToPosition(double localDx, double width, int durationMs) {
+    if (width <= 0 || durationMs <= 0) return;
+    if (audioPlayerSingleton.getCurrentPlayingUrl() != _playUrl) return;
+    final positionMs = (localDx / width).clamp(0.0, 1.0) * durationMs;
+    _player.seek(Duration(milliseconds: positionMs.round()));
   }
 
   int _calculateDotCount(int input) {
@@ -270,41 +300,71 @@ class _VoiceMessageState extends State<VoiceMessage>
     ),
   );
 
+  Widget _buildSpeedButton() {
+    final label = _playbackSpeed == 1.0 ? '1x' : _playbackSpeed == 1.5 ? '1.5x' : '2x';
+    return Padding(
+      padding: EdgeInsets.only(right: Adapt.px(6)),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: _cyclePlaybackSpeed,
+          borderRadius: BorderRadius.circular(4),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+            child: Text(
+              label,
+              style: TextStyle(
+                color: themeColor,
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Future _startPlaying() async {
     final playUrl = _playUrl;
-    if (playUrl == null ||widget.duration == null) return;
+    if (playUrl == null || widget.duration == null) return;
+    // If this message is already the current source and paused, resume from current position
+    // instead of calling play() which would start from the beginning (losing seek position).
+    if (audioPlayerSingleton.getCurrentPlayingUrl() == playUrl &&
+        _player.state == PlayerState.paused) {
+      await _player.resume();
+      await _player.setPlaybackRate(_playbackSpeed);
+      return;
+    }
     await audioPlayerSingleton.play(playUrl, (url) {
       if (url == playUrl) {
         _stopPlayingHandler();
       }
     });
+    if (audioPlayerSingleton.getCurrentPlayingUrl() == playUrl) {
+      await _player.setPlaybackRate(_playbackSpeed);
+    }
+  }
+
+  void _cyclePlaybackSpeed() {
+    final idx = _speedOptions.indexOf(_playbackSpeed);
+    final nextIdx = (idx + 1) % _speedOptions.length;
+    setState(() => _playbackSpeed = _speedOptions[nextIdx]);
+    if (audioPlayerSingleton.getCurrentPlayingUrl() == _playUrl) {
+      _player.setPlaybackRate(_playbackSpeed);
+    }
   }
 
   void setAudioInfo() {
     final duration = widget.duration;
-
     _remainingTime = widget.formatDuration(duration ?? Duration());
-
-    final aniController = AnimationController(
-      vsync: this,
-      lowerBound: 0,
-      upperBound: 1,
-      duration: duration,
-    );
-    _controller = aniController;
   }
 
-  void _startPlayingHandler() {
-    _controller?.forward();
-  }
+  void _startPlayingHandler() {}
 
-  void _pausePlayingHandler() {
-    _controller?.stop();
-  }
+  void _pausePlayingHandler() {}
 
-  void _stopPlayingHandler() {
-    _controller?.reset();
-  }
+  void _stopPlayingHandler() {}
 
   void _changePlayingStatus() async {
     if (widget.onPlay != null) widget.onPlay!();
@@ -319,7 +379,6 @@ class _VoiceMessageState extends State<VoiceMessage>
   @override
   void dispose() {
     subscriptions.forEach((e) { e.cancel(); });
-    _controller?.dispose();
     super.dispose();
   }
 }

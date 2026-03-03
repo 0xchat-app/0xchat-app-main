@@ -14,6 +14,8 @@ import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_file_cache_manager.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
+import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:video_player/video_player.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:dio/dio.dart';
@@ -174,6 +176,8 @@ class _CommonVideoPageState extends State<CommonVideoPage> {
         _videoPlayerController = VideoPlayerController.file(videoFile);
       }
       await Future.wait([_videoPlayerController.initialize()]);
+      final volume = (UserConfigTool.getSetting(StorageSettingKey.KEY_VIDEO_PLAYBACK_VOLUME.name, defaultValue: 1.0) as num?)?.toDouble() ?? 1.0;
+      await _videoPlayerController.setVolume(volume.clamp(0.0, 1.0));
       _createChewieController();
       if (mounted) {
         setState(() {});
@@ -236,10 +240,13 @@ class _CustomControlsState extends State<CustomControls> {
   Timer? _hideTimer;
   List<double> videoSpeedList = [0.5, 1.0, 1.5, 2.0];
   ValueNotifier<double> videoSpeedNotifier = ValueNotifier(1.0);
+  ValueNotifier<double> volumeNotifier = ValueNotifier(1.0);
 
   @override
   void initState() {
     super.initState();
+    final savedVolume = (UserConfigTool.getSetting(StorageSettingKey.KEY_VIDEO_PLAYBACK_VOLUME.name, defaultValue: 1.0) as num?)?.toDouble() ?? 1.0;
+    volumeNotifier.value = savedVolume.clamp(0.0, 1.0);
     widget.videoPlayerController.addListener(() {
       if (!widget.videoPlayerController.value.isPlaying &&
           !customControlsStatus.value.isDragging) {
@@ -332,7 +339,13 @@ class _CustomControlsState extends State<CustomControls> {
                   size: 30.px,
                 ),
               ),
-              _buildPlayPause(),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildVolumeControl(),
+                  _buildPlayPause(),
+                ],
+              ),
               GestureDetector(
                 onTap: () async {
                   await OXLoading.show();
@@ -370,6 +383,43 @@ class _CustomControlsState extends State<CustomControls> {
               ),
             ],
           ),
+        );
+      },
+    );
+  }
+
+  Widget _buildVolumeControl() {
+    return ValueListenableBuilder<double>(
+      valueListenable: volumeNotifier,
+      builder: (context, volume, _) {
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              volume <= 0 ? Icons.volume_off : Icons.volume_up,
+              color: Colors.white,
+              size: 24.px,
+            ),
+            SizedBox(
+              width: 160.px,
+              child: SliderTheme(
+                data: SliderTheme.of(context).copyWith(
+                  activeTrackColor: Colors.white,
+                  inactiveTrackColor: Colors.white38,
+                  thumbColor: Colors.white,
+                ),
+                child: Slider(
+                  value: volume,
+                  onChanged: (v) {
+                    volumeNotifier.value = v;
+                    widget.videoPlayerController.setVolume(v);
+                    UserConfigTool.saveSetting(StorageSettingKey.KEY_VIDEO_PLAYBACK_VOLUME.name, v);
+                    setState(() {});
+                  },
+                ),
+              ),
+            ),
+          ],
         );
       },
     );
