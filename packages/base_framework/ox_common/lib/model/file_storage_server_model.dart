@@ -119,12 +119,6 @@ class FileStorageServer {
           canEdit: false,
           description: 'https://blossom.band',
         ),
-        Nip96Server(
-          url: 'https://pomf2.lain.la',
-          name: 'pomf2.lain.la',
-          canEdit: false,
-          description: 'https://pomf2.lain.la',
-        ),
         FileDropServer(
           url: 'https://filedrop.besoeasy.com',
           name: 'filedrop.besoeasy.com',

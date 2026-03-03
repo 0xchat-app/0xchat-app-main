@@ -82,6 +82,11 @@ class MessageDataController with OXChatObserver {
     );
     if (uiMessage == null) return ;
 
+    final originMessage = getMessage(replacedMessageId) ?? _getMessageByOriginId(replacedMessageId);
+    if (_isMediaMessage(originMessage) && _isTextMessage(uiMessage)) {
+      return;
+    }
+
     if (uiMessage is types.AudioMessage && uiMessage.duration == null) {
       var uri = uiMessage.uri;
       String localPath = '';
@@ -105,6 +110,19 @@ class MessageDataController with OXChatObserver {
     }
 
     updateMessage(uiMessage, originMessageId: replacedMessageId);
+  }
+
+  bool _isMediaMessage(types.Message? msg) {
+    if (msg == null) return false;
+    return msg.isImageMessage ||
+        msg.isImageSendingMessage ||
+        msg.isVideoMessage ||
+        msg.isVideoSendingMessage ||
+        msg is types.AudioMessage;
+  }
+
+  bool _isTextMessage(types.Message msg) {
+    return msg is types.TextMessage || msg.type == types.MessageType.text;
   }
 
   @override
@@ -210,6 +228,13 @@ extension MessageDataControllerInterface on MessageDataController {
   types.Message? getMessage(String messageId) {
     final immutableMessages = [..._messages];
     return immutableMessages.where((msg) => msg.id == messageId).firstOrNull;
+  }
+
+  types.Message? _getMessageByOriginId(String originMessageId) {
+    final immutableMessages = [..._messages];
+    return immutableMessages
+        .where((msg) => msg.id == originMessageId || msg.remoteId == originMessageId)
+        .firstOrNull;
   }
 
   int getMessageIndex(String messageId) {
