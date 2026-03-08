@@ -149,9 +149,9 @@ class ChatNostrSchemeHandle {
     Map<String, dynamic> map = {};
     map['type'] = '3';
     map['content'] = {
-      'title': '${userDB?.name}',
-      'content': '${userDB?.about}',
-      'icon': '${userDB?.picture}',
+      'title': userDB?.name ?? '',
+      'content': userDB?.about ?? '',
+      'icon': userDB?.picture ?? '',
       'link': link
     };
     return jsonEncode(map);
@@ -167,9 +167,9 @@ class ChatNostrSchemeHandle {
     String? about = channelDB?.about?.isEmpty == true ? channelDB?.shortChannelId : channelDB?.about;
     map['type'] = '3';
     map['content'] = {
-      'title': '${name ?? channelDB?.shortChannelId}',
-      'content': '${about ?? channelDB?.shortChannelId}',
-      'icon': '${channelDB?.picture}',
+      'title': name ?? channelDB?.shortChannelId ?? '',
+      'content': about ?? channelDB?.shortChannelId ?? '',
+      'icon': channelDB?.picture ?? '',
       'link': link
     };
     return jsonEncode(map);
@@ -185,9 +185,9 @@ class ChatNostrSchemeHandle {
     Map<String, dynamic> map = {};
     map['type'] = '3';
     map['content'] = {
-      'title': '${name ?? groupDB?.shortGroupId}',
-      'content': '${about ?? groupDB?.shortGroupId}',
-      'icon': '${groupDB?.picture}',
+      'title': name ?? groupDB?.shortGroupId ?? '',
+      'content': about ?? groupDB?.shortGroupId ?? '',
+      'icon': groupDB?.picture ?? '',
       'link': link
     };
     return jsonEncode(map);
@@ -211,9 +211,9 @@ class ChatNostrSchemeHandle {
     Map<String, dynamic> map = {};
     map['type'] = '3';
     map['content'] = {
-      'title': '${groupDB?.showName}',
-      'content': '${groupDB?.about}',
-      'icon': '${groupDB?.picture}',
+      'title': groupDB?.showName ?? '',
+      'content': groupDB?.about ?? '',
+      'icon': groupDB?.picture ?? '',
       'link': link
     };
     return jsonEncode(map);
@@ -236,12 +236,12 @@ class ChatNostrSchemeHandle {
 
     map['content'] = {
       'sourceScheme': noteDB.encodedNoteId,
-      'authorIcon': '${userDB?.picture}',
-      'authorName': '${userDB?.name}',
-      'authorDNS': '${userDB?.dns}',
-      'createTime': '${noteDB.createAt}',
-      'note': '${noteDB.content}',
-      'image': '${_extractFirstImageUrl(noteDB.content)}',
+      'authorIcon': userDB?.picture ?? '',
+      'authorName': userDB?.name ?? '',
+      'authorDNS': userDB?.dns ?? '',
+      'createTime': noteDB.createAt?.toString() ?? '',
+      'note': noteDB.content ?? '',
+      'image': _extractFirstImageUrl(noteDB.content ?? ''),
       'link': link,
     };
     return jsonEncode(map);
@@ -283,14 +283,12 @@ class ChatNostrSchemeHandle {
     Map<String, dynamic> map = {};
     map['type'] = '4';
     map['content'] = {
-      'authorIcon': '${userDB?.picture}',
-      'authorName': '${userDB?.name}',
-      'authorDNS': '${userDB?.dns}',
-      'createTime':
-          '${longFormContent.publishedAt ?? longFormContent.createAt}',
+      'authorIcon': userDB?.picture ?? '',
+      'authorName': userDB?.name ?? '',
+      'authorDNS': userDB?.dns ?? '',
+      'createTime': (longFormContent.publishedAt ?? longFormContent.createAt)?.toString() ?? '',
       'note': note,
-      'image':
-          '${longFormContent.image ?? _extractFirstImageUrl(longFormContent.content)}',
+      'image': longFormContent.image ?? _extractFirstImageUrl(longFormContent.content),
       'link': link,
     };
     return jsonEncode(map);
