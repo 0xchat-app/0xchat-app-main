@@ -107,6 +107,9 @@
   "you": "ти",
   "webview_more_browser": "Отвори в браузър",
   "webview_more_copy": "Копирай връзката",
+  "webview_more_clear_cache_cookies": "Изчистване на кеш и бисквитки",
+  "webview_clear_cache_done": "Изчистено",
+  "webview_clear_cache_failed": "Неуспешно изчистване",
   "open_singer_app_error_title": "Грешка при отваряне на приложението за подпис",
   "open_singer_app_error_content": "Не може да се намери приложението за подпис, моля проверете дали приложението не е деинсталирано."
 }

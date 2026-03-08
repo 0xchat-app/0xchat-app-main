@@ -107,5 +107,8 @@
   "you": "tu",
   "webview_more_browser": "Ouvrir dans le navigateur",
   "webview_more_copy": "Copier le lien",
-  "webview_more_bookmark": "Signet"
+  "webview_more_bookmark": "Signet",
+  "webview_more_clear_cache_cookies": "Effacer le cache et les cookies",
+  "webview_clear_cache_done": "Effacé",
+  "webview_clear_cache_failed": "Échec de l'effacement"
 }

@@ -106,5 +106,8 @@
   "secret_chat_rejected_tips": "${name} odmítl(a) vaši žádost o tajnou konverzaci",
   "you": "ty",
   "webview_more_browser": "Otevřít v prohlížeči",
-  "webview_more_copy": "Kopírovat odkaz"
+  "webview_more_copy": "Kopírovat odkaz",
+  "webview_more_clear_cache_cookies": "Vymazat mezipaměť a cookies",
+  "webview_clear_cache_done": "Vymazáno",
+  "webview_clear_cache_failed": "Nepodařilo se vymazat"
 }

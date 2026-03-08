@@ -106,5 +106,8 @@
   "secret_chat_rejected_tips": "${name} rejeitou seu pedido de chat secreto",
   "you": "você",
   "webview_more_browser": "Abrir no navegador",
-  "webview_more_copy": "Copiar link"
+  "webview_more_copy": "Copiar link",
+  "webview_more_clear_cache_cookies": "Limpar cache e cookies",
+  "webview_clear_cache_done": "Limpo",
+  "webview_clear_cache_failed": "Falha ao limpar"
 }

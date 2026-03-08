@@ -106,5 +106,8 @@
   "secret_chat_rejected_tips": "${name} ir noraidījis jūsu pieprasījumu slepenajam čatam",
   "you": "tu",
   "webview_more_browser": "Atvērt pārlūkprogrammā",
-  "webview_more_copy": "Kopēt saiti"
+  "webview_more_copy": "Kopēt saiti",
+  "webview_more_clear_cache_cookies": "Notīrīt kešatmiņu un sīkdatnes",
+  "webview_clear_cache_done": "Notīrīts",
+  "webview_clear_cache_failed": "Notīrīšana neizdevās"
 }

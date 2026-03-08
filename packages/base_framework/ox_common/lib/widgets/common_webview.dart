@@ -3,12 +3,14 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:chatcore/chat-core.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:ox_common/mixin/common_js_method_mixin.dart';
 import 'package:ox_common/widgets/common_webview+nostr.dart';
 import 'package:ox_common/widgets/common_webview_app_bar.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:ox_common/mixin/common_js_method_mixin.dart';
+import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
@@ -93,8 +95,12 @@ class CommonWebViewState<T extends CommonWebView> extends State<T>
     super.initState();
     if (!_useGeckoView) {
       prepareWebViewDelegate();
-      prepareWebViewController();
+      _prepareWebViewControllerAsync();
     }
+  }
+
+  Future<void> _prepareWebViewControllerAsync() async {
+    await prepareWebViewController();
   }
 
   void prepareWebViewDelegate() {
@@ -135,7 +141,7 @@ class CommonWebViewState<T extends CommonWebView> extends State<T>
     );
   }
 
-  void prepareWebViewController() {
+  Future<void> prepareWebViewController() async {
     currentController.setJavaScriptMode(JavaScriptMode.unrestricted);
     if (!Platform.isMacOS) {
       currentController.setBackgroundColor(Colors.transparent);
@@ -150,6 +156,9 @@ class CommonWebViewState<T extends CommonWebView> extends State<T>
           _handleDownloadRequest(message.message);
         },
       );
+      // File input (upload) support: when page triggers <input type="file">, show file picker
+      final androidController = currentController.platform as AndroidWebViewController;
+      await androidController.setOnShowFileSelector(_androidFileSelector);
     }
 
     final isLocalHtmlResource = widget.isLocalHtmlResource;
@@ -165,6 +174,36 @@ class CommonWebViewState<T extends CommonWebView> extends State<T>
     ),);
   }
 
+  /// Android only: called when the web page triggers <input type="file">.
+  /// Returns a list of file URIs (file://) for the selected files.
+  Future<List<String>> _androidFileSelector(FileSelectorParams params) async {
+    FileType type = FileType.any;
+    if (params.acceptTypes.any((t) => t.startsWith('image/'))) {
+      type = FileType.image;
+    } else if (params.acceptTypes.any((t) => t.startsWith('video/'))) {
+      type = FileType.video;
+    } else if (params.acceptTypes.any((t) => t.startsWith('audio/'))) {
+      type = FileType.audio;
+    }
+    final allowMultiple = params.mode == FileSelectorMode.openMultiple;
+    FilePickerResult? result;
+    try {
+      result = await FilePicker.platform.pickFiles(
+        allowMultiple: allowMultiple,
+        type: type,
+      );
+    } catch (_) {
+      return [];
+    }
+    if (result == null || result.files.isEmpty) return [];
+    return result.files
+        .where((f) => f.path != null && f.path!.isNotEmpty)
+        .map((f) {
+          final p = f.path!;
+          return p.startsWith('/') ? 'file://$p' : p;
+        })
+        .toList();
+  }
 
   @override
   Widget build(BuildContext context) {

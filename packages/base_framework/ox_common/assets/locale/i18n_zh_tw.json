@@ -113,5 +113,8 @@
   "media_type_image": "圖片",
   "media_type_video": "視頻",
   "media_type_audio": "音頻",
-  "media_type_file": "文件"
+  "media_type_file": "文件",
+  "webview_more_clear_cache_cookies": "清理快取與 Cookie",
+  "webview_clear_cache_done": "已清理",
+  "webview_clear_cache_failed": "清理失敗"
 }

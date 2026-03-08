@@ -107,5 +107,8 @@
   "you": "du",
   "webview_more_browser": "Im Browser öffnen",
   "webview_more_copy": "Link kopieren",
-  "webview_more_bookmark": "Lesezeichen"
+  "webview_more_bookmark": "Lesezeichen",
+  "webview_more_clear_cache_cookies": "Cache & Cookies löschen",
+  "webview_clear_cache_done": "Gelöscht",
+  "webview_clear_cache_failed": "Löschen fehlgeschlagen"
 }

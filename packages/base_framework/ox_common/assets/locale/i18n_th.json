@@ -106,5 +106,8 @@
   "secret_chat_rejected_tips": "${name} ได้ปฏิเสธคำขอแชทลับของคุณ",
   "you": "คุณ",
   "webview_more_browser": "เปิดในเบราว์เซอร์",
-  "webview_more_copy": "คัดลอกลิงก์"
+  "webview_more_copy": "คัดลอกลิงก์",
+  "webview_more_clear_cache_cookies": "ล้างแคชและคุกกี้",
+  "webview_clear_cache_done": "ล้างแล้ว",
+  "webview_clear_cache_failed": "ล้างไม่สำเร็จ"
 }

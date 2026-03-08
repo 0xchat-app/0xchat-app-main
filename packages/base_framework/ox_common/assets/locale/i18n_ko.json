@@ -107,5 +107,8 @@
   "you": "당신",
   "webview_more_browser": "브라우저에서 열기",
   "webview_more_copy": "링크 복사",
-  "webview_more_bookmark": "북마크"
+  "webview_more_bookmark": "북마크",
+  "webview_more_clear_cache_cookies": "캐시 및 쿠키 지우기",
+  "webview_clear_cache_done": "지움",
+  "webview_clear_cache_failed": "지우기 실패"
 }

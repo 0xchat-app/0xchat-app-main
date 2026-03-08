@@ -106,5 +106,8 @@
   "secret_chat_rejected_tips": "${name} đã từ chối yêu cầu trò chuyện bí mật của bạn",
   "you": "bạn",
   "webview_more_browser": "Mở trong trình duyệt",
-  "webview_more_copy": "Sao chép liên kết"
+  "webview_more_copy": "Sao chép liên kết",
+  "webview_more_clear_cache_cookies": "Xóa bộ nhớ cache và cookie",
+  "webview_clear_cache_done": "Đã xóa",
+  "webview_clear_cache_failed": "Xóa thất bại"
 }

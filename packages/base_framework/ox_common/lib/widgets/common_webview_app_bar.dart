@@ -203,6 +203,12 @@ class CommonWebViewAppBar extends StatelessWidget implements PreferredSizeWidget
             margin: margin,
           ))
       ..add((margin) => _buildItem(
+            label: Localized.text('ox_common.webview_more_clear_cache_cookies'),
+            onTap: () => _onClearCacheAndCookies(context),
+            iconName: 'icon_big_del.png',
+            margin: margin,
+          ))
+      ..add((margin) => _buildItem(
             label: Localized.text('ox_common.webview_more_browser'),
             onTap: () => _launchURL(context),
             iconName: 'icon_share_browser.png',
@@ -347,6 +353,27 @@ class CommonWebViewAppBar extends StatelessWidget implements PreferredSizeWidget
     WebViewController webViewController = await webViewControllerFuture!;
     OXNavigator.pop(context);
     webViewController.reload();
+  }
+
+  /// Clears WebView cache, local storage, and cookies; then shows toast and optionally reloads.
+  void _onClearCacheAndCookies(BuildContext context) async {
+    if (webViewControllerFuture == null) return;
+    try {
+      final WebViewController webViewController = await webViewControllerFuture!;
+      OXNavigator.pop(context);
+      await webViewController.clearCache();
+      await webViewController.clearLocalStorage();
+      final cookieManager = WebViewCookieManager();
+      await cookieManager.clearCookies();
+      if (context.mounted) {
+        CommonToast.instance.show(context, Localized.text('ox_common.webview_clear_cache_done'));
+        webViewController.reload();
+      }
+    } catch (e) {
+      if (context.mounted) {
+        CommonToast.instance.show(context, Localized.text('ox_common.webview_clear_cache_failed'));
+      }
+    }
   }
 
   Future<String?> _getTargetNappId() async {

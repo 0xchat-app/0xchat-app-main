@@ -107,5 +107,8 @@
   "you": "あなた",
   "webview_more_browser": "ブラウザで開く",
   "webview_more_copy": "リンクをコピー",
-  "webview_more_bookmark": "ブックマーク"
+  "webview_more_bookmark": "ブックマーク",
+  "webview_more_clear_cache_cookies": "キャッシュとCookieを削除",
+  "webview_clear_cache_done": "削除しました",
+  "webview_clear_cache_failed": "削除に失敗しました"
 }

@@ -106,5 +106,8 @@
   "secret_chat_rejected_tips": "${name} odrzucił(a) twoją prośbę o tajny czat",
   "you": "ty",
   "webview_more_browser": "Otwórz w przeglądarce",
-  "webview_more_copy": "Kopiuj link"
+  "webview_more_copy": "Kopiuj link",
+  "webview_more_clear_cache_cookies": "Wyczyść pamięć podręczną i pliki cookie",
+  "webview_clear_cache_done": "Wyczyszczono",
+  "webview_clear_cache_failed": "Nie udało się wyczyścić"
 }

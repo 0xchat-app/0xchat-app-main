@@ -106,5 +106,8 @@
   "secret_chat_rejected_tips": "${name} telah menolak permintaan obrolan rahasia Anda",
   "you": "kamu",
   "webview_more_browser": "Buka di Peramban",
-  "webview_more_copy": "Salin Tautan"
+  "webview_more_copy": "Salin Tautan",
+  "webview_more_clear_cache_cookies": "Bersihkan cache & cookie",
+  "webview_clear_cache_done": "Berhasil dibersihkan",
+  "webview_clear_cache_failed": "Gagal membersihkan"
 }

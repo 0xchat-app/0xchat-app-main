@@ -106,5 +106,8 @@
   "secret_chat_rejected_tips": "${name} har avvisat din förfrågan om en hemlig chatt",
   "you": "du",
   "webview_more_browser": "Öppna i webbläsaren",
-  "webview_more_copy": "Kopiera länk"
+  "webview_more_copy": "Kopiera länk",
+  "webview_more_clear_cache_cookies": "Rensa cache och cookies",
+  "webview_clear_cache_done": "Rensat",
+  "webview_clear_cache_failed": "Kunde inte rensa"
 }

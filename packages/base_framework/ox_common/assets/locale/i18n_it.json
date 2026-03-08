@@ -106,5 +106,8 @@
   "secret_chat_rejected_tips": "${name} ha respinto la tua richiesta di chat segreta",
   "you": "tu",
   "webview_more_browser": "Apri nel browser",
-  "webview_more_copy": "Copia link"
+  "webview_more_copy": "Copia link",
+  "webview_more_clear_cache_cookies": "Cancella cache e cookie",
+  "webview_clear_cache_done": "Cancellato",
+  "webview_clear_cache_failed": "Cancellazione non riuscita"
 }

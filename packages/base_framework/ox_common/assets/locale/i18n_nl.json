@@ -106,5 +106,8 @@
   "secret_chat_rejected_tips": "${name} heeft je verzoek voor een geheime chat afgewezen",
   "you": "jij/u",
   "webview_more_browser": "Openen in browser",
-  "webview_more_copy": "Link kopiëren"
+  "webview_more_copy": "Link kopiëren",
+  "webview_more_clear_cache_cookies": "Cache en cookies wissen",
+  "webview_clear_cache_done": "Gewist",
+  "webview_clear_cache_failed": "Wissen mislukt"
 }

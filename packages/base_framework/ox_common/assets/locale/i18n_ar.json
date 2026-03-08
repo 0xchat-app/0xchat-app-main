@@ -107,6 +107,9 @@
   "you": "أنت",
   "webview_more_browser": "افتح في المتصفح",
   "webview_more_copy": "نسخ الرابط",
+  "webview_more_clear_cache_cookies": "مسح الذاكرة المؤقتة والكوكيز",
+  "webview_clear_cache_done": "تم المسح",
+  "webview_clear_cache_failed": "فشل المسح",
   "open_singer_app_error_title": "حدث خطأ أثناء فتح تطبيق التوقيع",
   "open_singer_app_error_content": "لا يمكن العثور على تطبيق التوقيع، يرجى التحقق من أن التطبيق لم يتم إلغاء تثبيته."
 }

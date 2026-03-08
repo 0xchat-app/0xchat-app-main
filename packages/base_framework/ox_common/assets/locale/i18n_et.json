@@ -106,5 +106,8 @@
   "secret_chat_rejected_tips": "${name} on teie salajase vestluse taotluse tagasi lükanud",
   "you": "sina",
   "webview_more_browser": "Ava brauseris",
-  "webview_more_copy": "Kopeeri link"
+  "webview_more_copy": "Kopeeri link",
+  "webview_more_clear_cache_cookies": "Tühjenda vahemälu ja küpsised",
+  "webview_clear_cache_done": "Tühjendatud",
+  "webview_clear_cache_failed": "Tühjendamine ebaõnnestus"
 }

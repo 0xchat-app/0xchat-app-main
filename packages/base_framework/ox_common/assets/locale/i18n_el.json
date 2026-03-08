@@ -106,5 +106,8 @@
   "secret_chat_rejected_tips": "Ο/Η ${name} απέρριψε το αίτημά σας για μυστική συνομιλία",
   "you": "εσύ",
   "webview_more_browser": "Άνοιγμα σε περιηγητή",
-  "webview_more_copy": "Αντιγραφή συνδέσμου"
+  "webview_more_copy": "Αντιγραφή συνδέσμου",
+  "webview_more_clear_cache_cookies": "Εκκαθάριση cache και cookies",
+  "webview_clear_cache_done": "Εκκαθαρίστηκε",
+  "webview_clear_cache_failed": "Αποτυχία εκκαθάρισης"
 }

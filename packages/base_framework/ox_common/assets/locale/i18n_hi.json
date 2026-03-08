@@ -106,5 +106,8 @@
   "secret_chat_rejected_tips": "${name} ने आपका गुप्त चैट का अनुरोध खारिज किया है",
   "you": "คतुम",
   "webview_more_browser": "ब्राउज़र में खोलें",
-  "webview_more_copy": "लिंक कॉपी करें"
+  "webview_more_copy": "लिंक कॉपी करें",
+  "webview_more_clear_cache_cookies": "कैश और कुकीज़ साफ़ करें",
+  "webview_clear_cache_done": "साफ़ हो गया",
+  "webview_clear_cache_failed": "साफ़ करने में विफल"
 }
