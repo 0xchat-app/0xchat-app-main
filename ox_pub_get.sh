@@ -19,8 +19,6 @@ check(){
   fi
 }
 
-# Update submodules
-git submodule update --init --recursive --remote
 
 #checkout branch
 checkoutBranch(){
