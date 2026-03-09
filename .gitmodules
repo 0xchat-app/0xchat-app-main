@@ -1,9 +1,9 @@
 [submodule "packages/nostr-dart"]
 	path = packages/nostr-dart
-	url = ../nostr-dart.git
+	url = https://github.com/0xchat-app/nostr-dart.git
 [submodule "packages/cashu-dart"]
 	path = packages/cashu-dart
-	url = ../cashu-dart.git
+	url = https://github.com/0xchat-app/cashu-dart.git
 [submodule "packages/nostr-mls-package"]
 	path = packages/nostr-mls-package
-	url = ../nostr-mls-package.git
+	url = https://github.com/0xchat-app/nostr-mls-package.git
