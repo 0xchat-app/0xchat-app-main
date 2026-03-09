@@ -3,8 +3,7 @@
 mainPath=$(pwd)
 mainProjectName=${mainPath##*/}
 
-#Submodule directory
-oxchatCorePath=${mainPath}/packages/0xchat-core
+# Submodule directories (0xchat-core is now in-repo via git subtree, not a submodule)
 nostrDartPath=${mainPath}/packages/nostr-dart
 cashuPath=${mainPath}/packages/cashu-dart
 
@@ -49,7 +48,6 @@ checkoutBranch(){
 
 checkoutBranchByAll(){
     checkoutBranch ${mainPath} $1
-    checkoutBranch ${oxchatCorePath}
     checkoutBranch ${nostrDartPath}
     checkoutBranch ${cashuPath}
 }
