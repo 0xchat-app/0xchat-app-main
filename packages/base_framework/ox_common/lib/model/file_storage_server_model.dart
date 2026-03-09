@@ -3,7 +3,7 @@ enum FileStorageProtocol {
   blossom(serverName: 'Blossom Server'),
   minio(serverName: 'Minio Server'),
   oss(serverName: 'OSS Server'),
-  filedrop(serverName: 'FileDrop Server');
+  originless(serverName: 'Originless Server');
 
   final String serverName;
 
@@ -65,8 +65,8 @@ class FileStorageServer {
           canEdit: canEdit,
           description: description,
         );
-      case FileStorageProtocol.filedrop:
-        return FileDropServer(
+      case FileStorageProtocol.originless:
+        return OriginlessServer(
           url: url,
           name: name,
           canEdit: canEdit,
@@ -98,7 +98,7 @@ class FileStorageServer {
         };
       case FileStorageProtocol.oss:
         return fileServerJson;
-      case FileStorageProtocol.filedrop:
+      case FileStorageProtocol.originless:
         return fileServerJson;
     }
   }
@@ -112,13 +112,13 @@ class FileStorageServer {
     return other is FileStorageServer && other.url == url;
   }
 
-  /// Default file storage server list. FileDrop is first so it becomes the default selected server (index 0).
+  /// Default file storage server list. Originless is first so it becomes the default selected server (index 0).
   static List<FileStorageServer> get defaultFileStorageServers => List.from([
-        FileDropServer(
-          url: 'https://filedrop.besoeasy.com',
-          name: 'filedrop.besoeasy.com',
+        OriginlessServer(
+          url: 'https://originless.besoeasy.com',
+          name: 'originless.besoeasy.com',
           canEdit: false,
-          description: 'https://filedrop.besoeasy.com',
+          description: 'https://originless.besoeasy.com',
         ),
         BlossomServer(
           url: 'https://blossom.band',
@@ -195,11 +195,11 @@ class OXChatServer extends FileStorageServer {
   }) : super(protocol: FileStorageProtocol.oss);
 }
 
-class FileDropServer extends FileStorageServer {
-  FileDropServer({
+class OriginlessServer extends FileStorageServer {
+  OriginlessServer({
     required super.url,
     required super.name,
     super.canEdit,
     super.description,
-  }) : super(protocol: FileStorageProtocol.filedrop);
+  }) : super(protocol: FileStorageProtocol.originless);
 }

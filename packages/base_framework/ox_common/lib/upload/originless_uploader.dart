@@ -3,11 +3,11 @@ import 'base64.dart';
 import 'package:http_parser/src/media_type.dart';
 import 'uploader.dart';
 
-class FileDropUploader {
+class OriginlessUploader {
   static var dio = Dio();
 
-  /// Upload file to FileDrop server
-  /// [serverUrl] The base URL of the FileDrop server (e.g., https://filedrop.besoeasy.com/)
+  /// Upload file to Originless server
+  /// [serverUrl] The base URL of the Originless server (e.g., https://originless.besoeasy.com/)
   /// [filePath] Local file path to upload
   /// [fileName] Optional file name
   /// [onProgress] Optional progress callback
