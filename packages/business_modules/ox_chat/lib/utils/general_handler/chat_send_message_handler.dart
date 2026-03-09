@@ -488,14 +488,8 @@ extension ChatMessageSendEx on ChatGeneralHandler {
           completeCallback: (uploadResult, isFromCache) async {
             var imageURL = uploadResult.url;
             if (!uploadResult.isSuccess || imageURL.isEmpty) {
-              final status = types.Status.error;
-              dataController.updateMessage(sendMessage.copyWith(
-                status: status,
-              ));
-              ChatMessageHelper.updateMessageWithMessageId(
-                messageId: sendMessage.id,
-                status: status,
-              );
+              dataController.removeMessage(message: sendMessage);
+              Messages.deleteMessagesFromDB(messageIds: [sendMessage.id]);
               return;
             }
 
@@ -741,14 +735,8 @@ extension ChatMessageSendEx on ChatGeneralHandler {
           completeCallback: (uploadResult, isFromCache) async {
             var videoURL = uploadResult.url;
             if (!uploadResult.isSuccess || videoURL.isEmpty) {
-              final status = types.Status.error;
-              dataController.updateMessage(sendMessage.copyWith(
-                status: status,
-              ));
-              ChatMessageHelper.updateMessageWithMessageId(
-                messageId: sendMessage.id,
-                status: status,
-              );
+              dataController.removeMessage(message: sendMessage);
+              Messages.deleteMessagesFromDB(messageIds: [sendMessage.id]);
               return;
             }
 
