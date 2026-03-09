@@ -28,6 +28,10 @@ class InputVoicePage extends StatefulWidget {
 }
 
 class _InputVoicePageState extends State<InputVoicePage> with SingleTickerProviderStateMixin{
+  /// Max voice recording duration: 2~3 minutes (180 seconds).
+  static const int _maxVoiceDurationSeconds = 180;
+  static const int _maxVoiceDurationMs = _maxVoiceDurationSeconds * 1000;
+
   bool _isLongPressing = false;
   bool _showCancelText = false;
   double _longPressDuration = 0.0;
@@ -51,7 +55,7 @@ class _InputVoicePageState extends State<InputVoicePage> with SingleTickerProvid
 
     _progressController = AnimationController(
       vsync: this,
-      duration: Duration(seconds: 60),
+      duration: Duration(seconds: _maxVoiceDurationSeconds),
     );
 
     _progressAnimation = Tween(begin: 0.0, end: 1.0).animate(_progressController)
@@ -138,7 +142,7 @@ class _InputVoicePageState extends State<InputVoicePage> with SingleTickerProvid
       _progressController.reset();
       return;
     }
-    if (_longPressDuration >= 60000) {
+    if (_longPressDuration >= _maxVoiceDurationMs) {
       // Automatically conclude the event
       // widget.onPressed();
     }
@@ -175,9 +179,8 @@ class _InputVoicePageState extends State<InputVoicePage> with SingleTickerProvid
         setState(() {
           _longPressDuration += 100;
         });
-        if (_longPressDuration >= 60000) {//Up to 60 seconds
-          // Automatic event termination
-          // widget.onPressed();
+        if (_longPressDuration >= _maxVoiceDurationMs) {
+          // Up to 180 seconds - automatic event termination
           return;
         }
         _startTimer();
@@ -382,13 +385,9 @@ class _InputVoicePageState extends State<InputVoicePage> with SingleTickerProvid
           sampleRate: 44100,
           audioSource: AudioSource.microphone);
 
-      /// Monitor the recording
+      /// Monitor the recording - stop when max duration is reached
       recorderModule!.onProgress!.listen((e) {
-        final date = new DateTime.fromMillisecondsSinceEpoch(
-            e.duration.inMilliseconds,
-            isUtc: true);
-
-        if (date.second >= 60) {
+        if (e.duration.inSeconds >= _maxVoiceDurationSeconds) {
           print('===>  Stop recording upon reaching the specified duration.');
           _stopRecorder();
         }
