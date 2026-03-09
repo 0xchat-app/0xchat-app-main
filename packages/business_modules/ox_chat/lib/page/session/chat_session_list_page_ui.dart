@@ -15,30 +15,25 @@ extension ChatSessionListPageUI on ChatSessionListPageState{
       titleSpacing: 0.0,
       title: Container(
         margin: EdgeInsets.symmetric(horizontal: 24.px),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(
-              width: 103.px,
-              height: 24.px,
-              child: CommonImage(
-                iconName: '0xchat_title_icon.png',
-                useTheme: true,
-              ),
-            ),
-            SizedBox(width: 4.px),
-            if (_isLogin)
-              RelayInfoWidget(
-                  iconSize: 16.px,
-                  iconColor: ThemeColor.color0,
-                  fontSize: 12.sp,
-                  fontWeight: FontWeight.w600,
-                  fontColor: ThemeColor.color0,
-                  padding: 2.px),
-          ],
+        child: SizedBox(
+          width: 103.px,
+          height: 24.px,
+          child: CommonImage(
+            iconName: '0xchat_title_icon.png',
+            useTheme: true,
+          ),
         ),
       ),
       actions: <Widget>[
+        if (_isLogin)
+          RelayInfoWidget(
+              iconSize: 16.px,
+              iconColor: ThemeColor.color0,
+              fontSize: 12.sp,
+              fontWeight: FontWeight.w600,
+              fontColor: ThemeColor.color0,
+              padding: 2.px),
+        SizedBox(width: 8.px),
         GestureDetector(
           behavior: HitTestBehavior.translucent,
           child: CommonImage(
@@ -68,26 +63,28 @@ extension ChatSessionListPageUI on ChatSessionListPageState{
       backgroundColor: ThemeColor.color200,
       leading: Container(
         margin: EdgeInsets.only(left: Adapt.px(24)),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(
-              width: 103.px,
-              height: 24.px,
-              child: CommonImage(
-                iconName: '0xchat_title_icon.png',
-                useTheme: true,
-              ),
-            ),
-            SizedBox(width: 4.px),
-            if (_isLogin) RelayInfoWidget(iconSize: 16.px, iconColor: ThemeColor.color0, fontSize: 12.sp, fontWeight: FontWeight.w600, fontColor: ThemeColor.color0, padding: 2.px),
-          ],
+        child: SizedBox(
+          width: 103.px,
+          height: 24.px,
+          child: CommonImage(
+            iconName: '0xchat_title_icon.png',
+            useTheme: true,
+          ),
         ),
       ),
       title: '',
       centerTitle: false,
       canBack: false,
       actions: [
+        if (_isLogin)
+          RelayInfoWidget(
+              iconSize: 16.px,
+              iconColor: ThemeColor.color0,
+              fontSize: 12.sp,
+              fontWeight: FontWeight.w600,
+              fontColor: ThemeColor.color0,
+              padding: 2.px),
+        SizedBox(width: 8.px),
         GestureDetector(
           behavior: HitTestBehavior.translucent,
           child: CommonImage(
