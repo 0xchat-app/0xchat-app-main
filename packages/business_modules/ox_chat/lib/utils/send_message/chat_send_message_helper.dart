@@ -136,7 +136,7 @@ class ChatSendMessageHelper {
       final int delaySecs = attempt < 5 ? (1 << attempt) : 30;
       await Future.delayed(Duration(seconds: delaySecs));
     }
-    return lastEvent ?? OKEvent('', false);
+    return lastEvent ?? OKEvent('', false, '');
   }
 
   static EncryptedFile? _createEncryptedFileIfNeeded(types.Message message) {

@@ -14,6 +14,10 @@ class ChatLogUtils {
     if (showInfoLog)
       LogUtil.i('[${DateTime.now()}][Module - $module][$className - $funcName] $message');
   }
+
+  static warning({String module = 'Chat', required String className, required String funcName, required String message}) {
+    LogUtil.w('[Module - $module][$className - $funcName] $message');
+  }
 }
 
 class MessageCheckLogger {
