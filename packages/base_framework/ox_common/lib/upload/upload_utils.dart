@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 import 'package:encrypt/encrypt.dart';
 import 'package:flutter/material.dart';
 import 'package:minio/minio.dart';
@@ -54,65 +55,46 @@ class UploadUtils {
           nonce: encryptedNonce, mode: AESMode.gcm);
       uploadFile = encryptedFile;
     }
-    FileStorageServer fileStorageServer = OXServerManager.sharedInstance.selectedFileStorageServer;
+    final selectedServer = OXServerManager.sharedInstance.selectedFileStorageServer;
+    final allServers = OXServerManager.sharedInstance.fileStorageServers;
+
+    // Build fallback list: selected server first, then remaining servers in random order.
+    final fallbackServers = [selectedServer];
+    final others = allServers.where((s) => s.url != selectedServer.url).toList()
+      ..shuffle(Random());
+    fallbackServers.addAll(others);
+
     String url = '';
     if (showLoading) OXLoading.show();
-    try {
-      final protocol = fileStorageServer.protocol;
-      switch (protocol) {
-        case FileStorageProtocol.nip96:
-        case FileStorageProtocol.blossom:
-          var imageServices = fileStorageServer.name;
-          if (FileStorageProtocol.blossom == protocol) imageServices = ImageServices.BLOSSOM;
-          url = await Uploader.upload(
-                uploadFile.path,
-                imageServices,
-                fileName: filename,
-                imageServiceAddr: fileStorageServer.url,
-                onProgress: onProgress,
-              ) ??
-              '';
-          break;
-        case FileStorageProtocol.minio:
-          MinioServer minioServer = fileStorageServer as MinioServer;
-          MinioUploader.init(
-            url: minioServer.url,
-            accessKey: minioServer.accessKey,
-            secretKey: minioServer.secretKey,
-            bucketName: minioServer.bucketName,
-            useSSL: minioServer.useSSL,
-            port: minioServer.port,
-          );
-          url = await MinioUploader.instance.uploadFile(
-            file: uploadFile,
-            filename: filename,
-            fileType: fileType,
-            onProgress: onProgress,
-          );
-          break;
-        case FileStorageProtocol.oss:
-          url = await UplodAliyun.uploadFileToAliyun(
-            context: context,
-            file: uploadFile,
-            filename: filename,
-            fileType: convertFileTypeToUploadAliyunType(fileType),
-            showLoading: showLoading,
-            onProgress: onProgress,
-          );
-          break;
-        case FileStorageProtocol.originless:
-          url = await OriginlessUploader.upload(
-            fileStorageServer.url,
-            uploadFile.path,
-            fileName: filename,
-            onProgress: onProgress,
-          ) ?? '';
-          break;
+
+    dynamic lastError;
+    dynamic lastStack;
+    bool uploaded = false;
+
+    for (final fileStorageServer in fallbackServers) {
+      try {
+        url = await _uploadToServer(
+          context: context,
+          uploadFile: uploadFile,
+          filename: filename,
+          fileType: fileType,
+          fileStorageServer: fileStorageServer,
+          showLoading: showLoading,
+          onProgress: onProgress,
+        );
+        uploaded = true;
+        break;
+      } catch (e, s) {
+        LogUtil.e('Upload failed for server ${fileStorageServer.url}: $e\r\n$s');
+        lastError = e;
+        lastStack = s;
       }
-      if (showLoading) OXLoading.dismiss();
-    } catch (e, s) {
-      if (showLoading) OXLoading.dismiss();
-      return UploadExceptionHandler.handleException(e, s);
+    }
+
+    if (showLoading) OXLoading.dismiss();
+
+    if (!uploaded) {
+      return UploadExceptionHandler.handleException(lastError, lastStack);
     }
 
     if (fileType == FileType.image && autoStoreImage) {
@@ -127,6 +109,67 @@ class UploadUtils {
     }
 
     return UploadResult.success(url, encryptedKey, encryptedNonce);
+  }
+
+  /// Attempts to upload [uploadFile] to a single [fileStorageServer].
+  /// Throws on failure so the caller can try the next server.
+  static Future<String> _uploadToServer({
+    BuildContext? context,
+    required File uploadFile,
+    required String filename,
+    required FileType fileType,
+    required FileStorageServer fileStorageServer,
+    bool showLoading = false,
+    Function(double progress)? onProgress,
+  }) async {
+    final protocol = fileStorageServer.protocol;
+    switch (protocol) {
+      case FileStorageProtocol.nip96:
+      case FileStorageProtocol.blossom:
+        var imageServices = fileStorageServer.name;
+        if (FileStorageProtocol.blossom == protocol) imageServices = ImageServices.BLOSSOM;
+        return await Uploader.upload(
+              uploadFile.path,
+              imageServices,
+              fileName: filename,
+              imageServiceAddr: fileStorageServer.url,
+              onProgress: onProgress,
+            ) ??
+            '';
+      case FileStorageProtocol.minio:
+        MinioServer minioServer = fileStorageServer as MinioServer;
+        MinioUploader.init(
+          url: minioServer.url,
+          accessKey: minioServer.accessKey,
+          secretKey: minioServer.secretKey,
+          bucketName: minioServer.bucketName,
+          useSSL: minioServer.useSSL,
+          port: minioServer.port,
+        );
+        return await MinioUploader.instance.uploadFile(
+          file: uploadFile,
+          filename: filename,
+          fileType: fileType,
+          onProgress: onProgress,
+        );
+      case FileStorageProtocol.oss:
+        return await UplodAliyun.uploadFileToAliyun(
+          context: context,
+          file: uploadFile,
+          filename: filename,
+          fileType: convertFileTypeToUploadAliyunType(fileType),
+          showLoading: showLoading,
+          onProgress: onProgress,
+        );
+      case FileStorageProtocol.originless:
+        return await OriginlessUploader.upload(
+              fileStorageServer.url,
+              uploadFile.path,
+              fileName: filename,
+              onProgress: onProgress,
+            ) ??
+            '';
+    }
   }
 
   static UplodAliyunType convertFileTypeToUploadAliyunType(FileType fileType) {
