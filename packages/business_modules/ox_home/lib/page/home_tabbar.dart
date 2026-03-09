@@ -68,6 +68,7 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
 
   @override
   void dispose() {
+    Localized.removeLocaleChangedCallback(onLocaleChange);
     OXUserInfoManager.sharedInstance.removeObserver(this);
     OXChatBinding.sharedInstance.removeObserver(this);
     OXMomentManager.sharedInstance.removeObserver(this);

@@ -554,6 +554,8 @@ class GroupsPageState extends State<GroupsPage>
 
   @override
   void dispose() {
+    ThemeManager.removeOnThemeChangedCallback(onThemeStyleChange);
+    Localized.removeLocaleChangedCallback(onLocaleChange);
     OXUserInfoManager.sharedInstance.removeObserver(this);
     WidgetsBinding.instance.removeObserver(this);
     scrollController.dispose();

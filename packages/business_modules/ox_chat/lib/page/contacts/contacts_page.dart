@@ -80,6 +80,8 @@ class _ContractsPageState extends ContactBasePageState<ContractsPage>
 
   @override
   void dispose() {
+    ThemeManager.removeOnThemeChangedCallback(onThemeStyleChange);
+    Localized.removeLocaleChangedCallback(onLocaleChange);
     OXUserInfoManager.sharedInstance.removeObserver(this);
     OXChatBinding.sharedInstance.removeObserver(this);
     WidgetsBinding.instance.removeObserver(this);

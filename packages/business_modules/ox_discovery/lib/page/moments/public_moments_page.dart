@@ -250,6 +250,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
   void dispose() {
     refreshController.dispose();
     Moment.sharedInstance.closeSubscriptions();
+    ThemeManager.removeOnThemeChangedCallback(onThemeStyleChange);
     OXUserInfoManager.sharedInstance.removeObserver(this);
     OXMomentManager.sharedInstance.removeObserver(this);
     super.dispose();

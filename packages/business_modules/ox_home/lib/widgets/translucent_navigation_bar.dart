@@ -145,6 +145,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
 
   @override
   void dispose() {
+    ThemeManager.removeOnThemeChangedCallback(onThemeStyleChange);
     WidgetsBinding.instance.removeObserver(this);
     clearRefreshMessagesTimer();
     OXUserInfoManager.sharedInstance.removeObserver(this);

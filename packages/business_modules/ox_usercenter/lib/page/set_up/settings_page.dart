@@ -309,6 +309,8 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
 
   @override
   void dispose() {
+    ThemeManager.removeOnThemeChangedCallback(onThemeStyleChange);
+    Localized.removeLocaleChangedCallback(onLocaleChange);
     super.dispose();
     OXChatBinding.sharedInstance.removeObserver(this);
   }

@@ -78,6 +78,8 @@ class _ChannelPageState extends State<ChannelPage>
 
   @override
   void dispose() {
+    ThemeManager.removeOnThemeChangedCallback(onThemeStyleChange);
+    Localized.removeLocaleChangedCallback(onLocaleChange);
     OXUserInfoManager.sharedInstance.removeObserver(this);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();

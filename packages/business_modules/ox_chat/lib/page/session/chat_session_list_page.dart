@@ -71,6 +71,7 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   Map<String, List<String>> _groupMembersCache = {};
   bool _isLogin = false;
   GlobalKey? _latestGlobalKey;
+  List<GlobalKey> _globalKeys = [];
   bool addAutomaticKeepAlives = true;
   bool addRepaintBoundaries = true;
 
@@ -98,6 +99,9 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   @override
   void dispose() {
     _refreshController.dispose();
+    OXChatBinding.sharedInstance.removeObserver(this);
+    ThemeManager.removeOnThemeChangedCallback(onThemeStyleChange);
+    Localized.removeLocaleChangedCallback(onLocaleChange);
     WidgetsBinding.instance.removeObserver(this);
     OXUserInfoManager.sharedInstance.removeObserver(this);
     for (var notifier in _scaleList) {
@@ -289,23 +293,22 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
       return session2CreatedTime.compareTo(session1CreatedTime);
     });
     _getGroupMembers(_msgDatas);
+
+    final CommonStateView newState;
     if (_msgDatas.length > 0) {
       _scaleList = List.generate(_msgDatas.length, (index) => ValueNotifier(false));
-      if (this.mounted) {
-        setState(() {
-          updateStateView(CommonStateView.CommonStateView_None);
-        });
-      }
+      _globalKeys = List.generate(_msgDatas.length, (index) => GlobalKey(debugLabel: index.toString()));
+      newState = CommonStateView.CommonStateView_None;
       _updateReadStatus();
     } else {
-      bool isLogin = OXUserInfoManager.sharedInstance.isLogin;
-      if (this.mounted) {
-        setState(() {
-          updateStateView(isLogin == false
-              ? CommonStateView.CommonStateView_NotLogin
-              : CommonStateView.CommonStateView_NoData);
-        });
-      }
+      newState = OXUserInfoManager.sharedInstance.isLogin
+          ? CommonStateView.CommonStateView_NoData
+          : CommonStateView.CommonStateView_NotLogin;
+    }
+    if (this.mounted) {
+      setState(() {
+        updateStateView(newState);
+      });
     }
   }
 

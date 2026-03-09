@@ -125,6 +125,8 @@ class UserCenterPageState extends State<UserCenterPage>
 
   @override
   void dispose() {
+    ThemeManager.removeOnThemeChangedCallback(onThemeStyleChange);
+    Localized.removeLocaleChangedCallback(onLocaleChange);
     OXUserInfoManager.sharedInstance.removeObserver(this);
     OXChatBinding.sharedInstance.removeObserver(this);
     OXMomentManager.sharedInstance.removeObserver(this);

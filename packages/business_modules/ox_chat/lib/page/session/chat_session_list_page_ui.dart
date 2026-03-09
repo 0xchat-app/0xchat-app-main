@@ -115,7 +115,7 @@ extension ChatSessionListPageUI on ChatSessionListPageState{
     if(index >= _msgDatas.length) return SizedBox();
     ChatSessionModelISAR item = _msgDatas[index];
     bool isMuteCurrent = ChatSessionUtils.getChatMute(item);
-    GlobalKey tempKey = GlobalKey(debugLabel: index.toString());
+    final GlobalKey tempKey = index < _globalKeys.length ? _globalKeys[index] : GlobalKey();
     return GestureDetector(
       onHorizontalDragDown: (details) {
         _dismissSlidable();
@@ -124,7 +124,7 @@ extension ChatSessionListPageUI on ChatSessionListPageState{
       child: Container(
         color: ThemeColor.color200,
         child: Slidable(
-          key: ValueKey("$index"),
+          key: ValueKey(item.chatId),
           endActionPane: ActionPane(
             extentRatio: 0.44,
             motion: const ScrollMotion(),
