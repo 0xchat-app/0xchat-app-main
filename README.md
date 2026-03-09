@@ -1,29 +1,32 @@
-# 0xchat App
+# 0xchat
 
-0xchat App for iOS & Android
+A secure, open-source chat app built on the [Nostr](https://nostr.com) protocol.
+
+Available on **Android · iOS · macOS · Linux · Windows**.
 
 ## Getting Started
 
-Follow the steps below to run the project:
+Requires Flutter `3.29.3`.
 
-* Ensure you're using Flutter version `3.29.3`. Switch to this version before proceeding.
+**1. Install dependencies**
 
-
-* First, you'll need to run the provided shell script in the main project directory:
-
-```
+```sh
 sh ox_pub_get.sh
 ```
 
-* If you build this App on iOS platform, need go to the `ios` directory and install the required dependencies using CocoaPods:
+**2. iOS / macOS — install CocoaPods dependencies**
 
-```
-cd ios & pod install
+```sh
+cd ios && pod install   # iOS
+cd macos && pod install # macOS
 ```
 
-* Finally, Execute build command
+**3. Build**
 
-```
-flutter build apk  //Android apk
-flutter build ios  //iOS app
+```sh
+flutter build apk       # Android
+flutter build ios       # iOS
+flutter build macos     # macOS
+flutter build linux     # Linux
+flutter build windows   # Windows
 ```
