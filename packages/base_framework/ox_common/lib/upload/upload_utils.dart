@@ -95,6 +95,7 @@ class UploadUtils {
         LogUtil.e('Upload failed for server ${fileStorageServer.url}: $e\r\n$s');
         lastError = e;
         lastStack = s;
+        await Future.delayed(const Duration(seconds: 1));
       }
     }
 
