@@ -69,15 +69,27 @@ class ChatSendMessageHelper {
             'expiration: ${senderStrategy.session.expiration}',
       );
 
-      final sendResultEvent = senderStrategy.doSendMessageAction(
-        messageType: type,
-        contentString: contentString,
-        replyId: replyId,
-        encryptedFile: encryptedFile,
-        event: event,
-        isLocal: sendingType != ChatSendingType.remote,
-        replaceMessageId: replaceMessageId,
-      );
+      final sendResultEvent = sendingType == ChatSendingType.remote
+          ? _sendWithRetry(
+              sender: () => senderStrategy.doSendMessageAction(
+                messageType: type,
+                contentString: contentString,
+                replyId: replyId,
+                encryptedFile: encryptedFile,
+                event: event,
+                isLocal: false,
+                replaceMessageId: replaceMessageId,
+              ),
+            )
+          : senderStrategy.doSendMessageAction(
+              messageType: type,
+              contentString: contentString,
+              replyId: replyId,
+              encryptedFile: encryptedFile,
+              event: event,
+              isLocal: true,
+              replaceMessageId: replaceMessageId,
+            );
 
       final isWaitForSend = sendingType != ChatSendingType.remote;
       if (isWaitForSend) {
@@ -90,6 +102,41 @@ class ChatSendMessageHelper {
     sendActionFinishHandler?.call(sendMsg);
 
     return null;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Relay publish retry
+  // ---------------------------------------------------------------------------
+  static const int _maxSendAttempts = 30;
+
+  /// Re-publishes the signed [Event] to the relay up to [_maxSendAttempts] times.
+  /// Uses exponential back-off capped at 30 s: 1 s, 2 s, 4 s, 8 s, 16 s, 30 s …
+  static Future<OKEvent> _sendWithRetry({
+    required Future<OKEvent> Function() sender,
+  }) async {
+    OKEvent? lastEvent;
+    for (int attempt = 0; attempt < _maxSendAttempts; attempt++) {
+      try {
+        final event = await sender();
+        if (event.status) return event;
+        lastEvent = event;
+        ChatLogUtils.warning(
+          className: 'ChatSendMessageHelper',
+          funcName: '_sendWithRetry',
+          message: 'Relay rejected (attempt ${attempt + 1}/$_maxSendAttempts): ${event.message}',
+        );
+      } catch (e) {
+        ChatLogUtils.error(
+          className: 'ChatSendMessageHelper',
+          funcName: '_sendWithRetry',
+          message: 'Send error (attempt ${attempt + 1}/$_maxSendAttempts): $e',
+        );
+      }
+      // Exponential back-off: 1 s, 2 s, 4 s, 8 s, 16 s, then 30 s for all subsequent attempts
+      final int delaySecs = attempt < 5 ? (1 << attempt) : 30;
+      await Future.delayed(Duration(seconds: delaySecs));
+    }
+    return lastEvent ?? OKEvent('', false);
   }
 
   static EncryptedFile? _createEncryptedFileIfNeeded(types.Message message) {

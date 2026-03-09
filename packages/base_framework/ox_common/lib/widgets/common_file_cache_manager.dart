@@ -34,13 +34,20 @@ class OXDefaultCacheManager extends CacheManager with ImageCacheManager {
     return _instance;
   }
 
-  OXDefaultCacheManager._() : super(Config(key, repo: JsonCacheInfoRepository(databaseName: key)));
+  OXDefaultCacheManager._() : super(Config(
+    key,
+    stalePeriod: const Duration(days: 90),
+    maxNrOfCacheObjects: 500,
+    repo: JsonCacheInfoRepository(databaseName: key),
+  ));
 }
 
 class DecryptedCacheManager extends CacheManager {
   static const key = "decryptCache";
   static Config config = Config(
     key,
+    stalePeriod: const Duration(days: 90),
+    maxNrOfCacheObjects: 500,
     repo: JsonCacheInfoRepository(databaseName: key),
   );
   static final decryptedStore = CacheManager(config).store;
@@ -110,7 +117,7 @@ class DecryptedCacheManager extends CacheManager {
       nonce: decryptNonce,
     );
 
-    final validTill = const Duration(days: 30);
+    final validTill = const Duration(days: 90);
     final newCacheFile = await super.putFile(
       url,
       decryptedTempFile.readAsBytesSync(),
