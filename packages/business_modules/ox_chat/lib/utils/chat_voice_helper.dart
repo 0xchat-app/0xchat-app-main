@@ -7,36 +7,94 @@ import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/widgets/common_file_cache_manager.dart';
 
 class ChatVoiceMessageHelper {
-  static Map<String, Duration> durationCache = {};
+  static const int _maxCacheEntries = 200;
+  static const int _maxRetries = 5;
 
+  static final Map<String, Duration> durationCache = {};
+
+  // Deduplicates concurrent download+probe calls for the same URI so that
+  // multiple visible instances of the same audio message don't each spawn
+  // independent network requests.
+  static final Map<String, Future<(File, Duration?)>> _inFlight = {};
+
+  /// Probes the duration of a local or remote audio file.
+  /// The [AudioPlayer] is always disposed after use to prevent resource leaks.
   static Future<Duration?> getAudioDuration(String uri) async {
     final cache = durationCache[uri];
     if (cache != null && cache != Duration.zero) return cache;
 
     final player = AudioPlayer();
-    await player.setSource(uri.isRemoteURL ? UrlSource(uri) : DeviceFileSource(uri));
-    final duration = await player.getDuration();
-    if (duration != null && duration != Duration.zero) {
-      durationCache[uri] = duration;
+    try {
+      await player.setSource(
+          uri.isRemoteURL ? UrlSource(uri) : DeviceFileSource(uri));
+      final duration = await player.getDuration();
+      if (duration != null && duration != Duration.zero) {
+        _putDurationCache(uri, duration);
+      }
+      return duration;
+    } finally {
+      player.dispose();
     }
-    return duration;
   }
 
+  static void _putDurationCache(String key, Duration value) {
+    // Evict oldest entry when cache is full (insertion-order eviction).
+    if (durationCache.length >= _maxCacheEntries) {
+      durationCache.remove(durationCache.keys.first);
+    }
+    durationCache[key] = value;
+  }
+
+  /// Downloads the audio file for [message] (with exponential-backoff retries
+  /// on network failure) and returns its [File] + [Duration].
+  /// Concurrent calls for the same URI share a single in-flight [Future].
   static Future<(File audioFile, Duration? duration)> populateMessageWithAudioDetails({
     required ChatSessionModelISAR session,
     required types.AudioMessage message,
-  }) async {
-    File sourceFile;
+  }) {
+    final uri = message.uri;
+    if (_inFlight.containsKey(uri)) return _inFlight[uri]!;
+
+    final future = _doPopulate(message);
+    _inFlight[uri] = future;
+    future.whenComplete(() => _inFlight.remove(uri));
+    return future;
+  }
+
+  static Future<(File audioFile, Duration? duration)> _doPopulate(
+    types.AudioMessage message,
+  ) async {
     final uri = message.uri;
     final urlExtension = uri.split('.').last;
-    final audioManager =
-        OXFileCacheManager.get(encryptKey: message.decryptKey, encryptNonce: message.decryptNonce);
-    final cacheFile = message.audioFile ?? (await audioManager.getFileFromCache(uri))?.file;
+    final audioManager = OXFileCacheManager.get(
+      encryptKey: message.decryptKey,
+      encryptNonce: message.decryptNonce,
+    );
+
+    File sourceFile;
+    final cacheFile =
+        message.audioFile ?? (await audioManager.getFileFromCache(uri))?.file;
 
     if (cacheFile != null) {
       sourceFile = cacheFile;
     } else {
-      var tempFile = await audioManager.getSingleFile(uri);
+      // Retry the download with exponential backoff: 2s, 4s, 8s, 16s, 32s.
+      Exception? lastError;
+      File? tempFile;
+      for (int attempt = 0; attempt < _maxRetries; attempt++) {
+        if (attempt > 0) {
+          await Future.delayed(Duration(seconds: 2 << (attempt - 1)));
+        }
+        try {
+          tempFile = await audioManager.getSingleFile(uri);
+          break;
+        } catch (e) {
+          lastError = e is Exception ? e : Exception(e.toString());
+        }
+      }
+      if (tempFile == null) {
+        throw lastError ?? Exception('Failed to download audio: $uri');
+      }
 
       String newExtension = tempFile.path.split('.').last;
       String newPath = tempFile.path.replaceAll(newExtension, urlExtension);

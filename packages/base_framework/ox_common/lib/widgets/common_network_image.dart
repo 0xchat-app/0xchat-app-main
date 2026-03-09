@@ -158,7 +158,8 @@ class _OXCachedNetworkImageState extends State<OXCachedNetworkImage> {
 
 extension OXCachedImageProviderEx on CachedNetworkImageProvider {
 
-  static Map<String, Size> sizeCache = {};
+  static const int _maxSizeCacheEntries = 200;
+  static final Map<String, Size> sizeCache = {};
 
   static String _cacheKeyWithBase64(String imageBase64) {
     return md5.convert(utf8.encode(imageBase64)).toString();
@@ -171,6 +172,10 @@ extension OXCachedImageProviderEx on CachedNetworkImageProvider {
 
     decodeImageFromList(_base64ToBytes(imageBase64)).then((image) {
       final size = Size(image.width.toDouble(), image.height.toDouble());
+      // Evict oldest entry when cache is full.
+      if (sizeCache.length >= _maxSizeCacheEntries) {
+        sizeCache.remove(sizeCache.keys.first);
+      }
       sizeCache[cacheKey] = size;
     });
 

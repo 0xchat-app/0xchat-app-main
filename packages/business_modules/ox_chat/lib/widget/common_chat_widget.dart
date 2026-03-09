@@ -258,17 +258,21 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
             },
             mentionUserListWidget: handler.mentionHandler?.buildMentionUserList(),
             onAudioDataFetched: (message) async {
-              final (sourceFile, duration) = await ChatVoiceMessageHelper.populateMessageWithAudioDetails(
-                session: handler.session,
-                message: message,
-              );
-              if (duration != null) {
-                dataController.updateMessage(
-                  message.copyWith(
-                    audioFile: sourceFile,
-                    duration: duration,
-                  ),
+              try {
+                final (sourceFile, duration) = await ChatVoiceMessageHelper.populateMessageWithAudioDetails(
+                  session: handler.session,
+                  message: message,
                 );
+                if (duration != null) {
+                  dataController.updateMessage(
+                    message.copyWith(
+                      audioFile: sourceFile,
+                      duration: duration,
+                    ),
+                  );
+                }
+              } catch (_) {
+                // All retries exhausted — voice message stays in spinner state.
               }
             },
             onInsertedContent: (KeyboardInsertedContent insertedContent) =>
