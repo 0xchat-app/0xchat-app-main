@@ -58,9 +58,16 @@ class UploadUtils {
     final selectedServer = OXServerManager.sharedInstance.selectedFileStorageServer;
     final allServers = OXServerManager.sharedInstance.fileStorageServers;
 
-    // Build fallback list: selected server first, then remaining servers in random order.
+    // Build fallback list: selected server first, then remaining Blossom/Originless servers in random order.
     final fallbackServers = [selectedServer];
-    final others = allServers.where((s) => s.url != selectedServer.url).toList()
+    final others = allServers
+        .where((s) => s.url != selectedServer.url)
+        .where(
+          (s) =>
+              s.protocol == FileStorageProtocol.blossom ||
+              s.protocol == FileStorageProtocol.originless,
+        )
+        .toList()
       ..shuffle(Random());
     fallbackServers.addAll(others);
 
