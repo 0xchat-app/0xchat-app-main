@@ -1,4 +1,5 @@
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
@@ -13,7 +14,7 @@ import 'package:ox_common/utils/num_utils.dart';
 import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/widgets/common_file_cache_manager.dart';
 
-class OXCachedNetworkImage extends StatelessWidget {
+class OXCachedNetworkImage extends StatefulWidget {
 
   /// See [CachedNetworkImage.imageUrl]
   final String imageUrl;
@@ -35,7 +36,8 @@ class OXCachedNetworkImage extends StatelessWidget {
 
   final bool isThumb;
 
-  OXCachedNetworkImage({
+  const OXCachedNetworkImage({
+    Key? key,
     required this.imageUrl,
     this.fit,
     this.width,
@@ -43,59 +45,109 @@ class OXCachedNetworkImage extends StatelessWidget {
     this.placeholder,
     this.errorWidget,
     this.isThumb = false,
-  });
+  }) : super(key: key);
+
+  @override
+  State<OXCachedNetworkImage> createState() => _OXCachedNetworkImageState();
+}
+
+class _OXCachedNetworkImageState extends State<OXCachedNetworkImage> {
+  static const int _maxRetries = 5;
+
+  int _retryCount = 0;
+  // Incrementing this key forces a new CachedNetworkImage instance on retry
+  int _imageKey = 0;
+  Timer? _retryTimer;
+
+  @override
+  void didUpdateWidget(OXCachedNetworkImage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.imageUrl != widget.imageUrl) {
+      _retryTimer?.cancel();
+      _retryCount = 0;
+      _imageKey = 0;
+    }
+  }
+
+  @override
+  void dispose() {
+    _retryTimer?.cancel();
+    super.dispose();
+  }
+
+  void _scheduleRetry(String cacheKey) {
+    if (_retryCount >= _maxRetries) return;
+    // Exponential backoff: 2s, 4s, 8s, 16s, 32s
+    final delay = Duration(seconds: 2 << _retryCount);
+    _retryTimer?.cancel();
+    _retryTimer = Timer(delay, () async {
+      try {
+        await OXFileCacheManager.get().removeFile(cacheKey);
+      } catch (_) {}
+      if (mounted) {
+        setState(() {
+          _retryCount++;
+          _imageKey++;
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-
     final ratio = MediaQuery.of(context).devicePixelRatio;
 
-    // Optimized: Limit memory cache size to reduce memory pressure
-    // Maximum memory cache size: 800px to prevent excessive memory usage
     const int maxMemoryCacheSize = 800;
-    
+
     int? memCacheWidth;
-    if (width != null && width != double.infinity) {
-      memCacheWidth = (width! * ratio).round();
-      // Limit memory cache width to prevent excessive memory usage
-      if (memCacheWidth > maxMemoryCacheSize) {
-        memCacheWidth = maxMemoryCacheSize;
-      }
+    if (widget.width != null && widget.width != double.infinity) {
+      memCacheWidth = (widget.width! * ratio).round();
+      if (memCacheWidth > maxMemoryCacheSize) memCacheWidth = maxMemoryCacheSize;
     }
 
     int? memCacheHeight;
-    if (memCacheWidth == null && height != null && height != double.infinity) {
-      memCacheHeight = (height! * ratio).round();
-      // Limit memory cache height to prevent excessive memory usage
-      if (memCacheHeight > maxMemoryCacheSize) {
-        memCacheHeight = maxMemoryCacheSize;
-      }
+    if (memCacheWidth == null && widget.height != null && widget.height != double.infinity) {
+      memCacheHeight = (widget.height! * ratio).round();
+      if (memCacheHeight > maxMemoryCacheSize) memCacheHeight = maxMemoryCacheSize;
     }
 
     String? cacheKey;
     int? maxWidthDiskCache;
     int? maxHeightDiskCache;
-    if (isThumb) {
-      cacheKey = '$imageUrl\_thumb';
+    if (widget.isThumb) {
+      cacheKey = '${widget.imageUrl}_thumb';
       maxWidthDiskCache = (80.px * ratio).round();
       maxHeightDiskCache = (80.px * ratio).round();
     } else {
-      // Optimized: Set default disk cache limits for non-thumb images
-      // Limit to screen width to reduce disk usage
       final screenWidth = MediaQuery.of(context).size.width;
-      maxWidthDiskCache = (screenWidth * ratio * 1.5).round(); // 1.5x for high DPI
+      maxWidthDiskCache = (screenWidth * ratio * 1.5).round();
       maxHeightDiskCache = (screenWidth * ratio * 1.5).round();
     }
 
+    final effectiveCacheKey = cacheKey ?? widget.imageUrl;
+
     return CachedNetworkImage(
-      imageUrl: imageUrl,
-      fit: fit,
-      width: width,
-      height: height,
+      key: ValueKey(_imageKey),
+      imageUrl: widget.imageUrl,
+      fit: widget.fit,
+      width: widget.width,
+      height: widget.height,
       memCacheWidth: memCacheWidth,
       memCacheHeight: memCacheHeight,
-      placeholder: placeholder,
-      errorWidget: errorWidget,
+      placeholder: widget.placeholder,
+      errorWidget: (context, url, error) {
+        // Schedule a retry with exponential backoff; uses microtask to avoid
+        // calling setState during the build phase.
+        if (_retryCount < _maxRetries) {
+          Future.microtask(() => _scheduleRetry(effectiveCacheKey));
+          // Show placeholder while waiting for retry
+          return widget.placeholder?.call(context, url) ??
+              SizedBox(width: widget.width, height: widget.height);
+        }
+        // All retries exhausted — show caller's error widget or empty box
+        return widget.errorWidget?.call(context, url, error) ??
+            SizedBox(width: widget.width, height: widget.height);
+      },
       cacheManager: OXFileCacheManager.get(),
       cacheKey: cacheKey,
       maxWidthDiskCache: maxWidthDiskCache,
