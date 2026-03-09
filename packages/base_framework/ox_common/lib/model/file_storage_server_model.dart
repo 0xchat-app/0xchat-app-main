@@ -112,18 +112,19 @@ class FileStorageServer {
     return other is FileStorageServer && other.url == url;
   }
 
+  /// Default file storage server list. FileDrop is first so it becomes the default selected server (index 0).
   static List<FileStorageServer> get defaultFileStorageServers => List.from([
-        BlossomServer(
-          url: 'https://blossom.band',
-          name: 'blossom.band',
-          canEdit: false,
-          description: 'https://blossom.band',
-        ),
         FileDropServer(
           url: 'https://filedrop.besoeasy.com',
           name: 'filedrop.besoeasy.com',
           canEdit: false,
           description: 'https://filedrop.besoeasy.com',
+        ),
+        BlossomServer(
+          url: 'https://blossom.band',
+          name: 'blossom.band',
+          canEdit: false,
+          description: 'https://blossom.band',
         ),
         Nip96Server(
           url: 'https://nostr.build',
