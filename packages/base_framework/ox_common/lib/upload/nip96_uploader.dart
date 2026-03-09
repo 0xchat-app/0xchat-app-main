@@ -40,7 +40,7 @@ class NIP96Uploader {
       bytes = BASE64.toData(filePath);
     } else {
       var file = File(filePath);
-      bytes = file.readAsBytesSync();
+      bytes = await file.readAsBytes();
 
       if (StringUtil.isBlank(fileName)) {
         fileName = filePath.split("/").last;
@@ -93,7 +93,7 @@ class NIP96Uploader {
           headers: headers,
         ),
         onSendProgress: (count, total) {
-          onProgress?.call(count / total);
+          if (total > 0) onProgress?.call(count / total);
         },
       );
       var body = response.data;

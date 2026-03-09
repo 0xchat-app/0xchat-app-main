@@ -48,7 +48,7 @@ class OriginlessUploader {
         uploadUrl,
         data: formData,
         onSendProgress: (count, total) {
-          onProgress?.call(count / total);
+          if (total > 0) onProgress?.call(count / total);
         },
       );
       

@@ -32,13 +32,12 @@ class BolssomUploader {
         .toString();
 
     String? payload;
-    MultipartFile? multipartFile;
     Uint8List? bytes;
     if (BASE64.check(filePath)) {
       bytes = BASE64.toData(filePath);
     } else {
       var file = File(filePath);
-      bytes = file.readAsBytesSync();
+      bytes = await file.readAsBytes();
 
       if (StringUtil.isBlank(fileName)) {
         fileName = filePath.split("/").last;
@@ -50,12 +49,8 @@ class BolssomUploader {
     }
 
     var fileSize = bytes.length;
-    log("file size is ${bytes.length}");
+    log("file size is $fileSize");
     payload = HashUtil.sha256Bytes(bytes);
-    multipartFile = MultipartFile.fromBytes(
-      bytes,
-      filename: fileName,
-    );
 
     Map<String, String>? headers = {};
     if (StringUtil.isNotBlank(fileName)) {
@@ -65,12 +60,11 @@ class BolssomUploader {
       }
     }
     if (StringUtil.isBlank(headers["Content-Type"])) {
-      if (multipartFile.contentType != null) {
-        headers["Content-Type"] = multipartFile.contentType!.mimeType;
-      } else {
-        headers["Content-Type"] = "multipart/form-data";
-      }
+      headers["Content-Type"] = lookupMimeType(fileName ?? '') ?? "application/octet-stream";
     }
+    // Must set Content-Length so Dio's onSendProgress receives the real total
+    // (without it, total == -1 and count/total is negative → progress stuck at 0).
+    headers["Content-Length"] = "$fileSize";
 
     List<List<String>> tags = [];
     tags.add(["t", "upload"]);
@@ -92,8 +86,9 @@ class BolssomUploader {
     try {
       var response = await dio.put(
         uploadApiPath,
-        // data: formData,
-        data: Stream.fromIterable(bytes.map((e) => [e])),
+        // Send bytes as a single chunk so Dio can correctly count sent bytes
+        // against Content-Length and fire onSendProgress with real 0→1 progress.
+        data: Stream.fromList([bytes]),
         options: Options(
           headers: headers,
           validateStatus: (status) {
@@ -101,7 +96,7 @@ class BolssomUploader {
           },
         ),
         onSendProgress: (count, total) {
-          onProgress?.call(count / total);
+          if (total > 0) onProgress?.call(count / total);
         },
       );
       var body = response.data;
