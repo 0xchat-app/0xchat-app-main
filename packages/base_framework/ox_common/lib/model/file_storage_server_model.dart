@@ -126,6 +126,24 @@ class FileStorageServer {
           canEdit: false,
           description: 'https://blossom.band',
         ),
+          BlossomServer(
+            url: 'https://blossom.azzamo.media',
+            name: 'blossom.azzamo.media',
+            canEdit: false,
+            description: 'https://blossom.azzamo.media',
+          ),
+          BlossomServer(
+            url: 'https://blossom.primal.net',
+            name: 'blossom.primal.net',
+            canEdit: false,
+            description: 'https://blossom.primal.net',
+          ),
+          BlossomServer(
+            url: 'https://24242.io',
+            name: '24242.io',
+            canEdit: false,
+            description: 'https://24242.io',
+          ),
         Nip96Server(
           url: 'https://nostr.build',
           name: 'nostr.build',
