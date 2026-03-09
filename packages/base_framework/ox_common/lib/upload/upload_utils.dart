@@ -313,6 +313,18 @@ class UploadManager {
     ).then((result) {
       uploadResultMap[cacheKey] = result;
       completeCallback?.call(result, false);
+    }).catchError((e, s) {
+      // Catches unexpected throws (e.g. encryption failure) that bypass the
+      // internal fallback loop. Without this the message is frozen in uploading
+      // state forever and the Future exception goes unhandled.
+      LogUtil.e('UploadManager unexpected error: $e\r\n$s');
+      final errorResult = UploadResult.error(UploadExceptionHandler.errorMessage);
+      uploadResultMap[cacheKey] = errorResult;
+      completeCallback?.call(errorResult, false);
+    }).whenComplete(() {
+      // Always clean up the stream so controllers don't accumulate forever.
+      streamController.close();
+      uploadStreamMap.remove(cacheKey);
     });
   }
 
