@@ -99,11 +99,18 @@ class OXUserAvatarState extends State<OXUserAvatar> {
 
   final defaultImageName = 'icon_user_default.png';
 
+  String get _effectiveImageUrl {
+    final picture = widget.user?.picture ?? widget.imageUrl ?? '';
+    if (picture.isNotEmpty) return picture;
+    final key = widget.user?.pubKey ?? widget.chatId ?? '';
+    if (key.isNotEmpty) return 'https://robohash.org/$key?set=set2&size=500x500';
+    return '';
+  }
+
   @override
   Widget build(BuildContext context) {
-    final imageUrl = widget.user?.picture ?? widget.imageUrl ?? '';
     return BaseAvatarWidget(
-      imageUrl: imageUrl,
+      imageUrl: _effectiveImageUrl,
       defaultImageName: defaultImageName,
       size: widget.size,
       isCircular: widget.isCircular,
@@ -154,11 +161,18 @@ class OXChannelAvatarState extends State<OXChannelAvatar> {
 
   final defaultImageName = 'icon_group_default.png';
 
+  String get _effectiveImageUrl {
+    final picture = widget.channel?.picture ?? widget.imageUrl ?? '';
+    if (picture.isNotEmpty) return picture;
+    final id = widget.channel?.channelId ?? '';
+    if (id.isNotEmpty) return 'https://robohash.org/$id?set=set4&size=500x500';
+    return '';
+  }
+
   @override
   Widget build(BuildContext context) {
-    final imageUrl = widget.channel?.picture ?? widget.imageUrl ?? '';
     return BaseAvatarWidget(
-      imageUrl: imageUrl,
+      imageUrl: _effectiveImageUrl,
       defaultImageName: defaultImageName,
       size: widget.size,
       isCircular: widget.isCircular,
@@ -207,11 +221,18 @@ class OXRelayGroupAvatarState extends State<OXRelayGroupAvatar> {
 
   final defaultImageName = 'icon_group_default.png';
 
+  String get _effectiveImageUrl {
+    final picture = widget.relayGroup?.picture ?? widget.imageUrl ?? '';
+    if (picture.isNotEmpty) return picture;
+    final id = widget.relayGroup?.groupId ?? '';
+    if (id.isNotEmpty) return 'https://robohash.org/$id?set=set4&size=500x500';
+    return '';
+  }
+
   @override
   Widget build(BuildContext context) {
-    final imageUrl = widget.relayGroup?.picture ?? widget.imageUrl ?? '';
     return BaseAvatarWidget(
-      imageUrl: imageUrl,
+      imageUrl: _effectiveImageUrl,
       defaultImageName: defaultImageName,
       size: widget.size,
       isCircular: widget.isCircular,
@@ -342,10 +363,16 @@ class OXGroupAvatarState extends State<OXGroupAvatar> {
     // Optimized: Simplified build logic, always show GroupedAvatar or default
     // Removed unnecessary FutureBuilder that always returned the same widget
     if (_avatars.isEmpty) {
+      final groupPicture = widget.group?.picture ?? widget.imageUrl ?? '';
+      final fallbackUrl = groupPicture.isNotEmpty
+          ? groupPicture
+          : groupId.isNotEmpty
+              ? 'https://robohash.org/$groupId?set=set4&size=500x500'
+              : '';
       return BaseAvatarWidget(
         defaultImageName: defaultImageName,
         size: widget.size,
-        imageUrl: '',
+        imageUrl: fallbackUrl,
         isCircular: widget.isCircular,
         isClickable: widget.isClickable,
         onTap: _onTap,
