@@ -99,9 +99,11 @@ class MainState extends State<MainApp>
       notNetworInitWow();
     }
     BootConfig.instance.batchUpdateUserBadges();
-    timer = Timer.periodic(Duration(seconds: 5), (Timer t) {
-      printMemoryUsage();
-    });
+    if (kDebugMode) {
+      timer = Timer.periodic(Duration(seconds: 5), (Timer t) {
+        printMemoryUsage();
+      });
+    }
     showErrorDialogIfNeeded();
 
     if (!Adapt.isInitialized) {
