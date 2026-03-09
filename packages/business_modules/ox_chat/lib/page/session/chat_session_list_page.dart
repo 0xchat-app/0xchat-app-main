@@ -289,22 +289,21 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
       return session2CreatedTime.compareTo(session1CreatedTime);
     });
     _getGroupMembers(_msgDatas);
-    if (this.mounted) {
-      setState(() {});
-    }
     if (_msgDatas.length > 0) {
       _scaleList = List.generate(_msgDatas.length, (index) => ValueNotifier(false));
-      updateStateView(CommonStateView.CommonStateView_None);
+      if (this.mounted) {
+        setState(() {
+          updateStateView(CommonStateView.CommonStateView_None);
+        });
+      }
       _updateReadStatus();
     } else {
       bool isLogin = OXUserInfoManager.sharedInstance.isLogin;
-      if (isLogin == false) {
+      if (this.mounted) {
         setState(() {
-          updateStateView(CommonStateView.CommonStateView_NotLogin);
-        });
-      } else {
-        setState(() {
-          updateStateView(CommonStateView.CommonStateView_NoData);
+          updateStateView(isLogin == false
+              ? CommonStateView.CommonStateView_NotLogin
+              : CommonStateView.CommonStateView_NoData);
         });
       }
     }
@@ -424,11 +423,9 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
               .where((avatar) => avatar.isNotEmpty)
               .toList();
           
-          // Update cache and UI if mounted
+          // Update cache only; setState triggered once per batch below
           if (mounted) {
             _groupMembersCache[groupId] = avatars;
-            // Trigger UI update for this specific group
-            setState(() {});
           }
         } catch (e) {
           // Log error but don't crash

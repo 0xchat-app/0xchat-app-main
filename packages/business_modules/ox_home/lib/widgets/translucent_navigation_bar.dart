@@ -576,11 +576,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
   }
 
   void prepareMessageTimer() async {
-    clearRefreshMessagesTimer();
-    _refreshMessagesTimer = Timer.periodic(const Duration(milliseconds: 3 * 1000), (timer) {
-      fetchUnreadCount();
-      if (mounted) setState(() {});
-    });
+    // No-op: unread counts are updated reactively via updateNotificationListener()
   }
 
   void clearRefreshMessagesTimer(){

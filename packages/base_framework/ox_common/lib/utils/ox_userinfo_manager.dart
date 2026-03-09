@@ -433,7 +433,8 @@ class OXUserInfoManager {
       fn();
     });
     await UserConfigTool.migrateSharedPreferencesData();
-    await EventCache.sharedInstance.loadAllEventsFromDB();
+    // Load event cache in background — do not block relay/contacts init
+    EventCache.sharedInstance.loadAllEventsFromDB();
     Relays.sharedInstance.init().then((value) {
       Contacts.sharedInstance.init(callBack: Contacts.sharedInstance.contactUpdatedCallBack);
       Channels.sharedInstance.init(callBack: Channels.sharedInstance.myChannelsUpdatedCallBack);
