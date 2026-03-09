@@ -53,7 +53,7 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
     _initMinioData();
     _initNip96Data();
     _initBlossomData();
-    _initFileDropData();
+    _initOriginlessData();
   }
 
   _initMinioData() {
@@ -90,12 +90,12 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
     }
   }
 
-  _initFileDropData() {
-    if (widget.fileStorageProtocol == FileStorageProtocol.filedrop) {
+  _initOriginlessData() {
+    if (widget.fileStorageProtocol == FileStorageProtocol.originless) {
       if (widget.operationType == OperationType.edit) {
-        FileDropServer? fileDropServer = widget.fileStorageServer as FileDropServer;
-        _urlController.text = fileDropServer.url;
-        _serverNameController.text = fileDropServer.name;
+        OriginlessServer? originlessServer = widget.fileStorageServer as OriginlessServer;
+        _urlController.text = originlessServer.url;
+        _serverNameController.text = originlessServer.name;
       }
     }
   }
@@ -135,8 +135,8 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
               _buildNip96TypeView(),
             if(widget.fileStorageProtocol == FileStorageProtocol.blossom)
               _buildBlossomTypeView(),
-            if(widget.fileStorageProtocol == FileStorageProtocol.filedrop)
-              _buildFileDropTypeView(),
+            if(widget.fileStorageProtocol == FileStorageProtocol.originless)
+              _buildOriginlessTypeView(),
             CommonButton.themeButton(
               text: Localized.text('ox_common.complete'),
               onTap: _handleComplete,
@@ -247,7 +247,7 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
     );
   }
 
-  Widget _buildFileDropTypeView() {
+  Widget _buildOriginlessTypeView() {
     return Column(
       children: [
         _buildItem(
@@ -340,8 +340,8 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
         break;
       case FileStorageProtocol.oss:
         break;
-      case FileStorageProtocol.filedrop:
-        _createFileDropServer();
+      case FileStorageProtocol.originless:
+        _createOriginlessServer();
         break;
     }
   }
@@ -460,22 +460,22 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
     OXNavigator.pop(context);
   }
 
-  _createFileDropServer() async {
+  _createOriginlessServer() async {
     final url = _urlController.text;
     final name = _serverNameController.text;
     if(!_urlValidator(url)) {
       CommonToast.instance.show(context, Localized.text('ox_usercenter.str_url_tips_text'));
       return;
     }
-    FileDropServer fileDropServer = FileDropServer(
+    OriginlessServer originlessServer = OriginlessServer(
       url: url,
       name: name.isNotEmpty ? name : url,
       description: url,
     );
     if(widget.operationType == OperationType.create) {
-      await OXServerManager.sharedInstance.addFileStorageServer(fileDropServer);
+      await OXServerManager.sharedInstance.addFileStorageServer(originlessServer);
     }else {
-      await OXServerManager.sharedInstance.updateFileStorageServer(fileDropServer);
+      await OXServerManager.sharedInstance.updateFileStorageServer(originlessServer);
     }
     OXNavigator.pop(context);
   }
