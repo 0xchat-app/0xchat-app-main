@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:async';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'package:chatcore/chat-core.dart' hide ProxySettings;
 import 'package:flutter/foundation.dart';
@@ -51,6 +52,10 @@ class AppInitializer {
         WidgetsFlutterBinding.ensureInitialized();
         await windowManager.initWindow();
         HttpOverrides.global = OXHttpOverrides(); //ignore all ssl
+        if (Platform.isLinux || Platform.isWindows) {
+          sqfliteFfiInit();
+          databaseFactory = databaseFactoryFfi;
+        }
         initializeReflectable();
         // await RustLib.init(); // MLS RustLib initialization temporarily disabled
         await ThemeManager.init();

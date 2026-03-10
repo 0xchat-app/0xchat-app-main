@@ -14,7 +14,7 @@ class OXNetworkPlugin {
   }
 
   static Future<String> getProxyAddress(String url) async {
-    if (Platform.isMacOS) {
+    if (Platform.isMacOS || Platform.isLinux || Platform.isWindows) {
       return '';
     }
     final String version = await _channel.invokeMethod('getProxyAddress', { 'url': url });
