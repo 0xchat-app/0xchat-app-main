@@ -63,6 +63,7 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget>
   DateTime? _pointerDownTime;
   Offset? _pointerDownPosition;
   bool _isLongPress = false;
+  bool _linkTapped = false;
 
   @override
   void initState() {
@@ -150,9 +151,14 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget>
           if (duration.inMilliseconds < 250 && 
               distance < 10 && 
               !_isLongPress) {
-            // Immediate callback for tap - text selection will be handled by SelectableText
-            // If user is selecting text, the selection UI will appear and prevent navigation
-            widget.clickBlankCallback?.call();
+            // Delay slightly so onTapLink (which fires after pointer up) can set
+            // _linkTapped = true first, preventing a double navigation push.
+            _linkTapped = false;
+            Future.delayed(const Duration(milliseconds: 100), () {
+              if (mounted && !_linkTapped) {
+                widget.clickBlankCallback?.call();
+              }
+            });
           }
         }
         _pointerDownTime = null;
@@ -248,6 +254,7 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget>
           listIndent: 24.px,
         ),
       onTapLink: (text, href, title) {
+        _linkTapped = true;
         if (href != null) {
           // Handle custom link formats
           if (href.startsWith('moment://hashtag/')) {
