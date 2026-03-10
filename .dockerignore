@@ -1,0 +1,17 @@
+.git
+.github
+.idea
+.vscode
+.dart_tool
+.pub
+.pub-cache
+build
+**/.dart_tool
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.gradle
+**/build
+**/android/.gradle
+**/android/local.properties
+**/ios/Pods
+**/macos/Pods

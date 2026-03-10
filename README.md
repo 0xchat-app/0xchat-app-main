@@ -30,3 +30,14 @@ flutter build macos     # macOS
 flutter build linux     # Linux
 flutter build windows   # Windows
 ```
+
+**4. Build and test with Docker (Linux only)**
+
+Use the included Dockerfile to build and test in a clean container without
+installing Flutter or system build dependencies on your machine.
+
+```sh
+docker build -t oxchat-linux-builder .
+docker run --rm -v "$PWD":/workspace oxchat-linux-builder
+```
+
