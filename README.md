@@ -39,5 +39,8 @@ installing Flutter or system build dependencies on your machine.
 ```sh
 docker build -t oxchat-linux-builder .
 docker run --rm -v "$PWD":/workspace oxchat-linux-builder
+
+##builds here
+./build/linux/x64/release/bundle/oxchat_app_main
 ```
 

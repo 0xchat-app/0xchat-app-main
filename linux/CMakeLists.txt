@@ -13,6 +13,14 @@ set(APPLICATION_ID "com.oxchat.oxchat_app_main")
 # versions of CMake.
 cmake_policy(SET CMP0063 NEW)
 
+# Default the install prefix to the bundle directory next to the build tree,
+# so that `ninja install` puts the app into build/linux/x64/<mode>/bundle/
+# instead of the system /usr/local.
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+  set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/bundle"
+      CACHE PATH "Install prefix" FORCE)
+endif()
+
 # Load bundled libraries from the lib/ directory relative to the binary.
 set(CMAKE_INSTALL_RPATH "$ORIGIN/lib")
 
