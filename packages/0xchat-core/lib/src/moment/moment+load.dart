@@ -611,6 +611,7 @@ extension Load on Moment {
       String? keyword,
       List<String>? relayList}) async {
     final isar = DBISAR.sharedInstance.isar;
+    if (!isar.isOpen) return [];
     var queryBuilder = isar.noteDBISARs.filter();
     if (noteId != null) {
       queryBuilder = queryBuilder.noteIdEqualTo(noteId);
