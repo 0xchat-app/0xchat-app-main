@@ -88,7 +88,7 @@ class BolssomUploader {
         uploadApiPath,
         // Send bytes as a single chunk so Dio can correctly count sent bytes
         // against Content-Length and fire onSendProgress with real 0→1 progress.
-        data: Stream.fromList([bytes]),
+        data: Stream.value(bytes),
         options: Options(
           headers: headers,
           validateStatus: (status) {

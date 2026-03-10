@@ -5,7 +5,7 @@ ARG FLUTTER_VERSION=3.29.3
 
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 ENV FLUTTER_ROOT=/opt/flutter
-ENV PATH=/opt/flutter/bin:/opt/flutter/bin/cache/dart-sdk/bin:${PATH}
+ENV PATH=/root/.cargo/bin:/opt/flutter/bin:/opt/flutter/bin/cache/dart-sdk/bin:${PATH}
 
 RUN apt-get update && apt-get install -y \
     bash \
@@ -15,6 +15,8 @@ RUN apt-get update && apt-get install -y \
     curl \
     file \
     git \
+    libgstreamer-plugins-base1.0-dev \
+    libgstreamer1.0-dev \
     libgtk-3-dev \
     libglu1-mesa \
     libssl-dev \
@@ -29,6 +31,8 @@ RUN apt-get update && apt-get install -y \
 RUN mkdir -p /opt \
     && curl -fsSL "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz" \
     | tar -xJ -C /opt
+
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal
 
 RUN git config --global --add safe.directory /opt/flutter \
     && git config --global --add safe.directory /workspace \
