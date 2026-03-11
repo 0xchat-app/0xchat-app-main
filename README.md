@@ -37,11 +37,6 @@ Use the included Dockerfile to build and test in a clean container without
 installing Flutter or system build dependencies on your machine.
 
 ```sh
-docker build -t oxchat-linux-builder . && \
-docker run --rm \
-  -v "$PWD":/workspace \
-  -v "$HOME/.cache/oxchat-pub-cache:/root/.pub-cache" \
-  oxchat-linux-builder && \
-./build/linux/x64/release/bundle/oxchat_app_main
+docker build -t oxchat-linux-builder . && docker run --rm -v "$PWD":/workspace -v /home/jesus/.cache/oxchat-pub-cache:/root/.pub-cache oxchat-linux-builder && ./build/linux/x64/release/bundle/oxchat_app_main
 ```
 
