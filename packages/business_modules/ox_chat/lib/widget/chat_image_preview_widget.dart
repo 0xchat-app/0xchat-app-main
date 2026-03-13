@@ -43,6 +43,8 @@ class ChatImagePreviewWidgetState extends State<ChatImagePreviewWidget> {
 
   // Non-null when the image has been loading too long without result.
   String? _loadingStatus;
+  // Non-null when the image provider reported a hard error.
+  String? _errorMessage;
   Timer? _slowTimer;
   Timer? _blockedTimer;
 
@@ -93,6 +95,7 @@ class ChatImagePreviewWidgetState extends State<ChatImagePreviewWidget> {
         || oldWidget.imageHeight != widget.imageHeight) {
       isLoadImageFinish = false;
       _loadingStatus = null;
+      _errorMessage = null;
       _cancelLoadingTimers();
       prepareImage();
       _startLoadingTimers();
@@ -126,6 +129,22 @@ class ChatImagePreviewWidgetState extends State<ChatImagePreviewWidget> {
     _blockedTimer = null;
   }
 
+  void _retry() {
+    if (!mounted) return;
+    imageProvider?.evict();
+    _cancelLoadingTimers();
+    setState(() {
+      _errorMessage = null;
+      _loadingStatus = null;
+      isLoadImageFinish = false;
+    });
+    prepareImage();
+    _startLoadingTimers();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && imageSize.isEmpty) addImageSizeListener();
+    });
+  }
+
   Uint8List dataUriToBytes(String dataUri) {
     final base64String = dataUri.split(',').last;
     return base64.decode(base64String);
@@ -153,7 +172,9 @@ class ChatImagePreviewWidgetState extends State<ChatImagePreviewWidget> {
       children: [
         buildImageWidget(),
         if (progressStream != null) Positioned.fill(child: buildStreamProgressMask(progressStream)),
-        if (progressStream == null && !isLoadImageFinish && _loadingStatus != null)
+        if (progressStream == null && _errorMessage != null)
+          Positioned.fill(child: _buildErrorOverlay(_errorMessage!)),
+        if (progressStream == null && _errorMessage == null && !isLoadImageFinish && _loadingStatus != null)
           Positioned.fill(child: _buildStatusOverlay(_loadingStatus!)),
       ],
     );
@@ -189,31 +210,19 @@ class ChatImagePreviewWidgetState extends State<ChatImagePreviewWidget> {
               funcName: 'buildImageWidget',
               message: error.toString(),
             );
-            final msg = _friendlyError(error);
-            return Container(
-              alignment: Alignment.center,
-              color: Colors.grey.withOpacity(0.15),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.broken_image_outlined, color: Colors.white54, size: 28),
-                    SizedBox(height: 6),
-                    Text(
-                      msg,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w400,
-                        decoration: TextDecoration.none,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
+            // Schedule setState so we don't mutate state during build.
+            // Guard against repeated calls while _errorMessage is already set.
+            if (_errorMessage == null) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) {
+                  _cancelLoadingTimers();
+                  setState(() {
+                    _errorMessage = _friendlyError(error);
+                  });
+                }
+              });
+            }
+            return SizedBox.shrink();
           },
           loadingBuilder: (context, child, loadingProgress) {
             if (loadingProgress == null) return child;
@@ -285,32 +294,100 @@ class ChatImagePreviewWidgetState extends State<ChatImagePreviewWidget> {
 
   Widget _buildStatusOverlay(String message) {
     final isBlocked = message.contains('blocked') || message.contains('Could not');
-    return Container(
-      alignment: Alignment.center,
-      color: Colors.black.withOpacity(0.45),
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              isBlocked ? Icons.cloud_off_outlined : Icons.hourglass_bottom_rounded,
-              color: Colors.white70,
-              size: 28,
-            ),
-            SizedBox(height: 8),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                decoration: TextDecoration.none,
-                height: 1.4,
+    return GestureDetector(
+      onTap: _retry,
+      child: Container(
+        alignment: Alignment.center,
+        color: Colors.black.withOpacity(0.45),
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                isBlocked ? Icons.cloud_off_outlined : Icons.hourglass_bottom_rounded,
+                color: Colors.white70,
+                size: 28,
               ),
-            ),
-          ],
+              SizedBox(height: 8),
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  decoration: TextDecoration.none,
+                  height: 1.4,
+                ),
+              ),
+              SizedBox(height: 10),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                decoration: BoxDecoration(
+                  color: Colors.white24,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  'Tap to retry',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    decoration: TextDecoration.none,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorOverlay(String message) {
+    return GestureDetector(
+      onTap: _retry,
+      child: Container(
+        alignment: Alignment.center,
+        color: Colors.black.withOpacity(0.45),
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.broken_image_outlined, color: Colors.white54, size: 28),
+              SizedBox(height: 8),
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  decoration: TextDecoration.none,
+                  height: 1.4,
+                ),
+              ),
+              SizedBox(height: 10),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                decoration: BoxDecoration(
+                  color: Colors.white24,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  'Tap to retry',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    decoration: TextDecoration.none,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -330,9 +407,12 @@ class ChatImagePreviewWidgetState extends State<ChatImagePreviewWidget> {
           funcName: 'imageStream.onError',
           message: error.toString(),
         );
-        // errorBuilder on the Image widget will handle the UI;
-        // we cancel timers so the timeout overlay doesn't also show.
-        _cancelLoadingTimers();
+        if (mounted && _errorMessage == null) {
+          _cancelLoadingTimers();
+          setState(() {
+            _errorMessage = _friendlyError(error);
+          });
+        }
       },
     );
     oldImageStream?.removeListener(ImageStreamListener(updateImage));
@@ -342,7 +422,9 @@ class ChatImagePreviewWidgetState extends State<ChatImagePreviewWidget> {
   void updateImage(ImageInfo info, bool _) {
     _cancelLoadingTimers();
     setState(() {
+      _errorMessage = null;
       _loadingStatus = null;
+      isLoadImageFinish = true;
       imageSize = Size(
         info.image.width.toDouble(),
         info.image.height.toDouble(),
