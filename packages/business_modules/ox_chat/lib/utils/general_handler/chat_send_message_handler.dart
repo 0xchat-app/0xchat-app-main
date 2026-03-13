@@ -143,6 +143,8 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     ChatSendingType sendingType = ChatSendingType.remote,
     String? replaceMessageId,
     Function(types.Message)? sendActionFinishHandler,
+    Function(double)? onProgress,
+    Function(String)? onServerSelected,
   }) async {
     types.Message? message;
     int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
@@ -176,7 +178,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     }
 
     if (resendMessage == null) {
-      message = await tryPrepareSendFileMessage(context, message);
+      message = await tryPrepareSendFileMessage(context, message, onProgress: onProgress, onServerSelected: onServerSelected);
     }
     if (message == null) return;
 
@@ -586,10 +588,20 @@ extension ChatMessageSendEx on ChatGeneralHandler {
   }
 
   Future sendVoiceMessage(BuildContext context, String path, Duration duration) async {
-    OXLoading.show();
-    // File audioFile = File(path);
-    // final duration = await ChatVoiceMessageHelper.getAudioDuration(audioFile.path);
-    // final bytes = await audioFile.readAsBytes();
+    double _uploadProgress = 0.0;
+    String _serverLabel = '';
+
+    void _updateLoading() {
+      final percent = (_uploadProgress * 100).round();
+      final server = _serverLabel.isNotEmpty ? ' · $_serverLabel' : '';
+      final progress = _uploadProgress > 0 ? ' $percent%' : '';
+      OXLoading.showProgress(
+        process: _uploadProgress,
+        status: 'Uploading audio$progress$server',
+      );
+    }
+
+    OXLoading.showProgress(process: 0, status: 'Uploading audio...');
 
     await _sendMessageHandler(
       context: context,
@@ -597,6 +609,14 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       messageType: fileEncryptionType == types.EncryptionType.encrypted
           ? MessageType.encryptedAudio
           : MessageType.audio,
+      onServerSelected: (serverName) {
+        _serverLabel = serverName;
+        _updateLoading();
+      },
+      onProgress: (progress) {
+        _uploadProgress = progress;
+        _updateLoading();
+      },
     );
 
     OXLoading.dismiss();
@@ -888,21 +908,25 @@ extension ChatMessageSendUtileEx on ChatGeneralHandler {
     required String messageId,
     String? encryptedKey,
     String? encryptedNonce,
+    Function(double)? onProgress,
+    Function(String)? onServerSelected,
   }) async {
     final file = File(filePath);
     final ext = filePath.contains('.') ? '.${filePath.split('.').last}' : '';
     final fileName = '$messageId$ext';
     return await UploadUtils.uploadFile(
-        fileType: fileType, file: file, filename: fileName, encryptedKey: encryptedKey, encryptedNonce: encryptedNonce);
+        fileType: fileType, file: file, filename: fileName, encryptedKey: encryptedKey, encryptedNonce: encryptedNonce, onProgress: onProgress, onServerSelected: onServerSelected);
   }
 
   Future<types.Message?> tryPrepareSendFileMessage(
-      BuildContext? context, types.Message message) async {
+      BuildContext? context, types.Message message, {Function(double)? onProgress, Function(String)? onServerSelected}) async {
     types.Message? updatedMessage;
     if (message is types.AudioMessage) {
       updatedMessage = await prepareSendAudioMessage(
         message: message,
         context: context,
+        onProgress: onProgress,
+        onServerSelected: onServerSelected,
       );
     } else {
       return message;
@@ -914,6 +938,8 @@ extension ChatMessageSendUtileEx on ChatGeneralHandler {
   Future<types.Message?> prepareSendAudioMessage({
     BuildContext? context,
     required types.AudioMessage message,
+    Function(double)? onProgress,
+    Function(String)? onServerSelected,
   }) async {
     final filePath = message.uri;
     final uriIsLocalPath = filePath.isLocalPath;
@@ -936,7 +962,9 @@ extension ChatMessageSendUtileEx on ChatGeneralHandler {
           filePath: filePath,
           messageId: message.id,
           encryptedKey: encryptedKey,
-          encryptedNonce: encryptedNonce);
+          encryptedNonce: encryptedNonce,
+          onProgress: onProgress,
+          onServerSelected: onServerSelected);
       if (!result.isSuccess) {
         CommonToast.instance.show(
             context, '${Localized.text('ox_chat.message_send_audio_fail')}: ${result.errorMsg}');

@@ -278,7 +278,7 @@ class RenderVideoMessageState extends State<RenderVideoMessage> {
 
   int? width;
   int? height;
-  Stream<double>? stream;
+  Stream<UploadProgress>? stream;
 
   @override
   void initState() {

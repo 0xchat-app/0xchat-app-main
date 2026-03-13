@@ -39,7 +39,7 @@ class ChatVideoMessageState extends State<ChatVideoMessage> {
 
   int? width;
   int? height;
-  Stream<double>? stream;
+  Stream<UploadProgress>? stream;
 
   @override
   void initState() {

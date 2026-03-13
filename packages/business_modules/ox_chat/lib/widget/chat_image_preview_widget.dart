@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
+import 'package:ox_common/upload/upload_utils.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
@@ -25,7 +26,7 @@ class ChatImagePreviewWidget extends StatefulWidget {
   final double? maxWidth;
   final String? decryptKey;
   final String? decryptNonce;
-  final Stream<double>? progressStream;
+  final Stream<UploadProgress>? progressStream;
 
   @override
   State<StatefulWidget> createState() => ChatImagePreviewWidgetState();
@@ -162,23 +163,57 @@ class ChatImagePreviewWidgetState extends State<ChatImagePreviewWidget> {
     );
   }
 
-  Widget buildStreamProgressMask(Stream<double> stream) {
-    return StreamBuilder(
+  Widget buildStreamProgressMask(Stream<UploadProgress> stream) {
+    return StreamBuilder<UploadProgress>(
       stream: stream,
-      builder: (context, snapshot) =>
-          buildProgressMask(snapshot.data ?? 0.0),
+      builder: (context, snapshot) {
+        final info = snapshot.data;
+        return buildProgressMask(info?.progress ?? 0.0, serverName: info?.serverName);
+      },
     );
   }
 
-  Widget buildProgressMask(double progress) {
+  Widget buildProgressMask(double progress, {String? serverName}) {
+    final percent = (progress * 100).round();
     return Container(
       alignment: Alignment.center,
-      child: CircularProgressIndicator(
-        value: progress,
-        strokeWidth: 5,
-        backgroundColor: Colors.white.withOpacity(0.5),
-        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-        strokeCap: StrokeCap.round,
+      color: Colors.black.withOpacity(0.35),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: 44,
+            height: 44,
+            child: CircularProgressIndicator(
+              value: progress > 0 ? progress : null,
+              strokeWidth: 5,
+              backgroundColor: Colors.white.withOpacity(0.3),
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              strokeCap: StrokeCap.round,
+            ),
+          ),
+          SizedBox(height: 8),
+          Text(
+            progress > 0 ? '$percent%' : 'Uploading...',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              decoration: TextDecoration.none,
+            ),
+          ),
+          if (serverName != null && serverName.isNotEmpty) ...[            SizedBox(height: 3),
+            Text(
+              'via $serverName',
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: 11,
+                fontWeight: FontWeight.w400,
+                decoration: TextDecoration.none,
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }
