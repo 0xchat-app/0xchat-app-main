@@ -97,7 +97,12 @@ class ChatVoiceMessageHelper {
       }
 
       String newExtension = tempFile.path.split('.').last;
-      String newPath = tempFile.path.replaceAll(newExtension, urlExtension);
+      final withoutExt = tempFile.path.endsWith('.$newExtension')
+          ? tempFile.path.substring(0, tempFile.path.length - newExtension.length - 1)
+          : tempFile.path;
+      String newPath = '$withoutExt.$urlExtension';
+      final newDir = Directory(newPath.substring(0, newPath.lastIndexOf('/')));
+      if (!newDir.existsSync()) await newDir.create(recursive: true);
       tempFile = await tempFile.rename(newPath);
 
       sourceFile = await audioManager.putFile(

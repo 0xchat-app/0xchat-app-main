@@ -45,6 +45,30 @@ class _AudioMessagePageState extends State<AudioMessagePage> {
   Widget build(BuildContext context) {
     final user = InheritedUser.of(context).user;
     final isMe = user.id == widget.message.author.id;
+
+    final fetchError = widget.message.metadata?['fetchError'] as String?;
+    if (fetchError != null) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.error_outline, size: 18, color: Colors.redAccent),
+            SizedBox(width: 6),
+            Flexible(
+              child: Text(
+                fetchError,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.redAccent,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return VoiceMessage(
       meBgColor: Colors.transparent,
       contactBgColor: ThemeColor.color180,

@@ -1,4 +1,5 @@
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -40,6 +41,11 @@ class ChatImagePreviewWidgetState extends State<ChatImagePreviewWidget> {
 
   bool isLoadImageFinish = false;
 
+  // Non-null when the image has been loading too long without result.
+  String? _loadingStatus;
+  Timer? _slowTimer;
+  Timer? _blockedTimer;
+
   double get minWidth => 100.px;
   double get minHeight => 100.px;
   double get maxHeight => 300.px;
@@ -48,6 +54,7 @@ class ChatImagePreviewWidgetState extends State<ChatImagePreviewWidget> {
   void initState() {
     super.initState();
     prepareImage();
+    _startLoadingTimers();
   }
 
   void prepareImage() {
@@ -84,8 +91,39 @@ class ChatImagePreviewWidgetState extends State<ChatImagePreviewWidget> {
     if (oldWidget.uri != widget.uri
         || oldWidget.imageWidth != widget.imageWidth
         || oldWidget.imageHeight != widget.imageHeight) {
+      isLoadImageFinish = false;
+      _loadingStatus = null;
+      _cancelLoadingTimers();
       prepareImage();
+      _startLoadingTimers();
     }
+  }
+
+  void _startLoadingTimers() {
+    // Only show slow/blocked hints for received images (no upload stream),
+    // and only when there is actually a URI to load.
+    if (widget.progressStream != null || widget.uri.isEmpty || widget.uri.isImageBase64) return;
+    _slowTimer = Timer(const Duration(seconds: 10), () {
+      if (mounted && !isLoadImageFinish) {
+        setState(() {
+          _loadingStatus = 'Image is taking longer than expected\nSlow or blocked network?';
+        });
+      }
+    });
+    _blockedTimer = Timer(const Duration(seconds: 25), () {
+      if (mounted && !isLoadImageFinish) {
+        setState(() {
+          _loadingStatus = 'Could not load image\nMay be blocked by your ISP or network';
+        });
+      }
+    });
+  }
+
+  void _cancelLoadingTimers() {
+    _slowTimer?.cancel();
+    _blockedTimer?.cancel();
+    _slowTimer = null;
+    _blockedTimer = null;
   }
 
   Uint8List dataUriToBytes(String dataUri) {
@@ -103,6 +141,7 @@ class ChatImagePreviewWidgetState extends State<ChatImagePreviewWidget> {
 
   @override
   void dispose() {
+    _cancelLoadingTimers();
     imageStream?.removeListener(ImageStreamListener(updateImage));
     super.dispose();
   }
@@ -114,6 +153,8 @@ class ChatImagePreviewWidgetState extends State<ChatImagePreviewWidget> {
       children: [
         buildImageWidget(),
         if (progressStream != null) Positioned.fill(child: buildStreamProgressMask(progressStream)),
+        if (progressStream == null && !isLoadImageFinish && _loadingStatus != null)
+          Positioned.fill(child: _buildStatusOverlay(_loadingStatus!)),
       ],
     );
   }
@@ -148,7 +189,31 @@ class ChatImagePreviewWidgetState extends State<ChatImagePreviewWidget> {
               funcName: 'buildImageWidget',
               message: error.toString(),
             );
-            return SizedBox();
+            final msg = _friendlyError(error);
+            return Container(
+              alignment: Alignment.center,
+              color: Colors.grey.withOpacity(0.15),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.broken_image_outlined, color: Colors.white54, size: 28),
+                    SizedBox(height: 6),
+                    Text(
+                      msg,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w400,
+                        decoration: TextDecoration.none,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
           },
           loadingBuilder: (context, child, loadingProgress) {
             if (loadingProgress == null) return child;
@@ -156,7 +221,7 @@ class ChatImagePreviewWidgetState extends State<ChatImagePreviewWidget> {
             final progress = expectedTotalBytes > 0
                 ? loadingProgress.cumulativeBytesLoaded / expectedTotalBytes
                 : 0.0;
-            return buildProgressMask(progress.clamp(0.0, 1.0));
+            return buildProgressMask(progress.clamp(0.0, 1.0), label: 'Loading...');
           },
         ) : null,
       ),
@@ -168,12 +233,12 @@ class ChatImagePreviewWidgetState extends State<ChatImagePreviewWidget> {
       stream: stream,
       builder: (context, snapshot) {
         final info = snapshot.data;
-        return buildProgressMask(info?.progress ?? 0.0, serverName: info?.serverName);
+        return buildProgressMask(info?.progress ?? 0.0, serverName: info?.serverName, label: 'Uploading...');
       },
     );
   }
 
-  Widget buildProgressMask(double progress, {String? serverName}) {
+  Widget buildProgressMask(double progress, {String? serverName, String label = 'Loading...'}) {
     final percent = (progress * 100).round();
     return Container(
       alignment: Alignment.center,
@@ -194,7 +259,7 @@ class ChatImagePreviewWidgetState extends State<ChatImagePreviewWidget> {
           ),
           SizedBox(height: 8),
           Text(
-            progress > 0 ? '$percent%' : 'Uploading...',
+            progress > 0 ? '$percent%' : label,
             style: TextStyle(
               color: Colors.white,
               fontSize: 13,
@@ -218,23 +283,89 @@ class ChatImagePreviewWidgetState extends State<ChatImagePreviewWidget> {
     );
   }
 
+  Widget _buildStatusOverlay(String message) {
+    final isBlocked = message.contains('blocked') || message.contains('Could not');
+    return Container(
+      alignment: Alignment.center,
+      color: Colors.black.withOpacity(0.45),
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              isBlocked ? Icons.cloud_off_outlined : Icons.hourglass_bottom_rounded,
+              color: Colors.white70,
+              size: 28,
+            ),
+            SizedBox(height: 8),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                decoration: TextDecoration.none,
+                height: 1.4,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   void addImageSizeListener() {
     final oldImageStream = imageStream;
     imageStream = imageProvider?.resolve(createLocalImageConfiguration(context));
     if (imageStream?.key == oldImageStream?.key) {
       return;
     }
-    final listener = ImageStreamListener(updateImage);
-    oldImageStream?.removeListener(listener);
+    final listener = ImageStreamListener(
+      updateImage,
+      onError: (dynamic error, StackTrace? stackTrace) {
+        ChatLogUtils.error(
+          className: 'ChatImagePreviewWidget',
+          funcName: 'imageStream.onError',
+          message: error.toString(),
+        );
+        // errorBuilder on the Image widget will handle the UI;
+        // we cancel timers so the timeout overlay doesn't also show.
+        _cancelLoadingTimers();
+      },
+    );
+    oldImageStream?.removeListener(ImageStreamListener(updateImage));
     imageStream?.addListener(listener);
   }
 
   void updateImage(ImageInfo info, bool _) {
+    _cancelLoadingTimers();
     setState(() {
+      _loadingStatus = null;
       imageSize = Size(
         info.image.width.toDouble(),
         info.image.height.toDouble(),
       );
     });
+  }
+
+  String _friendlyError(Object error) {
+    final msg = error.toString().toLowerCase();
+    if (msg.contains('socketexception') || msg.contains('connection refused') || msg.contains('network')) {
+      return 'Network error — check your connection';
+    }
+    if (msg.contains('timeout')) return 'Connection timed out';
+    if (msg.contains('404') || msg.contains('not found')) return 'Image not found (404)';
+    if (msg.contains('403') || msg.contains('forbidden')) return 'Access denied (403)';
+    if (msg.contains('certificate') || msg.contains('ssl') || msg.contains('tls')) {
+      return 'SSL/TLS error';
+    }
+    if (msg.contains('no address') || msg.contains('failed host lookup')) {
+      return 'Could not resolve host';
+    }
+    // Strip dart noise, keep first meaningful sentence.
+    final clean = error.toString().replaceAll(RegExp(r'\(.*?\)'), '').trim();
+    return clean.length > 80 ? '${clean.substring(0, 80)}…' : clean;
   }
 }

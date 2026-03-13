@@ -271,8 +271,14 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
                     ),
                   );
                 }
-              } catch (_) {
-                // All retries exhausted — voice message stays in spinner state.
+              } catch (e) {
+                // All retries exhausted — mark message with a human-readable error.
+                final errMsg = _friendlyAudioError(e);
+                dataController.updateMessage(
+                  message.copyWith(
+                    metadata: {...?message.metadata, 'fetchError': errMsg},
+                  ),
+                );
               }
             },
             onInsertedContent: (KeyboardInsertedContent insertedContent) =>
@@ -381,5 +387,21 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
         isShowScrollToBottomWidget = false;
       });
     }
+  }
+
+  String _friendlyAudioError(Object error) {
+    final msg = error.toString().toLowerCase();
+    if (msg.contains('no such file') || msg.contains('pathnotfound') || msg.contains('rename')) {
+      return 'Audio file unavailable (storage error)';
+    }
+    if (msg.contains('socketexception') || msg.contains('connection') || msg.contains('network')) {
+      return 'Audio unavailable — check your connection';
+    }
+    if (msg.contains('timeout')) return 'Download timed out';
+    if (msg.contains('404') || msg.contains('not found')) return 'Audio not found (404)';
+    if (msg.contains('403') || msg.contains('forbidden')) return 'Access denied (403)';
+    if (msg.contains('failed to download')) return 'Failed to download audio after retries';
+    final clean = error.toString().replaceAll(RegExp(r'\(.*?\)'), '').trim();
+    return clean.length > 80 ? '${clean.substring(0, 80)}…' : clean;
   }
 }
