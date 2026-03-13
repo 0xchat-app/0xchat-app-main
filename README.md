@@ -4,6 +4,10 @@ A secure, open-source chat app built on the [Nostr](https://nostr.com) protocol.
 
 Available on **Android · iOS · macOS · Linux · Windows**.
 
+## Reliable Hosting
+
+Since Nostr servers are heavily spammed, for reliable media hosting we recommend self-hosting your own media distributor using [Originless](https://github.com/besoeasy/Originless) and adding it as your own server in 0xchat.
+
 ## Getting Started
 
 Requires Flutter `3.29.3`.
