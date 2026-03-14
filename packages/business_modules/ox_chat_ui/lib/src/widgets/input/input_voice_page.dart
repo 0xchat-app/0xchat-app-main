@@ -1,18 +1,14 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:audio_session/audio_session.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-// Conditionally import flutter_sound - use stub on desktop platforms where package is not available
 import 'package:ox_common/utils/adapt.dart';
-import 'package:ox_common/utils/platform_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
-
-// Import flutter_sound - will use stub package on macOS/Linux via dependency_overrides
-import 'package:flutter_sound/flutter_sound.dart';
+import 'package:record/record.dart';
 
 class InputVoicePage extends StatefulWidget {
   final Function(String path, Duration duration) onPressed;
@@ -27,8 +23,8 @@ class InputVoicePage extends StatefulWidget {
   _InputVoicePageState createState() => _InputVoicePageState();
 }
 
-class _InputVoicePageState extends State<InputVoicePage> with SingleTickerProviderStateMixin{
-  /// Max voice recording duration: 2~3 minutes (180 seconds).
+class _InputVoicePageState extends State<InputVoicePage> with SingleTickerProviderStateMixin {
+  /// Max voice recording duration: 3 minutes (180 seconds).
   static const int _maxVoiceDurationSeconds = 180;
   static const int _maxVoiceDurationMs = _maxVoiceDurationSeconds * 1000;
 
@@ -39,15 +35,11 @@ class _InputVoicePageState extends State<InputVoicePage> with SingleTickerProvid
   bool _hasEnded = false;
   String _path = '';
 
-
   late AnimationController _progressController;
   late Animation<double> _progressAnimation;
 
-  // Only initialize on supported platforms (not Linux/macOS)
-  FlutterSoundRecorder? recorderModule;
-  FlutterSoundPlayer? playerModule;
-  
-  bool get _isSupportedPlatform => !PlatformUtils.isDesktop;
+  final Record _recorder = Record();
+  final AudioPlayer _player = AudioPlayer();
 
   @override
   void initState() {
@@ -64,30 +56,12 @@ class _InputVoicePageState extends State<InputVoicePage> with SingleTickerProvid
       })
       ..addStatusListener((status) {
         if (status == AnimationStatus.completed && _isLongPressing) {
-          print('_onLongPressEnd3 :${_path}');
           widget.onPressed(_path, Duration(milliseconds: _longPressDuration.toInt()));
         }
       });
-    
-    if (_isSupportedPlatform) {
-      recorderModule = FlutterSoundRecorder();
-      playerModule = FlutterSoundPlayer();
-      initAudio();
-    }
   }
 
   void _onLongPressStart(LongPressStartDetails details) async {
-    if (!_isSupportedPlatform) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Center(
-            child: Text('Voice recording is not supported on this platform'),
-          ),
-          duration: Duration(seconds: 2),
-        ),
-      );
-      return;
-    }
     setState(() {
       _isLongPressing = true;
     });
@@ -99,13 +73,8 @@ class _InputVoicePageState extends State<InputVoicePage> with SingleTickerProvid
   }
 
   void _onLongPressMoveUpdate(LongPressMoveUpdateDetails details) {
-    // Retrieve the RenderBox object of the LongPressIconButton component
     final box = context.findRenderObject() as RenderBox;
-
-    // Retrieve the center point coordinates of the component
     final center = box.size.center(box.localToGlobal(Offset.zero));
-
-    // Calculate the distance from the touch point to the center point of the component
     final distance = center.dy - details.globalPosition.dy;
 
     setState(() {
@@ -118,58 +87,38 @@ class _InputVoicePageState extends State<InputVoicePage> with SingleTickerProvid
   }
 
   void _onLongPressEnd(LongPressEndDetails details) {
-    if (_hasEnded) {
-      return; // If the _onLongPressEnd method has already been called, it will not be executed again
-    }
+    if (_hasEnded) return;
 
-
-    print('_onLongPressEnd1  :${_path}');
     _hasEnded = true;
     _stopRecorder();
     _progressController.stop();
     setState(() {
       _isLongPressing = false;
-
     });
 
-    print('_longPressDuration ${_longPressDuration}');
     if (_showCancelText) {
-      // Swipe up to cancel.
       widget.onCancel();
       _longPressDuration = 0;
       _showCancelText = false;
-      // Restore the progress to 0.
       _progressController.reset();
       return;
     }
+
     if (_longPressDuration >= _maxVoiceDurationMs) {
-      // Automatically conclude the event
-      // widget.onPressed();
-    }
-    // else if (details.globalPosition.dy < MediaQuery.of(context).size.height * 0.8) {
-    //   // Release to cancel.
-    //   widget.onCancel();
-    // }
-    else if (_longPressDuration < 1000) {
-      // The long-press duration is too short to send the prompt
+      // max duration auto-ended — already fired via animation status listener
+    } else if (_longPressDuration < 1000) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Center(
-            child: Text('Press duration too short to send'),
-          ),
+          content: Center(child: Text('Press duration too short to send')),
           duration: Duration(seconds: 1),
         ),
       );
-    }
-    else {
-      print('_onLongPressEnd2 :${_path}');
-      // Action performed when the long-press is concluded
+    } else {
       widget.onPressed(_path, Duration(milliseconds: _longPressDuration.toInt()));
     }
 
     _longPressDuration = 0;
     _showCancelText = false;
-    // Restore the progress to 0.
     _progressController.reset();
   }
 
@@ -179,10 +128,7 @@ class _InputVoicePageState extends State<InputVoicePage> with SingleTickerProvid
         setState(() {
           _longPressDuration += 100;
         });
-        if (_longPressDuration >= _maxVoiceDurationMs) {
-          // Up to 180 seconds - automatic event termination
-          return;
-        }
+        if (_longPressDuration >= _maxVoiceDurationMs) return;
         _startTimer();
       }
     });
@@ -190,25 +136,6 @@ class _InputVoicePageState extends State<InputVoicePage> with SingleTickerProvid
 
   @override
   Widget build(BuildContext context) {
-    if (!_isSupportedPlatform) {
-      return Container(
-        decoration: BoxDecoration(
-          color: ThemeColor.color190,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Text(
-              'Voice recording is not supported on this platform',
-              style: TextStyle(fontSize: 14),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ),
-      );
-    }
-    
     durationInSeconds = (_longPressDuration / 1000);
     return Container(
       decoration: BoxDecoration(
@@ -283,9 +210,7 @@ class _InputVoicePageState extends State<InputVoicePage> with SingleTickerProvid
                 ),
                 child: Text(
                   Localized.text('ox_chat_ui.record_hint').replaceAll(r'${durationInSeconds}', '${durationInSeconds}'),
-                  style: TextStyle(
-                    fontSize: 14,
-                  ),
+                  style: TextStyle(fontSize: 14),
                 ),
               ),
             ),
@@ -295,217 +220,85 @@ class _InputVoicePageState extends State<InputVoicePage> with SingleTickerProvid
     );
   }
 
-  void initAudio() async {
-    if (!_isSupportedPlatform || recorderModule == null || playerModule == null) {
-      return;
-    }
-    //Start recording
-    await recorderModule!.openRecorder();
-    //Set up a subscription timer.
-    await recorderModule!
-        .setSubscriptionDuration(const Duration(milliseconds: 10));
-
-    //Configure the audio
-    final session = await AudioSession.instance;
-    await session.configure(AudioSessionConfiguration(
-      avAudioSessionCategory: AVAudioSessionCategory.playAndRecord,
-      avAudioSessionCategoryOptions:
-      AVAudioSessionCategoryOptions.allowBluetooth |
-      AVAudioSessionCategoryOptions.defaultToSpeaker,
-      avAudioSessionMode: AVAudioSessionMode.spokenAudio,
-      avAudioSessionRouteSharingPolicy:
-      AVAudioSessionRouteSharingPolicy.defaultPolicy,
-      avAudioSessionSetActiveOptions: AVAudioSessionSetActiveOptions.none,
-      androidAudioAttributes: const AndroidAudioAttributes(
-        contentType: AndroidAudioContentType.speech,
-        flags: AndroidAudioFlags.none,
-        usage: AndroidAudioUsage.voiceCommunication,
-      ),
-      androidAudioFocusGainType: AndroidAudioFocusGainType.gain,
-      androidWillPauseWhenDucked: true,
-    ));
-    await playerModule!.closePlayer();
-    await playerModule!.openPlayer();
-    await playerModule!
-        .setSubscriptionDuration(const Duration(milliseconds: 10));
-  }
-
-  Future<bool> getPermissionStatus() async {
-    final permission = Permission.microphone;
-    //granted，denied，permanentlyDenied
-    final status = await permission.status;
-    if (status.isGranted) {
-      return true;
-    } else if (status.isDenied) {
-      requestPermission(permission);
-    } else if (status.isPermanentlyDenied) {
-      await openAppSettings();
-    } else if (status.isRestricted) {
-      requestPermission(permission);
-    } else {}
-    return false;
-  }
-
-  /// Request Permission
-  void requestPermission(Permission permission) async {
-    final status = await permission.request();
-    if (status.isPermanentlyDenied) {
-      await openAppSettings();
-    }
-  }
-
-  /// Start recording
-  Future _startRecorder() async {
-    if (!_isSupportedPlatform || recorderModule == null) {
-      return;
-    }
+  /// Start recording using the cross-platform [record] package.
+  Future<void> _startRecorder() async {
     await _stopRecorder();
     try {
-      final status = await getPermissionStatus();
-      if(status == false){
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Center(
-              child: Text('No recording permission, please apply in settings'),
+      final hasPermission = await _recorder.hasPermission();
+      if (!hasPermission) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Center(child: Text('No recording permission, please apply in settings')),
+              duration: Duration(seconds: 1),
             ),
-            duration: Duration(seconds: 1),
-          ),
-        );
+          );
+        }
         return;
       }
+
       final tempDir = await getTemporaryDirectory();
       final time = DateTime.now().millisecondsSinceEpoch;
-      final path = Platform.isAndroid ? '${tempDir.path}/$time.aac' : '${tempDir.path}/$time.wav';
+
+      // Use compressed AAC on mobile/macOS; WAV on Linux/Windows/Web for broadest compatibility.
+      final useAac = !kIsWeb && (Platform.isAndroid || Platform.isIOS || Platform.isMacOS);
+      final path = useAac ? '${tempDir.path}/$time.m4a' : '${tempDir.path}/$time.wav';
       _path = path;
 
-      await recorderModule!.startRecorder(
-          toFile: path,
-          codec: Platform.isIOS ? Codec.pcm16WAV : Codec.aacADTS,
-          bitRate: 1411200,
-          sampleRate: 44100,
-          audioSource: AudioSource.microphone);
-
-      /// Monitor the recording - stop when max duration is reached
-      recorderModule!.onProgress!.listen((e) {
-        if (e.duration.inSeconds >= _maxVoiceDurationSeconds) {
-          print('===>  Stop recording upon reaching the specified duration.');
-          _stopRecorder();
-        }
-      });
-
-      this.setState(() {
-        // _state = RecordPlayState.recording;
-
-        print('path == $path');
-      });
+      await _recorder.start(
+        path: path,
+        encoder: useAac ? AudioEncoder.aacLc : AudioEncoder.wav,
+        bitRate: 128000,
+        samplingRate: 44100,
+        numChannels: 1,
+      );
     } catch (err) {
-      print('Preparing to start recording err.toString() : ${err.toString()}');
+      print('Start recording error: $err');
       setState(() {
-        print(err.toString());
         _path = '';
-        _stopRecorder();
-        // _state = RecordPlayState.record;
       });
     }
   }
 
-  /// End recording
-  Future _stopRecorder() async {
-    if (!_isSupportedPlatform || recorderModule == null) {
-      return;
-    }
+  Future<void> _stopRecorder() async {
     try {
-      await recorderModule!.stopRecorder();
-      print('stopRecorder===> fliePath:$_path');
-      // widget.stopRecord!(_path, num);
+      if (await _recorder.isRecording()) {
+        await _recorder.stop();
+      }
     } catch (err) {
-      print('stopRecorder error: $err');
+      print('Stop recorder error: $err');
     }
   }
-  ///Start playback, and here a callback for the playback state is implemented
-  void startPlayer(path, {Function(dynamic)? callBack}) async {
-    if (!_isSupportedPlatform || playerModule == null) {
-      callBack?.call(0);
-      return;
-    }
+
+  /// Start playback of a local or remote audio file.
+  void startPlayer(String path, {Function(dynamic)? callBack}) async {
     try {
+      await _player.stop();
       if (path.contains('http')) {
-        await playerModule!.startPlayer(
-            fromURI: path,
-            codec: Codec.mp3,
-            sampleRate: 44000,
-            whenFinished: () {
-              stopPlayer();
-              callBack?.call(0);
-            });
+        await _player.play(UrlSource(path));
       } else {
-        //Determine if the file exists
-        if (await _fileExists(path)) {
-          if (playerModule!.isPlaying) {
-            await playerModule!.stopPlayer();
-          }
-          await playerModule!.startPlayer(
-              fromURI: path,
-              codec: Codec.aacADTS,
-              sampleRate: 44000,
-              whenFinished: () {
-                stopPlayer();
-                callBack?.call(0);
-              });
-        } else {}
+        if (await File(path).exists()) {
+          await _player.play(DeviceFileSource('file://$path'));
+        }
       }
-      //Monitor playback progress
-      playerModule!.onProgress!.listen((e) {});
+      _player.onPlayerComplete.listen((_) => callBack?.call(0));
       callBack?.call(1);
     } catch (err) {
       callBack?.call(0);
     }
   }
 
-  /// End playback
   void stopPlayer() async {
-    if (!_isSupportedPlatform || playerModule == null) {
-      return;
-    }
     try {
-      await playerModule!.stopPlayer();
+      await _player.stop();
     } catch (err) {}
   }
-
-  /// Retrieve the playback status
-  Future<PlayerState> getPlayState() async {
-    if (!_isSupportedPlatform || playerModule == null) {
-      return PlayerState.isStopped;
-    }
-    return await playerModule!.getPlayerState();
-  }
-
-  /// Release the player
-  void releaseFlauto() async {
-    if (!_isSupportedPlatform || playerModule == null) {
-      return;
-    }
-    try {
-      await playerModule!.closePlayer();
-    } catch (e) {
-      print(e);
-    }
-  }
-
-  /// Check if the file exists
-  Future<bool> _fileExists(String path) async =>
-      await File(path).exists();
-
-
-
 
   @override
   void dispose() {
     _progressController.dispose();
-    if (_isSupportedPlatform) {
-      recorderModule?.closeRecorder();
-      playerModule?.closePlayer();
-    }
+    _recorder.dispose();
+    _player.dispose();
     super.dispose();
   }
 }

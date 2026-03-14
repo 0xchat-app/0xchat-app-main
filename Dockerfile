@@ -42,4 +42,4 @@ RUN git config --global --add safe.directory /opt/flutter \
 
 WORKDIR /workspace
 
-CMD ["flutter", "build", "linux"]
+CMD ["bash", "-c", "flutter pub get && flutter build linux"]

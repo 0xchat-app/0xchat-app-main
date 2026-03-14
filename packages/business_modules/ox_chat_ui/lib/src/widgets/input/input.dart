@@ -216,21 +216,11 @@ class InputState extends State<Input>{
           },
           textController: _textController);
     } else if (inputType == InputType.inputTypeVoice){
-      // Voice recording is disabled on desktop platforms (Linux/macOS)
-      if (PlatformUtils.isDesktop) {
-        contentWidget = Container(
-          padding: EdgeInsets.all(20),
-          child: Center(
-            child: Text('Voice recording is not supported on this platform'),
-          ),
-        );
-      } else {
-        contentWidget = InputVoicePage(onPressed: (_path, duration) {
+      contentWidget = InputVoicePage(onPressed: (_path, duration) {
           if(widget.onVoiceSend != null){
             widget.onVoiceSend!(_path, duration);
           }
         }, onCancel: () { },);
-      }
     }
 
     final animationDuration = Duration(milliseconds: 200);
