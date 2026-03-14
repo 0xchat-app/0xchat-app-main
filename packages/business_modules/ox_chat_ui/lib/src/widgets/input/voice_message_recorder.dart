@@ -10,6 +10,34 @@ import 'package:ox_common/widgets/common_image.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 
+// ── Linux recording helper ────────────────────────────────────────────────
+//
+// The `record` package v4.x on Linux uses `fmedia`, which is rarely installed.
+// Instead we drive `arecord` (alsa-utils) or `parecord` (pulseaudio-utils)
+// directly via Process.start.  Both write a standard WAV file and can be
+// stopped cleanly with SIGINT.
+
+Future<String?> _linuxRecordingCommand() async {
+  for (final cmd in ['arecord', 'parecord', 'pw-record']) {
+    try {
+      final r = await Process.run('which', [cmd]);
+      if (r.exitCode == 0) return cmd;
+    } catch (_) {}
+  }
+  return null;
+}
+
+List<String> _linuxRecordingArgs(String cmd, String path) {
+  switch (cmd) {
+    case 'parecord':
+      return ['--format=s16le', '--rate=16000', '--channels=1', path];
+    case 'pw-record':
+      return ['--format=s16', '--rate=16000', '--channels=1', path];
+    default: // arecord
+      return ['-f', 'S16_LE', '-r', '16000', '-c', '1', path];
+  }
+}
+
 /// Recording state machine.
 enum VoiceRecordingState {
   /// Mic button visible, nothing happening.
@@ -69,6 +97,8 @@ class VoiceMessageRecorderState extends State<VoiceMessageRecorder>
   // ── State ────────────────────────────────────────────────────────────────
   VoiceRecordingState _state = VoiceRecordingState.idle;
   final Record _recorder = Record();
+  /// Linux-only: the `arecord`/`parecord` process replacing the record plugin.
+  Process? _linuxProcess;
   String _filePath = '';
   int _elapsedMs = 0;
   Timer? _elapsedTimer;
@@ -117,6 +147,25 @@ class VoiceMessageRecorderState extends State<VoiceMessageRecorder>
   // ── Recording core ────────────────────────────────────────────────────────
 
   Future<void> _startRecording() async {
+    final dir = await getTemporaryDirectory();
+    final ts = DateTime.now().millisecondsSinceEpoch;
+
+    if (!kIsWeb && Platform.isLinux) {
+      await _startRecordingLinux(dir.path, ts);
+    } else {
+      await _startRecordingViaPlugin(dir.path, ts);
+    }
+
+    // Start timer/waveform tick only if recording actually began.
+    if (_state == VoiceRecordingState.recording ||
+        _state == VoiceRecordingState.locked) {
+      _startTimer();
+    }
+  }
+
+  // ── Plugin-based recording (Android / iOS / macOS / Windows / Web) ───────
+
+  Future<void> _startRecordingViaPlugin(String dirPath, int ts) async {
     final hasPermission = await _recorder.hasPermission();
     if (!hasPermission) {
       if (mounted) {
@@ -130,11 +179,9 @@ class VoiceMessageRecorderState extends State<VoiceMessageRecorder>
       return;
     }
 
-    final dir = await getTemporaryDirectory();
-    final ts = DateTime.now().millisecondsSinceEpoch;
     final useAac =
         !kIsWeb && (Platform.isAndroid || Platform.isIOS || Platform.isMacOS);
-    _filePath = '${dir.path}/$ts.${useAac ? 'm4a' : 'wav'}';
+    _filePath = '$dirPath/$ts.${useAac ? 'm4a' : 'wav'}';
 
     try {
       await _recorder.start(
@@ -157,12 +204,79 @@ class VoiceMessageRecorderState extends State<VoiceMessageRecorder>
           .onAmplitudeChanged(const Duration(milliseconds: 100))
           .listen((amp) {
         if (!mounted) return;
-        // amp.current is dBFS; map -60..0 dBFS → 0.05..1.0
         _latestAmplitude = ((amp.current + 60.0) / 60.0).clamp(0.05, 1.0);
       });
     } catch (_) {}
+  }
 
-    // 100 ms tick drives both timer and waveform animation.
+  // ── Linux recording via arecord / parecord (no fmedia needed) ────────────
+
+  Future<void> _startRecordingLinux(String dirPath, int ts) async {
+    final cmd = await _linuxRecordingCommand();
+    if (cmd == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text(
+              'Install alsa-utils (arecord) to record voice messages on Linux.\n'
+              'Run: sudo apt install alsa-utils'),
+          duration: Duration(seconds: 5),
+        ));
+      }
+      _removeOverlay();
+      if (mounted) setState(() => _state = VoiceRecordingState.idle);
+      return;
+    }
+
+    _filePath = '$dirPath/$ts.wav';
+    try {
+      _linuxProcess =
+          await Process.start(cmd, _linuxRecordingArgs(cmd, _filePath));
+      // Silently consume stdout/stderr so the process doesn't block.
+      _linuxProcess!.stdout.drain();
+      _linuxProcess!.stderr.drain();
+    } catch (e) {
+      debugPrint('VoiceMessageRecorder Linux start error: $e');
+      _linuxProcess = null;
+      _removeOverlay();
+      if (mounted) setState(() => _state = VoiceRecordingState.idle);
+      return;
+    }
+    // No amplitude stream on Linux — the waveform shimmer handles visuals.
+  }
+
+  Future<void> _stopRecorder() async {
+    _elapsedTimer?.cancel();
+    _elapsedTimer = null;
+    _ampSub?.cancel();
+    _ampSub = null;
+
+    if (!kIsWeb && Platform.isLinux) {
+      await _stopRecorderLinux();
+    } else {
+      try {
+        if (await _recorder.isRecording()) await _recorder.stop();
+      } catch (_) {}
+    }
+  }
+
+  Future<void> _stopRecorderLinux() async {
+    final p = _linuxProcess;
+    _linuxProcess = null;
+    if (p == null) return;
+    // SIGINT triggers a clean WAV finalisation in arecord/parecord.
+    p.kill(ProcessSignal.sigint);
+    await p.exitCode
+        .timeout(const Duration(seconds: 2), onTimeout: () {
+          p.kill();
+          return -1;
+        });
+    // Give the OS a moment to flush the file buffer.
+    await Future.delayed(const Duration(milliseconds: 120));
+  }
+
+  // ── Shared timer / waveform tick (runs after recording starts) ───────────
+
+  void _startTimer() {
     _elapsedMs = 0;
     _elapsedTimer = Timer.periodic(const Duration(milliseconds: 100), (_) {
       if (!mounted) return;
@@ -172,26 +286,15 @@ class VoiceMessageRecorderState extends State<VoiceMessageRecorder>
         _finishRecording();
         return;
       }
-      // Advance waveform bars.
+      // Advance waveform bars with live amplitude (or shimmer on Linux).
       final double ampVal = _latestAmplitude > 0.02
           ? (_latestAmplitude * (0.75 + _rng.nextDouble() * 0.5))
               .clamp(0.05, 1.0)
-              .toDouble()
-          : (0.05 + _rng.nextDouble() * 0.2); // quiet shimmer
+          : (0.05 + _rng.nextDouble() * 0.2);
       _waveformBars.removeAt(0);
       _waveformBars.add(ampVal);
       _overlay?.markNeedsBuild();
     });
-  }
-
-  Future<void> _stopRecorder() async {
-    _elapsedTimer?.cancel();
-    _elapsedTimer = null;
-    _ampSub?.cancel();
-    _ampSub = null;
-    try {
-      if (await _recorder.isRecording()) await _recorder.stop();
-    } catch (_) {}
   }
 
   Future<void> _finishRecording() async {

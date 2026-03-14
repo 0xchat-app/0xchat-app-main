@@ -34,6 +34,8 @@ class _InputVoicePageState extends State<InputVoicePage> with SingleTickerProvid
   double durationInSeconds = 0.0;
   bool _hasEnded = false;
   String _path = '';
+  /// Linux-only: arecord/parecord process (replaces the record plugin).
+  Process? _linuxProcess;
 
   late AnimationController _progressController;
   late Animation<double> _progressAnimation;
@@ -220,9 +222,20 @@ class _InputVoicePageState extends State<InputVoicePage> with SingleTickerProvid
     );
   }
 
-  /// Start recording using the cross-platform [record] package.
+  /// Start recording — uses arecord on Linux, the record plugin elsewhere.
   Future<void> _startRecorder() async {
     await _stopRecorder();
+    final tempDir = await getTemporaryDirectory();
+    final time = DateTime.now().millisecondsSinceEpoch;
+
+    if (!kIsWeb && Platform.isLinux) {
+      await _startRecorderLinux(tempDir.path, time);
+    } else {
+      await _startRecorderViaPlugin(tempDir.path, time);
+    }
+  }
+
+  Future<void> _startRecorderViaPlugin(String dirPath, int ts) async {
     try {
       final hasPermission = await _recorder.hasPermission();
       if (!hasPermission) {
@@ -237,12 +250,8 @@ class _InputVoicePageState extends State<InputVoicePage> with SingleTickerProvid
         return;
       }
 
-      final tempDir = await getTemporaryDirectory();
-      final time = DateTime.now().millisecondsSinceEpoch;
-
-      // Use compressed AAC on mobile/macOS; WAV on Linux/Windows/Web for broadest compatibility.
       final useAac = !kIsWeb && (Platform.isAndroid || Platform.isIOS || Platform.isMacOS);
-      final path = useAac ? '${tempDir.path}/$time.m4a' : '${tempDir.path}/$time.wav';
+      final path = useAac ? '$dirPath/$ts.m4a' : '$dirPath/$ts.wav';
       _path = path;
 
       await _recorder.start(
@@ -254,19 +263,76 @@ class _InputVoicePageState extends State<InputVoicePage> with SingleTickerProvid
       );
     } catch (err) {
       print('Start recording error: $err');
-      setState(() {
-        _path = '';
-      });
+      setState(() { _path = ''; });
+    }
+  }
+
+  Future<void> _startRecorderLinux(String dirPath, int ts) async {
+    final cmd = await _findLinuxRecordCmd();
+    if (cmd == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+                'Install alsa-utils (arecord) to record voice on Linux.\n'
+                'Run: sudo apt install alsa-utils'),
+            duration: Duration(seconds: 5),
+          ),
+        );
+      }
+      return;
+    }
+    _path = '$dirPath/$ts.wav';
+    try {
+      _linuxProcess = await Process.start(cmd, _linuxArgs(cmd, _path));
+      _linuxProcess!.stdout.drain();
+      _linuxProcess!.stderr.drain();
+    } catch (e) {
+      print('Linux recording start error: $e');
+      _linuxProcess = null;
+      setState(() { _path = ''; });
     }
   }
 
   Future<void> _stopRecorder() async {
-    try {
-      if (await _recorder.isRecording()) {
-        await _recorder.stop();
+    if (!kIsWeb && Platform.isLinux) {
+      final p = _linuxProcess;
+      _linuxProcess = null;
+      if (p != null) {
+        p.kill(ProcessSignal.sigint);
+        await p.exitCode.timeout(const Duration(seconds: 2),
+            onTimeout: () { p.kill(); return -1; });
+        await Future.delayed(const Duration(milliseconds: 120));
       }
-    } catch (err) {
-      print('Stop recorder error: $err');
+    } else {
+      try {
+        if (await _recorder.isRecording()) {
+          await _recorder.stop();
+        }
+      } catch (err) {
+        print('Stop recorder error: $err');
+      }
+    }
+  }
+
+  static Future<String?> _findLinuxRecordCmd() async {
+    for (final cmd in ['arecord', 'parecord', 'pw-record']) {
+      try {
+        final r = await Process.run('which', [cmd]);
+        if (r.exitCode == 0) return cmd;
+      } catch (_) {}
+    }
+    return null;
+  }
+
+  static List<String> _linuxArgs(String cmd, String path) {
+    switch (cmd) {
+      case 'parecord':
+        return ['--format=s16le', '--rate=16000', '--channels=1', path];
+      case 'pw-record':
+        return ['--format=s16', '--rate=16000', '--channels=1', path];
+      default:
+        return ['-f', 'S16_LE', '-r', '16000', '-c', '1', path];
     }
   }
 
@@ -299,6 +365,7 @@ class _InputVoicePageState extends State<InputVoicePage> with SingleTickerProvid
     _progressController.dispose();
     _recorder.dispose();
     _player.dispose();
+    _linuxProcess?.kill();
     super.dispose();
   }
 }
