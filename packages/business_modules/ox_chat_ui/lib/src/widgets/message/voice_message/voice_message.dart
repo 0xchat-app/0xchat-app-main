@@ -22,6 +22,7 @@ class VoiceMessage extends StatefulWidget {
     required this.me,
     this.audioFile,
     this.duration,
+    this.waveformData,
     String Function(Duration duration)? formatDuration,
     this.meBgColor = AppColors.pink,
     this.contactBgColor = const Color(0xffffffff),
@@ -30,6 +31,11 @@ class VoiceMessage extends StatefulWidget {
 
   final File? audioFile;
   final Duration? duration;
+
+  /// Optional pre-computed waveform amplitudes (0.0–1.0, left = start of
+  /// audio, right = end).  When omitted a deterministic pseudo-random
+  /// waveform is generated from the audio duration.
+  final List<double>? waveformData;
 
   final Color meBgColor, contactBgColor;
   final bool me;
@@ -224,50 +230,41 @@ class _VoiceMessageState extends State<VoiceMessage> {
       );
     }
 
-    final audioDuration = duration.inSeconds;
-    final dotCount = _calculateDotCount(audioDuration);
     final durationMs = duration.inMilliseconds;
-    // Approximate width of the dot row for seek calculation (each dot 6 + padding 2.5*2).
-    const double dotWidth = 6.0 + 2.5 * 2;
-    final double trackWidth = dotCount * dotWidth;
+    final bars = _resolveWaveform(duration);
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTapDown: (details) => _seekToPosition(details.localPosition.dx, trackWidth, durationMs),
-      onHorizontalDragUpdate: (details) {
-        if (trackWidth <= 0) return;
-        final dx = details.localPosition.dx;
-        setState(() => _progress = (dx / trackWidth).clamp(0.0, 1.0));
-      },
-      onHorizontalDragEnd: (details) {
+      onTapDown: (details) {
         if (audioPlayerSingleton.getCurrentPlayingUrl() != _playUrl) return;
-        final positionMs = (_progress * durationMs).round();
-        _player.seek(Duration(milliseconds: positionMs));
+        final frac =
+            (details.localPosition.dx / (details.localPosition.dx == 0 ? 1 : details.localPosition.dx)).clamp(0.0, 1.0);
+        // Width is unknown here; we use LayoutBuilder below for seeks.
       },
-      child: SizedBox(
-        height: Adapt.px(32),
-        child: ListView.builder(
-          shrinkWrap: true,
-          itemCount: dotCount,
-          scrollDirection: Axis.horizontal,
-          itemBuilder: (context, index) {
-            final itemProgress = (index + 1) / dotCount;
-            final dotColor = itemProgress <= _progress
-                ? (themeColor ?? Colors.white)
-                : (themeColor ?? Colors.white).withOpacity(0.2);
-            return Padding(
-              padding: const EdgeInsets.all(2.5),
-              child: Container(
-                width: 6,
-                height: 6,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: dotColor,
-                ),
-              ),
-            );
-          },
-        ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final trackWidth = constraints.maxWidth;
+          return GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTapDown: (details) =>
+                _seekToPosition(details.localPosition.dx, trackWidth, durationMs),
+            onHorizontalDragUpdate: (details) {
+              if (trackWidth <= 0) return;
+              setState(() => _progress =
+                  (details.localPosition.dx / trackWidth).clamp(0.0, 1.0));
+            },
+            onHorizontalDragEnd: (_) {
+              if (audioPlayerSingleton.getCurrentPlayingUrl() != _playUrl) return;
+              final positionMs = (_progress * durationMs).round();
+              _player.seek(Duration(milliseconds: positionMs));
+            },
+            child: _VoiceWaveformBar(
+              bars: bars,
+              progress: _progress,
+              color: themeColor ?? Colors.white,
+            ),
+          );
+        },
       ),
     );
   }
@@ -279,12 +276,26 @@ class _VoiceMessageState extends State<VoiceMessage> {
     _player.seek(Duration(milliseconds: positionMs.round()));
   }
 
+  /// Returns waveform bar heights (0.0–1.0).  Uses [widget.waveformData] if
+  /// provided, otherwise generates a deterministic pseudo-random pattern
+  /// seeded by the audio duration so the same message always looks the same.
+  List<double> _resolveWaveform(Duration duration) {
+    final provided = widget.waveformData;
+    if (provided != null && provided.isNotEmpty) return provided;
+    const barCount = 30;
+    final rng = Random(duration.inMilliseconds);
+    // Bias toward mid-range amplitudes for a more natural look.
+    return List.generate(
+        barCount, (_) => 0.15 + rng.nextDouble() * 0.75);
+  }
+
   int _calculateDotCount(int input) {
     final minCount = 4;
     final maxCount = 13;
     if (input < 1) return minCount;
     if (input > 60) return maxCount;
-    final dotCount = (minCount + (maxCount - minCount) * log(input) / log(60)).floor();
+    final dotCount =
+        (minCount + (maxCount - minCount) * log(input) / log(60)).floor();
     return dotCount;
   }
 
@@ -407,4 +418,86 @@ class CustomTrackShape extends RoundedRectSliderTrackShape {
     final trackWidth = parentBox.size.width;
     return Rect.fromLTWH(trackLeft, trackTop, trackWidth, trackHeight);
   }
+}
+
+// ── Waveform bar widget used inside VoiceMessage ─────────────────────────
+
+/// Renders a waveform-style progress bar for a voice-message bubble.
+///
+/// [bars]     – amplitude values 0.0–1.0 (left = start of audio).
+/// [progress] – playback progress 0.0–1.0; bars before the cursor are opaque.
+/// [color]    – bar colour (usually the bubble's text colour).
+class _VoiceWaveformBar extends StatelessWidget {
+  const _VoiceWaveformBar({
+    required this.bars,
+    required this.progress,
+    required this.color,
+  });
+
+  final List<double> bars;
+  final double progress;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: Adapt.px(32),
+      child: ClipRect(
+        child: CustomPaint(
+          painter: _VoiceWaveformPainter(
+            bars: bars,
+            progress: progress,
+            color: color,
+          ),
+          size: const Size(double.infinity, 32),
+        ),
+      ),
+    );
+  }
+}
+
+class _VoiceWaveformPainter extends CustomPainter {
+  const _VoiceWaveformPainter({
+    required this.bars,
+    required this.progress,
+    required this.color,
+  });
+
+  final List<double> bars;
+  final double progress;
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (bars.isEmpty) return;
+    final count = bars.length;
+    final barW = size.width / count * 0.55;
+    final slot = size.width / count;
+
+    for (int i = 0; i < count; i++) {
+      final x = i * slot;
+      final barH = max(2.0, bars[i] * size.height);
+      final top = (size.height - barH) / 2;
+
+      final barFrac = (i + 0.5) / count;
+      final isPlayed = barFrac <= progress;
+      final opacity = isPlayed ? 1.0 : 0.25;
+
+      final paint = Paint()
+        ..style = PaintingStyle.fill
+        ..color = color.withOpacity(opacity);
+
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromLTWH(x, top, barW, barH),
+          const Radius.circular(2),
+        ),
+        paint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(_VoiceWaveformPainter old) =>
+      old.bars != bars || old.progress != progress || old.color != color;
 }

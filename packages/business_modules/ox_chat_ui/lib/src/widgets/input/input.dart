@@ -28,6 +28,7 @@ import 'input_more_page.dart';
 import 'input_text_field_controller.dart';
 import 'input_voice_page.dart';
 import 'send_button.dart';
+import 'voice_message_recorder.dart';
 
 
 /// A class that represents bottom bar widget with a text field, attachment and
@@ -317,12 +318,20 @@ class InputState extends State<Input>{
     );
   }
 
-  Widget _buildVoiceButton(){
+  Widget _buildVoiceButton() {
+    final onVoiceSend = widget.onVoiceSend;
+    if (onVoiceSend != null) {
+      // New WhatsApp/Telegram-style press-and-hold recorder.
+      return VoiceMessageRecorder(
+        size: inputSuffixIconSize,
+        padding: EdgeInsets.symmetric(horizontal: _itemSpacing),
+        onSend: onVoiceSend,
+      );
+    }
+    // Fallback: open the legacy InputVoicePage panel.
     return AttachmentButton(
       isLoading: widget.isAttachmentUploading ?? false,
-      onPressed: (){
-        changeInputType(InputType.inputTypeVoice);
-      },
+      onPressed: () => changeInputType(InputType.inputTypeVoice),
       padding: EdgeInsets.symmetric(horizontal: _itemSpacing),
       size: inputSuffixIconSize,
     );
