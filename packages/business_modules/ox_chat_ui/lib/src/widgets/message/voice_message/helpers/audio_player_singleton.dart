@@ -79,10 +79,10 @@ import 'package:ox_common/utils/string_utils.dart';
      });
    }
 
-   Future<void> play(String url, AudioRestoreCallback stopCallback) async {
+   /// Returns null on success, or an error message string on failure.
+   Future<String?> play(String url, AudioRestoreCallback stopCallback) async {
      try {
        if (_currentPlayingUrl != null && _currentPlayingUrl != url) {
-         // If the currently playing voice message is not the one to be played, pause the current voice message first
          final restoreCallback = onRestore;
          if(restoreCallback != null){
            restoreCallback(_currentPlayingUrl);
@@ -91,22 +91,22 @@ import 'package:ox_common/utils/string_utils.dart';
        }
 
        if (audioPlayer.state == PlayerState.playing) {
-         // If there is another audio playing, stop it first
          await stop();
        }
 
        _currentPlayingUrl = url;
 
        if (url.isRemoteURL) {
-         // If it's a network file, play it directly
          await audioPlayer.play(UrlSource(url));
        } else {
-         // If it's a local file, you need to add the path before "file://"
          await audioPlayer.play(DeviceFileSource('file://$url'));
        }
        onRestore = stopCallback;
+       return null;
      } catch (e) {
+       _currentPlayingUrl = '';
        print('Error playing audio: $e');
+       return e.toString();
      }
    }
 

@@ -159,3 +159,42 @@ if(NOT CMAKE_BUILD_TYPE MATCHES "Debug")
   install(FILES "${AOT_LIBRARY}" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
     COMPONENT Runtime)
 endif()
+
+# Bundle GStreamer runtime libraries so the app works without GStreamer installed
+# on the host machine. Only copies libs that actually exist on the build system.
+set(GST_LIB_DIR "/usr/lib/x86_64-linux-gnu")
+set(GST_PLUGIN_DIR "${GST_LIB_DIR}/gstreamer-1.0")
+
+set(GST_CORE_LIBS
+  "${GST_LIB_DIR}/libgstreamer-1.0.so.0"
+  "${GST_LIB_DIR}/libgstbase-1.0.so.0"
+  "${GST_LIB_DIR}/libgstapp-1.0.so.0"
+  "${GST_LIB_DIR}/libgstpbutils-1.0.so.0"
+  "${GST_LIB_DIR}/libgstaudio-1.0.so.0"
+  "${GST_LIB_DIR}/libgstvideo-1.0.so.0"
+)
+
+set(GST_PLUGINS
+  "${GST_PLUGIN_DIR}/libgstcoreelements.so"
+  "${GST_PLUGIN_DIR}/libgstplayback.so"
+  "${GST_PLUGIN_DIR}/libgstaudioconvert.so"
+  "${GST_PLUGIN_DIR}/libgstaudioresample.so"
+  "${GST_PLUGIN_DIR}/libgstvolume.so"
+  "${GST_PLUGIN_DIR}/libgstalsa.so"
+  "${GST_PLUGIN_DIR}/libgstpulseaudio.so"
+  "${GST_PLUGIN_DIR}/libgstmpg123.so"
+  "${GST_PLUGIN_DIR}/libgstopus.so"
+  "${GST_PLUGIN_DIR}/libgstflac.so"
+  "${GST_PLUGIN_DIR}/libgstvorbis.so"
+  "${GST_PLUGIN_DIR}/libgstogg.so"
+  "${GST_PLUGIN_DIR}/libgstlibav.so"
+  "${GST_PLUGIN_DIR}/libgsttypefindfunctions.so"
+)
+
+foreach(gst_lib ${GST_CORE_LIBS} ${GST_PLUGINS})
+  if(EXISTS "${gst_lib}")
+    install(FILES "${gst_lib}"
+      DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
+      COMPONENT Runtime)
+  endif()
+endforeach()

@@ -328,19 +328,26 @@ class _VoiceMessageState extends State<VoiceMessage> {
   Future _startPlaying() async {
     final playUrl = _playUrl;
     if (playUrl == null || widget.duration == null) return;
-    // If this message is already the current source and paused, resume from current position
-    // instead of calling play() which would start from the beginning (losing seek position).
     if (audioPlayerSingleton.getCurrentPlayingUrl() == playUrl &&
         _player.state == PlayerState.paused) {
       await _player.resume();
       await _player.setPlaybackRate(_playbackSpeed);
       return;
     }
-    await audioPlayerSingleton.play(playUrl, (url) {
+    final error = await audioPlayerSingleton.play(playUrl, (url) {
       if (url == playUrl) {
         _stopPlayingHandler();
       }
     });
+    if (error != null && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Audio playback failed: $error'),
+          duration: const Duration(seconds: 4),
+        ),
+      );
+      return;
+    }
     if (audioPlayerSingleton.getCurrentPlayingUrl() == playUrl) {
       await _player.setPlaybackRate(_playbackSpeed);
     }

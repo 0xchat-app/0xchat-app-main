@@ -26,6 +26,10 @@ RUN apt-get update && apt-get install -y \
     unzip \
     xz-utils \
     zip \
+    gstreamer1.0-plugins-good \
+    gstreamer1.0-plugins-bad \
+    gstreamer1.0-libav \
+    gstreamer1.0-plugins-base \
     && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /opt \
