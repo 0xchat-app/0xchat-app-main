@@ -318,16 +318,9 @@ class InputState extends State<Input>{
   }
 
   Widget _buildVoiceButton(){
-    // Hide voice button on desktop platforms (Linux/macOS)
-    if(PlatformUtils.isDesktop) return SizedBox().setPadding(EdgeInsets.symmetric(horizontal: _itemSpacing));
     return AttachmentButton(
       isLoading: widget.isAttachmentUploading ?? false,
-      // onPressed: widget.onAttachmentPressed,
       onPressed: (){
-        // Voice recording is disabled on desktop platforms
-        if (PlatformUtils.isDesktop) {
-          return;
-        }
         changeInputType(InputType.inputTypeVoice);
       },
       padding: EdgeInsets.symmetric(horizontal: _itemSpacing),
