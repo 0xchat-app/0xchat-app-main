@@ -486,5 +486,53 @@
     "icon": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://nostria.app/&size=256",
     "description": "Nostr app",
     "metadata": {}
+  },
+  {
+    "id": "nostr_doctor",
+    "url": "https://nostr.doctor/",
+    "name": "Nostr Doctor",
+    "icon": "https://nostr.doctor/favicon-32x32.png",
+    "description": "Diagnose and fix your Nostr account health: relay list, profile broadcast, DM relays, search relays, and more.",
+    "metadata": {}
+  },
+  {
+    "id": "nostrarchives",
+    "url": "https://nostrarchives.com/",
+    "name": "Nostr Archives",
+    "icon": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://nostrarchives.com/&size=256",
+    "description": "Observe the social layer.",
+    "metadata": {}
+  },
+  {
+    "id": "nostrmo_web",
+    "url": "https://web.nostrmo.com/",
+    "name": "Nostrmo",
+    "icon": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://web.nostrmo.com/&size=256",
+    "description": "Nostrmo web client",
+    "metadata": {}
+  },
+  {
+    "id": "divine_video",
+    "url": "https://divine.video/",
+    "name": "Divine Web",
+    "icon": "https://divine.video/divine-logo.svg",
+    "description": "Short-form looping videos on Nostr.",
+    "metadata": {}
+  },
+  {
+    "id": "noornote",
+    "url": "https://noornote.app/",
+    "name": "NoorNote",
+    "icon": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://noornote.app/&size=256",
+    "description": "Feature-rich, fast, secure Nostr client",
+    "metadata": {}
+  },
+  {
+    "id": "nospeak",
+    "url": "https://nospeak.chat/",
+    "name": "NoSpeak",
+    "icon": "https://nospeak.chat/favicons/favicon-32x32.png",
+    "description": "Nostr messaging, discovery, and media web client",
+    "metadata": {}
   }
 ]
