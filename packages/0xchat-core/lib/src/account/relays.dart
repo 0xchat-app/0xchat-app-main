@@ -31,7 +31,7 @@ class Relays {
     'wss://nostr.wine',
     'wss://eden.nostr.land',
     'wss://nostr.data.haus',
-    'wss://relay.mostr.pub',
+    'wss://relay.ditto.pub',
   ];
 
   List<String> recommendDMRelays = [
