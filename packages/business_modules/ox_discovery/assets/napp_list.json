@@ -88,6 +88,14 @@
     "metadata": {}
   },
   {
+    "id": "nostrord",
+    "url": "https://web.nostrord.com/",
+    "name": "Nostrord",
+    "icon": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://web.nostrord.com/&size=256",
+    "description": "NIP-29 decentralized group chat client",
+    "metadata": {}
+  },
+  {
     "id": "nostr_app_manager",
     "url": "https://nostrapp.link/",
     "name": "Nostr App Manager",
