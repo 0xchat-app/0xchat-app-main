@@ -19,6 +19,7 @@ dependencies:
   sqflite_sqlcipher: ^3.1.0+1
   isar: ^3.1.0+1
   convert: ^3.1.1
+  crypto: ^3.0.2
   pointycastle: ^3.3.0
   decimal: ^2.3.3
   reflectable: ^4.0.5

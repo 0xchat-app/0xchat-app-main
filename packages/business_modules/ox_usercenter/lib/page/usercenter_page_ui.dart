@@ -396,14 +396,15 @@ extension UserCenterPageUI on UserCenterPageState{
           SizedBox(
             width: Adapt.px(4),
           ),
-          dns.isNotEmpty && _isVerifiedDNS
-              ? CommonImage(
-            iconName: "icon_npi05_verified.png",
-            width: Adapt.px(16),
-            height: Adapt.px(16),
-            package: 'ox_common',
-          )
-              : Container(),
+          // Distinct "Namecoin" badge for `.bit` handles
+          // (chain-verified) and the standard DNS check icon for
+          // regular handles. Same gate as the original
+          // `dns.isNotEmpty && _isVerifiedDNS` check.
+          Nip05VerifiedBadge(
+            dns: dns,
+            isVerified: _isVerifiedDNS,
+            size: Adapt.px(16),
+          ),
         ],
       ),
     );

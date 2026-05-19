@@ -7,6 +7,7 @@ import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_common/widgets/nip05_verified_badge.dart';
 
 class ContactInfoWidget extends StatelessWidget {
 
@@ -76,14 +77,15 @@ class _DNSAuthenticationWidgetState extends State<DNSAuthenticationWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return _isVerifiedDNS
-        ? CommonImage(
-            iconName: "icon_npi05_verified.png",
-            width: 16.px,
-            height: 16.px,
-            package: 'ox_common',
-          )
-        : Container();
+    // Renders a distinct "Namecoin" badge when the underlying NIP-05
+    // identifier is a `.bit` handle (chain-verified, rotation-proof)
+    // and the standard DNS check icon otherwise. Same condition as
+    // the original `_isVerifiedDNS` gate.
+    return Nip05VerifiedBadge(
+      dns: widget.userDB.dns ?? '',
+      isVerified: _isVerifiedDNS,
+      size: 16.px,
+    );
   }
 
   void _verifiedDNS() async {

@@ -8,6 +8,8 @@ import 'package:convert/convert.dart';
 
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:chatcore/chat-core.dart';
+import 'namecoin/namecoin_nip05.dart';
+import 'namecoin/namecoin_identifier.dart';
 
 enum NIP46ConnectionStatus {
   connected,
@@ -234,7 +236,28 @@ class Account {
     return (pubkey != null && pubkey == dns.pubkey);
   }
 
+  /// `true` when [domain] (the right-hand side of a NIP-05 address)
+  /// is a Namecoin `.bit` domain. UI surfaces use this to render a
+  /// distinct "Namecoin" badge for chain-backed identities so users
+  /// can tell them apart from DNS-backed ones at a glance.
+  static bool isNamecoinDomain(String? domain) => isBitDomain(domain);
+
   static Future<String?> getDNSPubkey(String name, String domain) async {
+    // Namecoin `.bit` NIP-05 — verify via the Namecoin blockchain
+    // (ElectrumX `name_show`) instead of `https://<domain>/.well-
+    // known/nostr.json`. `.bit` is not in the public DNS, so the
+    // regular path would always fail; the Namecoin record is the
+    // authoritative source for these handles and is
+    // pubkey-rotation-proof relative to DNS NIP-05.
+    if (isBitDomain(domain)) {
+      try {
+        return await NamecoinNip05.getPubkey('$name@$domain');
+      } catch (e) {
+        LogUtils.v(() => e.toString());
+        return null;
+      }
+    }
+
     try {
       final response =
           await http.get(Uri.parse('https://$domain/.well-known/nostr.json?name=$name'));

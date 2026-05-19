@@ -4,6 +4,14 @@ library chatcore;
 
 export 'src/account/account.dart';
 export 'src/account/account+profile.dart';
+export 'src/account/namecoin/namecoin_nip05.dart';
+export 'src/account/namecoin/namecoin_identifier.dart'
+    show isBitIdentifier, isBitDomain, parseNamecoinIdentifier, ParsedIdentifier;
+export 'src/account/namecoin/namecoin_value.dart'
+    show NamecoinNostrEntry, extractNostrFromValue;
+export 'src/account/namecoin/namecoin_script.dart'
+    show buildNameIndexScript, electrumScriptHash, parseNameScript, NameScript;
+export 'src/account/namecoin/electrumx_server.dart' show ElectrumxServer;
 export 'src/account/account+relay.dart';
 export 'src/account/account+follows.dart';
 export 'src/account/account+nip46.dart';
