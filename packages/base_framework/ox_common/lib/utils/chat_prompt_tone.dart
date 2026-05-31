@@ -13,7 +13,8 @@ enum SoundType { Message_Received, Message_Sent, Zap_Received, Zap_Sent }
 
 enum SoundTheme {
   classic(1, 'classic', 'Default'),
-  ostrich(2, 'ostrich', 'Ostrich');
+  ostrich(2, 'ostrich', 'Ostrich'),
+  disabled(3, 'disabled', 'Disabled');
 
   final int id;
   final String name;
@@ -54,9 +55,10 @@ class PromptToneManager {
 
   initSoundTheme() {
     int index = UserConfigTool.getSetting(StorageSettingKey.KEY_SOUND_THEME.name, defaultValue: 1);
-    currentSoundTheme = index == SoundTheme.classic.id
-        ? SoundTheme.classic
-        : SoundTheme.ostrich;
+    currentSoundTheme = SoundTheme.values.firstWhere(
+      (t) => t.id == index,
+      orElse: () => SoundTheme.classic,
+    );
   }
 
   void playMessageReceived() async {
@@ -77,6 +79,7 @@ class PromptToneManager {
 
   void _playSound(SoundType type) async {
     if (isAppPaused || !OXUserInfoManager.sharedInstance.canSound) return;
+    if (_currentSoundTheme == SoundTheme.disabled) return;
     _throttle(() async {
       String source = '';
       switch (type) {
@@ -101,6 +104,7 @@ class PromptToneManager {
   }
 
   void playCalling() async {
+    if (_currentSoundTheme == SoundTheme.disabled) return;
     _player.stop();
     // final audioContext = AudioContextConfig(
     //   forceSpeaker: false,
