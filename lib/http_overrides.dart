@@ -24,8 +24,14 @@ class OXHttpOverrides extends HttpOverrides {
     final settings = Config.sharedInstance.getProxy();
     final shouldUseTor = settings.turnOnTor || TorNetworkHelper.shouldUseTor(uri.toString());
     if (shouldUseTor) {
+      final torProxy = getTorProxy(context);
+      if (torProxy == null) {
+        // Tor is configured but not running — block the connection rather than
+        // silently falling back to a direct connection, which would leak traffic.
+        throw Exception('Tor proxy is enabled but not available');
+      }
       LogUtil.d('[OXHttpOverrides] Using Tor proxy');
-      return getTorProxy(context);
+      return torProxy;
     } else if (settings.turnOnProxy) {
       if (settings.useSystemProxy) {
         LogUtil.d('[OXHttpOverrides] Using system proxy');
