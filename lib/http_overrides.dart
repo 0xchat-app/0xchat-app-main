@@ -87,7 +87,7 @@ class OXHttpOverrides extends HttpOverrides {
     if (proxy != null) {
       final client = await SocksTCPClient.connect(
         [proxy],
-        InternetAddress(uri.host, type: InternetAddressType.unix),
+        InternetAddress(uri.host, type: InternetAddressType.any),
         uriPort,
       );
 
