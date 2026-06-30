@@ -67,6 +67,7 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   List<ChatSessionModelISAR> _msgDatas = []; // Message List
   int _allUnreadCount = 0;
   List<ValueNotifier<bool>> _scaleList = [];
+  List<GlobalKey> _itemKeys = [];
   Map<String, bool> _muteCache = {};
   Map<String, List<String>> _groupMembersCache = {};
   bool _isLogin = false;
@@ -271,6 +272,7 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   void _merge() {
     _msgDatas.clear();
     _scaleList.clear();
+    _itemKeys.clear();
     _isLogin = OXUserInfoManager.sharedInstance.isLogin;
     if (!_isLogin) {
       if (this.mounted) {
@@ -294,6 +296,7 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     }
     if (_msgDatas.length > 0) {
       _scaleList = List.generate(_msgDatas.length, (index) => ValueNotifier(false));
+      _itemKeys = List.generate(_msgDatas.length, (index) => GlobalKey());
       updateStateView(CommonStateView.CommonStateView_None);
       _updateReadStatus();
     } else {

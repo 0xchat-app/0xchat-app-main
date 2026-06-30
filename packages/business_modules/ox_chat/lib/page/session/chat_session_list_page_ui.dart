@@ -112,10 +112,10 @@ extension ChatSessionListPageUI on ChatSessionListPageState{
   }
 
   Widget _buildListViewItem(context, int index) {
-    if(index >= _msgDatas.length) return SizedBox();
+    if(index >= _msgDatas.length || index >= _itemKeys.length) return SizedBox();
     ChatSessionModelISAR item = _msgDatas[index];
     bool isMuteCurrent = ChatSessionUtils.getChatMute(item);
-    GlobalKey tempKey = GlobalKey(debugLabel: index.toString());
+    final GlobalKey tempKey = _itemKeys[index];
     return GestureDetector(
       onHorizontalDragDown: (details) {
         _dismissSlidable();
