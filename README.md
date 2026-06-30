@@ -21,8 +21,8 @@ sh ox_pub_get.sh
 **2. iOS / macOS — install CocoaPods dependencies**
 
 ```sh
-cd ios && pod install   # iOS
-cd macos && pod install # macOS
+(cd ios && pod install)   # iOS
+(cd macos && pod install) # macOS
 ```
 
 **3. Build**
