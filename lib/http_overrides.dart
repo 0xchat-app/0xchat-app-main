@@ -18,7 +18,17 @@ class OXHttpOverrides extends HttpOverrides {
     return client;
   }
 
-  bool badCertificateHandler(X509Certificate cert, String host, int port) => true;
+  bool badCertificateHandler(X509Certificate cert, String host, int port) {
+    // .onion services are authenticated by the onion address itself and do not
+    // present CA-signed certificates, so an invalid cert is expected there.
+    // For every other host, reject invalid certificates to avoid opening the
+    // connection to man-in-the-middle attacks.
+    if (host.endsWith('.onion')) {
+      return true;
+    }
+    LogUtil.e('[OXHttpOverrides] Rejecting bad certificate for $host:$port');
+    return false;
+  }
 
   ProxySettings? getProxySetting(Uri uri, SecurityContext? context) {
     final settings = Config.sharedInstance.getProxy();
@@ -34,8 +44,15 @@ class OXHttpOverrides extends HttpOverrides {
       return torProxy;
     } else if (settings.turnOnProxy) {
       if (settings.useSystemProxy) {
+        final systemProxy = getSystemProxy(context);
+        if (systemProxy == null) {
+          // System proxy is configured but unavailable — block the connection
+          // rather than silently falling back to a direct connection, which
+          // would leak traffic (same rationale as the Tor path above).
+          throw Exception('System proxy is enabled but not available');
+        }
         LogUtil.d('[OXHttpOverrides] Using system proxy');
-        return getSystemProxy(context);
+        return systemProxy;
       } else {
         LogUtil.d('[OXHttpOverrides] Using custom proxy');
         return ProxySettings(

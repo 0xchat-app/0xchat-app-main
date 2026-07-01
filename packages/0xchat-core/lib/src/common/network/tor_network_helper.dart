@@ -35,7 +35,14 @@ class TorNetworkHelper {
   }
 
   static Future<void> stop() async {
-    await Tor.instance.stop();
+    try {
+      await Tor.instance.stop();
+    } catch (e) {
+      if (kDebugMode) {
+        LogUtils.e('Failed to stop Tor: $e');
+      }
+      rethrow;
+    }
   }
 
   static bool shouldUseTor(String url) {
