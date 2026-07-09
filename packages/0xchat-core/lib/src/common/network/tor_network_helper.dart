@@ -51,8 +51,10 @@ class TorNetworkHelper {
     final uri = Uri.tryParse(url);
     if (uri == null) return false;
 
-    // Always use Tor for .onion addresses
-    if (uri.host.contains('.onion')) {
+    // Always use Tor for .onion addresses. Match on the hostname suffix rather
+    // than a substring so spoofed hosts like `foo.onion.attacker.com` are not
+    // mistakenly routed through Tor.
+    if (uri.host.endsWith('.onion')) {
       return true;
     }
 
