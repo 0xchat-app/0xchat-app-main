@@ -186,7 +186,11 @@ jobs:
   windows:
     name: Windows (x64)
     if: github.ref_type == 'tag' || inputs.platform == 'all' || inputs.platform == 'windows' || github.ref_name == 'ci/build-and-package-workflows'
-    runs-on: windows-latest
+    # Pinned, not windows-latest: that label now resolves to the
+    # windows-2025-vs2026 image, and flutter_tools 3.29.3 maps only Visual
+    # Studio major 17 to a CMake generator, falling back to "Visual Studio 16
+    # 2019" for anything newer - a generator no current runner has.
+    runs-on: windows-2022
     steps:
       - uses: actions/checkout@v4
 
