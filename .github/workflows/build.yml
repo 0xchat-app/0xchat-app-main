@@ -37,6 +37,10 @@ on:
   push:
     tags:
       - 'v*'
+    # TEMPORARY: verify the Windows job before this workflow reaches main,
+    # where workflow_dispatch would be available. Revert with the commit.
+    branches:
+      - 'ci/build-and-package-workflows'
 
 permissions:
   contents: read
@@ -181,7 +185,7 @@ jobs:
 
   windows:
     name: Windows (x64)
-    if: github.ref_type == 'tag' || inputs.platform == 'all' || inputs.platform == 'windows'
+    if: github.ref_type == 'tag' || inputs.platform == 'all' || inputs.platform == 'windows' || github.ref_name == 'ci/build-and-package-workflows'
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
