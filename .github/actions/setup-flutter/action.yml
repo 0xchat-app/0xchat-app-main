@@ -22,6 +22,16 @@ outputs:
 runs:
   using: composite
   steps:
+    # The url_launcher_linux override pulls all of flutter/packages, whose
+    # deepest paths (google_maps_flutter, pigeon) exceed the 260-character
+    # limit, so `flutter pub get` dies with "Filename too long" on Windows.
+    # The override cannot be scoped to Linux - pub applies dependency_overrides
+    # on every platform - so widen the limit instead.
+    - name: Enable long paths
+      if: runner.os == 'Windows'
+      shell: bash
+      run: git config --global core.longpaths true
+
     # Only nostr-dart and cashu-dart are referenced by path dependencies.
     # nostr-mls-package is intentionally skipped: it is commented out in
     # pubspec.yaml / 0xchat-core, so checking it out would only cost time.
