@@ -8,12 +8,12 @@ import 'package:ox_common/mixin/common_navigator_observer_mixin.dart';
 import 'package:ox_common/model/msg_notification_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/external_signer_helper.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/ox_moment_manager.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/platform_utils.dart';
-import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/widgets/base_page_state.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_home/model/home_tabbar_type.dart';
@@ -287,17 +287,10 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
     final String? pubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
     if (pubKey == null) return;
     
-    // Check for saved signer package name first (new approach)
-    String? signerPackageName = await OXCacheManager.defaultOXCacheManager.getForeverData('${pubKey}${StorageKeyTool.KEY_SIGNER_PACKAGE_NAME}');
-    
-    // Fallback to old isAmber flag for backward compatibility
-    if (signerPackageName == null) {
-      final bool? localIsLoginAmber = await OXCacheManager.defaultOXCacheManager.getForeverData('${pubKey}${StorageKeyTool.KEY_IS_LOGIN_AMBER}');
-      if (localIsLoginAmber == true) {
-        signerPackageName = 'com.greenart7c3.nostrsigner'; // Amber
-      }
-    }
-    
+    // NIP-55: the signer of this account is the one it was logged in with, look
+    // it up instead of assuming a signer app.
+    final String? signerPackageName = await ExternalSignerHelper.signerPackageName(pubKey);
+
     if (signerPackageName != null) {
       bool isInstalled = await CoreMethodChannel.isAppInstalled(signerPackageName);
       if (mounted && (!isInstalled || OXUserInfoManager.sharedInstance.signatureVerifyFailed)){

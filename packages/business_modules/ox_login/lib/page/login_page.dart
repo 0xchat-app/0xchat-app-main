@@ -9,6 +9,7 @@ import 'package:ox_common/const/common_constant.dart';
 // ox_common
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/external_signer_helper.dart';
 import 'package:ox_common/utils/nip46_status_notifier.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -325,26 +326,21 @@ class _LoginPageState extends State<LoginPage> {
     }
     
     if (selectedPackageName == null) return;
-    
-    // Set the selected signer by package name
-    await ExternalSignerTool.setSignerByPackageName(selectedPackageName);
-    
-    String? signature = await ExternalSignerTool.getPubKey();
-    if (signature == null) {
+
+    // NIP-55 `get_public_key`: answers with the account pubkey and with the
+    // package name every following request of that account is addressed to.
+    final ExternalSignerSession? signerSession =
+        await ExternalSignerHelper.requestPubKey(selectedPackageName);
+    if (signerSession == null) {
       if (mounted) {
         CommonToast.instance.show(context, Localized.text('ox_login.sign_request_rejected'));
       }
       return;
     }
     await OXLoading.show();
-    String decodeSignature = signature;
-    // Handle both hex and npub formats from signer
-    if (signature.startsWith('npub')) {
-      decodeSignature = UserDBISAR.decodePubkey(signature) ?? '';
-    }
     String currentUserPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
-    await OXUserInfoManager.sharedInstance.initDB(decodeSignature);
-    UserDBISAR? userDB = await Account.sharedInstance.loginWithPubKey(decodeSignature, SignerApplication.androidSigner);
+    await OXUserInfoManager.sharedInstance.initDB(signerSession.pubKey);
+    UserDBISAR? userDB = await Account.sharedInstance.loginWithPubKey(signerSession.pubKey, SignerApplication.androidSigner);
     userDB = await OXUserInfoManager.sharedInstance.handleSwitchFailures(userDB, currentUserPubKey);
     if (userDB == null) {
       await OXLoading.dismiss();
@@ -357,8 +353,11 @@ class _LoginPageState extends State<LoginPage> {
       UserConfigTool.saveUser(value);
       UserConfigTool.updateSettingFromDB(value.settings);
     });
-    // loginSuccess will automatically save the signer package name from ExternalSignerTool.getCurrentConfig()
-    OXUserInfoManager.sharedInstance.loginSuccess(userDB);
+    // The signer vouches for the account it answered with only: a failed switch
+    // logs back into the account that was active before.
+    final bool isSignerAccount = userDB.pubKey == signerSession.pubKey;
+    OXUserInfoManager.sharedInstance.loginSuccess(userDB,
+        signerPackageName: isSignerAccount ? signerSession.packageName : null);
     await OXLoading.dismiss();
     OXNavigator.popToRoot(context);
   }

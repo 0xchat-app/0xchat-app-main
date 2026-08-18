@@ -13,6 +13,7 @@ import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/utils/cashu_helper.dart';
+import 'package:ox_common/utils/external_signer_helper.dart';
 import 'package:ox_common/utils/nip46_callback_dialog_manager.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_moment_manager.dart';
@@ -103,62 +104,35 @@ class OXUserInfoManager {
     momentPosition = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.APP_MOMENT_POSITION, defaultValue: 0);
     ///account auto-login
     final String? localPubKey = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_PUBKEY);
-    if (localPubKey != null) {
-      await UserConfigTool.compatibleOldAmberStatus(localPubKey);
-      
-      // Try to get saved signer package name first (new approach)
-      String? savedSignerPackageName = await OXCacheManager.defaultOXCacheManager.getForeverData('${localPubKey}${StorageKeyTool.KEY_SIGNER_PACKAGE_NAME}');
-      
-      // Fallback to old isAmber flag for backward compatibility
-      final bool? localIsLoginAmber = await OXCacheManager.defaultOXCacheManager.getForeverData('${localPubKey}${StorageKeyTool.KEY_IS_LOGIN_AMBER}');
-      
-      if (localPubKey.isNotEmpty && (savedSignerPackageName != null || (localIsLoginAmber != null && localIsLoginAmber))) {
-        // Determine which signer to use
-        String? signerPackageName = savedSignerPackageName;
-        if (signerPackageName == null && localIsLoginAmber == true) {
-          // Backward compatibility: use Amber if only old flag exists
-          signerPackageName = 'com.greenart7c3.nostrsigner';
-        }
-        
-        if (signerPackageName != null) {
-          // Check if the signer is installed
-          bool isInstalled = await CoreMethodChannel.isAppInstalled(signerPackageName);
-          if (isInstalled) {
-            // Set signer by package name
-            await ExternalSignerTool.setSignerByPackageName(signerPackageName);
-            String? signature = await ExternalSignerTool.getPubKey();
-            if (signature == null) {
-              signatureVerifyFailed = true;
-              return;
-            }
-            String decodeSignature = UserDB.decodePubkey(signature) ?? '';
-            if (decodeSignature.isNotEmpty) {
-              await initDB(localPubKey);
-              UserDBISAR? tempUserDB = await Account.sharedInstance.loginWithPubKey(localPubKey, SignerApplication.androidSigner);
-              if (tempUserDB != null) {
-                UserConfigTool.compatibleOld(tempUserDB);
-                currentUserInfo = tempUserDB;
-                _initDatas();
-                return;
-              }
-            } else {
-              signatureVerifyFailed = true;
-              return;
-            }
-          }
-          // If signer is not installed, skip auto-login and let user choose again
-        }
-      } else if (localPubKey.isNotEmpty) {
-        await initDB(localPubKey);
-        final UserDBISAR? tempUserDB = await Account.sharedInstance.loginWithPubKeyAndPassword(localPubKey);
-        LogUtil.e('initLocalData: userDB =${tempUserDB?.pubKey ?? 'userDB is null'}');
-        if (tempUserDB != null) {
-          UserConfigTool.compatibleOld(tempUserDB);
-          currentUserInfo = tempUserDB;
-          _initDatas();
-          return;
-        }
+    if (localPubKey == null || localPubKey.isEmpty) return;
+    await UserConfigTool.compatibleOldAmberStatus(localPubKey);
+
+    final String? signerPackageName = await ExternalSignerHelper.signerPackageName(localPubKey);
+    if (signerPackageName != null) {
+      // NIP-55: pubkey and signer package name were stored when the account was
+      // added, so the signer only has to be there - asking it for the pubkey
+      // again would initiate a new connection and let it prompt on every app
+      // start. signerCheck() tells the user when the signer is gone.
+      final bool isInstalled = await CoreMethodChannel.isAppInstalled(signerPackageName);
+      if (!isInstalled) return;
+      await ExternalSignerTool.setSignerByPackageName(signerPackageName);
+      await initDB(localPubKey);
+      final UserDBISAR? tempUserDB = await Account.sharedInstance.loginWithPubKey(localPubKey, SignerApplication.androidSigner);
+      if (tempUserDB != null) {
+        UserConfigTool.compatibleOld(tempUserDB);
+        currentUserInfo = tempUserDB;
+        _initDatas();
       }
+      return;
+    }
+
+    await initDB(localPubKey);
+    final UserDBISAR? tempUserDB = await Account.sharedInstance.loginWithPubKeyAndPassword(localPubKey);
+    LogUtil.e('initLocalData: userDB =${tempUserDB?.pubKey ?? 'userDB is null'}');
+    if (tempUserDB != null) {
+      UserConfigTool.compatibleOld(tempUserDB);
+      currentUserInfo = tempUserDB;
+      _initDatas();
     }
   }
 
@@ -166,22 +140,20 @@ class OXUserInfoManager {
 
   bool removeObserver(OXUserInfoObserver observer) => _observers.remove(observer);
 
-  Future<void> loginSuccess(UserDBISAR userDB, {bool isAmber = false}) async {
+  /// [signerPackageName] is the package name a NIP-55 signer answered
+  /// `get_public_key` with, for accounts that sign with an external signer.
+  Future<void> loginSuccess(UserDBISAR userDB, {String? signerPackageName}) async {
     currentUserInfo = Account.sharedInstance.me;
     OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUBKEY, userDB.pubKey);
-    
-    // Save signer package name if using external signer
-    final signerConfig = ExternalSignerTool.getCurrentConfig();
-    if (signerConfig != null) {
-      // Save the actual signer package name
-      OXCacheManager.defaultOXCacheManager.saveForeverData('${userDB.pubKey}${StorageKeyTool.KEY_SIGNER_PACKAGE_NAME}', signerConfig.packageName);
-      // Also save isAmber for backward compatibility
-      OXCacheManager.defaultOXCacheManager.saveForeverData('${userDB.pubKey}${StorageKeyTool.KEY_IS_LOGIN_AMBER}', signerConfig.packageName == 'com.greenart7c3.nostrsigner');
+
+    // NIP-55: remember the signer that answered, so the next app start talks to
+    // that app again instead of asking for a connection.
+    if (signerPackageName != null && signerPackageName.isNotEmpty) {
+      await ExternalSignerHelper.saveSigner(userDB.pubKey, signerPackageName);
     } else {
-      // Fallback to old isAmber logic for backward compatibility
-      OXCacheManager.defaultOXCacheManager.saveForeverData('${userDB.pubKey}${StorageKeyTool.KEY_IS_LOGIN_AMBER}', isAmber);
+      await ExternalSignerHelper.clearSigner(userDB.pubKey);
     }
-    
+
     UserConfigTool.saveUser(userDB);
     await _initDatas();
     UserConfigTool.defaultNotificationValue();
