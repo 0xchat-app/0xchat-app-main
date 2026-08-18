@@ -38,6 +38,7 @@ class AccountKeyLoginPage extends StatefulWidget {
 class _AccountKeyLoginPageState extends State<AccountKeyLoginPage> {
   TextEditingController _accountKeyEditingController = new TextEditingController();
   bool _isShowLoginBtn = false;
+  bool _isLoggingIn = false;
   String _accountKeyInput = '';
 
   @override
@@ -175,35 +176,61 @@ class _AccountKeyLoginPageState extends State<AccountKeyLoginPage> {
   }
 
   void _nescLogin() async {
-    await OXLoading.show();
-    String pubkey = "";
-    UserDBISAR? userDB;
-    String currentUserPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
-    if (_accountKeyInput.startsWith('bunker://')){
-      await OXLoading.dismiss();
+    if (_isLoggingIn) return;
+    final bool isRemoteSigner = _accountKeyInput.startsWith('bunker://');
+    if (isRemoteSigner) {
       bool result = await NIP46StatusNotifier.remoteSignerTips(Localized.text('ox_login.wait_link_service'));
-      if(!result) return;
-      await OXLoading.show();
-      pubkey = await Account.getPublicKeyWithNIP46URI(_accountKeyInput);
-      await OXUserInfoManager.sharedInstance.initDB(pubkey);
-      userDB = await Account.sharedInstance.loginWithNip46URI(_accountKeyInput);
-    } else {
-      pubkey = Account.getPublicKey(_accountKeyInput);
-      await OXUserInfoManager.sharedInstance.initDB(pubkey);
-      userDB = await Account.sharedInstance.loginWithPriKey(_accountKeyInput);
+      if (!result) return;
     }
-    userDB = await OXUserInfoManager.sharedInstance.handleSwitchFailures(userDB, currentUserPubKey);
+
+    _isLoggingIn = true;
+    await OXLoading.show();
+    // Logging in tears the running session down before the new account is
+    // known to work, so remember which account has to come back if it fails.
+    final String previousPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
+    UserDBISAR? userDB;
+    try {
+      if (isRemoteSigner) {
+        String pubkey = await Account.getPublicKeyWithNIP46URI(_accountKeyInput);
+        if (pubkey.isNotEmpty) {
+          await OXUserInfoManager.sharedInstance.initDB(pubkey);
+          userDB = await Account.sharedInstance.loginWithNip46URI(_accountKeyInput);
+        }
+      } else {
+        String pubkey = Account.getPublicKey(_accountKeyInput);
+        await OXUserInfoManager.sharedInstance.initDB(pubkey);
+        userDB = await Account.sharedInstance.loginWithPriKey(_accountKeyInput);
+      }
+    } catch (error, stack) {
+      LogUtil.e('login failed: $error\r\n$stack');
+      userDB = null;
+    }
+
     if (userDB == null) {
-      CommonToast.instance.show(context, Localized.text('ox_login.private_key_regular_failed'));
+      // Put the account that was logged in back exactly as it was. A failed
+      // login must never cost the user the account they already had.
+      await OXUserInfoManager.sharedInstance.restoreAccount(previousPubKey);
+      _isLoggingIn = false;
+      await OXLoading.dismiss();
+      if (!mounted) return;
+      CommonToast.instance.show(
+        context,
+        Localized.text(isRemoteSigner
+            ? 'ox_login.remote_signer_connect_failed'
+            : 'ox_login.private_key_regular_failed'),
+      );
       return;
     }
+
     Account.sharedInstance.reloadProfileFromRelay(userDB.pubKey).then((value) {
       LogUtil.e('Michael:---reloadProfileFromRelay--name = ${value.name}; pic =${value.picture}}');
       UserConfigTool.saveUser(value);
       UserConfigTool.updateSettingFromDB(value.settings);
     });
     OXUserInfoManager.sharedInstance.loginSuccess(userDB);
+    _isLoggingIn = false;
     await OXLoading.dismiss();
+    if (!mounted) return;
     OXNavigator.popToRoot(context);
   }
 }

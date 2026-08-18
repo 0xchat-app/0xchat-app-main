@@ -37,6 +37,11 @@ class Account {
   RemoteSignerConnection? tempRemoteConnection;
 
   Map<String, Completer<NIP46CommandResult>> resultCompleters = {};
+  // Deadline of each pending remote signer command, keyed like resultCompleters.
+  Map<String, Timer> nip46CommandTimers = {};
+  // Connection status listener of the current remote signer connection, kept so
+  // that a new connection can replace it instead of stacking listeners up.
+  ConnectStatusCallBack? nip46ConnectStatusListener;
   NIP46CommandResultCallback? nip46commandResultCallback;
   NIP46ConnectionStatusCallback? nip46connectionStatusCallback;
 
@@ -326,6 +331,7 @@ class Account {
   }
 
   Future<void> logout() async {
+    resetNIP46State();
     NotificationHelper.sharedInstance.logout();
     await Connect.sharedInstance.closeAllConnects();
     Contacts.sharedInstance.allContacts.clear();
