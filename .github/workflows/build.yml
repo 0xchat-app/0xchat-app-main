@@ -4,7 +4,10 @@
 #   - Manually (Actions -> Build & Package -> Run workflow), optionally for a
 #     single platform.
 #   - Automatically on a `v*` tag; in that case every artifact is also attached
-#     to a draft GitHub Release.
+#     to a draft GitHub Release, together with a SHA256SUMS manifest covering
+#     them all. The same sums are repeated in the release description, so they
+#     can be read without downloading anything; `sha256sum -c SHA256SUMS`
+#     verifies a directory of downloads in one go.
 #
 # Optional secrets (Android release signing). android/app/build.gradle attaches
 # no signingConfig to the release build type unless android/key.properties
@@ -252,8 +255,49 @@ jobs:
           path: dist
           merge-multiple: true
 
+      # Hashing centrally, rather than in each platform job, keeps one
+      # implementation instead of three: the build runners disagree
+      # (sha256sum on Linux, shasum on macOS, Get-FileHash on Windows) while
+      # this job is ubuntu-latest and, after the download above, holds every
+      # artifact from every platform.
+      - name: Checksum the artifacts
+        run: |
+          cd dist
+
+          # `sha256sum -c SHA256SUMS` resolves the listed paths relative to the
+          # working directory, so the manifest has to name the files bare - and
+          # must exclude itself, since the redirection below creates it before
+          # find walks the directory.
+          find . -maxdepth 1 -type f ! -name SHA256SUMS -printf '%P\n' \
+            | sort | xargs -r sha256sum > SHA256SUMS
+          test -s SHA256SUMS || { echo "::error::dist/ held no files to checksum"; exit 1; }
+          cat SHA256SUMS
+
+          # Issue #17 asked for the sums to be readable in the release
+          # description, not just downloadable. Emitting both from this one
+          # computation means the text and the attached manifest cannot drift.
+          # Written outside dist/ so `files:` below does not upload it as an
+          # asset of the release it describes.
+          {
+            echo '## Verify your download'
+            echo
+            echo 'Every asset below is listed in `SHA256SUMS`. Download it next to them and run:'
+            echo
+            echo '    sha256sum -c SHA256SUMS      # macOS: shasum -a 256 -c SHA256SUMS'
+            echo
+            echo 'Windows PowerShell has no `-c` equivalent; compare a single file with'
+            echo '`Get-FileHash -Algorithm SHA256 <file>`.'
+            echo
+            echo '```'
+            cat SHA256SUMS
+            echo '```'
+          } > "$GITHUB_WORKSPACE/release-body.md"
+
+      # body_path lands above the notes GitHub generates, so the checksums head
+      # the description and the changelog follows.
       - uses: softprops/action-gh-release@v2
         with:
           draft: true
           files: dist/*
           generate_release_notes: true
+          body_path: release-body.md
