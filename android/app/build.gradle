@@ -12,15 +12,12 @@ if (localPropertiesFile.exists()) {
   }
 }
 
+// Written to local.properties by the Flutter tool. They mirror pubspec.yaml
+// unless --build-name / --build-number are passed, which is how CI stamps a
+// release version onto the build. Null when Gradle is invoked directly, in
+// which case the pubspec values below are used.
 def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
-if (flutterVersionCode == null) {
-  flutterVersionCode = '1'
-}
-
 def flutterVersionName = localProperties.getProperty('flutter.versionName')
-if (flutterVersionName == null) {
-  flutterVersionName = '1.0'
-}
 
 android {
   namespace 'com.oxchat.nostr'
@@ -41,13 +38,15 @@ android {
   //disable resource file check
   def version = parsePubspecVersion()
   def versionParts = version.split("\\+")
+  def resolvedVersionCode = (flutterVersionCode ?: versionParts[1]) as Integer
+  def resolvedVersionName = flutterVersionName ?: versionParts[0]
   defaultConfig {
     applicationId "com.oxchat.nostr"
     minSdk 28
     targetSdk 35
     multiDexEnabled true
-    versionCode versionParts[1] as Integer
-    versionName versionParts[0]
+    versionCode resolvedVersionCode
+    versionName resolvedVersionName
 
     // Support for 16KB page sizes
     externalNativeBuild {

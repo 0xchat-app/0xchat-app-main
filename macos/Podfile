@@ -39,6 +39,14 @@ end
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_macos_build_settings(target)
+
+    # Some pods declare a deployment target below the 10.15 this app requires
+    # (flutter_inappwebview_macos ships 10.14). Newer Swift compilers turn the
+    # resulting availability mismatch into a hard error, so align every pod
+    # with the platform declared above.
+    target.build_configurations.each do |config|
+      config.build_settings['MACOSX_DEPLOYMENT_TARGET'] = '10.15'
+    end
   end
   
 # Bitcode stripping configuration

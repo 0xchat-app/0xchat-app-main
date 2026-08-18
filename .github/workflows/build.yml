@@ -1,0 +1,259 @@
+# Packages 0xchat for Android and the desktop platforms.
+#
+# Triggers
+#   - Manually (Actions -> Build & Package -> Run workflow), optionally for a
+#     single platform.
+#   - Automatically on a `v*` tag; in that case every artifact is also attached
+#     to a draft GitHub Release.
+#
+# Optional secrets (Android release signing). android/app/build.gradle attaches
+# no signingConfig to the release build type unless android/key.properties
+# exists, so WITHOUT these secrets the APK comes out completely unsigned and
+# cannot be installed on a device (verified locally with apksigner):
+#   ANDROID_KEYSTORE_BASE64  - `base64 -i my-release-key.jks` output
+#   ANDROID_KEYSTORE_PASSWORD
+#   ANDROID_KEY_ALIAS
+#   ANDROID_KEY_PASSWORD
+#
+# macOS artifacts are ad-hoc signed only (the Xcode project uses
+# CODE_SIGN_IDENTITY = "-"). Distributing outside of a "right click -> Open"
+# flow additionally needs a Developer ID certificate and notarisation.
+
+name: Build & Package
+
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: Platform to build
+        type: choice
+        default: all
+        options:
+          - all
+          - android
+          - linux
+          - windows
+          - macos
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  android:
+    name: Android (APK + AAB)
+    if: github.ref_type == 'tag' || inputs.platform == 'all' || inputs.platform == 'android'
+    runs-on: ubuntu-22.04
+    env:
+      KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+    steps:
+      # Full history: the versionCode below is the commit count, which a
+      # shallow clone would report as 1.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # android/app/build.gradle compiles against Java 21.
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      # cargokit (used by the `tor` dependency) builds the native library with
+      # the exact NDK named by android.ndkVersion in android/app/build.gradle.
+      - name: Install Android NDK
+        run: |
+          sdk="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$sdk" --licenses > /dev/null 2>&1 || true
+          "$sdk" --install "ndk;27.0.12077973"
+
+      - id: setup
+        uses: ./.github/actions/setup-flutter
+
+      # android/app/build.gradle picks up android/key.properties when present.
+      - name: Configure release signing
+        if: env.KEYSTORE_BASE64 != ''
+        env:
+          STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 -d > android/app/release-keystore.jks
+          {
+            echo "storeFile=app/release-keystore.jks"
+            echo "storePassword=$STORE_PASSWORD"
+            echo "keyAlias=$KEY_ALIAS"
+            echo "keyPassword=$KEY_PASSWORD"
+          } > android/key.properties
+
+      - name: Warn when unsigned
+        if: env.KEYSTORE_BASE64 == ''
+        run: echo "::warning::No ANDROID_KEYSTORE_BASE64 secret - artifacts will be UNSIGNED and cannot be installed."
+
+      # pubspec.yaml has declared 1.3.5+69 since 2025-03-18, so left alone every
+      # release would ship versionCode 69 and Play would reject the upload as
+      # not incrementing. Stamp the tag version and use the commit count, which
+      # only ever grows.
+      - name: Resolve Android version
+        id: android_version
+        run: |
+          echo "name=${{ steps.setup.outputs.version_name }}" >> "$GITHUB_OUTPUT"
+          echo "code=$(git rev-list --count HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Build APK
+        run: |
+          flutter build apk --release \
+            --build-name "${{ steps.android_version.outputs.name }}" \
+            --build-number "${{ steps.android_version.outputs.code }}"
+
+      - name: Build App Bundle
+        run: |
+          flutter build appbundle --release \
+            --build-name "${{ steps.android_version.outputs.name }}" \
+            --build-number "${{ steps.android_version.outputs.code }}"
+
+      - name: Rename outputs
+        run: |
+          v="${{ steps.setup.outputs.version_name }}"
+          suffix=""
+          [ -z "$KEYSTORE_BASE64" ] && suffix="-unsigned"
+          mkdir -p dist
+          mv build/app/outputs/flutter-apk/app-release.apk "dist/oxchat-$v-android$suffix.apk"
+          mv build/app/outputs/bundle/release/app-release.aab "dist/oxchat-$v-android$suffix.aab"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android
+          path: dist/*
+          if-no-files-found: error
+
+  linux:
+    name: Linux (x64)
+    if: github.ref_type == 'tag' || inputs.platform == 'all' || inputs.platform == 'linux'
+    # 22.04 keeps the glibc requirement low for the produced bundle.
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      # Mirrors the package list in the repo Dockerfile.
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            clang \
+            cmake \
+            ninja-build \
+            pkg-config \
+            file \
+            libgtk-3-dev \
+            libglu1-mesa \
+            libssl-dev \
+            libgstreamer1.0-dev \
+            libgstreamer-plugins-base1.0-dev \
+            gstreamer1.0-plugins-base \
+            gstreamer1.0-plugins-good \
+            gstreamer1.0-plugins-bad \
+            gstreamer1.0-libav
+
+      - id: setup
+        uses: ./.github/actions/setup-flutter
+
+      - name: Build
+        run: flutter build linux --release
+
+      - name: Package
+        run: |
+          v="${{ steps.setup.outputs.version_name }}"
+          mkdir -p dist
+          tar -czf "dist/oxchat-$v-linux-x64.tar.gz" -C build/linux/x64/release/bundle .
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux
+          path: dist/*
+          if-no-files-found: error
+
+  windows:
+    name: Windows (x64)
+    if: github.ref_type == 'tag' || inputs.platform == 'all' || inputs.platform == 'windows'
+    # Pinned, not windows-latest: that label now resolves to the
+    # windows-2025-vs2026 image, and flutter_tools 3.29.3 maps only Visual
+    # Studio major 17 to a CMake generator, falling back to "Visual Studio 16
+    # 2019" for anything newer - a generator no current runner has.
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: setup
+        uses: ./.github/actions/setup-flutter
+
+      - name: Build
+        run: flutter build windows --release
+
+      - name: Package
+        shell: pwsh
+        run: |
+          $v = "${{ steps.setup.outputs.version_name }}"
+          New-Item -ItemType Directory -Force dist | Out-Null
+          Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath "dist/oxchat-$v-windows-x64.zip"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: dist/*
+          if-no-files-found: error
+
+  macos:
+    name: macOS (.app)
+    if: github.ref_type == 'tag' || inputs.platform == 'all' || inputs.platform == 'macos'
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: setup
+        uses: ./.github/actions/setup-flutter
+
+      # `flutter build macos` runs `pod install` itself.
+      - name: Build
+        run: flutter build macos --release
+
+      # The bundle is named after PRODUCT_NAME (0xchat.app), not the Flutter
+      # target, so resolve it rather than hardcoding the name.
+      - name: Package
+        run: |
+          v="${{ steps.setup.outputs.version_name }}"
+          app=$(find build/macos/Build/Products/Release -maxdepth 1 -name '*.app' | head -1)
+          test -n "$app" || { echo "no .app produced"; exit 1; }
+          mkdir -p dist
+          ditto -c -k --keepParent "$app" "dist/oxchat-$v-macos.zip"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos
+          path: dist/*
+          if-no-files-found: error
+
+  release:
+    name: Draft release
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: [android, linux, windows, macos]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          files: dist/*
+          generate_release_notes: true
