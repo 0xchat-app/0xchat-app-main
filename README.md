@@ -35,6 +35,20 @@ flutter build linux     # Linux
 flutter build windows   # Windows
 ```
 
+**4. Windows — build the installer**
+
+`flutter build windows` leaves a loose folder under `build/`. To produce the
+same `setup.exe` that CI attaches to releases, compile the
+[Inno Setup](https://jrsoftware.org/isinfo.php) script afterwards:
+
+```sh
+"C:\Program Files (x86)\Inno Setup 6\ISCC.exe" windows\packaging\oxchat.iss
+```
+
+The installer is written to `dist/`. It installs per-user by default (no admin
+prompt, with an all-users option on the first page), creates a Start Menu
+shortcut and an optional desktop shortcut, and registers an uninstaller.
+
 **Build and test with Docker (Linux only)**
 
 Use the included Dockerfile to build and test in a clean container without
