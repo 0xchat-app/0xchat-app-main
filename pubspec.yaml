@@ -100,8 +100,12 @@ dependency_overrides:
   nostr_core_dart:
     path: packages/nostr-dart
   # nostr_mls_package:
-  #   path: packages/nostr-mls-package
-  # Temporarily disabled to avoid bundling Rust code
+  #   git:
+  #     url: https://github.com/0xchat-app/nostr-mls-package.git
+  #     ref: main
+  # Temporarily disabled to avoid bundling Rust code. The submodule that used
+  # to sit at packages/nostr-mls-package was removed while nothing depends on
+  # it; re-enable by uncommenting here and in packages/0xchat-core/pubspec.yaml.
 
 
 # For information on the generic Dart part of this file, see the
