@@ -24,6 +24,10 @@
 # macOS artifacts are ad-hoc signed only (the Xcode project uses
 # CODE_SIGN_IDENTITY = "-"). Distributing outside of a "right click -> Open"
 # flow additionally needs a Developer ID certificate and notarisation.
+#
+# The Windows job emits both a portable zip and an Inno Setup installer built
+# from windows/packaging/oxchat.iss. The installer is unsigned, so SmartScreen
+# will warn on first run until an Authenticode certificate is wired in.
 
 name: Build & Package
 
@@ -176,7 +180,7 @@ jobs:
           if-no-files-found: error
 
   windows:
-    name: Windows (x64)
+    name: Windows (installer + zip)
     if: github.ref_type == 'tag' || inputs.platform == 'all' || inputs.platform == 'windows'
     # Pinned, not windows-latest: that label now resolves to the
     # windows-2025-vs2026 image, and flutter_tools 3.29.3 maps only Visual
@@ -198,6 +202,35 @@ jobs:
           $v = "${{ steps.setup.outputs.version_name }}"
           New-Item -ItemType Directory -Force dist | Out-Null
           Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath "dist/oxchat-$v-windows-x64.zip"
+
+      # The zip above is the portable download; this is the one that installs.
+      # Inno Setup 6 ships preinstalled on the windows runner images, so this
+      # needs no extra download - see windows/packaging/oxchat.iss for what the
+      # installer does.
+      - name: Build installer
+        shell: pwsh
+        run: |
+          $v = "${{ steps.setup.outputs.version_name }}"
+          $root = (Get-Location).Path
+
+          # The images put ISCC.exe on PATH, but that is an image detail rather
+          # than a promise, so fall back to the install location.
+          $iscc = (Get-Command ISCC.exe -ErrorAction SilentlyContinue).Source
+          if (-not $iscc) { $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" }
+          if (-not (Test-Path $iscc)) { throw "Inno Setup compiler not found - looked on PATH and at $iscc" }
+
+          & $iscc /Q `
+            "/DAppVersion=$v" `
+            "/DBuildDir=$root\build\windows\x64\runner\Release" `
+            "/DDistDir=$root\dist" `
+            "/DOutputName=oxchat-$v-windows-x64-setup" `
+            windows\packaging\oxchat.iss
+          if ($LASTEXITCODE -ne 0) { throw "ISCC failed with exit code $LASTEXITCODE" }
+
+          # /Q silences ISCC, so confirm the artifact rather than trusting it.
+          $setup = "dist/oxchat-$v-windows-x64-setup.exe"
+          if (-not (Test-Path $setup)) { throw "$setup was not produced" }
+          "{0} ({1:N1} MB)" -f $setup, ((Get-Item $setup).Length / 1MB)
 
       - uses: actions/upload-artifact@v4
         with:
