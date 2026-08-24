@@ -46,6 +46,15 @@ post_install do |installer|
     # with the platform declared above.
     target.build_configurations.each do |config|
       config.build_settings['MACOSX_DEPLOYMENT_TARGET'] = '10.15'
+
+      # libtor.a (the Rust static library built for the `tor` package)
+      # references liblzma symbols, but neither the pod nor the crate declares
+      # that dependency, so linking fails with undefined _lzma_* symbols for
+      # arm64. macOS ships liblzma in the SDK, so link it explicitly.
+      ldflags = config.build_settings['OTHER_LDFLAGS'] || ['$(inherited)']
+      ldflags = [ldflags] unless ldflags.is_a?(Array)
+      ldflags << '-llzma' unless ldflags.include?('-llzma')
+      config.build_settings['OTHER_LDFLAGS'] = ldflags
     end
   end
   

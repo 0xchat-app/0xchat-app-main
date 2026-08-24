@@ -2,3 +2,8 @@
 #include "ephemeral/Flutter-Generated.xcconfig"
 OTHER_SWIFT_FLAGS = -Xfrontend -warn-concurrency -Xfrontend -enable-actor-data-race-checks
 
+
+// libtor.a (Rust build from the `tor` package) references liblzma symbols but
+// nothing declares that dependency, so the link fails with undefined _lzma_*
+// symbols. macOS ships liblzma in the SDK - link it explicitly.
+OTHER_LDFLAGS = $(inherited) -llzma
