@@ -62,13 +62,27 @@ def session():
 
 
 def highest_version_code(s, pkg, edit_id):
+    """Highest version code Play has ever seen for this app.
+
+    Tracks only describe what each track currently serves, and Play refuses
+    any version code it has ever been given - including bundles uploaded and
+    never rolled out. Checking tracks alone reported 107 as the ceiling while
+    Play rejected 108 as "already been used", so the uploaded artifacts have
+    to be counted too.
+    """
+    codes = []
     r = s.get(f"{BASE}/applications/{pkg}/edits/{edit_id}/tracks", timeout=60)
     if not r.ok:
         fail("could not list tracks", r)
-    codes = []
     for track in r.json().get("tracks", []):
         for rel in track.get("releases", []):
             codes += [int(c) for c in rel.get("versionCodes") or []]
+
+    for kind in ("bundles", "apks"):
+        r = s.get(f"{BASE}/applications/{pkg}/edits/{edit_id}/{kind}", timeout=60)
+        if r.ok:
+            codes += [int(x["versionCode"]) for x in r.json().get(kind, [])]
+
     return max(codes) if codes else 0
 
 

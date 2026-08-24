@@ -88,26 +88,39 @@ def main():
     print("[2/4] edit opened, so release permissions are in place")
 
     version_codes = []
-    try:
-        r = s.get(f"{BASE}/applications/{PACKAGE}/edits/{edit_id}/tracks", timeout=60)
-        if not r.ok:
-            fail("could not list tracks", r)
-        print("[3/4] tracks:")
-        for track in r.json().get("tracks", []):
-            releases = track.get("releases", [])
-            if not releases:
-                print(f"      {track['track']:<12} (no releases)")
-            for rel in releases:
-                codes = rel.get("versionCodes") or []
-                version_codes += [int(c) for c in codes]
-                print(
-                    f"      {track['track']:<12} status={rel.get('status'):<10} "
-                    f"name={rel.get('name', '-'):<12} versionCodes={codes}"
-                )
-    finally:
-        # Abandon the edit; nothing was committed so the app is untouched.
-        s.delete(f"{BASE}/applications/{PACKAGE}/edits/{edit_id}", timeout=60)
-        print("      (edit discarded)")
+    r = s.get(f"{BASE}/applications/{PACKAGE}/edits/{edit_id}/tracks", timeout=60)
+    if not r.ok:
+        fail("could not list tracks", r)
+    print("[3/4] tracks:")
+    for track in r.json().get("tracks", []):
+        releases = track.get("releases", [])
+        if not releases:
+            print(f"      {track['track']:<12} (no releases)")
+        for rel in releases:
+            codes = rel.get("versionCodes") or []
+            version_codes += [int(c) for c in codes]
+            print(
+                f"      {track['track']:<12} status={rel.get('status'):<10} "
+                f"name={rel.get('name', '-'):<12} versionCodes={codes}"
+            )
+
+    # Tracks only describe what each track currently serves. Play refuses any
+    # version code it has ever seen, including bundles that were uploaded and
+    # never rolled out, so ask for the full history before deciding what is
+    # free - the tracks alone say 107 while 108 is already taken.
+    for kind in ("bundles", "apks"):
+        r = s.get(f"{BASE}/applications/{PACKAGE}/edits/{edit_id}/{kind}", timeout=60)
+        if r.ok:
+            codes = [int(x["versionCode"]) for x in r.json().get(kind, [])]
+            version_codes += codes
+            top = max(codes) if codes else "-"
+            print(f"      uploaded {kind}: {len(codes)}, highest {top}")
+
+    s.delete(f"{BASE}/applications/{PACKAGE}/edits/{edit_id}", timeout=60)
+    print("      (edit discarded)")
+
+    if version_codes:
+        print(f"      next free versionCode: {max(version_codes) + 1}")
 
     if not version_codes:
         print("[4/4] no existing releases, so nothing to probe for signed APKs")

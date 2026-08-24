@@ -33,6 +33,7 @@ jobs:
 
   dry-run:
     needs: check
+    if: ${{ vars.RUN_PLAY_DRYRUN == 'yes' }}
     runs-on: ubuntu-22.04
     env:
       KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
