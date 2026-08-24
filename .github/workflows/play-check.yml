@@ -33,7 +33,6 @@ jobs:
 
   dry-run:
     needs: check
-    if: ${{ vars.RUN_PLAY_DRYRUN == 'yes' }}
     runs-on: ubuntu-22.04
     env:
       KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
@@ -74,7 +73,7 @@ jobs:
       # parameter, not a release. Passing it also proves the --build-number
       # channel works now that build.gradle honours it.
       - name: Build App Bundle
-        run: flutter build appbundle --release --build-number 108
+        run: flutter build appbundle --release --build-number 109
 
       # Proves the keystore secrets produced a signed artifact before Play
       # gets a chance to reject it for being unsigned.
@@ -94,5 +93,5 @@ jobs:
         run: |
           python .github/scripts/play_publish.py \
             --aab build/app/outputs/bundle/release/app-release.aab \
-            --version-code 108 \
+            --version-code 109 \
             --track internal
