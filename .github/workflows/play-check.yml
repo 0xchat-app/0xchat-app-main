@@ -1,0 +1,31 @@
+# TEMPORARY: read-only probe of Google Play API access.
+# Uploads nothing and changes no state - it opens an edit to prove the
+# permissions exist, then discards it. Delete this workflow once the
+# publishing job is in place.
+name: Play API check
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'ci/play-publishing'
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - run: pip install --quiet google-auth requests
+
+      - name: Probe Play API
+        env:
+          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        run: python .github/scripts/play_api_check.py
