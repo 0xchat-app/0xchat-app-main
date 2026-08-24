@@ -111,8 +111,16 @@ class NotificationHelper {
     Completer<OKEvent> completer = Completer<OKEvent>();
     List<String> channels = Channels.sharedInstance.getAllUnMuteChannels();
     List<String> groups = RelayGroup.sharedInstance.getAllUnMuteGroups();
-    var authors = Contacts.sharedInstance.allContacts.keys.toList();
-    var ptags = [Account.sharedInstance.currentPubkey];
+    String selfPubkey = Account.sharedInstance.currentPubkey;
+
+    // Our own pubkey must never be an author we ask to be notified about.
+    // The contact list is built from the follow list, and following yourself is
+    // a common habit on Nostr, so without this filter the push server treats
+    // every event we publish as an incoming one and notifies us about the
+    // messages we just sent.
+    var authors =
+        Contacts.sharedInstance.allContacts.keys.where((author) => author != selfPubkey).toList();
+    var ptags = [selfPubkey];
     // List<SecretSessionDB> secretSessions =
     // Contacts.sharedInstance.secretSessionMap.values.toList();
     // for (var session in secretSessions) {
@@ -130,7 +138,15 @@ class NotificationHelper {
       'deviceId': deviceId,
       'relays': relays,
       '#e': [...channels, ...groups],
-      '#p': ptags
+      '#p': ptags,
+
+      // '#e' and '#p' keep matching events we signed ourselves: a channel
+      // message we posted carries the channel's 'e' tag, and NIP-17 gift wraps
+      // a copy of every outgoing message to our own pubkey so that our other
+      // devices stay in sync. Both look exactly like an incoming message from
+      // the outside, so the server is told which pubkeys are ours and drops
+      // anything they signed before pushing.
+      'exclude_authors': [selfPubkey],
     };
     Event event = await _encode(serverPubkey, jsonEncode(map), '');
     unSendNotification = event;

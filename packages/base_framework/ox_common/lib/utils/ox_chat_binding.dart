@@ -232,6 +232,19 @@ class OXChatBinding {
     }
   }
 
+  /// A message we signed ourselves is never an incoming message, even when it
+  /// reaches this device over a relay subscription. NIP-17 gift wraps a copy of
+  /// every outgoing message to the sender's own pubkey so that their other
+  /// devices stay in sync, so a message we just sent - or one the same account
+  /// sent from another device - arrives on the very subscription that carries
+  /// real incoming messages. Those messages still update the session, which is
+  /// how multi-device sync works, but they must never raise an unread count or
+  /// a notification.
+  bool _isFromCurrentUser(MessageDBISAR messageDB) {
+    final myPubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
+    return myPubkey != null && myPubkey.isNotEmpty && messageDB.sender == myPubkey;
+  }
+
   ChatSessionModelISAR? syncChatSessionTable(MessageDBISAR messageDB, {int? chatType}) {
     final userdb = OXUserInfoManager.sharedInstance.currentUserInfo;
     if ( userdb == null || userdb.pubKey.isEmpty) {
@@ -272,7 +285,7 @@ class OXChatBinding {
         tempModel.createTime = sessionModel.createTime;
         tempModel.messageType = sessionModel.messageType;
       }
-      if (!messageDB.read && messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
+      if (!messageDB.read && !_isFromCurrentUser(messageDB)) {
         tempModel.unreadCount = tempModel.unreadCount += 1;
         noticePromptToneCallBack(messageDB, tempModel.chatType);
       }
@@ -295,7 +308,7 @@ class OXChatBinding {
         sessionModel.avatar = groupDBDB.picture ?? '';
         sessionModel.chatName = groupDBDB.name;
       }
-      if (!messageDB.read && messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
+      if (!messageDB.read && !_isFromCurrentUser(messageDB)) {
         sessionModel.unreadCount = 1;
         noticePromptToneCallBack(messageDB, sessionModel.chatType);
       }
@@ -317,7 +330,7 @@ class OXChatBinding {
         tempModel.createTime = sessionModel.createTime;
         tempModel.messageType = sessionModel.messageType;
       }
-      if (messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
+      if (!_isFromCurrentUser(messageDB)) {
         if (!messageDB.read) {
           tempModel.unreadCount = tempModel.unreadCount += 1;
           if (tempModel.chatType == ChatType.chatStranger || tempModel.chatType == ChatType.chatSecretStranger) {
@@ -341,7 +354,7 @@ class OXChatBinding {
       if (chatType != null) {
         sessionModel.chatType = chatType;
       }
-      if (!messageDB.read && messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
+      if (!messageDB.read && !_isFromCurrentUser(messageDB)) {
         sessionModel.unreadCount = 1;
         if (sessionModel.chatType == ChatType.chatStranger || sessionModel.chatType == ChatType.chatSecretStranger) {
           unReadStrangerSessionCount += 1;
@@ -372,7 +385,8 @@ class OXChatBinding {
     String chatId = '';
     String otherUserPubkey = '';
     if (messageDB.sessionId.isEmpty) {
-      chatId = otherUserPubkey = messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey ? messageDB.sender : messageDB.receiver;
+      chatId = otherUserPubkey =
+          !_isFromCurrentUser(messageDB) ? messageDB.sender : messageDB.receiver;
     } else {
       chatId = messageDB.sessionId;
       SecretSessionDBISAR? ssDB = Contacts.sharedInstance.secretSessionMap[messageDB.sessionId];
