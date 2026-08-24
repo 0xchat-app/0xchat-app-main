@@ -15,6 +15,9 @@
 #   ANDROID_KEY_ALIAS
 #   ANDROID_KEY_PASSWORD
 #
+# PLAY_SERVICE_ACCOUNT_JSON enables the Play job. Without it that job is
+# skipped and the other platforms are unaffected.
+#
 # macOS artifacts are ad-hoc signed only (the Xcode project uses
 # CODE_SIGN_IDENTITY = "-"). Distributing outside of a "right click -> Open"
 # flow additionally needs a Developer ID certificate and notarisation.
@@ -34,6 +37,12 @@ on:
           - linux
           - windows
           - macos
+      publish_to_play:
+        description: >-
+          Upload the bundle to Play. Off by default: it consumes the version
+          code permanently and creates a draft release.
+        type: boolean
+        default: false
   push:
     tags:
       - 'v*'
@@ -53,11 +62,7 @@ jobs:
     env:
       KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
     steps:
-      # Full history: the versionCode below is the commit count, which a
-      # shallow clone would report as 1.
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       # android/app/build.gradle compiles against Java 21.
       - uses: actions/setup-java@v4
@@ -96,27 +101,15 @@ jobs:
         if: env.KEYSTORE_BASE64 == ''
         run: echo "::warning::No ANDROID_KEYSTORE_BASE64 secret - artifacts will be UNSIGNED and cannot be installed."
 
-      # pubspec.yaml has declared 1.3.5+69 since 2025-03-18, so left alone every
-      # release would ship versionCode 69 and Play would reject the upload as
-      # not incrementing. Stamp the tag version and use the commit count, which
-      # only ever grows.
-      - name: Resolve Android version
-        id: android_version
-        run: |
-          echo "name=${{ steps.setup.outputs.version_name }}" >> "$GITHUB_OUTPUT"
-          echo "code=$(git rev-list --count HEAD)" >> "$GITHUB_OUTPUT"
-
+      # Version comes from pubspec.yaml, which the setup action has already
+      # checked against the tag. Its build number is the Android versionCode,
+      # and Play rejects a versionCode that does not increase, so it has to be
+      # bumped by hand for every release.
       - name: Build APK
-        run: |
-          flutter build apk --release \
-            --build-name "${{ steps.android_version.outputs.name }}" \
-            --build-number "${{ steps.android_version.outputs.code }}"
+        run: flutter build apk --release
 
       - name: Build App Bundle
-        run: |
-          flutter build appbundle --release \
-            --build-name "${{ steps.android_version.outputs.name }}" \
-            --build-number "${{ steps.android_version.outputs.code }}"
+        run: flutter build appbundle --release
 
       - name: Rename outputs
         run: |
@@ -239,10 +232,69 @@ jobs:
           path: dist/*
           if-no-files-found: error
 
+  play:
+    name: Play (upload + fetch signed APK)
+    # Uploading consumes the version code permanently and cannot be undone, so
+    # a tag alone does not trigger it - it needs the explicit dispatch input.
+    if: inputs.publish_to_play
+    needs: android
+    runs-on: ubuntu-latest
+    env:
+      PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Require the Play credential
+        if: env.PLAY_SERVICE_ACCOUNT_JSON == ''
+        run: |
+          echo "::error::PLAY_SERVICE_ACCOUNT_JSON is not set."
+          exit 1
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: android
+          path: dist
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - run: pip install --quiet google-auth requests
+
+      - name: Read version from pubspec.yaml
+        id: v
+        run: |
+          full=$(awk '/^version:/ {print $2; exit}' pubspec.yaml)
+          echo "code=${full##*+}" >> "$GITHUB_OUTPUT"
+          echo "name=${full%%+*}" >> "$GITHUB_OUTPUT"
+
+      # Uploads, stages a draft release, then downloads the APK Play signed
+      # with the app signing key. That download is the only way to publish an
+      # APK elsewhere that can upgrade a Play install.
+      - name: Upload to Play and fetch the signed APK
+        run: |
+          aab=$(find dist -name '*.aab' | head -1)
+          test -n "$aab" || { echo "::error::no .aab in the android artifact"; exit 1; }
+          python .github/scripts/play_publish.py \
+            --aab "$aab" \
+            --version-code "${{ steps.v.outputs.code }}" \
+            --release-name "${{ steps.v.outputs.name }}" \
+            --track internal \
+            --commit \
+            --download \
+            --out-dir signed
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: play-signed-apk
+          path: signed/*
+          if-no-files-found: error
+
   release:
     name: Draft release
-    if: startsWith(github.ref, 'refs/tags/')
-    needs: [android, linux, windows, macos]
+    needs: [android, linux, windows, macos, play]
+    # play is skipped unless explicitly requested; do not block the release on it.
+    if: always() && startsWith(github.ref, 'refs/tags/') && !failure() && !cancelled()
     runs-on: ubuntu-latest
     permissions:
       contents: write
