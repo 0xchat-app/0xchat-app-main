@@ -1,7 +1,7 @@
 name: Setup Flutter
 description: >-
-  Initialise the submodules the app actually needs, install the pinned Flutter
-  SDK, resolve pub dependencies and expose the version from pubspec.yaml.
+  Install the pinned Flutter SDK, resolve pub dependencies and expose the
+  version from pubspec.yaml.
 
 inputs:
   flutter-version:
@@ -32,13 +32,6 @@ runs:
       if: runner.os == 'Windows'
       shell: bash
       run: git config --global core.longpaths true
-
-    # Only nostr-dart and cashu-dart are referenced by path dependencies.
-    # nostr-mls-package is intentionally skipped: it is commented out in
-    # pubspec.yaml / 0xchat-core, so checking it out would only cost time.
-    - name: Init required submodules
-      shell: bash
-      run: git submodule update --init packages/nostr-dart packages/cashu-dart
 
     # The `tor` dependency builds its native library through cargokit, on every
     # platform. cargokit installs the toolchain and targets it needs by itself,
