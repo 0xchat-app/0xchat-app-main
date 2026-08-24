@@ -3,11 +3,13 @@
 # Triggers
 #   - Manually (Actions -> Build & Package -> Run workflow), optionally for a
 #     single platform.
-#   - Automatically on a `v*` tag; in that case every artifact is also attached
-#     to a draft GitHub Release, together with a SHA256SUMS manifest covering
-#     them all. The same sums are repeated in the release description, so they
-#     can be read without downloading anything; `sha256sum -c SHA256SUMS`
-#     verifies a directory of downloads in one go.
+#   - Automatically on a `v*` tag, which builds every platform, uploads the
+#     bundle to Play, fetches back the APK Play signed with the app signing
+#     key, and attaches everything installable to a draft GitHub Release,
+#     together with a SHA256SUMS manifest covering them all. The same sums are
+#     repeated in the release description, so they can be read without
+#     downloading anything; `sha256sum -c SHA256SUMS` verifies a directory of
+#     downloads in one go.
 #
 # Optional secrets (Android release signing). android/app/build.gradle attaches
 # no signingConfig to the release build type unless android/key.properties
@@ -18,8 +20,17 @@
 #   ANDROID_KEY_ALIAS
 #   ANDROID_KEY_PASSWORD
 #
-# PLAY_SERVICE_ACCOUNT_JSON enables the Play job. Without it that job is
-# skipped and the other platforms are unaffected.
+# PLAY_SERVICE_ACCOUNT_JSON is required for a tag build: the release ships the
+# APK Play signed, so a tag without this secret fails rather than publishing an
+# APK carrying the upload key, which Android cannot install over a Play
+# install. A manual run does not need it unless Play publishing is asked for.
+#
+# Tagging consumes an Android version code permanently and leaves a draft on
+# Play's internal track. Both that and the GitHub release are drafts: nothing
+# reaches a user until someone promotes them by hand.
+#
+# The version comes from pubspec.yaml and a tag that disagrees with it fails
+# the build, so bump `version:` - name AND build number - before tagging.
 #
 # macOS artifacts are ad-hoc signed only (the Xcode project uses
 # CODE_SIGN_IDENTITY = "-"). Distributing outside of a "right click -> Open"
@@ -126,7 +137,13 @@ jobs:
       # checked against the tag. Its build number is the Android versionCode,
       # and Play rejects a versionCode that does not increase, so it has to be
       # bumped by hand for every release.
+      # Skipped for a release: the installable APK comes from Play, signed with
+      # the app signing key, and one built here would carry the upload key
+      # instead. Android refuses to install across that difference, so shipping
+      # both would strand whoever picked the wrong one. Still built for a manual
+      # run, where no Play-signed APK is produced.
       - name: Build APK
+        if: github.ref_type != 'tag'
         run: flutter build apk --release
 
       - name: Build App Bundle
@@ -138,7 +155,8 @@ jobs:
           suffix=""
           [ -z "$KEYSTORE_BASE64" ] && suffix="-unsigned"
           mkdir -p dist
-          mv build/app/outputs/flutter-apk/app-release.apk "dist/oxchat-$v-android$suffix.apk"
+          apk=build/app/outputs/flutter-apk/app-release.apk
+          [ -f "$apk" ] && mv "$apk" "dist/oxchat-$v-android$suffix.apk"
           mv build/app/outputs/bundle/release/app-release.aab "dist/oxchat-$v-android$suffix.aab"
 
       - uses: actions/upload-artifact@v4
@@ -271,9 +289,11 @@ jobs:
 
   play:
     name: Play (upload + fetch signed APK)
-    # Uploading consumes the version code permanently and cannot be undone, so
-    # a tag alone does not trigger it - it needs the explicit dispatch input.
-    if: inputs.publish_to_play
+    # A tag runs this, because the APK a release ships has to be the one Play
+    # signed with the app signing key. The cost is deliberate: tagging now
+    # consumes the version code permanently and leaves a draft on the internal
+    # track, which still has to be promoted by hand in the Play Console.
+    if: github.ref_type == 'tag' || inputs.publish_to_play
     needs: android
     runs-on: ubuntu-latest
     env:
@@ -330,7 +350,8 @@ jobs:
   release:
     name: Draft release
     needs: [android, linux, windows, macos, play]
-    # play is skipped unless explicitly requested; do not block the release on it.
+    # always(): the desktop jobs are skipped on a manual single-platform run.
+    # !failure() still stops the release when Play upload or any build fails.
     if: always() && startsWith(github.ref, 'refs/tags/') && !failure() && !cancelled()
     runs-on: ubuntu-latest
     permissions:
@@ -340,6 +361,21 @@ jobs:
         with:
           path: dist
           merge-multiple: true
+
+      # The bundle is an input to Play, not something a user can install, and
+      # at 200 MB+ it would dominate the release page. The APK stays: it is the
+      # one Play signed, fetched back by the job above.
+      - name: Keep only what can be installed
+        run: |
+          rm -f dist/*.aab
+          apks=$(find dist -maxdepth 1 -name '*.apk' | wc -l)
+          if [ "$apks" -ne 1 ]; then
+            echo "::error::expected exactly one APK in the release, found $apks."
+            echo "Two APKs mean two signatures, and Android cannot install one over the other."
+            find dist -maxdepth 1 -name '*.apk'
+            exit 1
+          fi
+          ls -1 dist
 
       # Hashing centrally, rather than in each platform job, keeps one
       # implementation instead of three: the build runners disagree
