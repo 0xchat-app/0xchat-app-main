@@ -10,6 +10,7 @@ import 'package:ox_common/log_util.dart';
 // ox_common
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/external_signer_helper.dart';
 import 'package:ox_common/utils/nip46_status_notifier.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -339,30 +340,28 @@ class _LoginPageState extends State<LoginPage> {
     }
     
     if (selectedPackageName == null) return;
-    
-    // Set the selected signer by package name
-    await ExternalSignerTool.setSignerByPackageName(selectedPackageName);
-    
-    String? signature = await ExternalSignerTool.getPubKey();
-    if (signature == null) {
+
+    // NIP-55 `get_public_key`: answers with the account pubkey and with the
+    // package name every following request of that account is addressed to.
+    final ExternalSignerSession? signerSession =
+        await ExternalSignerHelper.requestPubKey(selectedPackageName);
+    if (signerSession == null) {
       if (mounted) {
         CommonToast.instance.show(context, Localized.text('ox_login.sign_request_rejected'));
       }
       return;
     }
     await OXLoading.show();
-    String decodeSignature = signature;
-    // Handle both hex and npub formats from signer
-    if (signature.startsWith('npub')) {
-      decodeSignature = UserDBISAR.decodePubkey(signature) ?? '';
-    }
+    // signerSession.pubKey is already hex: requestPubKey decodes the npub form
+    // signers may answer with, so there is nothing left to convert here.
     // Logging in tears the running session down before the new account is
     // known to work, so remember which account has to come back if it fails.
     final String previousPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
     UserDBISAR? userDB;
     try {
-      await OXUserInfoManager.sharedInstance.initDB(decodeSignature);
-      userDB = await Account.sharedInstance.loginWithPubKey(decodeSignature, SignerApplication.androidSigner);
+      await OXUserInfoManager.sharedInstance.initDB(signerSession.pubKey);
+      userDB = await Account.sharedInstance.loginWithPubKey(
+          signerSession.pubKey, SignerApplication.androidSigner);
     } catch (error, stack) {
       LogUtil.e('login with external signer failed: $error\r\n$stack');
       userDB = null;
@@ -381,8 +380,11 @@ class _LoginPageState extends State<LoginPage> {
       UserConfigTool.saveUser(value);
       UserConfigTool.updateSettingFromDB(value.settings);
     });
-    // loginSuccess will automatically save the signer package name from ExternalSignerTool.getCurrentConfig()
-    OXUserInfoManager.sharedInstance.loginSuccess(userDB);
+    // The signer vouches for the account it answered with only: a failed switch
+    // logs back into the account that was active before.
+    final bool isSignerAccount = userDB.pubKey == signerSession.pubKey;
+    OXUserInfoManager.sharedInstance.loginSuccess(userDB,
+        signerPackageName: isSignerAccount ? signerSession.packageName : null);
     await OXLoading.dismiss();
     OXNavigator.popToRoot(context);
   }
