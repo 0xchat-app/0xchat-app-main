@@ -212,7 +212,12 @@ jobs:
   macos:
     name: macOS (.app)
     if: github.ref_type == 'tag' || inputs.platform == 'all' || inputs.platform == 'macos'
-    runs-on: macos-14
+    # macos-15, not macos-14: in_app_purchase_storekit 0.4.x (pulled in by
+    # in_app_purchase in ox_common) compiles StoreKit 2 win-back offer APIs -
+    # winBackOffers, eligibleWinBackOfferIDs, OfferType.winBack - that exist
+    # only in the macOS 15 SDK. On macos-14 (Xcode 15) SwiftCompile fails and
+    # the app never links.
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
 
