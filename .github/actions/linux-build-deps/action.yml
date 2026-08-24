@@ -1,0 +1,33 @@
+name: Linux build dependencies
+description: >-
+  apt packages the Flutter Linux build needs. Shared so the release build and
+  the weekly health check cannot drift apart.
+
+runs:
+  using: composite
+  steps:
+    # Mirrors the package list in the repo Dockerfile, plus libunwind-dev. The
+    # runner image ships an LLVM toolchain whose libunwind conflicts with the
+    # one libgstreamer1.0-dev depends on, so apt reports held broken packages
+    # unless libunwind-dev is requested in the same transaction. A clean
+    # ubuntu:22.04 container has no such conflict, which is why this only
+    # showed up on a real runner.
+    - shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          clang \
+          cmake \
+          ninja-build \
+          pkg-config \
+          file \
+          libgtk-3-dev \
+          libglu1-mesa \
+          libssl-dev \
+          libunwind-dev \
+          libgstreamer1.0-dev \
+          libgstreamer-plugins-base1.0-dev \
+          gstreamer1.0-plugins-base \
+          gstreamer1.0-plugins-good \
+          gstreamer1.0-plugins-bad \
+          gstreamer1.0-libav

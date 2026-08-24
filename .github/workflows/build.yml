@@ -141,29 +141,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Mirrors the package list in the repo Dockerfile, plus libunwind-dev.
-      # The runner image ships an LLVM toolchain whose libunwind conflicts with
-      # the one libgstreamer1.0-dev depends on, so apt reports held broken
-      # packages unless libunwind-dev is requested in the same transaction.
-      - name: Install build dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            clang \
-            cmake \
-            ninja-build \
-            pkg-config \
-            file \
-            libgtk-3-dev \
-            libglu1-mesa \
-            libssl-dev \
-            libgstreamer1.0-dev \
-            libgstreamer-plugins-base1.0-dev \
-            libunwind-dev \
-            gstreamer1.0-plugins-base \
-            gstreamer1.0-plugins-good \
-            gstreamer1.0-plugins-bad \
-            gstreamer1.0-libav
+      - uses: ./.github/actions/linux-build-deps
 
       - id: setup
         uses: ./.github/actions/setup-flutter

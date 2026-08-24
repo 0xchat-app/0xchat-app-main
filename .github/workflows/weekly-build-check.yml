@@ -1,0 +1,77 @@
+# Weekly answer to one question: does main still build?
+#
+# Not a packaging run - it produces no artifacts, touches no signing key and
+# never uploads to Play, so it cannot consume an Android version code. Linux
+# alone, because it is the cheapest runner that still compiles all of the Dart
+# and the Rust the `tor` package brings in; a break in shared code shows up
+# here without paying for four platforms.
+#
+# Nothing is built when main has not moved since the last successful check, so
+# a quiet week costs one API call.
+#
+# GitHub disables scheduled workflows after 60 days without repository
+# activity and emails the admins when it does. It also emails on a failed
+# scheduled run, which is how this reports a break.
+name: Weekly build check
+
+on:
+  schedule:
+    # Mondays, 02:00 UTC. Off-peak, so the run is not queued behind others.
+    - cron: '0 2 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: weekly-build-check
+  cancel-in-progress: true
+
+jobs:
+  decide:
+    name: Has main moved?
+    runs-on: ubuntu-latest
+    outputs:
+      build: ${{ steps.check.outputs.build }}
+    steps:
+      # Compares against the commit of the last *successful* check rather than
+      # a timestamp: if a check fails, the next run sees an older successful
+      # commit and tries again, so a break keeps being reported until it is
+      # fixed instead of being reported once and forgotten.
+      - name: Compare against the last successful check
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          last=$(curl -sf \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/weekly-build-check.yml/runs?status=success&per_page=1" \
+            | python3 -c "import sys,json; r=json.load(sys.stdin).get('workflow_runs') or []; print(r[0]['head_sha'] if r else '')" ) || last=""
+
+          echo "current commit:        ${GITHUB_SHA}"
+          echo "last checked commit:   ${last:-none}"
+
+          if [ -n "$last" ] && [ "$last" = "$GITHUB_SHA" ]; then
+            echo "build=false" >> "$GITHUB_OUTPUT"
+            echo "No new commits since the last successful check - skipping the build." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "build=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  build:
+    name: Linux (x64)
+    needs: decide
+    if: needs.decide.outputs.build == 'true'
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/linux-build-deps
+
+      - uses: ./.github/actions/setup-flutter
+
+      # No artifact upload: the point is whether this command succeeds.
+      - name: Build
+        run: flutter build linux --release
