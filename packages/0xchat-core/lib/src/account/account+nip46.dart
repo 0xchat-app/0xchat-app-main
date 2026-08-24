@@ -90,7 +90,13 @@ extension AccountNIP46 on Account {
     Completer<NIP46CommandResult> completer = Completer<NIP46CommandResult>();
     String secret = tempRemoteConnection!.secret!;
     resultCompleters[secret] = completer;
-    await completer.future;
+    await completer.future.timeout(
+      const Duration(seconds: 60),
+      onTimeout: () {
+        resultCompleters.remove(secret);
+        throw TimeoutException('Waiting for nostrconnect approval timed out');
+      },
+    );
     currentRemoteConnection = tempRemoteConnection;
     String? pubkey = await sendGetPubicKey();
     if (pubkey != null) {
@@ -165,7 +171,10 @@ extension AccountNIP46 on Account {
 
     await Connect.sharedInstance
         .connectRelays(remoteSignerConnection.relays, relayKind: RelayKind.remoteSigner);
-    return completer.future;
+    return completer.future.timeout(
+      const Duration(seconds: 30),
+      onTimeout: () => OKEvent(uri, false, 'Remote signer relay connection timed out'),
+    );
   }
 
   Future<String?> sendGetPubicKey() async {
@@ -237,7 +246,13 @@ extension AccountNIP46 on Account {
     } else {
       Connect.sharedInstance.sendEvent(event, toRelays: currentRemoteConnection!.relays);
     }
-    return completer.future;
+    return completer.future.timeout(
+      const Duration(seconds: 30),
+      onTimeout: () {
+        resultCompleters.remove(id);
+        throw TimeoutException('Remote signer did not respond in time');
+      },
+    );
   }
 
   Future<bool> sendConnect() async {
