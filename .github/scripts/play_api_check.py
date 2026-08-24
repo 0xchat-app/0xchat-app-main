@@ -19,10 +19,30 @@ BASE = "https://androidpublisher.googleapis.com/androidpublisher/v3"
 SCOPE = "https://www.googleapis.com/auth/androidpublisher"
 
 
+def describe(resp):
+    """Render an API error without braces.
+
+    A multi-line JSON secret makes GitHub treat every line of it as a secret,
+    including the lines that are just "{" and "}", so any raw JSON echoed into
+    the log comes out as ***. Pull the fields out and print them as plain text.
+    """
+    try:
+        err = resp.json().get("error", {})
+        parts = [f"status={err.get('status')}", f"message={err.get('message')}"]
+        for d in err.get("details", []) or []:
+            reason = d.get("reason")
+            if reason:
+                parts.append(f"reason={reason}")
+        return f"HTTP {resp.status_code} " + " | ".join(str(p) for p in parts)
+    except Exception:
+        safe = resp.text[:300].replace("{", "(").replace("}", ")")
+        return f"HTTP {resp.status_code} {safe}"
+
+
 def fail(msg, resp=None):
     print(f"::error::{msg}")
     if resp is not None:
-        print(f"  HTTP {resp.status_code}: {resp.text[:400]}")
+        print("  " + describe(resp))
     sys.exit(1)
 
 
