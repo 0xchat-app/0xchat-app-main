@@ -6,6 +6,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_common/const/common_constant.dart';
+import 'package:ox_common/log_util.dart';
 // ox_common
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -282,15 +283,27 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void loginWithNostrConnect(String loginQRCodeUrl)async{
-    String pubkey = "";
+    // Logging in tears the running session down before the new account is
+    // known to work, so remember which account has to come back if it fails.
+    final String previousPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
     UserDBISAR? userDB;
-    String currentUserPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
-    pubkey = await Account.getPublicKeyWithNIP46URI(loginQRCodeUrl);
-    await OXUserInfoManager.sharedInstance.initDB(pubkey);
-    userDB = await Account.sharedInstance.loginWithNip46URI(loginQRCodeUrl);
-    userDB = await OXUserInfoManager.sharedInstance.handleSwitchFailures(userDB, currentUserPubKey);
+    try {
+      String pubkey = await Account.getPublicKeyWithNIP46URI(loginQRCodeUrl);
+      if (pubkey.isNotEmpty) {
+        await OXUserInfoManager.sharedInstance.initDB(pubkey);
+        userDB = await Account.sharedInstance.loginWithNip46URI(loginQRCodeUrl);
+      }
+    } catch (error, stack) {
+      LogUtil.e('login with nostr connect failed: $error\r\n$stack');
+      userDB = null;
+    }
+
     if (userDB == null) {
-      CommonToast.instance.show(context, Localized.text('ox_login.private_key_regular_failed'));
+      // Put the account that was logged in back exactly as it was. A failed
+      // login must never cost the user the account they already had.
+      await OXUserInfoManager.sharedInstance.restoreAccount(previousPubKey);
+      if (!mounted) return;
+      CommonToast.instance.show(context, Localized.text('ox_login.remote_signer_connect_failed'));
       return;
     }
     Account.sharedInstance.reloadProfileFromRelay(userDB.pubKey).then((value) {
@@ -299,6 +312,7 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     OXUserInfoManager.sharedInstance.loginSuccess(userDB);
+    if (!mounted) return;
     OXNavigator.popToRoot(context);
   }
 
@@ -338,11 +352,24 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
     await OXLoading.show();
-    String currentUserPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
-    await OXUserInfoManager.sharedInstance.initDB(signerSession.pubKey);
-    UserDBISAR? userDB = await Account.sharedInstance.loginWithPubKey(signerSession.pubKey, SignerApplication.androidSigner);
-    userDB = await OXUserInfoManager.sharedInstance.handleSwitchFailures(userDB, currentUserPubKey);
+    // signerSession.pubKey is already hex: requestPubKey decodes the npub form
+    // signers may answer with, so there is nothing left to convert here.
+    // Logging in tears the running session down before the new account is
+    // known to work, so remember which account has to come back if it fails.
+    final String previousPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
+    UserDBISAR? userDB;
+    try {
+      await OXUserInfoManager.sharedInstance.initDB(signerSession.pubKey);
+      userDB = await Account.sharedInstance.loginWithPubKey(
+          signerSession.pubKey, SignerApplication.androidSigner);
+    } catch (error, stack) {
+      LogUtil.e('login with external signer failed: $error\r\n$stack');
+      userDB = null;
+    }
     if (userDB == null) {
+      // Put the account that was logged in back exactly as it was. A failed
+      // login must never cost the user the account they already had.
+      await OXUserInfoManager.sharedInstance.restoreAccount(previousPubKey);
       await OXLoading.dismiss();
       if (mounted) {
         CommonToast.instance.show(context, Localized.text('ox_login.pub_key_regular_failed'));

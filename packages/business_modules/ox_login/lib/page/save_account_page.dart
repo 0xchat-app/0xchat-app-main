@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 // common
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -9,6 +10,7 @@ import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
+import 'package:ox_common/widgets/common_toast.dart';
 
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:chatcore/chat-core.dart';
@@ -277,15 +279,30 @@ class _SaveAccountPageState extends State<SaveAccountPage>
 
   void _login() async {
     await OXLoading.show();
-    await OXUserInfoManager.sharedInstance.initDB(widget.keychain.public);
-    UserDBISAR userDB = await Account.newAccount(user: widget.keychain);
-    userDB = await Account.sharedInstance.loginWithPriKey(widget.keychain.private) ?? userDB;
-    userDB.name = widget.userName;
-    userDB.about = widget.userAbout;
-    userDB.dns = widget.userDns;
-    Account.sharedInstance.updateProfile(userDB);
-    await OXUserInfoManager.sharedInstance.loginSuccess(userDB);
+    // Creating the account tears the running session down before the new
+    // account exists, so remember which account has to come back if it fails.
+    final String previousPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
+    try {
+      await OXUserInfoManager.sharedInstance.initDB(widget.keychain.public);
+      UserDBISAR userDB = await Account.newAccount(user: widget.keychain);
+      userDB = await Account.sharedInstance.loginWithPriKey(widget.keychain.private) ?? userDB;
+      userDB.name = widget.userName;
+      userDB.about = widget.userAbout;
+      userDB.dns = widget.userDns;
+      Account.sharedInstance.updateProfile(userDB);
+      await OXUserInfoManager.sharedInstance.loginSuccess(userDB);
+    } catch (error, stack) {
+      LogUtil.e('create account failed: $error\r\n$stack');
+      // Put the account that was logged in back exactly as it was. A failed
+      // account creation must never cost the user the account they had.
+      await OXUserInfoManager.sharedInstance.restoreAccount(previousPubKey);
+      await OXLoading.dismiss();
+      if (!mounted) return;
+      CommonToast.instance.show(context, Localized.text('ox_login.private_key_regular_failed'));
+      return;
+    }
     await OXLoading.dismiss();
+    if (!mounted) return;
     OXNavigator.popToRoot(context);
   }
 

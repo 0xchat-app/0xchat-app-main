@@ -42,18 +42,6 @@ add_subdirectory("runner")
 
 include(flutter/generated_plugins.cmake)
 
-if(NOT "flutter_sound" IN_LIST FLUTTER_PLUGIN_LIST)
-  if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/flutter/ephemeral/.plugin_symlinks/flutter_sound/windows/CMakeLists.txt")
-    add_subdirectory(flutter/ephemeral/.plugin_symlinks/flutter_sound/windows plugins/flutter_sound)
-  elseif(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../packages/business_modules/ox_chat_ui/flutter_sound_local/windows/CMakeLists.txt")
-    add_subdirectory(../packages/business_modules/ox_chat_ui/flutter_sound_local/windows plugins/flutter_sound)
-  endif()
-  if(TARGET flutter_sound_plugin)
-    target_link_libraries(${BINARY_NAME} PRIVATE flutter_sound_plugin)
-    list(APPEND PLUGIN_BUNDLED_LIBRARIES $<TARGET_FILE:flutter_sound_plugin>)
-  endif()
-endif()
-
 if(TARGET rive_common_plugin)
   set_target_properties(rive_common_plugin PROPERTIES
     CXX_STANDARD 20

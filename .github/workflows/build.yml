@@ -4,7 +4,10 @@
 #   - Manually (Actions -> Build & Package -> Run workflow), optionally for a
 #     single platform.
 #   - Automatically on a `v*` tag; in that case every artifact is also attached
-#     to a draft GitHub Release.
+#     to a draft GitHub Release, together with a SHA256SUMS manifest covering
+#     them all. The same sums are repeated in the release description, so they
+#     can be read without downloading anything; `sha256sum -c SHA256SUMS`
+#     verifies a directory of downloads in one go.
 #
 # Optional secrets (Android release signing). android/app/build.gradle attaches
 # no signingConfig to the release build type unless android/key.properties
@@ -15,9 +18,16 @@
 #   ANDROID_KEY_ALIAS
 #   ANDROID_KEY_PASSWORD
 #
+# PLAY_SERVICE_ACCOUNT_JSON enables the Play job. Without it that job is
+# skipped and the other platforms are unaffected.
+#
 # macOS artifacts are ad-hoc signed only (the Xcode project uses
 # CODE_SIGN_IDENTITY = "-"). Distributing outside of a "right click -> Open"
 # flow additionally needs a Developer ID certificate and notarisation.
+#
+# The Windows job emits both a portable zip and an Inno Setup installer built
+# from windows/packaging/oxchat.iss. The installer is unsigned, so SmartScreen
+# will warn on first run until an Authenticode certificate is wired in.
 
 name: Build & Package
 
@@ -34,6 +44,12 @@ on:
           - linux
           - windows
           - macos
+      publish_to_play:
+        description: >-
+          Upload the bundle to Play. Off by default: it consumes the version
+          code permanently and creates a draft release.
+        type: boolean
+        default: false
   push:
     tags:
       - 'v*'
@@ -53,11 +69,7 @@ jobs:
     env:
       KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
     steps:
-      # Full history: the versionCode below is the commit count, which a
-      # shallow clone would report as 1.
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       # android/app/build.gradle compiles against Java 21.
       - uses: actions/setup-java@v4
@@ -96,27 +108,15 @@ jobs:
         if: env.KEYSTORE_BASE64 == ''
         run: echo "::warning::No ANDROID_KEYSTORE_BASE64 secret - artifacts will be UNSIGNED and cannot be installed."
 
-      # pubspec.yaml has declared 1.3.5+69 since 2025-03-18, so left alone every
-      # release would ship versionCode 69 and Play would reject the upload as
-      # not incrementing. Stamp the tag version and use the commit count, which
-      # only ever grows.
-      - name: Resolve Android version
-        id: android_version
-        run: |
-          echo "name=${{ steps.setup.outputs.version_name }}" >> "$GITHUB_OUTPUT"
-          echo "code=$(git rev-list --count HEAD)" >> "$GITHUB_OUTPUT"
-
+      # Version comes from pubspec.yaml, which the setup action has already
+      # checked against the tag. Its build number is the Android versionCode,
+      # and Play rejects a versionCode that does not increase, so it has to be
+      # bumped by hand for every release.
       - name: Build APK
-        run: |
-          flutter build apk --release \
-            --build-name "${{ steps.android_version.outputs.name }}" \
-            --build-number "${{ steps.android_version.outputs.code }}"
+        run: flutter build apk --release
 
       - name: Build App Bundle
-        run: |
-          flutter build appbundle --release \
-            --build-name "${{ steps.android_version.outputs.name }}" \
-            --build-number "${{ steps.android_version.outputs.code }}"
+        run: flutter build appbundle --release
 
       - name: Rename outputs
         run: |
@@ -180,7 +180,7 @@ jobs:
           if-no-files-found: error
 
   windows:
-    name: Windows (x64)
+    name: Windows (installer + zip)
     if: github.ref_type == 'tag' || inputs.platform == 'all' || inputs.platform == 'windows'
     # Pinned, not windows-latest: that label now resolves to the
     # windows-2025-vs2026 image, and flutter_tools 3.29.3 maps only Visual
@@ -203,6 +203,35 @@ jobs:
           New-Item -ItemType Directory -Force dist | Out-Null
           Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath "dist/oxchat-$v-windows-x64.zip"
 
+      # The zip above is the portable download; this is the one that installs.
+      # Inno Setup 6 ships preinstalled on the windows runner images, so this
+      # needs no extra download - see windows/packaging/oxchat.iss for what the
+      # installer does.
+      - name: Build installer
+        shell: pwsh
+        run: |
+          $v = "${{ steps.setup.outputs.version_name }}"
+          $root = (Get-Location).Path
+
+          # The images put ISCC.exe on PATH, but that is an image detail rather
+          # than a promise, so fall back to the install location.
+          $iscc = (Get-Command ISCC.exe -ErrorAction SilentlyContinue).Source
+          if (-not $iscc) { $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" }
+          if (-not (Test-Path $iscc)) { throw "Inno Setup compiler not found - looked on PATH and at $iscc" }
+
+          & $iscc /Q `
+            "/DAppVersion=$v" `
+            "/DBuildDir=$root\build\windows\x64\runner\Release" `
+            "/DDistDir=$root\dist" `
+            "/DOutputName=oxchat-$v-windows-x64-setup" `
+            windows\packaging\oxchat.iss
+          if ($LASTEXITCODE -ne 0) { throw "ISCC failed with exit code $LASTEXITCODE" }
+
+          # /Q silences ISCC, so confirm the artifact rather than trusting it.
+          $setup = "dist/oxchat-$v-windows-x64-setup.exe"
+          if (-not (Test-Path $setup)) { throw "$setup was not produced" }
+          "{0} ({1:N1} MB)" -f $setup, ((Get-Item $setup).Length / 1MB)
+
       - uses: actions/upload-artifact@v4
         with:
           name: windows
@@ -212,7 +241,12 @@ jobs:
   macos:
     name: macOS (.app)
     if: github.ref_type == 'tag' || inputs.platform == 'all' || inputs.platform == 'macos'
-    runs-on: macos-14
+    # macos-15, not macos-14: in_app_purchase_storekit 0.4.x (pulled in by
+    # in_app_purchase in ox_common) compiles StoreKit 2 win-back offer APIs -
+    # winBackOffers, eligibleWinBackOfferIDs, OfferType.winBack - that exist
+    # only in the macOS 15 SDK. On macos-14 (Xcode 15) SwiftCompile fails and
+    # the app never links.
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
 
@@ -239,10 +273,69 @@ jobs:
           path: dist/*
           if-no-files-found: error
 
+  play:
+    name: Play (upload + fetch signed APK)
+    # Uploading consumes the version code permanently and cannot be undone, so
+    # a tag alone does not trigger it - it needs the explicit dispatch input.
+    if: inputs.publish_to_play
+    needs: android
+    runs-on: ubuntu-latest
+    env:
+      PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Require the Play credential
+        if: env.PLAY_SERVICE_ACCOUNT_JSON == ''
+        run: |
+          echo "::error::PLAY_SERVICE_ACCOUNT_JSON is not set."
+          exit 1
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: android
+          path: dist
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - run: pip install --quiet google-auth requests
+
+      - name: Read version from pubspec.yaml
+        id: v
+        run: |
+          full=$(awk '/^version:/ {print $2; exit}' pubspec.yaml)
+          echo "code=${full##*+}" >> "$GITHUB_OUTPUT"
+          echo "name=${full%%+*}" >> "$GITHUB_OUTPUT"
+
+      # Uploads, stages a draft release, then downloads the APK Play signed
+      # with the app signing key. That download is the only way to publish an
+      # APK elsewhere that can upgrade a Play install.
+      - name: Upload to Play and fetch the signed APK
+        run: |
+          aab=$(find dist -name '*.aab' | head -1)
+          test -n "$aab" || { echo "::error::no .aab in the android artifact"; exit 1; }
+          python .github/scripts/play_publish.py \
+            --aab "$aab" \
+            --version-code "${{ steps.v.outputs.code }}" \
+            --release-name "${{ steps.v.outputs.name }}" \
+            --track internal \
+            --commit \
+            --download \
+            --out-dir signed
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: play-signed-apk
+          path: signed/*
+          if-no-files-found: error
+
   release:
     name: Draft release
-    if: startsWith(github.ref, 'refs/tags/')
-    needs: [android, linux, windows, macos]
+    needs: [android, linux, windows, macos, play]
+    # play is skipped unless explicitly requested; do not block the release on it.
+    if: always() && startsWith(github.ref, 'refs/tags/') && !failure() && !cancelled()
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -252,8 +345,49 @@ jobs:
           path: dist
           merge-multiple: true
 
+      # Hashing centrally, rather than in each platform job, keeps one
+      # implementation instead of three: the build runners disagree
+      # (sha256sum on Linux, shasum on macOS, Get-FileHash on Windows) while
+      # this job is ubuntu-latest and, after the download above, holds every
+      # artifact from every platform.
+      - name: Checksum the artifacts
+        run: |
+          cd dist
+
+          # `sha256sum -c SHA256SUMS` resolves the listed paths relative to the
+          # working directory, so the manifest has to name the files bare - and
+          # must exclude itself, since the redirection below creates it before
+          # find walks the directory.
+          find . -maxdepth 1 -type f ! -name SHA256SUMS -printf '%P\n' \
+            | sort | xargs -r sha256sum > SHA256SUMS
+          test -s SHA256SUMS || { echo "::error::dist/ held no files to checksum"; exit 1; }
+          cat SHA256SUMS
+
+          # Issue #17 asked for the sums to be readable in the release
+          # description, not just downloadable. Emitting both from this one
+          # computation means the text and the attached manifest cannot drift.
+          # Written outside dist/ so `files:` below does not upload it as an
+          # asset of the release it describes.
+          {
+            echo '## Verify your download'
+            echo
+            echo 'Every asset below is listed in `SHA256SUMS`. Download it next to them and run:'
+            echo
+            echo '    sha256sum -c SHA256SUMS      # macOS: shasum -a 256 -c SHA256SUMS'
+            echo
+            echo 'Windows PowerShell has no `-c` equivalent; compare a single file with'
+            echo '`Get-FileHash -Algorithm SHA256 <file>`.'
+            echo
+            echo '```'
+            cat SHA256SUMS
+            echo '```'
+          } > "$GITHUB_WORKSPACE/release-body.md"
+
+      # body_path lands above the notes GitHub generates, so the checksums head
+      # the description and the changelog follows.
       - uses: softprops/action-gh-release@v2
         with:
           draft: true
           files: dist/*
           generate_release_notes: true
+          body_path: release-body.md

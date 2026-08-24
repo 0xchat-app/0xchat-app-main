@@ -31,6 +31,7 @@
   "lets_go": "Let’s go!",
   "enter_account_key_login_hint": "Use nostr key or remote signer to login:",
   "private_key_regular_failed": "Private Key regular failed",
+  "remote_signer_connect_failed": "Could not connect to the remote signer. Your account was not changed, please check the signer and try again.",
   "pub_key_regular_failed": "Pub Key regular failed",
   "str_not_installed_amber": "You have not installed Amber",
   "str_nesc_invalid_hint": "The NSEC you entered is invalid. Please enter it again.",

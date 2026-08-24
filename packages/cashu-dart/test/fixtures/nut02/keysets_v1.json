@@ -1,0 +1,18 @@
+{
+  "keysets": [
+    {
+      "id": "009a1f293253e41e",
+      "unit": "sat",
+      "active": true,
+      "input_fee_ppk": 0,
+      "final_expiry": null
+    },
+    {
+      "id": "00deadbeef123456",
+      "unit": "sat",
+      "active": false,
+      "input_fee_ppk": 100,
+      "final_expiry": null
+    }
+  ]
+}

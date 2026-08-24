@@ -39,10 +39,45 @@ The 'content' is encrypted using the NIP04 protocol. The decrypted content is as
     "deviceId": "<device token>",
     "relays": "<list of relays for the push server to subscribe to>",
     "#e": "<list of groups to be notified about>",
+    "exclude_authors": "<list of pubkeys whose events must never be pushed>",
 }
 
 ```
 Upon receiving the encrypted message of 'kind' 22456, the push server decrypts it to obtain the subscription information (kinds, #e, #p) and the specified 'relays' to listen to. It then sends notifications to the device identified by the 'deviceId', using both APNs and FCM services.
+
+### Excluding the subscriber's own events
+
+A subscription matches events the subscriber published themselves. A channel
+message they posted carries the channel's 'e' tag, and NIP-17 gift wraps a copy
+of every outgoing message to the sender's own pubkey so that their other devices
+stay in sync - that copy is p-tagged with the sender's pubkey and is therefore
+indistinguishable from a real incoming message. Without a filter the subscriber
+is notified that they "received a private message" for a message they just sent.
+
+'exclude_authors' carries the subscriber's own pubkey(s). The push server must
+drop any matched event signed by one of them before pushing it. The list travels
+inside the NIP-04 encrypted payload, so it reveals nothing to relays or to third
+parties.
+
+### Push payload
+
+The payload delivered to the device carries the rendered notification plus the
+data the client needs to decide what to do with it:
+
+```json
+{
+    "notification": {"title": "<title>", "body": "<body>"},
+    "data": {
+        "msgType": "<0 for a message, 1 for a call>",
+        "sender": "<pubkey that signed the event, when the server can see it>"
+    }
+}
+
+```
+'sender' lets the client drop a notification for its own message if it reaches a
+push server that does not yet honour 'exclude_authors'. It is omitted when the
+author is not visible to the server, and clients must treat an absent 'sender'
+as "unknown" rather than suppressing the notification.
 
 ### Heartbeat:
 

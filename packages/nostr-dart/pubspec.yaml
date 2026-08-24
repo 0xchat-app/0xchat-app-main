@@ -1,0 +1,34 @@
+name: nostr_core_dart
+description: A library for nostr protocol implemented in dart for flutter
+version: 1.0.1
+homepage: https://github.com/0xchat-app/nostr-dart
+
+environment:
+  sdk: '>=3.1.3 <4.0.0'
+
+dev_dependencies:
+  test: ^1.16.0
+  flutter_lints: ^5.0.0
+
+dependencies:
+  bip340: ^0.3.0
+  convert: ^3.1.1
+  crypto: ^3.0.2
+
+  pointycastle: ^3.3.0
+  kepler: ^1.0.3
+  http: ^1.0.0
+  bech32: ^0.2.0
+  cryptography: ^2.7.0
+
+flutter:
+  uses-material-design: true
+
+  plugin:
+    platforms:
+      android:
+        package: com.oxchat.nostrcore
+        pluginClass: ChatcorePlugin
+      ios:
+        pluginClass: NostrCoreDartPlugin
+

@@ -101,6 +101,7 @@ class LocalNotificationManager {
     String showTitle = '';
     String showContent = '';
     String msgType = '0';
+    String sender = '';
     try {
       String result = utf8.decode(message);
       LogUtil.d("Push: LocalNotificationManager--onMessage--result=${result}");
@@ -109,9 +110,21 @@ class LocalNotificationManager {
       showTitle = jsonMap['notification']?['title'] ?? '';
       showContent = jsonMap['notification']?['body'] ?? 'default';
       msgType = jsonMap['data']?['msgType'] ?? '0';
+      sender = jsonMap['data']?['sender']?.toString() ?? '';
     } catch (e) {
       showContent = 'You’ve received a message ';
       print(e.toString());
+    }
+
+    // A message we sent is never an incoming message. NIP-17 gift wraps a copy
+    // of every outgoing message to our own pubkey so that our other devices
+    // stay in sync, and that copy reaches the push server looking exactly like
+    // a message somebody sent us. Suppress it only on an exact match: an empty
+    // sender means the payload carries no author, and a real message must never
+    // be swallowed because of it.
+    if (sender.isNotEmpty && OXUserInfoManager.sharedInstance.isCurrentUser(sender)) {
+      LogUtil.d('Push: LocalNotificationManager--onMessage--skipped our own message');
+      return;
     }
 
     if (msgType == PushMsgType.call.text) {

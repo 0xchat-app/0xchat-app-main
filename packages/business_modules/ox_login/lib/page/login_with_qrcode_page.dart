@@ -221,18 +221,29 @@ class _LoginWithQRCodePageState extends BasePageState<LoginWithQRCodePage> {
   }
 
   Future<void> _loginWithNip46() async {
-    String pubkey = "";
-    UserDBISAR? userDB;
-    String currentUserPubKey =
+    // Logging in tears the running session down before the new account is
+    // known to work, so remember which account has to come back if it fails.
+    final String previousPubKey =
         OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
-    pubkey = await Account.getPublicKeyWithNIP46URI(_loginQRCodeUrl);
-    await OXUserInfoManager.sharedInstance.initDB(pubkey);
-    userDB = await Account.sharedInstance.loginWithNip46URI(_loginQRCodeUrl);
-    userDB = await OXUserInfoManager.sharedInstance
-        .handleSwitchFailures(userDB, currentUserPubKey);
+    UserDBISAR? userDB;
+    try {
+      String pubkey = await Account.getPublicKeyWithNIP46URI(_loginQRCodeUrl);
+      if (pubkey.isNotEmpty) {
+        await OXUserInfoManager.sharedInstance.initDB(pubkey);
+        userDB = await Account.sharedInstance.loginWithNip46URI(_loginQRCodeUrl);
+      }
+    } catch (error, stack) {
+      LogUtil.e('login with QR code failed: $error\r\n$stack');
+      userDB = null;
+    }
+
     if (userDB == null) {
-      CommonToast.instance
-          .show(context, Localized.text('ox_login.private_key_regular_failed'));
+      // Put the account that was logged in back exactly as it was. A failed
+      // login must never cost the user the account they already had.
+      await OXUserInfoManager.sharedInstance.restoreAccount(previousPubKey);
+      if (!mounted) return;
+      CommonToast.instance.show(
+          context, Localized.text('ox_login.remote_signer_connect_failed'));
       return;
     }
     Account.sharedInstance.reloadProfileFromRelay(userDB.pubKey).then((value) {
@@ -241,6 +252,7 @@ class _LoginWithQRCodePageState extends BasePageState<LoginWithQRCodePage> {
     });
 
     OXUserInfoManager.sharedInstance.loginSuccess(userDB);
+    if (!mounted) return;
     OXNavigator.popToRoot(context);
   }
 

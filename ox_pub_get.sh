@@ -1,109 +1,26 @@
 #!/usr/bin/env bash
-#Main Project directory
-mainPath=$(pwd)
-mainProjectName=${mainPath##*/}
+# Resolve dependencies for the 0xchat monorepo.
+#
+# Every package now lives in this repository and is wired up as a local path
+# dependency in pubspec.yaml:
+#
+#   packages/0xchat-core          packages/nostr-dart
+#   packages/base_framework/*     packages/cashu-dart
+#   packages/business_modules/*
+#
+# There are no submodules left to initialise and no per-package branches to
+# check out, so `flutter pub get` resolves the whole workspace on its own.
+# This script is kept as the entry point the README and existing workflows
+# already point at.
 
-# Submodule directories (0xchat-core is now in-repo via git subtree, not a submodule)
-nostrDartPath=${mainPath}/packages/nostr-dart
-cashuPath=${mainPath}/packages/cashu-dart
+set -e
 
+cd "$(dirname "$0")"
 
-#Exception
-check(){
-  if [[ ! $? -eq 0 ]]
-  then
-    echo "\033[31merror: An error occurred when ${submoduleName##*/} module $1，please check the above error message\033[0m"
-    exit 1
-  fi
-}
-
-# Update submodules
-git submodule update --init --recursive --remote
-
-#checkout branch
-checkoutBranch(){
-    submoduleName=$1
-    echo "--------------------------- Module Name：${submoduleName##*/} ---------------------------"
-
-    cd $1
-
-    git fetch
-
-    if [[ ! -n $2 ]]
-    then
-	    git checkout main
-    else
-	    git checkout $2
-    fi
-
-    check "checkout branch"
-
-    git pull
-
-    check "git pull"
-
-    #git log -5
-}
-
-
-checkoutBranchByAll(){
-    checkoutBranch ${mainPath} $1
-    checkoutBranch ${nostrDartPath}
-    checkoutBranch ${cashuPath}
-}
-
-
-#Execute 'flutter pub get'
-executePubGet(){
-    cd $1
-    for file in $(ls "$1")
-    do
-      path=$1"/"${file}
-      if [[ -d ${path} ]]
-      then
-      	  echo "---------------------------$file---------------------------"
-          cd $path
-          flutter pub get
-#           flutter clean
-      fi
-    done
-}
-
-
-usage() {
-    echo "Usage:"
-    echo "ox_pub_get.sh [-m Main Project Branch Name]"
-    exit -1
-}
-
-
-case $# in
-    0)
-       checkoutBranchByAll main
-    ;;
-    2)
-       if [[ $1 == '-m' ]]
-       then
-       	while getopts ':m:' OPT; do
-           case $OPT in
-               m)
-                   checkoutBranchByAll $OPTARG
-               ;;
-               ?)
-                   usage
-               ;;
-           esac
-       	done
-       else
-	usage
-       fi
-    ;;
-    *)
-    usage
-    ;;
-esac
-
-cd ${mainPath}
+if [ $# -gt 0 ]; then
+    echo "note: ox_pub_get.sh no longer takes arguments (got: $*)" >&2
+    echo "      -m only existed to check out branches back when the packages" >&2
+    echo "      lived in separate repositories. Use git directly instead." >&2
+fi
 
 flutter pub get
-#flutter clean
