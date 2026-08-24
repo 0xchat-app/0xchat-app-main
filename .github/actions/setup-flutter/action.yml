@@ -48,12 +48,34 @@ runs:
         rustup --version
         cargo --version
 
+    # Pin the pub cache to one path on every runner. Windows would otherwise
+    # put it under %LOCALAPPDATA%, which the cache step below cannot express
+    # with a single path.
+    - name: Pin the pub cache location
+      shell: bash
+      run: echo "PUB_CACHE=$HOME/.pub-cache" >> "$GITHUB_ENV"
+
     - name: Install Flutter ${{ inputs.flutter-version }}
       uses: subosito/flutter-action@v2
       with:
         flutter-version: ${{ inputs.flutter-version }}
         channel: stable
         cache: true
+
+    # flutter-action caches the pub directory too, but its restore key never
+    # matched: three consecutive runs all logged "Cache not found" for
+    # flutter-pub-*, so every build re-fetched everything - including the
+    # ~100 MB flutter_webrtc fork clone the override pulls in. Cache it here
+    # with a key that is stable across runs, and a restore-keys prefix so a
+    # changed pubspec still starts from the last cache rather than nothing.
+    - name: Cache pub dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.pub-cache
+        key: pub-${{ runner.os }}-${{ inputs.flutter-version }}-${{ hashFiles('**/pubspec.yaml') }}
+        restore-keys: |
+          pub-${{ runner.os }}-${{ inputs.flutter-version }}-
+          pub-${{ runner.os }}-
 
     - name: Resolve dependencies
       shell: bash
