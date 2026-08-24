@@ -99,6 +99,19 @@ dependency_overrides:
       path: packages/url_launcher/url_launcher_linux
   nostr_core_dart:
     path: packages/nostr-dart
+  # Upstream builds the WebRTC peer connection factory inside the plugin
+  # constructor, which runs during plugin registration - before any Dart code.
+  # On a machine with no usable audio backend the audio device module fails to
+  # initialise and WebRTC CHECK-fails, aborting the process at launch, so the
+  # app cannot start even for users who never place a call (issue #57, and
+  # upstream flutter-webrtc #1212 / #1477 / #2025, still open on main).
+  # This fork defers that construction to the first method channel call.
+  # Pinned to a commit, not a branch: a floating ref is what broke
+  # image_gallery_saver_plus.
+  flutter_webrtc:
+    git:
+      url: https://github.com/0xchat-app/flutter-webrtc.git
+      ref: b5f59c25a80cdb841b2c3ba55ee915ae57dbc63d
   # nostr_mls_package:
   #   path: packages/nostr-mls-package
   # Temporarily disabled to avoid bundling Rust code
