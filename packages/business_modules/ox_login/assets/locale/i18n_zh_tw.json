@@ -28,6 +28,7 @@
   "lets_go": "讓我們出發吧！",
   "enter_account_key_login_hint": "請輸入密鑰或URL以登入：",
   "private_key_regular_failed": "私鑰常規失敗",
+  "remote_signer_connect_failed": "無法連線到遠端簽名器，目前帳號未變更，請檢查簽名器後再試一次。",
   "pub_key_regular_failed": "公鑰常規失敗",
   "str_not_installed_amber": "您尚未安裝 Amber",
   "str_nesc_invalid_hint": "您輸入的NSEC無效，請重新輸入。",

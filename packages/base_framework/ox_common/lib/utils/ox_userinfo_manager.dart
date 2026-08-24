@@ -74,7 +74,11 @@ class OXUserInfoManager {
 
   Future initDB(String pubkey) async {
     if(pubkey.isEmpty) return;
-    await logout(needObserver: false);
+    // Keep the stored pubkey. It is the only pointer back to the account that
+    // is logged in right now, and the login this call prepares can still fail
+    // or never finish - clearing it here is what used to leave the app looking
+    // like a fresh install after a failed 'add account'.
+    await logout(needObserver: false, clearPersistedPubkey: false);
     String dbpath = pubkey + ".db2";
     bool exists = await DB.sharedInstance.databaseExists(dbpath);
     if (exists) {
@@ -303,42 +307,53 @@ class OXUserInfoManager {
 
   Future<void> switchAccount(String selectedPubKey) async {
     String currentUserPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
-    await logout(needObserver: false);
+    await logout(needObserver: false, clearPersistedPubkey: false);
     await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUBKEY, selectedPubKey);
     await OXUserInfoManager.sharedInstance.initLocalData();
     if (currentUserInfo == null) {
-      Map<String, MultipleUserModel> currentUserMap = await UserConfigTool.getAllUser();
-      if (currentUserMap.isNotEmpty) {
-        await UserConfigTool.deleteUser(currentUserMap, selectedPubKey);
-      }
-      await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUBKEY, currentUserPubKey);
-      await OXUserInfoManager.sharedInstance.initLocalData();
+      // The selected account could not be opened. Put the previous one back
+      // instead of dropping the user into a logged out app, and leave the
+      // account list alone: a failed switch must never remove an account.
+      await restoreAccount(currentUserPubKey);
     }
     for (OXUserInfoObserver observer in _observers) {
       observer.didSwitchUser(currentUserInfo);
     }
   }
 
-  Future<UserDBISAR?> handleSwitchFailures(UserDBISAR? userDB, String currentUserPubKey) async {
-    if (userDB == null && currentUserPubKey.isNotEmpty) {
-      //In the case of failing to add a new account while already logged in, implement the logic to re-login to the current account.
-      await OXUserInfoManager.sharedInstance.initDB(currentUserPubKey);
-      userDB = await Account.sharedInstance.loginWithPubKeyAndPassword(currentUserPubKey);
+  /// Logs [pubkey] back in after a login attempt failed.
+  ///
+  /// Logging into another account tears the current session down before the new
+  /// one is known to work (see [initDB]), so every failure path has to put the
+  /// previous account back. No account is ever removed from the local account
+  /// list here: a lost session is recoverable, a deleted account is not.
+  Future<bool> restoreAccount(String pubkey) async {
+    if (pubkey.isEmpty) return false;
+    // Nothing was torn down, the account is still the one running. Reloading it
+    // here would drop its relay connections for no reason.
+    if (currentUserInfo?.pubKey == pubkey) return true;
+    try {
+      await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUBKEY, pubkey);
+      await initLocalData();
+    } catch (error, stack) {
+      LogUtil.e('restoreAccount failed: $error\r\n$stack');
     }
-    return userDB;
+    return currentUserInfo?.pubKey == pubkey;
   }
 
-  Future logout({bool needObserver = true}) async {
+  Future logout({bool needObserver = true, bool clearPersistedPubkey = true}) async {
     if (OXUserInfoManager.sharedInstance.currentUserInfo == null) {
       return;
     }
     await Account.sharedInstance.logout();
-    resetData(needObserver: needObserver);
+    resetData(needObserver: needObserver, clearPersistedPubkey: clearPersistedPubkey);
   }
 
-  void resetData({bool needObserver = true}) {
+  void resetData({bool needObserver = true, bool clearPersistedPubkey = true}) {
     signatureVerifyFailed = false;
-    OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUBKEY, null);
+    if (clearPersistedPubkey) {
+      OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUBKEY, null);
+    }
     currentUserInfo = null;
     _contactFinishFlags = {
       _ContactType.contacts: false,

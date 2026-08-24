@@ -31,6 +31,7 @@
   "lets_go": "让我们出发吧!",
   "enter_account_key_login_hint": "请输入您的密钥或远程签名URL",
   "private_key_regular_failed": "私钥规则检验失败",
+  "remote_signer_connect_failed": "无法连接到远程签名器，当前账号未发生变化，请检查签名器后重试。",
   "pub_key_regular_failed": "公钥规则检验失败",
   "str_not_installed_amber": "您尚未安装Amber",
   "str_nesc_invalid_hint": "您输入的NSEC无效，请重新输入",
