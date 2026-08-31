@@ -51,9 +51,21 @@ runs:
     # Pin the pub cache to one path on every runner. Windows would otherwise
     # put it under %LOCALAPPDATA%, which the cache step below cannot express
     # with a single path.
+    #
+    # The path has to be written in the form the *consumer* understands, not
+    # the form bash uses. Every later step runs Dart/Flutter as a native
+    # Windows process, but $HOME under Git Bash is POSIX (/c/Users/runneradmin),
+    # and pub cannot resolve that - it fails looking for its git cache at
+    # "c/Users/runneradmin/.pub-cache/git/cache/..." and reports the first git
+    # dependency as missing. Convert to a native path on Windows.
     - name: Pin the pub cache location
       shell: bash
-      run: echo "PUB_CACHE=$HOME/.pub-cache" >> "$GITHUB_ENV"
+      run: |
+        if [ "$RUNNER_OS" = Windows ]; then
+          echo "PUB_CACHE=$(cygpath -w "$HOME")\\.pub-cache" >> "$GITHUB_ENV"
+        else
+          echo "PUB_CACHE=$HOME/.pub-cache" >> "$GITHUB_ENV"
+        fi
 
     - name: Install Flutter ${{ inputs.flutter-version }}
       uses: subosito/flutter-action@v2
@@ -72,10 +84,10 @@ runs:
       uses: actions/cache@v4
       with:
         path: ~/.pub-cache
-        key: pub-${{ runner.os }}-${{ inputs.flutter-version }}-${{ hashFiles('**/pubspec.yaml') }}
+        key: pub-v2-${{ runner.os }}-${{ inputs.flutter-version }}-${{ hashFiles('**/pubspec.yaml') }}
         restore-keys: |
-          pub-${{ runner.os }}-${{ inputs.flutter-version }}-
-          pub-${{ runner.os }}-
+          pub-v2-${{ runner.os }}-${{ inputs.flutter-version }}-
+          pub-v2-${{ runner.os }}-
 
     - name: Resolve dependencies
       shell: bash
