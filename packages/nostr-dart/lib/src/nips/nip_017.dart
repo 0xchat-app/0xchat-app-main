@@ -146,10 +146,28 @@ class Nip17 {
       } catch (e) {
         throw Exception(e);
       }
-    } else {
+    } else if (event.kind == 444) {
+      // MLS Welcome messages are, by design, delivered as an unsigned rumor
+      // wrapped directly in a gift wrap with no seal layer
+      // (Nip104.encodeWelcomeEvent wipes the signature and
+      // Groups.sendWelcomeMessages calls Nip59.encode directly). There is no
+      // seal to verify, and the inner pubkey is NOT an authenticated sender
+      // identity here — the MLS layer authenticates the welcome payload itself —
+      // so pass it through unchanged.
       return event;
+    } else {
+      // Every other kind (DMs 14/15, secret-chat 10100-10104, calls 25050,
+      // notes/reposts/reactions 1/6/7, profiles, …) is always sent inside a
+      // kind-13 seal via Nip17.encode. Receiving such a kind WITHOUT a seal
+      // means its pubkey/id/created_at/content are attacker-controlled and
+      // unauthenticated: only the throwaway 1059 wrap key is verified, and NIP-44
+      // needs only the recipient's public key. Returning it would let anyone who
+      // knows the victim's npub plant forged-sender DMs, profile overwrites,
+      // KeyPackages and call signalling. Reject it instead of surfacing a
+      // forged-sender event to the app.
+      throw Exception(
+          'Unsealed gift wrap of kind ${event.kind} rejected - seal verification required');
     }
-    throw Exception("${event.kind} is not nip24 compatible");
   }
 
   static Future<EDMessage?> decodeSealedGossipDM(
