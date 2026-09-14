@@ -134,8 +134,19 @@ class Config {
 
   Future<void> _handleAppData(Event event) async {
     AppData appData = Nip78.decodeAppData(event);
-    // if (appData.d == null) return;
-    // if (event.createdAt <= (configs[appData.d]?.time ?? 0)) return;
+    // The `authors` field in the subscription filter is only a request to the
+    // relay, not an authorization check: a hostile or compromised relay can
+    // return a 30078 event signed by any key. This config event points the
+    // app's own infrastructure (relay/API/mint/group relay) hosts, so an event
+    // from anyone other than the trusted server key must be rejected here.
+    if (event.pubkey != _serverPubkey) {
+      LogUtils.w(() => 'config event from unexpected author ${event.pubkey} ignored');
+      return;
+    }
+    if (appData.d == null) return;
+    // Reject stale/rolled-back config so a replayed older event cannot revert
+    // a newer mapping.
+    if (event.createdAt <= (configs[appData.d]?.time ?? 0)) return;
     ConfigDBISAR configDB = ConfigDBISAR(
         d: appData.d ?? '',
         eventId: event.id,
