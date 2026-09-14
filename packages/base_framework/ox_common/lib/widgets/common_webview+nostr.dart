@@ -109,6 +109,22 @@ window.nostr = {
         onMessageReceived: (JavaScriptMessage message) async {
           var jsonObj = jsonDecode(message.message);
           var resultId = jsonObj["resultId"];
+          // Signing produces an event authenticated by the user's private key,
+          // so it must pass the same consent gate as the other NIP-07 methods.
+          // Without it any opened page could have arbitrary events (notes,
+          // deletions, contact-list replacement, DMs) signed with the victim's
+          // key and no user interaction. The 'signEvent' permission key is the
+          // one the app-bar grant/revoke UI already manages.
+          bool result = await getAgreement(
+              'get_request_title'.commonLocalized(),
+              'get_publicKey_request_content'.commonLocalized(),
+              'signEvent');
+          if (!result) {
+            var resultStr = 'User Rejected';
+            var script = "window.nostr.reject(\"$resultId\", \"$resultStr\");";
+            await currentController.runJavaScript(script);
+            return;
+          }
           var content = jsonObj["msg"];
           var eventObj = jsonDecode(content);
           var signedEvent = await Account.sharedInstance.signEvent(eventObj);
@@ -184,6 +200,18 @@ window.nostr = {
         onMessageReceived: (JavaScriptMessage message) async {
           var jsonObj = jsonDecode(message.message);
           var resultId = jsonObj["resultId"];
+          // Handing the page the user's relay list is account data disclosure
+          // and must be gated like the other NIP-07 methods.
+          bool result = await getAgreement(
+              'get_request_title'.commonLocalized(),
+              'get_publicKey_request_content'.commonLocalized(),
+              'getRelays');
+          if (!result) {
+            var resultStr = 'User Rejected';
+            var script = "window.nostr.reject(\"$resultId\", \"$resultStr\");";
+            await currentController.runJavaScript(script);
+            return;
+          }
           var relayMaps = {};
           var relayAddrs = Connect.sharedInstance.relays();
           for (var relayAddr in relayAddrs) {
