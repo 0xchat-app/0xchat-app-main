@@ -511,7 +511,7 @@ class CommonWebViewAppBar extends StatelessWidget implements PreferredSizeWidget
     }
 
     // Check all permission keys with account-specific cache key: pubKey.host.key
-    List<String> allKeys = ['getPublicKey', 'signEvent', 'encryptNIP04', 'encryptNIP44', 'decryptNIP44'];
+    List<String> allKeys = ['getPublicKey', 'signEvent', 'getRelays', 'encryptNIP04', 'encryptNIP44', 'decryptNIP44'];
     for (String key in allKeys) {
       String cacheKey = '$currentPubKey.$host.$key';
       bool granted = await OXCacheManager.defaultOXCacheManager
@@ -536,7 +536,7 @@ class CommonWebViewAppBar extends StatelessWidget implements PreferredSizeWidget
     }
 
     // Grant all permission keys with account-specific cache key: pubKey.host.key
-    List<String> allKeys = ['getPublicKey', 'signEvent', 'encryptNIP04', 'encryptNIP44', 'decryptNIP44'];
+    List<String> allKeys = ['getPublicKey', 'signEvent', 'getRelays', 'encryptNIP04', 'encryptNIP44', 'decryptNIP44'];
     for (String key in allKeys) {
       String cacheKey = '$currentPubKey.$host.$key';
       await OXCacheManager.defaultOXCacheManager
@@ -557,7 +557,7 @@ class CommonWebViewAppBar extends StatelessWidget implements PreferredSizeWidget
     }
 
     // Revoke all permission keys with account-specific cache key: pubKey.host.key
-    List<String> allKeys = ['getPublicKey', 'signEvent', 'encryptNIP04', 'encryptNIP44', 'decryptNIP44'];
+    List<String> allKeys = ['getPublicKey', 'signEvent', 'getRelays', 'encryptNIP04', 'encryptNIP44', 'decryptNIP44'];
     for (String key in allKeys) {
       String cacheKey = '$currentPubKey.$host.$key';
       await OXCacheManager.defaultOXCacheManager
