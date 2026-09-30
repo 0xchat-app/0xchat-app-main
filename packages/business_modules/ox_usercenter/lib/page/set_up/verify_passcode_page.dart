@@ -60,7 +60,7 @@ class _VerifyPasscodePageState extends State<VerifyPasscodePage> {
             image: DecorationImage(
               fit: BoxFit.cover,
               image: AssetImage(
-                'assets/images/icon_verify_pw_bg.png',
+                'assets/images/icon_verify_pw_bg.webp',
                 package: 'ox_usercenter',
               ),
             ),

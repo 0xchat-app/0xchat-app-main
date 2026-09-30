@@ -141,19 +141,6 @@ flutter:
    - assets/sounds/ostrich/
 
   fonts:
-    - family: OX Font
-      fonts:
-        - asset: assets/fonts/font_thin.ttf
-          weight: 300
-        - asset: assets/fonts/font_regular.ttf
-          weight: 400
-        - asset: assets/fonts/font_medium.ttf
-          weight: 500
-        - asset: assets/fonts/font_bold.ttf
-          weight: 600
-    - family: LatoLight
-      fonts:
-        - asset: assets/fonts/Lato-Light.ttf   
     - family: Lato
       fonts:
         - asset: assets/fonts/Lato-Regular.ttf       
