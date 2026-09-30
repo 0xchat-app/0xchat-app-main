@@ -103,13 +103,21 @@ class _WalletSendEcashNewTokenPageState extends State<WalletSendEcashNewTokenPag
     );
   }
 
-  void _shareCashuToken(List<UserDBISAR> userList){
+  Future<void> _shareCashuToken(List<UserDBISAR> userList) async {
     if(userList.isEmpty){
       CommonToast.instance.show(context, Localized.text('ox_wallet.share_selected_tips'));
       return;
     }
+    var allSent = true;
     for (var user in userList) {
-      OXModuleService.invoke('ox_chat', 'sendTextMsg', [context,user.pubKey,token]);
+      final isSent = await OXModuleService.invoke<Future<bool>>('ox_chat', 'sendTextMsg', [context,user.pubKey,token]);
+      if (isSent != true) allSent = false;
+    }
+    if (!mounted) return;
+    if (!allSent) {
+      // Stay on this page so the token can still be copied or shared again.
+      CommonToast.instance.show(context, Localized.text('ox_chat.message_send_fail'));
+      return;
     }
     OXNavigator.pop(context);
   }

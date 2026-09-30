@@ -149,7 +149,7 @@ class Account {
 
   Future<UserDBISAR?> _searchUserFromDB(String pubkey) async {
     UserDBISAR? user =
-        await DBISAR.sharedInstance.isar.userDBISARs.filter().pubKeyEqualTo(pubkey).findFirst();
+        await DBISAR.sharedInstance.isar.userDBISARs.getByPubKey(pubkey);
     if (user != null) {
       user = user.withGrowableLevels();
       userCache[user.pubKey] = ValueNotifier<UserDBISAR>(user);

@@ -86,10 +86,10 @@ class AppInitializer {
         textScaleFactorNotifier.value = fontSize;
         DartPingIOS.register();
         FlutterError.onError = (FlutterErrorDetails details) async {
+          FlutterError.presentError(details);
           bool openDevLog = UserConfigTool.getSetting(StorageSettingKey.KEY_OPEN_DEV_LOG.name,
               defaultValue: false);
           if (openDevLog) {
-            FlutterError.presentError(details);
             ErrorUtils.logErrorToFile(details.toString() + '\n' + details.stack.toString());
           }
         };

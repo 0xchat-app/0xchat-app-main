@@ -55,6 +55,7 @@
   "message_send_image_fail": "ส่งรูปไม่สำเร็จ",
   "message_send_audio_fail": "ส่งเสียงไม่สำเร็จ",
   "message_send_video_fail": "ส่งวิดีโอไม่สำเร็จ",
+  "message_send_fail": "ส่งข้อความไม่สำเร็จ",
   "pin_to_top": "ปักหมุด",
   "unpin_from_top": "ยกเลิกปักหมุด",
   "mark_as_read": "อ่านแล้ว",

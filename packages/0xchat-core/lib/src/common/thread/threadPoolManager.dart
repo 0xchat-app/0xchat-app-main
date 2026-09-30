@@ -17,7 +17,18 @@ class ThreadPoolManager {
   static final ThreadPoolManager sharedInstance =
       ThreadPoolManager._internal(RootIsolateToken.instance!);
 
-  Future<void> initialize() async {
+  Future<void>? _initialization;
+
+  /// Idempotent: this is called again on every app resume, and each extra
+  /// call used to spawn three more isolates while the old ones kept running.
+  Future<void> initialize() {
+    return _initialization ??= _spawnIsolates().catchError((Object e, StackTrace s) {
+      _initialization = null;
+      return Future<void>.error(e, s);
+    });
+  }
+
+  Future<void> _spawnIsolates() async {
     _databaseSendPort = await _createIsolate((sendPort) {
       _databaseIsolate = sendPort.isolate;
       return sendPort.sendPort;

@@ -55,6 +55,7 @@
   "message_send_image_fail": "图片发送失败",
   "message_send_audio_fail": "音频发送失败",
   "message_send_video_fail": "视频发送失败",
+  "message_send_fail": "消息发送失败",
   "pin_to_top": "置顶",
   "unpin_from_top": "取消置顶",
   "mark_as_read": "标为已读",

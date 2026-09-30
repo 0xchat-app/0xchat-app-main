@@ -55,6 +55,7 @@
   "message_send_image_fail": "이미지 전송 실패",
   "message_send_audio_fail": "오디오 전송 실패",
   "message_send_video_fail": "비디오 전송 실패",
+  "message_send_fail": "메시지 전송 실패",
   "pin_to_top": "고정",
   "unpin_from_top": "고정 해제",
   "mark_as_read": "읽음",

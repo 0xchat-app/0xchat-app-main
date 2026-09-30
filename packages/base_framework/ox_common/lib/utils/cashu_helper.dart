@@ -1,7 +1,6 @@
 
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:nostr_core_dart/nostr.dart';
-import 'package:ox_common/log_util.dart';
 
 class CashuHelper {
 
@@ -28,7 +27,6 @@ class CashuHelper {
       await _saveDBPassword(pubkey, pwd);
     }
 
-    LogUtil.d('[CashuDB init] dbpw: $pwd');
     return pwd;
   }
 }

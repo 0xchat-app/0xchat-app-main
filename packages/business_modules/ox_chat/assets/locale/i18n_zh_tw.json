@@ -55,6 +55,7 @@
   "message_send_image_fail": "圖片發送失敗",
   "message_send_audio_fail": "音訊發送失敗",
   "message_send_video_fail": "視頻發送失敗",
+  "message_send_fail": "訊息發送失敗",
   "pin_to_top": "置頂",
   "unpin_from_top": "取消置頂",
   "mark_as_read": "標為已讀",

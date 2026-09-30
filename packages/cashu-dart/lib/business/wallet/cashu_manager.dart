@@ -210,8 +210,9 @@ class CashuManager {
       }
     }
     try {
-      return addMint(mintURL);
-    } catch (_) {
+      return await addMint(mintURL);
+    } catch (e) {
+      LogUtils.e(() => '[CashuManager - getMint] addMint($mintURL) failed: $e');
       return null;
     }
   }
@@ -226,22 +227,24 @@ class CashuManager {
 
     if (!mintURLQueue.add(url)) return null;
 
-    final maxNutsVersion = await MintHelper.getMaxNutsVersion(url);
+    // Always release the URL: if a remote call throws, a stale queue entry
+    // would make every later addMint/getMint for this mint return null.
+    try {
+      final maxNutsVersion = await MintHelper.getMaxNutsVersion(url);
 
-    final mint = IMintIsar(mintURL: url, maxNutsVersion: maxNutsVersion);
+      final mint = IMintIsar(mintURL: url, maxNutsVersion: maxNutsVersion);
 
-    final fetchSuccess = await MintHelper.updateMintInfoFromRemote(mint);
-    if (!fetchSuccess) {
+      final fetchSuccess = await MintHelper.updateMintInfoFromRemote(mint);
+      if (!fetchSuccess) return null;
+      mint.name = mint.info?.name ?? mint.info?.mintURL ?? '';
+
+      mints.add(mint);
+      MintHelper.updateMintKeysetFromRemote(mint);
+      notifyListenerForMintListChanged();
+      return mint;
+    } finally {
       mintURLQueue.remove(url);
-      return null;
     }
-    mint.name = mint.info?.name ?? mint.info?.mintURL ?? '';
-
-    mints.add(mint);
-    mintURLQueue.remove(url);
-    MintHelper.updateMintKeysetFromRemote(mint);
-    notifyListenerForMintListChanged();
-    return mint;
   }
 
   Future<bool> updateMintName(IMintIsar mint) async {

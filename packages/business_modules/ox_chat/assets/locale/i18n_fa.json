@@ -55,6 +55,7 @@
   "message_send_image_fail": "فرستادن تصویر ناموفق بود",
   "message_send_audio_fail": "فرستادن صدا ناموفق بود",
   "message_send_video_fail": "فرستادن فیلم ناموفق بود",
+  "message_send_fail": "فرستادن پیام ناموفق بود",
   "pin_to_top": "پین شده",
   "unpin_from_top": "پین برداشته شده",
   "mark_as_read": "علامت‌گذاری به عنوان خوانده‌شده",

@@ -55,6 +55,7 @@
   "message_send_image_fail": "Pilti ei õnnestunud saata",
   "message_send_audio_fail": "Helifaili ei õnnestunud saata",
   "message_send_video_fail": "Videot ei õnnestunud saata",
+  "message_send_fail": "Sõnumit ei õnnestunud saata",
   "pin_to_top": "Kinnita üles",
   "unpin_from_top": "Eemalda ülevalt",
   "mark_as_read": "Loetud",

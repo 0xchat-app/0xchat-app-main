@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:cashu_dart/business/wallet/cashu_manager.dart';
 import 'package:cashu_dart/cashu_dart.dart';
 
+import '../../utils/log_util.dart';
 import '../../utils/task_scheduler.dart';
 import '../transaction/hitstory_store.dart';
 import '../transaction/invoice_store.dart';
@@ -93,7 +94,7 @@ class InvoiceHandler {
       }
 
     } catch (e) {
-      // Handle exceptions
+      LogUtils.e(() => '[InvoiceHandler] checking invoice ${invoice.request} failed: $e');
     } finally {
       _pendingInvoices.remove(invoice);
     }

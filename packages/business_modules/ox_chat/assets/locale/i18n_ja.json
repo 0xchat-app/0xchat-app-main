@@ -55,6 +55,7 @@
   "message_send_image_fail": "画像送信失敗",
   "message_send_audio_fail": "音声送信失敗",
   "message_send_video_fail": "ビデオ送信失敗",
+  "message_send_fail": "メッセージ送信失敗",
   "pin_to_top": "ピン留め",
   "unpin_from_top": "ピン留め解除",
   "mark_as_read": "既読",

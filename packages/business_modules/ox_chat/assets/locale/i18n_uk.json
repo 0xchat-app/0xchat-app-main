@@ -55,6 +55,7 @@
   "message_send_image_fail": "Не вдалося надіслати зображення",
   "message_send_audio_fail": "Не вдалося надіслати аудіо",
   "message_send_video_fail": "Не вдалося надіслати відео",
+  "message_send_fail": "Не вдалося надіслати повідомлення",
   "pin_to_top": "Закріпити",
   "unpin_from_top": "Відкріпити",
   "mark_as_read": "Прочитано",

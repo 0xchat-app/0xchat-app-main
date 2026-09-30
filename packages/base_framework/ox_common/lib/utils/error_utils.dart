@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/log_util.dart';
@@ -24,10 +23,17 @@ import 'aes_encrypt_utils.dart';
 ///@author Michael
 ///CreateTime: 2024/3/5 20:19
 class ErrorUtils{
-  static Future<void> logErrorToFile(String error) async {
+  static Future<void> _pendingWrite = Future.value();
+
+  static Future<void> logErrorToFile(String error) {
     LogUtil.e('logErrorToFile: $error');
-    return;
-    await ThreadPoolManager.sharedInstance.runOtherTask(() => inputLogErrorToFile(error));
+    // Stay on this isolate: inputLogErrorToFile reads and writes UserConfigTool
+    // settings, which are only loaded in the main isolate. Writes are chained
+    // so concurrent errors don't clobber the file, and a failed write must
+    // never throw back into the error handlers.
+    return _pendingWrite = _pendingWrite
+        .then((_) => inputLogErrorToFile(error))
+        .catchError((e) => LogUtil.e('logErrorToFile failed: $e'));
   }
 
   static Future<void> inputLogErrorToFile(String error) async {

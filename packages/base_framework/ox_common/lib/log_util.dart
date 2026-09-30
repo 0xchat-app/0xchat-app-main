@@ -9,17 +9,18 @@ class LogUtil {
 
   static void w(message) => _print('W', message);
 
-  static void e(message) => _print('E', message, true);
+  static void e(message) => _print('E', message);
 
-  static void _print(String level, message, [force = false]) =>
-      log(content: '[$level] $message', force: force);
+  static void _print(String level, message) =>
+      log(content: '[$level] $message');
 
+  /// Release builds never print: log lines routinely carry tokens, receipts
+  /// and message content, and device logs are readable over adb/Console.
   static void log({
     String? key = 'OX Pro',
     required String content,
-    bool force = false,
   }) {
-    if (kDebugMode || force) {
+    if (kDebugMode) {
       try {
         print('$key: $content');
       } catch (e) {

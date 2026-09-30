@@ -55,6 +55,7 @@
   "message_send_image_fail": "Resim gönderme başarısız",
   "message_send_audio_fail": "Ses gönderme başarısız",
   "message_send_video_fail": "Video gönderme başarısız",
+  "message_send_fail": "Mesaj gönderme başarısız",
   "pin_to_top": "Üste Sabitle",
   "unpin_from_top": "Üstten Çıkar",
   "mark_as_read": "Okundu",

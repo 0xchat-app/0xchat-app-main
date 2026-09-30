@@ -272,8 +272,8 @@ class OXChat extends OXFlutterModule {
     );
   }
 
-  void _sendTextMsg(BuildContext context, String chatId, String content) {
-    ChatMessageSendEx.sendTextMessageHandler(chatId, content);
+  Future<bool> _sendTextMsg(BuildContext context, String chatId, String content) {
+    return ChatMessageSendEx.sendTextMessageHandler(chatId, content, context: context);
   }
 
   void _sendTemplateMessage(
