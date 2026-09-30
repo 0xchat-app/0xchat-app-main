@@ -39,7 +39,6 @@ Future<bool> handleLocalValidation() async{
 
 Future<bool> handleValidation({required String verificationData,  bool isSandbox = true}) async {
     print('AppStorePurchaseHandler.handleValidation');
-    print('token: $verificationData');
     // https://developer.apple.com/documentation/appstorereceipts/verifyreceipt
     const headers = {
         'Content-type': 'application/json',
@@ -74,7 +73,6 @@ Future<bool> handleValidation({required String verificationData,  bool isSandbox
 //Subscription-based verification that the purchase was successful
 Future<bool> handleSubscribeValidation({required String verificationData,  bool isSandbox = true}) async {
     print('AppStorePurchaseHandler.handleValidation');
-    print('token: $verificationData');
     // https://developer.apple.com/documentation/appstorereceipts/verifyreceipt
     const headers = {
         'Content-type': 'application/json',

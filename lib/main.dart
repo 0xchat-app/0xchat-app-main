@@ -56,15 +56,23 @@ void main() async {
       if (openDevLog) {
         ErrorUtils.logErrorToFile(error.toString() + '\n' + stackTrace.toString());
       }
-      print(error);
-      print(stackTrace);
+      if (kDebugMode) {
+        print(error);
+        print(stackTrace);
+      }
     } catch (e, stack) {
       if (kDebugMode) {
         print(e);
         print(stack);
       }
     }
-  });
+  }, zoneSpecification: ZoneSpecification(
+    // Silence the raw print() calls spread across the app and its packages in
+    // release builds; they log event JSON, message content and credentials.
+    print: (self, parent, zone, line) {
+      if (kDebugMode) parent.print(zone, line);
+    },
+  ));
 }
 
 class MainApp extends StatefulWidget {

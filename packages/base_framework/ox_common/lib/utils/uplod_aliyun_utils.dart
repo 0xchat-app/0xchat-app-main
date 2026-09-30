@@ -67,7 +67,6 @@ class UplodAliyun {
 
   static Auth _authGetter({required Map<String, dynamic> authMap}) {
     String secureToken = AesEncryptUtils.aes128Decrypt(authMap['encryptStsToken']);
-    LogUtil.e("secureToken : $secureToken");
     return Auth(
       accessKey: authMap['accessKeyId'],
       accessSecret: authMap['accessKeySecret'],

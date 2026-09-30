@@ -75,7 +75,7 @@ class CashuAPIGeneralClient {
     await ProofHelper.deleteProofs(proofs: sendProofs);
     await CashuManager.shared.updateMintBalance(mint);
 
-    LogUtils.e(() => '[I][Cashu - sendEcash] Create Ecash: $encodedToken');
+    LogUtils.e(() => '[I][Cashu - sendEcash] Create Ecash: token length ${encodedToken.length}');
     return CashuResponse.fromSuccessData(encodedToken);
   }
 
@@ -176,7 +176,7 @@ class CashuAPIGeneralClient {
     await ProofHelper.deleteProofs(proofs: p2pkProofs);
     await CashuManager.shared.updateMintBalance(mint);
 
-    LogUtils.e(() => '[I][Cashu - sendEcash] Create Ecash: $encodedToken');
+    LogUtils.e(() => '[I][Cashu - sendEcash] Create Ecash: token length ${encodedToken.length}');
     return CashuResponse.fromSuccessData(encodedToken);
   }
 
@@ -227,7 +227,7 @@ class CashuAPIGeneralClient {
     await ProofHelper.deleteProofs(proofs: htlcProofs);
     await CashuManager.shared.updateMintBalance(mint);
 
-    LogUtils.e(() => '[I][Cashu - sendEcash] Create Ecash: $encodedToken');
+    LogUtils.e(() => '[I][Cashu - sendEcash] Create Ecash: token length ${encodedToken.length}');
     return CashuResponse.fromSuccessData(encodedToken);
   }
 
