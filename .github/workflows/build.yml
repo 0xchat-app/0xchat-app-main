@@ -415,11 +415,42 @@ jobs:
             echo '```'
           } > "$GITHUB_WORKSPACE/release-body.md"
 
-      # body_path lands above the notes GitHub generates, so the checksums head
-      # the description and the changelog follows.
+      # GitHub's generated changelog credits every entry "by @user" and adds a
+      # "New Contributors" list, but the release page should list the changes
+      # only. So instead of generate_release_notes, ask for the same notes
+      # here, drop the credits, and append them under the checksums.
+      - name: Changelog without contributor credits
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/${{ github.repository }}/releases/generate-notes" \
+            -f tag_name="$GITHUB_REF_NAME" --jq .body > generated-notes.md
+          echo >> "$GITHUB_WORKSPACE/release-body.md"
+          python3 - generated-notes.md >> "$GITHUB_WORKSPACE/release-body.md" <<'PY'
+          import re, sys
+
+          lines = open(sys.argv[1], encoding='utf-8').read().splitlines()
+          out, in_contributors = [], False
+          for line in lines:
+              if line.startswith('## New Contributors'):
+                  in_contributors = True
+                  continue
+              if in_contributors and (line.startswith('## ') or line.startswith('**Full Changelog**')):
+                  in_contributors = False
+              if in_contributors:
+                  continue
+              # "* Title by @user in https://github.com/o/r/pull/12" -> "* Title (#12)"
+              out.append(re.sub(r'^(\* .*?) by @\S+ in https://github\.com/\S+/pull/(\d+)\s*$',
+                                r'\1 (#\2)', line))
+          text = re.sub(r'\n{3,}', '\n\n', '\n'.join(out)).strip()
+          # A blank line keeps "Full Changelog" from rendering inside the last list item.
+          text = re.sub(r'\n+(\*\*Full Changelog\*\*)', r'\n\n\1', text)
+          print(text)
+          PY
+          cat "$GITHUB_WORKSPACE/release-body.md"
+
       - uses: softprops/action-gh-release@v2
         with:
           draft: true
           files: dist/*
-          generate_release_notes: true
           body_path: release-body.md
