@@ -103,7 +103,7 @@ class OXUserAvatarState extends State<OXUserAvatar> {
     final picture = widget.user?.picture ?? widget.imageUrl ?? '';
     if (picture.isNotEmpty) return picture;
     final key = widget.user?.pubKey ?? widget.chatId ?? '';
-    if (key.isNotEmpty) return 'https://robohash.org/$key?set=set2&size=500x500';
+    if (key.isNotEmpty) return 'https://robohash.org/$key?set=set2&size=300x300';
     return '';
   }
 
@@ -165,7 +165,7 @@ class OXChannelAvatarState extends State<OXChannelAvatar> {
     final picture = widget.channel?.picture ?? widget.imageUrl ?? '';
     if (picture.isNotEmpty) return picture;
     final id = widget.channel?.channelId ?? '';
-    if (id.isNotEmpty) return 'https://robohash.org/$id?set=set4&size=500x500';
+    if (id.isNotEmpty) return 'https://robohash.org/$id?set=set4&size=300x300';
     return '';
   }
 
@@ -225,7 +225,7 @@ class OXRelayGroupAvatarState extends State<OXRelayGroupAvatar> {
     final picture = widget.relayGroup?.picture ?? widget.imageUrl ?? '';
     if (picture.isNotEmpty) return picture;
     final id = widget.relayGroup?.groupId ?? '';
-    if (id.isNotEmpty) return 'https://robohash.org/$id?set=set4&size=500x500';
+    if (id.isNotEmpty) return 'https://robohash.org/$id?set=set4&size=300x300';
     return '';
   }
 
@@ -367,7 +367,7 @@ class OXGroupAvatarState extends State<OXGroupAvatar> {
       final fallbackUrl = groupPicture.isNotEmpty
           ? groupPicture
           : groupId.isNotEmpty
-              ? 'https://robohash.org/$groupId?set=set4&size=500x500'
+              ? 'https://robohash.org/$groupId?set=set4&size=300x300'
               : '';
       return BaseAvatarWidget(
         defaultImageName: defaultImageName,
