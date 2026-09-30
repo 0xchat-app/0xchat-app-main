@@ -111,6 +111,12 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
   }
 
   @override
+  void dispose() {
+    animationController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
@@ -413,7 +419,15 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
   void redeemPackage() async {
     if (this.isRedeemed) return ;
 
+    final messageId = widget.package.messageId;
     final (errorMsg, isRedeemed) = await EcashHelper.tryRedeemTokenList(widget.package);
+
+    if (!mounted) {
+      // The dialog was closed meanwhile: record the redeem, but don't pop or
+      // push pages (or setState) on behalf of a dialog that is gone.
+      if (isRedeemed) updateMessageToRedeemedState(messageId);
+      return;
+    }
 
     if (errorMsg == null) {
       jumpToDetailPage(false);

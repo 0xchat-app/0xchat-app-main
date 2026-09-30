@@ -139,7 +139,7 @@ class _WalletSwapEcashPageState extends State<WalletSwapEcashPage> {
       final response = await Cashu.checkReceiptCompleted(receipt);
       if(!response.isSuccess) throw SwapException(CashuResponse.fromErrorMsg(Localized.text('ox_wallet.swap_failed')));
       OXLoading.dismiss();
-      setState(() {});
+      if (mounted) setState(() {});
       if (context.mounted) {
         OXNavigator.pushPage(
           context,
