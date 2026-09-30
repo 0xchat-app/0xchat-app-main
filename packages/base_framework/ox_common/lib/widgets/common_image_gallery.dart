@@ -185,6 +185,17 @@ class _CommonImageGalleryState extends State<CommonImageGallery>
   }
 
   @override
+  void dispose() {
+    // Opened for every gallery view; none of these were released before.
+    _pageController.dispose();
+    _doubleClickAnimationController.dispose();
+    _slideEndAnimationController.dispose();
+    rebuildSwiper.close();
+    rebuildDetail.close();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Material(
       color: Colors.transparent,

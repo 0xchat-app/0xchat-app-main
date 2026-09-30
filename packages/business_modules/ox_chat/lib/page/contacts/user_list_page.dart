@@ -110,6 +110,12 @@ class UserSelectionPageState<T extends UserSelectionPage> extends State<T> {
 
 
   @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {

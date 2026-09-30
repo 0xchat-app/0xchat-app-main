@@ -55,6 +55,15 @@ class _KeysPageState extends State<KeysPage>{
   }
 
   @override
+  void dispose() {
+    _pubTextEditingController.dispose();
+    // Holds the nsec; clear it rather than leave it with a live controller.
+    _privTextEditingController.clear();
+    _privTextEditingController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ThemeColor.color190,

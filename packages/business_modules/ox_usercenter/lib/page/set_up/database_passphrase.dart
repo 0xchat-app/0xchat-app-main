@@ -63,6 +63,14 @@ class DatabasePassphraseState extends State<DatabasePassphrase> {
   }
 
   @override
+  void dispose() {
+    _currentTeController.dispose();
+    _newTeController.dispose();
+    _confirmTeController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CommonAppBar(

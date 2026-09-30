@@ -261,6 +261,12 @@ class SearchPageState extends State<SearchPage> {
   }
 
   @override
+  void dispose() {
+    editingController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return normalPage();
     return widget.searchPageType == SearchPageType.discover

@@ -58,6 +58,13 @@ class _RelayGroupCreatePageState extends State<RelayGroupCreatePage> {
   }
 
   @override
+  void dispose() {
+    _groupNameController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ThemeColor.color190,

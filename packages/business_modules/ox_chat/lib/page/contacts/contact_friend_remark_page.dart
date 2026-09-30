@@ -36,6 +36,13 @@ class _ContactFriendRemarkPageState extends State<ContactFriendRemarkPage> {
   }
 
   @override
+  void dispose() {
+    _editingController.dispose();
+    _codeFocusNode.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ThemeColor.color190,

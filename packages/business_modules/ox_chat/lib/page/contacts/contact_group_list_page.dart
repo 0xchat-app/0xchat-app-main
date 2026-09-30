@@ -101,6 +101,12 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
 
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: (){

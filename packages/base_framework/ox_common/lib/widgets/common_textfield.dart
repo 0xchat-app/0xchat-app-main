@@ -112,9 +112,11 @@ class CommonTextFieldState<T extends CommonTextField> extends State<T> {
     isHiddenInput = widget.isHiddenInput;
     _focusNode = widget.focusNode ?? FocusNode();
     widget.controller.addListener(textEidtingListener);
-    _focusNode!.addListener(() {
-      _showClearButton = widget.controller.text.length > 0 && _focusNode!.hasFocus;
-    });
+    _focusNode!.addListener(_onFocusChanged);
+  }
+
+  void _onFocusChanged() {
+    _showClearButton = widget.controller.text.length > 0 && _focusNode!.hasFocus;
   }
 
   @override
@@ -131,6 +133,16 @@ class CommonTextFieldState<T extends CommonTextField> extends State<T> {
         _showClearButton = !_showClearButton && _focusNode!.hasFocus;
       });
     }
+  }
+
+  @override
+  void dispose() {
+    // widget.controller (and possibly the focus node) outlive this state; a
+    // listener left on them would call setState on a disposed state.
+    widget.controller.removeListener(textEidtingListener);
+    _focusNode?.removeListener(_onFocusChanged);
+    if (widget.focusNode == null) _focusNode?.dispose();
+    super.dispose();
   }
 
   @override

@@ -278,6 +278,13 @@ class _DonatePageState extends State<DonatePage> {
   }
 
   @override
+  void dispose() {
+    _customStasTextController.dispose();
+    _customStasTextFocusNode.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ThemeColor.color200,

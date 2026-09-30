@@ -67,6 +67,13 @@ class _SimpleMomentReplyWidgetState extends State<SimpleMomentReplyWidget> {
   }
 
   @override
+  void dispose() {
+    _replyController.dispose();
+    _replyFocusNode.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 12.px),

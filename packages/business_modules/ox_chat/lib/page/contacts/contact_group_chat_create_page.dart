@@ -50,6 +50,12 @@ class _ContactGroupChatCreatePageState extends State<ContactGroupChatCreatePage>
 
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: (){

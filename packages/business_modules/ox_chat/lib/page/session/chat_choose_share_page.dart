@@ -93,6 +93,12 @@ class _ChatChooseSharePageState extends State<ChatChooseSharePage> with ShareIte
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CommonAppBar(

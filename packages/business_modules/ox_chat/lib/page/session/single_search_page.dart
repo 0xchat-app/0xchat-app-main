@@ -59,6 +59,12 @@ class _SingleSearchPageState extends State<SingleSearchPage>
   }
 
   @override
+  void dispose() {
+    _searchBarController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ThemeColor.color200,

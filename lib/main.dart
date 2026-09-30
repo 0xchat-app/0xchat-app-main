@@ -89,7 +89,6 @@ class MainApp extends StatefulWidget {
 
 class MainState extends State<MainApp>
     with WidgetsBindingObserver, OXUserInfoObserver {
-  late StreamSubscription wsSwitchStateListener;
   StreamSubscription? cacheTimeEventListener;
   int lastUserInteractionTime = 0;
   Timer? timer;
@@ -167,10 +166,9 @@ class MainState extends State<MainApp>
   void dispose() {
     timer?.cancel();
     timer = null;
-    super.dispose();
     OXUserInfoManager.sharedInstance.removeObserver(this);
     WidgetsBinding.instance.removeObserver(this);
-    wsSwitchStateListener.cancel();
+    super.dispose();
   }
 
   onLocaleChange() {

@@ -61,6 +61,12 @@ class _SaveAccountPageState extends State<SaveAccountPage>
   }
 
   @override
+  void dispose() {
+    opacityController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CommonAppBar(

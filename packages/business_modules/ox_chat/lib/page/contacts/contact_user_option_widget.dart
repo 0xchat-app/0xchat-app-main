@@ -1015,16 +1015,21 @@ class _ContactUserOptionWidgetState extends State<ContactUserOptionWidget> with 
 
   void _onChangedMute(bool value) async {
     await OXLoading.show();
-    if (value) {
-      await Contacts.sharedInstance.muteFriend(userDB.pubKey);
-    } else {
-      await Contacts.sharedInstance.unMuteFriend(userDB.pubKey);
+    final bool result;
+    try {
+      if (value) {
+        await Contacts.sharedInstance.muteFriend(userDB.pubKey);
+      } else {
+        await Contacts.sharedInstance.unMuteFriend(userDB.pubKey);
+      }
+      result = await OXUserInfoManager.sharedInstance.setNotification();
+    } finally {
+      // Never leave the loading overlay up if a request throws.
+      await OXLoading.dismiss();
     }
-    final bool result =
-    await OXUserInfoManager.sharedInstance.setNotification();
-    await OXLoading.dismiss();
     if (result) {
       OXChatBinding.sharedInstance.sessionUpdate();
+      if (!mounted) return;
       setState(() {
         _isMute = value;
         userDB.mute = value;
