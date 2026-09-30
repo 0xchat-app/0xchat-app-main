@@ -38,6 +38,19 @@ class VideoDataManager {
           encryptNonce: encryptedNonce,
         );
 
+        // Unencrypted videos can play straight from the URL, so if the
+        // thumbnail is cached there is no reason to download the whole file
+        // again just to show the bubble (the video may have been evicted).
+        if (encryptedKey == null) {
+          final thumbnailFile = await _thumbnailHandler.getCachedVideoThumbnail(videoURL);
+          if (thumbnailFile != null) {
+            final cachedVideo = (await cacheManager.getFileFromCache(videoURL))?.file;
+            if (cachedVideo != null && cachedVideo.existsSync()) media.path = cachedVideo.path;
+            media.thumbPath = thumbnailFile.path;
+            return media;
+          }
+        }
+
         try {
           final file = await cacheManager.getSingleFile(videoURL);
           media.path = file.path;
@@ -189,6 +202,11 @@ class _VideoThumbnailHandler {
     );
 
     return _addTask(task);
+  }
+
+  Future<File?> getCachedVideoThumbnail(String videoURL) async {
+    final file = (await OXFileCacheManager.get().getFileFromCache(_thumbnailSnapshotURL(videoURL)))?.file;
+    return file != null && file.existsSync() ? file : null;
   }
 
   Future<File?> fetchVideoThumbnailWithLocalFile({

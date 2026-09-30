@@ -103,10 +103,13 @@ class MainState extends State<MainApp>
     LogUtil.e("getCurrentLanguage : ${Localized.getCurrentLanguage()}");
     Localized.addLocaleChangedCallback(onLocaleChange);
     OXUserInfoManager.sharedInstance.addObserver(this);
-    if (OXUserInfoManager.sharedInstance.isLogin) {
-      notNetworInitWow();
-    }
-    BootConfig.instance.batchUpdateUserBadges();
+    // Start-up auto-login may still be running when the app widget mounts.
+    OXUserInfoManager.sharedInstance.localDataReady.then((_) {
+      if (OXUserInfoManager.sharedInstance.isLogin) {
+        notNetworInitWow();
+      }
+      BootConfig.instance.batchUpdateUserBadges();
+    });
     if (kDebugMode) {
       timer = Timer.periodic(Duration(seconds: 5), (Timer t) {
         printMemoryUsage();
@@ -271,7 +274,8 @@ class MainState extends State<MainApp>
     print('Max RSS memory usage: ${ProcessInfo.maxRss / (1024 * 1024)} MB');
   }
 
-  void nip46ConnectStatusInit(){
+  void nip46ConnectStatusInit() async {
+    await OXUserInfoManager.sharedInstance.localDataReady;
     Future.delayed(const Duration(seconds: 3), () {
       Account.sharedInstance.nip46connectionStatusCallback = (status) => _nip46connectionStatusCallback(status);
     });

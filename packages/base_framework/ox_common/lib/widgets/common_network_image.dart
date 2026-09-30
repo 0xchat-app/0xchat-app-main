@@ -95,7 +95,7 @@ class _OXCachedNetworkImageState extends State<OXCachedNetworkImage> {
 
   @override
   Widget build(BuildContext context) {
-    final ratio = MediaQuery.of(context).devicePixelRatio;
+    final ratio = MediaQuery.devicePixelRatioOf(context);
 
     const int maxMemoryCacheSize = 800;
 
@@ -119,7 +119,7 @@ class _OXCachedNetworkImageState extends State<OXCachedNetworkImage> {
       maxWidthDiskCache = (80.px * ratio).round();
       maxHeightDiskCache = (80.px * ratio).round();
     } else {
-      final screenWidth = MediaQuery.of(context).size.width;
+      final screenWidth = MediaQuery.sizeOf(context).width;
       maxWidthDiskCache = (screenWidth * ratio * 1.5).round();
       maxHeightDiskCache = (screenWidth * ratio * 1.5).round();
     }

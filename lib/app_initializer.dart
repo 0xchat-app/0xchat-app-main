@@ -61,25 +61,34 @@ class AppInitializer {
         await ThemeManager.init();
         await Localized.init();
         await _setupModules();
-        await OXUserInfoManager.sharedInstance.initLocalData();
-        
-        // Initialize Tor network manager
-        Future.microtask(() async {
-          try {
-            await TorNetworkHelper.initialize();
-            await TorNetworkHelper.start();
-            LogUtil.d('[App start] Tor network manager initialized');
-          } catch (e) {
-            LogUtil.e('[App start] Failed to initialize Tor network manager: $e');
-          }
+        // Auto-login opens the DB and decrypts the stored key (scrypt), which
+        // used to hold back the first frame. Run it while the launch animation
+        // plays instead; LaunchPageView waits for it before routing.
+        final localDataReady = OXUserInfoManager.sharedInstance.initLocalData().catchError((error, stack) {
+          initializeErrors.add(OXErrorInfo(error, stack));
         });
-        
-        // Preload common translation language models in background
-        // Don't await - let it run completely in background
-        TranslateService.preloadCommonLanguageModels().catchError((e) {
-          LogUtil.w('[App start] Failed to start translation models preload: $e');
+        OXUserInfoManager.sharedInstance.localDataReady = localDataReady;
+
+        localDataReady.then((_) {
+          // Initialize Tor network manager
+          Future.microtask(() async {
+            try {
+              await TorNetworkHelper.initialize();
+              await TorNetworkHelper.start();
+              LogUtil.d('[App start] Tor network manager initialized');
+            } catch (e) {
+              LogUtil.e('[App start] Failed to initialize Tor network manager: $e');
+            }
+          });
+
+          // Preload common translation language models in background
+          // Don't await - let it run completely in background.
+          // Reads the user's translate settings, so it runs after auto-login.
+          TranslateService.preloadCommonLanguageModels().catchError((e) {
+            LogUtil.w('[App start] Failed to start translation models preload: $e');
+          });
         });
-        
+
         SystemChrome.setSystemUIOverlayStyle(ThemeManager.getCurrentThemeStyle().toOverlayStyle());
         ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
         double fontSize = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.APP_FONT_SIZE, defaultValue: 1.0);

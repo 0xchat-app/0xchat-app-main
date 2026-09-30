@@ -410,7 +410,7 @@ class ChatState extends State<Chat> {
 
     _scrollController = widget.scrollController ?? AutoScrollController();
 
-    didUpdateWidget(widget);
+    _updateChatMessages();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       setState(() {});
     });
@@ -420,6 +420,27 @@ class ChatState extends State<Chat> {
   void didUpdateWidget(covariant Chat oldWidget) {
     super.didUpdateWidget(oldWidget);
 
+    // The parent rebuilds Chat for many unrelated reasons (any setState);
+    // regrouping walks every loaded message, so only redo it when something
+    // that feeds the grouping actually changed.
+    if (_chatMessagesInputsChanged(oldWidget)) _updateChatMessages();
+  }
+
+  bool _chatMessagesInputsChanged(Chat oldWidget) =>
+      !identical(oldWidget.messages, widget.messages) ||
+      oldWidget.user != widget.user ||
+      oldWidget.customDateHeaderText != widget.customDateHeaderText ||
+      oldWidget.dateFormat != widget.dateFormat ||
+      oldWidget.dateHeaderThreshold != widget.dateHeaderThreshold ||
+      oldWidget.dateIsUtc != widget.dateIsUtc ||
+      oldWidget.dateLocale != widget.dateLocale ||
+      oldWidget.groupMessagesThreshold != widget.groupMessagesThreshold ||
+      oldWidget.scrollToUnreadOptions.lastReadMessageId !=
+          widget.scrollToUnreadOptions.lastReadMessageId ||
+      oldWidget.showUserNames != widget.showUserNames ||
+      oldWidget.timeFormat != widget.timeFormat;
+
+  void _updateChatMessages() {
     if (widget.messages.isNotEmpty) {
       final result = calculateChatMessages(
         widget.messages,
@@ -482,7 +503,6 @@ class ChatState extends State<Chat> {
     var scrollToAnchorMsgAction = null;
     if (anchorMsgId != null && anchorMsgId.isNotEmpty)
       scrollToAnchorMsgAction = () => scrollToMessage(anchorMsgId);
-    final mentionUserListBottom = _getInputViewHeight() + Adapt.px(16);
     return InheritedUser(
       user: widget.user,
       child: InheritedChatTheme(
@@ -569,18 +589,20 @@ class ChatState extends State<Chat> {
               ),
               widget.customCenterWidget ?? SizedBox(),
               if (widget.highlightMessageWidget != null)
-                Positioned(
+                _buildInputAnchoredOverlay((bottom) => Positioned(
                   right: 12.px,
-                  bottom: mentionUserListBottom,
+                  bottom: bottom,
                   child: widget.highlightMessageWidget!,
-                ),
-              if (widget.mentionUserListWidget != null && mentionUserListBottom != null)
-                Positioned(
-                  left: 12.px,
-                  right: 12.px,
-                  bottom: mentionUserListBottom,
-                  child: widget.mentionUserListWidget!,
-                ),
+                )),
+              if (widget.mentionUserListWidget != null)
+                _buildInputAnchoredOverlay((bottom) => bottom == null
+                    ? const SizedBox()
+                    : Positioned(
+                        left: 12.px,
+                        right: 12.px,
+                        bottom: bottom,
+                        child: widget.mentionUserListWidget!,
+                      )),
             ],
           ),
         ),
@@ -588,13 +610,22 @@ class ChatState extends State<Chat> {
     );
   }
 
+  /// Places an overlay (mention list, highlight jump) just above the input
+  /// area. The input grows with the keyboard, so the overlay has to rebuild as
+  /// the keyboard animates; depending on the insets here, instead of in
+  /// [build], keeps that per-frame rebuild off the whole chat and its list.
+  Widget _buildInputAnchoredOverlay(Widget Function(double? bottom) builder) {
+    return Builder(builder: (context) {
+      MediaQuery.viewInsetsOf(context);
+      return builder(_getInputViewHeight() + Adapt.px(16));
+    });
+  }
+
   double? _getInputViewHeight() {
     if (!widget.enableBottomWidget) return 0.0;
 
     if (_bottomWidgetKey.currentContext != null) {
       final renderBox = _bottomWidgetKey.currentContext!.findRenderObject() as RenderBox;
-      // Do not delete this line of code, or you will mention that the user list view does not fit the keyboard
-      final _ = MediaQuery.of(context).size.height;
       final inputHeight = renderBox.size.height;
       return inputHeight;
     } else {

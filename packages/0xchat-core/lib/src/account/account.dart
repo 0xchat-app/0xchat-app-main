@@ -200,7 +200,10 @@ class Account {
         db.defaultPassword != null &&
         db.defaultPassword!.isNotEmpty) {
       String encryptedPrivKey = db.encryptedPrivKey!;
-      Uint8List privkey = decryptPrivateKey(hexToBytes(encryptedPrivKey), db.defaultPassword!);
+      // scrypt (N=16384) takes hundreds of ms; keep it off the UI isolate,
+      // since start-up auto-login now runs while the launch animation plays.
+      Uint8List privkey = await compute(
+          decryptPrivateKeyWithMap, {'privkey': encryptedPrivKey, 'password': db.defaultPassword!});
       if (Keychain.getPublicKey(bytesToHex(privkey)) == pubkey) {
         me = db;
         currentPrivkey = bytesToHex(privkey);
@@ -223,7 +226,8 @@ class Account {
     if (db.defaultPassword == null || db.defaultPassword!.isEmpty) {
       db.defaultPassword = generateStrongPassword(16);
     }
-    Uint8List enPrivkey = encryptPrivateKey(hexToBytes(privkey), db.defaultPassword!);
+    Uint8List enPrivkey = await compute(
+        encryptPrivateKeyWithMap, {'privkey': privkey, 'password': db.defaultPassword!});
     db.encryptedPrivKey = bytesToHex(enPrivkey);
     await saveUserToDB(db);
     me = db;
@@ -295,7 +299,7 @@ class Account {
     return db;
   }
 
-  Uint8List decryptPrivateKeyWithMap(Map map) {
+  static Uint8List decryptPrivateKeyWithMap(Map map) {
     return decryptPrivateKey(hexToBytes(map['privkey']), map['password']);
   }
 

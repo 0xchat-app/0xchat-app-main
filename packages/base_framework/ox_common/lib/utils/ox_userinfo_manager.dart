@@ -59,6 +59,12 @@ class OXUserInfoManager {
 
   Map<String, dynamic> settingsMap = {};
 
+  /// Completes (never with an error) once the start-up auto-login has been
+  /// attempted. Until then [isLogin] and [settingsMap] (e.g. the passcode)
+  /// are not loaded yet, so start-up code must wait for this before reading
+  /// them.
+  Future<void> localDataReady = Future.value();
+
   var _contactFinishFlags = {
     _ContactType.contacts: false,
     _ContactType.channels: false,

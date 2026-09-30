@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
-import 'package:uuid/uuid.dart';
 
 /// A class that represents a date header between messages.
 @immutable
@@ -10,7 +9,9 @@ class DateHeader extends Equatable {
     required this.dateTime,
     required this.text,
   }) {
-    id = Uuid().v1();
+    // Derived from the date rather than random: the header is keyed by it,
+    // and a fresh id on every regrouping rebuilt every date header subtree.
+    id = '${dateTime.microsecondsSinceEpoch}';
   }
 
   String id = '';

@@ -31,7 +31,7 @@ class S {
 
   ///
   static num radius38(BuildContext context) =>
-      min(38, MediaQuery.of(context).size.width * .08);
+      min(38, MediaQuery.sizeOf(context).width * .08);
 
   ///
   static BoxShadow boxShadow(

@@ -72,6 +72,9 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   bool _isLogin = false;
   GlobalKey? _latestGlobalKey;
   List<GlobalKey> _globalKeys = [];
+  /// Row keys by chatId, reused across [_merge] so a refresh updates rows in
+  /// place instead of rebuilding every visible row from scratch.
+  Map<String, GlobalKey> _globalKeyByChatId = {};
   bool addAutomaticKeepAlives = true;
   bool addRepaintBoundaries = true;
 
@@ -297,7 +300,7 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     final CommonStateView newState;
     if (_msgDatas.length > 0) {
       _scaleList = List.generate(_msgDatas.length, (index) => ValueNotifier(false));
-      _globalKeys = List.generate(_msgDatas.length, (index) => GlobalKey(debugLabel: index.toString()));
+      _globalKeys = _stableRowKeys(_msgDatas);
       newState = CommonStateView.CommonStateView_None;
       _updateReadStatus();
     } else {
@@ -388,6 +391,18 @@ class ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     setState(() {
       function.call();
     });
+  }
+
+  List<GlobalKey> _stableRowKeys(List<ChatSessionModelISAR> sessions) {
+    final previous = _globalKeyByChatId;
+    final next = <String, GlobalKey>{};
+    final keys = sessions.map((session) {
+      // Never let two rows share a GlobalKey, even if a chatId repeats.
+      if (next.containsKey(session.chatId)) return GlobalKey();
+      return next[session.chatId] = previous[session.chatId] ?? GlobalKey();
+    }).toList();
+    _globalKeyByChatId = next;
+    return keys;
   }
 
   void _dismissSlidable() {
