@@ -100,6 +100,27 @@ class ParsedText extends StatelessWidget {
     this.buildContextMenu,
   }) : super(key: key);
 
+  // Compiled patterns shared across builds and bubbles; each build used to
+  // compile the combined pattern plus one RegExp per pattern per match.
+  // Bounded, since patterns can be built from message data.
+  static final Map<String, RegExp> _regExpCache = {};
+
+  RegExp _regExp(String source) {
+    final options = regexOptions;
+    final key = '${options.multiLine}|${options.caseSensitive}|${options.dotAll}|'
+        '${options.unicode}|$source';
+    final cached = _regExpCache[key];
+    if (cached != null) return cached;
+    if (_regExpCache.length >= 256) _regExpCache.clear();
+    return _regExpCache[key] = RegExp(
+      source,
+      multiLine: options.multiLine,
+      caseSensitive: options.caseSensitive,
+      dotAll: options.dotAll,
+      unicode: options.unicode,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // Seperate each word and create a new Array
@@ -124,26 +145,13 @@ class ParsedText extends StatelessWidget {
     List<InlineSpan> widgets = [];
 
     newString.splitMapJoin(
-      RegExp(
-        pattern,
-        multiLine: regexOptions.multiLine,
-        caseSensitive: regexOptions.caseSensitive,
-        dotAll: regexOptions.dotAll,
-        unicode: regexOptions.unicode,
-      ),
+      _regExp(pattern),
       onMatch: (Match match) {
         final matchText = match[0];
 
         final mapping = _mapping[matchText!] ??
             _mapping[_mapping.keys.firstWhere((element) {
-              final reg = RegExp(
-                element,
-                multiLine: regexOptions.multiLine,
-                caseSensitive: regexOptions.caseSensitive,
-                dotAll: regexOptions.dotAll,
-                unicode: regexOptions.unicode,
-              );
-              return reg.hasMatch(matchText);
+              return _regExp(element).hasMatch(matchText);
             }, orElse: () {
               return '';
             })];

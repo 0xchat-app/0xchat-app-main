@@ -19,6 +19,10 @@ import '../state/inherited_user.dart';
 
 /// A class that represents text message widget with optional link preview.
 class TextMessage extends StatelessWidget {
+  // Compiled once instead of on every build of every text bubble.
+  static final RegExp _webLinkRegExp = RegExp(WebURLHelper.regexLink, caseSensitive: false);
+  static final RegExp _nostrLinkRegExp = RegExp(WebURLHelper.regexNostr, caseSensitive: false);
+
   /// Creates a text message widget from a [types.TextMessage] class.
   TextMessage({
     super.key,
@@ -87,17 +91,11 @@ class TextMessage extends StatelessWidget {
     }
 
     if (usePreviewData && onPreviewDataFetched != null) {
-      var urlRegexp = RegExp(WebURLHelper.regexLink, caseSensitive: false);
-      var matches = urlRegexp.allMatches(messageText);
-
-      if (matches.isNotEmpty) {
+      if (_webLinkRegExp.hasMatch(messageText)) {
         return _linkPreview(user, width, context);
       }
 
-      urlRegexp = RegExp(WebURLHelper.regexNostr, caseSensitive: false);
-      matches = urlRegexp.allMatches(messageText);
-
-      if (matches.isNotEmpty) {
+      if (_nostrLinkRegExp.hasMatch(messageText)) {
         final text = messageText.replaceFirst('nostr:', CommonConstant.njumpURL);
         return _linkPreview(user, width, context, text: text);
       }
