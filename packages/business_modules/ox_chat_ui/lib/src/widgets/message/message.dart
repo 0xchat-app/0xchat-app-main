@@ -200,7 +200,7 @@ class MessageState extends State<Message> {
 
   @override
   Widget build(BuildContext context) {
-    final query = MediaQuery.of(context);
+    final padding = MediaQuery.paddingOf(context);
     final user = InheritedUser.of(context).user;
     final currentUserIsAuthor = user.id == widget.message.author.id;
 
@@ -223,14 +223,14 @@ class MessageState extends State<Message> {
     if (widget.bubbleRtlAlignment == BubbleRtlAlignment.left) {
       margin = EdgeInsetsDirectional.only(
         bottom: 16,
-        end: isMobile ? query.padding.right : 0,
-        start: isMobile ? query.padding.left : 0,
+        end: isMobile ? padding.right : 0,
+        start: isMobile ? padding.left : 0,
       );
     } else {
       margin = EdgeInsets.only(
         bottom: 16,
-        left: (isMobile ? query.padding.left : 0) + horizontalPadding,
-        right: (isMobile ? query.padding.right : 0) + horizontalPadding,
+        left: (isMobile ? padding.left : 0) + horizontalPadding,
+        right: (isMobile ? padding.right : 0) + horizontalPadding,
       );
     }
 

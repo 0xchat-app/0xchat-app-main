@@ -57,6 +57,9 @@ String getUserName(types.User user) {
 }
 
 
+final Map<String, DateFormat> _monthDayFormats = {};
+final Map<String, DateFormat> _hourMinuteFormats = {};
+
 /// Returns formatted date used as a divider between different days in the
 /// chat history
 String getVerboseDateTimeRepresentation(
@@ -65,12 +68,14 @@ String getVerboseDateTimeRepresentation(
   String? dateLocale,
   DateFormat? timeFormat,
 }) {
+  // Keyed by the resolved locale so a language switch still takes effect.
+  final locale = dateLocale ?? Intl.getCurrentLocale();
   final formattedDate = dateFormat != null
       ? dateFormat.format(dateTime)
-      : DateFormat.MMMd(dateLocale).format(dateTime);
+      : (_monthDayFormats[locale] ??= DateFormat.MMMd(locale)).format(dateTime);
   final formattedTime = timeFormat != null
       ? timeFormat.format(dateTime)
-      : DateFormat.Hm(dateLocale).format(dateTime);
+      : (_hourMinuteFormats[locale] ??= DateFormat.Hm(locale)).format(dateTime);
   final localDateTime = dateTime.toLocal();
   final now = DateTime.now();
 

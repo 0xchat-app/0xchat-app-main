@@ -79,7 +79,7 @@ class TextMessage extends StatelessWidget {
             isConsistsOfEmojis(emojiEnlargementBehavior, message);
     final theme = InheritedChatTheme.of(context).theme;
     final user = InheritedUser.of(context).user;
-    double width = MediaQuery.of(context).size.width;
+    double width = MediaQuery.sizeOf(context).width;
     // Cap link preview width on desktop so preview image does not span full screen
     if (PlatformUtils.isDesktop) {
       const kLinkPreviewMaxWidth = 400.0;
@@ -410,7 +410,7 @@ class TextMessageText extends StatelessWidget {
       style: bodyTextStyle,
       text: text,
       textWidthBasis: TextWidthBasis.longestLine,
-      textScaler: MediaQuery.of(context).textScaler,
+      textScaler: MediaQuery.textScalerOf(context),
       onSecondaryTap: onSecondaryTap,
       buildContextMenu: contextMenuBuilder,
     );

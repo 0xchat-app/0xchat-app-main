@@ -132,6 +132,9 @@ class _ChatListState extends State<ChatList>
   void didUpdateWidget(covariant ChatList oldWidget) {
     super.didUpdateWidget(oldWidget);
 
+    // Chat hands over a new list only when its messages were regrouped.
+    if (identical(oldWidget.items, widget.items)) return;
+
     final oldList = [...headerItems, ...bodyItems,];
     final newList = [...widget.items];
     _calculateDiffs(oldList, newList);
