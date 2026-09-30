@@ -119,7 +119,7 @@ class UploadUtils {
     if (fileType == FileType.image && autoStoreImage) {
       await OXFileCacheManager.get(encryptKey: encryptedKey).putFile(
         url,
-        file.readAsBytesSync(),
+        await file.readAsBytes(),
         fileExtension: file.path.getFileExtension(),
       );
     }

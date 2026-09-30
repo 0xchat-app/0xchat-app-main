@@ -46,18 +46,23 @@ class Channels {
       myChannelsUpdatedCallBack?.call();
     };
     // subscript friend requests
-    Connect.sharedInstance.addConnectStatusListener((relay, status, relayKinds) async {
-      if (status == 1 &&
-          Account.sharedInstance.me != null &&
-          relayKinds.contains(RelayKind.general)) {
-        _updateSubscriptions(relay: relay);
-        updateChannelMetadataFromRelay('', myChannels.keys.toList(), relays: [relay]);
-      }
-    });
+    Connect.sharedInstance.addConnectStatusListener(_onRelayConnectStatus);
     await _loadAllChannelsFromDB();
     updateChannelMetadataFromRelay('', myChannels.keys.toList());
     _updateSubscriptions();
   }
+
+  // One function object per singleton: addConnectStatusListener dedupes by
+  // identity, so re-running init (every login / account switch) no longer
+  // stacks another listener and multiplies the re-subscriptions.
+  late final ConnectStatusCallBack _onRelayConnectStatus = (relay, status, relayKinds) async {
+    if (status == 1 &&
+        Account.sharedInstance.me != null &&
+        relayKinds.contains(RelayKind.general)) {
+      _updateSubscriptions(relay: relay);
+      updateChannelMetadataFromRelay('', myChannels.keys.toList(), relays: [relay]);
+    }
+  };
 
   Future<void> _loadAllChannelsFromDB() async {
     final isar = DBISAR.sharedInstance.isar;

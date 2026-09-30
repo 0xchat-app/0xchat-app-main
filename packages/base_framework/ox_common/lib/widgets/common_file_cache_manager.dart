@@ -19,10 +19,33 @@ class OXFileCacheManager {
     return OXDefaultCacheManager();
   }
 
+  /// Avatars (small resized thumbnails). Kept apart from chat media so a
+  /// few videos or photo-heavy chats can't evict every avatar from the
+  /// shared 500-entry cache and make them all download again.
+  static CacheManager getThumbnail() => OXAvatarCacheManager();
+
   static Future emptyCache() async {
     await OXDefaultCacheManager().emptyCache();
     await DecryptedCacheManager('','').emptyCache();
+    await OXAvatarCacheManager().emptyCache();
   }
+}
+
+class OXAvatarCacheManager extends CacheManager with ImageCacheManager {
+  static const key = 'oxAvatarCache';
+
+  static final OXAvatarCacheManager _instance = OXAvatarCacheManager._();
+
+  factory OXAvatarCacheManager() {
+    return _instance;
+  }
+
+  OXAvatarCacheManager._() : super(Config(
+    key,
+    stalePeriod: const Duration(days: 90),
+    maxNrOfCacheObjects: 2000,
+    repo: JsonCacheInfoRepository(databaseName: key),
+  ));
 }
 
 class OXDefaultCacheManager extends CacheManager with ImageCacheManager {
@@ -120,7 +143,7 @@ class DecryptedCacheManager extends CacheManager {
     final validTill = const Duration(days: 90);
     final newCacheFile = await super.putFile(
       url,
-      decryptedTempFile.readAsBytesSync(),
+      await decryptedTempFile.readAsBytes(),
       key: key,
       maxAge: validTill,
       fileExtension: fileExtension,

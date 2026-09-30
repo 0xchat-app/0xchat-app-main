@@ -50,7 +50,7 @@ class BolssomUploader {
 
     var fileSize = bytes.length;
     log("file size is $fileSize");
-    payload = HashUtil.sha256Bytes(bytes);
+    payload = await HashUtil.sha256BytesAsync(bytes);
 
     Map<String, String>? headers = {};
     if (StringUtil.isNotBlank(fileName)) {

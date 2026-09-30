@@ -75,6 +75,9 @@ class _OXCachedNetworkImageState extends State<OXCachedNetworkImage> {
     super.dispose();
   }
 
+  CacheManager get _cacheManager =>
+      widget.isThumb ? OXFileCacheManager.getThumbnail() : OXFileCacheManager.get();
+
   void _scheduleRetry(String cacheKey) {
     if (_retryCount >= _maxRetries) return;
     // Exponential backoff: 2s, 4s, 8s, 16s, 32s
@@ -82,7 +85,7 @@ class _OXCachedNetworkImageState extends State<OXCachedNetworkImage> {
     _retryTimer?.cancel();
     _retryTimer = Timer(delay, () async {
       try {
-        await OXFileCacheManager.get().removeFile(cacheKey);
+        await _cacheManager.removeFile(cacheKey);
       } catch (_) {}
       if (mounted) {
         setState(() {
@@ -148,7 +151,7 @@ class _OXCachedNetworkImageState extends State<OXCachedNetworkImage> {
         return widget.errorWidget?.call(context, url, error) ??
             SizedBox(width: widget.width, height: widget.height);
       },
-      cacheManager: OXFileCacheManager.get(),
+      cacheManager: _cacheManager,
       cacheKey: cacheKey,
       maxWidthDiskCache: maxWidthDiskCache,
       maxHeightDiskCache: maxHeightDiskCache,

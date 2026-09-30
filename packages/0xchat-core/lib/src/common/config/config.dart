@@ -85,15 +85,20 @@ class Config {
 
   Future<void> initConfig() async {
     // subscript friend requests
-    Connect.sharedInstance.addConnectStatusListener((relay, status, relayKinds) async {
-      if (status == 1 &&
-          Account.sharedInstance.me != null &&
-          relayKinds.contains(RelayKind.general)) {
-        _loadConfigFromRelay(relay: relay);
-      }
-    });
+    Connect.sharedInstance.addConnectStatusListener(_onRelayConnectStatus);
     await _loadConfig();
   }
+
+  // One function object per singleton: addConnectStatusListener dedupes by
+  // identity, so re-running init (every login / account switch) no longer
+  // stacks another listener and multiplies the re-subscriptions.
+  late final ConnectStatusCallBack _onRelayConnectStatus = (relay, status, relayKinds) async {
+    if (status == 1 &&
+        Account.sharedInstance.me != null &&
+        relayKinds.contains(RelayKind.general)) {
+      _loadConfigFromRelay(relay: relay);
+    }
+  };
 
   Future<void> _loadConfig() async {
     await _loadConfigFromDB();

@@ -47,15 +47,19 @@ class Zaps {
     currentPubkey = Account.sharedInstance.me!.pubKey;
     updateNWC(null);
     updateZapsSubscription();
-    Connect.sharedInstance
-        .addConnectStatusListener((relay, status, relayKinds) async {
-      if (status == 1 &&
-          Account.sharedInstance.me != null &&
-          relayKinds.contains(RelayKind.general)) {
-        updateZapsSubscription(relay: relay);
-      }
-    });
+    Connect.sharedInstance.addConnectStatusListener(_onRelayConnectStatus);
   }
+
+  // One function object per singleton: addConnectStatusListener dedupes by
+  // identity, so re-running init (every login / account switch) no longer
+  // stacks another listener and multiplies the re-subscriptions.
+  late final ConnectStatusCallBack _onRelayConnectStatus = (relay, status, relayKinds) async {
+    if (status == 1 &&
+        Account.sharedInstance.me != null &&
+        relayKinds.contains(RelayKind.general)) {
+      updateZapsSubscription(relay: relay);
+    }
+  };
 
   void disconnectNWC() {
     Account.sharedInstance.me?.nwcURI = null;
