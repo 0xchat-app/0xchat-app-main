@@ -1,3 +1,4 @@
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
@@ -81,6 +82,9 @@ class ChatVideoMessageState extends State<ChatVideoMessage> {
 
   void tryInitializeVideoMedia() async {
     if (videoURL.isEmpty) return;
+    // Already resolved, e.g. the bubble scrolled back into view: skip the
+    // fetch and the message update, which regroups the whole chat.
+    if (_isMediaResolved()) return;
 
     final media = await VideoDataManager.shared.fetchVideoMedia(
       videoURL: videoURL,
@@ -89,12 +93,27 @@ class ChatVideoMessageState extends State<ChatVideoMessage> {
     );
     if (media == null) return;
 
+    final newVideoPath = media.path ?? '';
+    final newSnapshotPath = media.thumbPath ?? '';
+    if (newVideoPath == videoPath && newSnapshotPath == snapshotPath) return;
+
     types.CustomMessage newMessage = widget.message.copyWith();
-    VideoMessageEx(newMessage).videoPath = media.path ?? '';
-    VideoMessageEx(newMessage).snapshotPath = media.thumbPath ?? '';
+    VideoMessageEx(newMessage).videoPath = newVideoPath;
+    VideoMessageEx(newMessage).snapshotPath = newSnapshotPath;
 
     widget.messageUpdateCallback?.call(newMessage);
   }
+
+  /// The bubble has its thumbnail, and whatever it plays from is available:
+  /// a local file when one is recorded (always for encrypted videos, see
+  /// [VideoMessageEx.canOpen]), otherwise the URL.
+  bool _isMediaResolved() {
+    if (!_isExistingFile(snapshotPath)) return false;
+    if (videoPath.isEmpty) return encryptedKey == null;
+    return _isExistingFile(videoPath);
+  }
+
+  bool _isExistingFile(String path) => path.isNotEmpty && File(path).existsSync();
 
   @override
   Widget build(BuildContext context) {
