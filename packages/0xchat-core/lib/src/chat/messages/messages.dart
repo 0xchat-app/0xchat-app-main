@@ -59,7 +59,7 @@ class Messages {
     for (var reaction in reactions) {
       String eventId = reaction.reactedId!;
       MessageDBISAR? message =
-          await isar.messageDBISARs.filter().messageIdEqualTo(eventId).findFirst();
+          await isar.messageDBISARs.getByMessageId(eventId);
       if (message != null) {
         message = message.withGrowableLevels();
         message.reactionEventIds ??= [];
@@ -77,7 +77,7 @@ class Messages {
     for (var zap in zaps) {
       String eventId = zap.eventId;
       MessageDBISAR? message =
-          await isar.messageDBISARs.filter().messageIdEqualTo(eventId).findFirst();
+          await isar.messageDBISARs.getByMessageId(eventId);
       if (message != null) {
         message = message.withGrowableLevels();
         message.reactionEventIds ??= [];

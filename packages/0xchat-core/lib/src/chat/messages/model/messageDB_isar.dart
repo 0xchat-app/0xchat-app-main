@@ -493,7 +493,7 @@ class MessageDBISAR {
   static Future<void> savePreviewData(String messageId, String previewData) async {
     final isar = DBISAR.sharedInstance.isar;
 
-    final message = await isar.messageDBISARs.filter().messageIdEqualTo(messageId).findFirst();
+    final message = await isar.messageDBISARs.getByMessageId(messageId);
 
     if (message != null) {
       message.previewData = previewData;
