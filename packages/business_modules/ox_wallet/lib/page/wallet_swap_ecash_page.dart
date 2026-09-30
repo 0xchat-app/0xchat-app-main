@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ox_common/business_interface/ox_wallet/interface.dart';
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -152,9 +153,13 @@ class _WalletSwapEcashPageState extends State<WalletSwapEcashPage> {
       }
     } catch (e) {
       OXLoading.dismiss();
-      if (e is SwapException && context.mounted) {
+      if (!context.mounted) return;
+      if (e is SwapException) {
         if (OXWalletInterface.checkAndShowDialog(context, e.response, _sendMintNotifier.value!)) return ;
         CommonToast.instance.show(context, e.response.errorMsg);
+      } else {
+        LogUtil.e('[Swap] unexpected error: $e');
+        CommonToast.instance.show(context, Localized.text('ox_wallet.swap_failed'));
       }
     }
   }
