@@ -48,6 +48,14 @@ class _AccountKeyLoginPageState extends State<AccountKeyLoginPage> {
   }
 
   @override
+  void dispose() {
+    // Holds the entered nsec; clear it before releasing the controller.
+    _accountKeyEditingController.clear();
+    _accountKeyEditingController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CommonAppBar(

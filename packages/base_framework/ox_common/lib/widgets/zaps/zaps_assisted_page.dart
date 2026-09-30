@@ -79,6 +79,13 @@ class _ZapsAssistedPageState extends State<ZapsAssistedPage> {
   }
 
   @override
+  void dispose() {
+    _amountController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {

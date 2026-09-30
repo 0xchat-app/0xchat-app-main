@@ -73,16 +73,28 @@ class _CommonSearchTextFieldState extends State<CommonSearchTextField> {
     _focusNode = widget.focusNode != null ? widget.focusNode! : FocusNode();
 
     _isShowDelete = _focusNode.hasFocus && _textController.text.isNotEmpty;
-    _textController.addListener(() {
-      setState(() {
-        _isShowDelete = _textController.text.isNotEmpty && _focusNode.hasFocus;
-      });
-    });
+    _textController.addListener(_onTextChanged);
     _focusNode.addListener(() {
       setState(() {
         _isShowDelete = _textController.text.isNotEmpty && _focusNode.hasFocus;
       });
     });
+  }
+
+  void _onTextChanged() {
+    setState(() {
+      _isShowDelete = _textController.text.isNotEmpty && _focusNode.hasFocus;
+    });
+  }
+
+  @override
+  void dispose() {
+    // The controller / focus node may belong to the caller: stop listening,
+    // and only dispose what this state created.
+    _textController.removeListener(_onTextChanged);
+    if (widget.controller == null) _textController.dispose();
+    if (widget.focusNode == null) _focusNode.dispose();
+    super.dispose();
   }
 
   @override

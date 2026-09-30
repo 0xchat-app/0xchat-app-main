@@ -85,6 +85,12 @@ class _GiphyGridViewState extends State<GiphyGridView> with AutomaticKeepAliveCl
   }
 
   @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     super.build(context);
 

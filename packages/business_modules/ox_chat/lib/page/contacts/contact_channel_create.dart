@@ -101,6 +101,13 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
   }
 
   @override
+  void dispose() {
+    _channelNameController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ThemeColor.color190,
