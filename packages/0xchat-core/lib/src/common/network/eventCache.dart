@@ -16,23 +16,52 @@ class EventCache {
 
   final cacheTimeStamp = 24 * 60 * 60 * 7;
 
-  Future<void> loadAllEventsFromDB() async {
-    List<EventDBISAR> eventDBs = await DBISAR.sharedInstance.isar.eventDBISARs.where().findAll();
-    List<int> expiredEvents = [];
-    for (var eventDB in eventDBs) {
-      if (eventDB.expiration != null &&
-          eventDB.expiration! > 0 &&
-          eventDB.expiration! < currentUnixTimestampSeconds()) {
-        expiredEvents.add(eventDB.id);
-        continue;
-      }
-      cacheIds.add(eventDB.eventId);
-    }
+  /// False while [loadAllEventsFromDB] runs: until the stored ids are in
+  /// [cacheIds] it can't tell an already-seen event from a new one, so
+  /// Connect holds incoming events back until [loaded] completes.
+  bool isLoaded = true;
+  Future<void> _loaded = Future.value();
+  int _loadGeneration = 0;
 
-    if (expiredEvents.isEmpty) return;
+  /// Completes (never with an error) once the latest load has finished.
+  Future<void> get loaded => _loaded;
+
+  Future<void> loadAllEventsFromDB() {
+    final generation = ++_loadGeneration;
+    isLoaded = false;
+    final load = _loadAllEventsFromDB();
+    _loaded = load.catchError((e) {
+      LogUtils.e(() => 'loadAllEventsFromDB failed: $e');
+    }).whenComplete(() {
+      if (generation == _loadGeneration) isLoaded = true;
+    });
+    return load;
+  }
+
+  Future<void> _loadAllEventsFromDB() async {
+    final now = currentUnixTimestampSeconds();
+    final events = DBISAR.sharedInstance.isar.eventDBISARs;
+    // Only the ids are needed; loading whole rows also decoded every cached
+    // event's rawData. Kept: no expiration, a non-positive one, or not yet due.
+    final List<String> eventIds = await events
+        .filter()
+        .expirationIsNull()
+        .or()
+        .expirationLessThan(1)
+        .or()
+        .expirationGreaterThan(now, include: true)
+        .eventIdProperty()
+        .findAll();
+    cacheIds.addAll(eventIds);
+
     DBISAR.sharedInstance.isar.writeTxn(() async {
-      int result = await DBISAR.sharedInstance.isar.eventDBISARs.deleteAll(expiredEvents);
-      LogUtils.v(() => 'Deleted event caches: $result');
+      int result = await events
+          .filter()
+          .expirationGreaterThan(0)
+          .and()
+          .expirationLessThan(now)
+          .deleteAll();
+      if (result > 0) LogUtils.v(() => 'Deleted event caches: $result');
     });
   }
 

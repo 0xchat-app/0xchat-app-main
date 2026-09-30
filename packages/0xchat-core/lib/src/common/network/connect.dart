@@ -693,20 +693,40 @@ class Connect {
 
   Future<void> _handleEvent(Event event, String relay) async {
     LogUtils.v(() => 'Received event, subscriptionId: ${event.subscriptionId}, ${event.toJson()}');
-    if (EventCache.sharedInstance.cacheIds.contains(event.id)) {
-      return;
+    final Future<bool> future;
+    if (EventCache.sharedInstance.isLoaded) {
+      if (EventCache.sharedInstance.cacheIds.contains(event.id)) {
+        return;
+      }
+      // ignore the expired event
+      if (Nip40.expired(event)) {
+        EventCache.sharedInstance.receiveEvent(event, relay);
+        return;
+      }
+      future = _checkValidEvent(event, relay);
+    } else {
+      future = _checkEventOnceCacheLoaded(event, relay);
     }
-    // ignore the expired event
-    if (Nip40.expired(event)) {
-      EventCache.sharedInstance.receiveEvent(event, relay);
-      return;
-    }
-
-    Future<bool> future = _checkValidEvent(event, relay);
+    // Registered synchronously, so the EOSE for this subscription still waits
+    // for the event even while it is held back.
     if (event.subscriptionId != null && event.subscriptionId!.isNotEmpty) {
       eventCheckerFutures[event.subscriptionId! + relay] ??= [];
       eventCheckerFutures[event.subscriptionId! + relay]?.add(future);
     }
+  }
+
+  /// Until the event cache has loaded the stored ids, dedup can't recognise
+  /// events we already have (e.g. the start-up re-fetch of recent DMs) and
+  /// they would be handled again; so wait for the load, then check as usual.
+  Future<bool> _checkEventOnceCacheLoaded(Event event, String relay) async {
+    await EventCache.sharedInstance.loaded;
+    if (EventCache.sharedInstance.cacheIds.contains(event.id)) return false;
+    // ignore the expired event
+    if (Nip40.expired(event)) {
+      EventCache.sharedInstance.receiveEvent(event, relay);
+      return false;
+    }
+    return _checkValidEvent(event, relay);
   }
 
   Future<void> _handleEOSE(String eose, String relay, bool timeout) async {
