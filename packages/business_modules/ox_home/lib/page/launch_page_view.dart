@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_module_service/ox_module_service.dart';
@@ -27,8 +28,6 @@ class LaunchPageViewState extends State<LaunchPageView> {
   late StateMachineController? riveControllers;
   Artboard? riveArtboards;
 
-  String _localPasscode = '';
-
   @override
   void initState() {
     super.initState();
@@ -36,7 +35,6 @@ class LaunchPageViewState extends State<LaunchPageView> {
   }
 
   void _loadData() async {
-    _localPasscode = UserConfigTool.getSetting(StorageSettingKey.KEY_PASSCODE.name, defaultValue: '');
     _loadRiveFile();
     _onLoaded();
   }
@@ -103,14 +101,21 @@ class LaunchPageViewState extends State<LaunchPageView> {
     }
   }
 
-  void _onLoaded() {
-    Future.delayed(const Duration(milliseconds: 2500), () async {
-      if (_localPasscode.isNotEmpty) {
-        OXModuleService.pushPage(context, 'ox_usercenter', 'VerifyPasscodePage', {});
-      } else {
-        Navigator.of(context).pushReplacement(CustomRouteFadeIn(const HomeTabBarPage()));
-      }
-    });
+  void _onLoaded() async {
+    // Start-up auto-login now runs alongside this animation.
+    await Future.wait([
+      Future.delayed(const Duration(milliseconds: 2500)),
+      OXUserInfoManager.sharedInstance.localDataReady,
+    ]);
+    if (!mounted) return;
+    // Only read the passcode once auto-login has loaded the user's settings;
+    // reading it earlier would skip the passcode screen.
+    final String localPasscode = UserConfigTool.getSetting(StorageSettingKey.KEY_PASSCODE.name, defaultValue: '');
+    if (localPasscode.isNotEmpty) {
+      OXModuleService.pushPage(context, 'ox_usercenter', 'VerifyPasscodePage', {});
+    } else {
+      Navigator.of(context).pushReplacement(CustomRouteFadeIn(const HomeTabBarPage()));
+    }
   }
 }
 
