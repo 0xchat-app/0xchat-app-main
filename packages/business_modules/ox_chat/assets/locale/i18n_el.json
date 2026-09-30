@@ -55,6 +55,7 @@
   "message_send_image_fail": "Αποτυχία αποστολής εικόνας",
   "message_send_audio_fail": "Αποτυχία αποστολής ήχου",
   "message_send_video_fail": "Αποτυχία αποστολής βίντεο",
+  "message_send_fail": "Αποτυχία αποστολής μηνύματος",
   "pin_to_top": "Καρφίτσωμα",
   "unpin_from_top": "Ξεκαρφίτσωμα",
   "mark_as_read": "Διαβάστηκε",

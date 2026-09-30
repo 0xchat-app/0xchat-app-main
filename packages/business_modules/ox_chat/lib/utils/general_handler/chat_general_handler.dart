@@ -512,14 +512,14 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
       }
     });
 
-    sendEcashMessage(
+    final isSent = await sendEcashMessage(
       context,
       tokenList: signatureTokenList,
       receiverPubkeys: EcashV2MessageEx(message).receiverPubkeys,
       signees: signees,
     );
 
-    EcashHelper.setMessageSigned(message.id);
+    if (isSent) EcashHelper.setMessageSigned(message.id);
   }
 }
 
@@ -1080,7 +1080,7 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
             if (tokenList.length == 1 && receiverPubkeys.isEmpty && signeePubkeys.isEmpty) {
               await sendTextMessage(context, tokenList.first);
             } else {
-              sendEcashMessage(
+              await sendEcashMessage(
                 context,
                 tokenList: tokenList,
                 receiverPubkeys: receiverPubkeys,

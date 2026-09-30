@@ -64,6 +64,7 @@
   "message_send_image_fail": "Image sending failed",
   "message_send_audio_fail": "Audio sending failed",
   "message_send_video_fail": "Video sending failed",
+  "message_send_fail": "Message sending failed",
   "pin_to_top": "Pinned",
   "unpin_from_top": "Unpinned",
   "mark_as_read": "Read",

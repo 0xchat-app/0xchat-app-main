@@ -55,6 +55,7 @@
   "message_send_image_fail": "Billedsendelse mislykkedes",
   "message_send_audio_fail": "Audiosendelse mislykkedes",
   "message_send_video_fail": "Videosendelse mislykkedes",
+  "message_send_fail": "Afsendelse af besked mislykkedes",
   "pin_to_top": "Fastgjort",
   "unpin_from_top": "Løsnet",
   "mark_as_read": "Læst",

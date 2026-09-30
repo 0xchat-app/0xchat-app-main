@@ -55,6 +55,7 @@
   "message_send_image_fail": "Invio immagine fallito",
   "message_send_audio_fail": "Invio audio fallito",
   "message_send_video_fail": "Invio video fallito",
+  "message_send_fail": "Invio messaggio fallito",
   "pin_to_top": "Fissa in alto",
   "unpin_from_top": "Togli dalla cima",
   "mark_as_read": "Letto",

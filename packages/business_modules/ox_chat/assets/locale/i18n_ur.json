@@ -55,6 +55,7 @@
   "message_send_image_fail": "تصویر بھیجنے میں ناکامی",
   "message_send_audio_fail": "آڈیو بھیجنے میں ناکامی",
   "message_send_video_fail": "ویڈیو بھیجنے میں ناکامی",
+  "message_send_fail": "پیغام بھیجنے میں ناکامی",
   "pin_to_top": "پِن کیا گیا",
   "unpin_from_top": "اَن پِن کیا گیا",
   "mark_as_read": "پڑھا ہوا",

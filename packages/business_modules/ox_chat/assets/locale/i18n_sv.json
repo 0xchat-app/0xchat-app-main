@@ -55,6 +55,7 @@
   "message_send_image_fail": "Bildsändning misslyckades",
   "message_send_audio_fail": "Audiosändning misslyckades",
   "message_send_video_fail": "Videosändning misslyckades",
+  "message_send_fail": "Meddelandesändning misslyckades",
   "pin_to_top": "Fäst överst",
   "unpin_from_top": "Lossa från toppen",
   "mark_as_read": "Läst",

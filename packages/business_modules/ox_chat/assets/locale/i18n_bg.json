@@ -55,6 +55,7 @@
   "message_send_image_fail": "Изпращането на изображение се провали",
   "message_send_audio_fail": "Изпращането на аудио се провали",
   "message_send_video_fail": "Изпращането на видео се провали",
+  "message_send_fail": "Изпращането на съобщението се провали",
   "pin_to_top": "Закачен",
   "unpin_from_top": "Откачен",
   "mark_as_read": "Прочетен",

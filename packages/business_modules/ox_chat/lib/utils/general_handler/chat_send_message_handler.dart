@@ -1,7 +1,7 @@
 part of 'chat_general_handler.dart';
 
 extension ChatMessageSendEx on ChatGeneralHandler {
-  static Future sendTextMessageHandler(
+  static Future<bool> sendTextMessageHandler(
     String receiverPubkey,
     String text, {
     int chatType = ChatType.chatSingle,
@@ -10,16 +10,16 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     String secretSessionId = '',
   }) async {
     final sender = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
-    if (sender.isEmpty) return;
+    if (sender.isEmpty) return false;
 
     session ??= _getSessionModel(
       receiverPubkey,
       chatType,
       secretSessionId,
     );
-    if (session == null) return;
+    if (session == null) return false;
 
-    ChatGeneralHandler(session: session).sendTextMessage(context, text);
+    return ChatGeneralHandler(session: session).sendTextMessage(context, text);
   }
 
   static void sendTemplateMessage({
@@ -133,7 +133,9 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     );
   }
 
-  Future _sendMessageHandler({
+  /// Returns whether the message was created and handed off for sending.
+  /// Relay acceptance arrives later and is reflected in the message status.
+  Future<bool> _sendMessageHandler({
     BuildContext? context,
     required String? content,
     required MessageType? messageType,
@@ -167,7 +169,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
         decryptNonce: decryptNonce,
       );
     }
-    if (message == null) return;
+    if (message == null) return false;
 
     if (replaceMessageId != null) {
       final replaceMessage = dataController.getMessage(replaceMessageId);
@@ -180,7 +182,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     if (resendMessage == null) {
       message = await tryPrepareSendFileMessage(context, message, onProgress: onProgress, onServerSelected: onServerSelected);
     }
-    if (message == null) return;
+    if (message == null) return false;
 
     if (sendingType == ChatSendingType.memory) {
       tempMessageSet.add(message);
@@ -235,6 +237,28 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     );
     if (errorMsg != null && errorMsg.isNotEmpty) {
       CommonToast.instance.show(context, errorMsg);
+      return false;
+    }
+    return true;
+  }
+
+  /// Awaits [send] and turns a thrown error into a failed result plus a toast,
+  /// so a failed zap/ecash/text send can't vanish as an unhandled async error.
+  Future<bool> _sendReportingErrors(
+    BuildContext? context,
+    String funcName,
+    Future<bool> Function() send,
+  ) async {
+    try {
+      return await send();
+    } catch (e, stack) {
+      ChatLogUtils.error(
+        className: 'ChatGeneralHandler',
+        funcName: funcName,
+        message: '$e\n$stack',
+      );
+      CommonToast.instance.show(context, 'message_send_fail'.localized());
+      return false;
     }
   }
 
@@ -338,30 +362,34 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       CommonToast.instance.show(context, 'chat_input_length_over_hint'.localized());
       return false;
     }
-    await _sendMessageHandler(
-      content: text,
-      messageType: MessageType.text,
-      context: context,
+    final isSent = await _sendReportingErrors(
+      context,
+      'sendTextMessage',
+      () => _sendMessageHandler(
+        content: text,
+        messageType: MessageType.text,
+        context: context,
+      ),
     );
-    replyHandler.updateReplyMessage(null);
-    return true;
+    if (isSent) replyHandler.updateReplyMessage(null);
+    return isSent;
   }
 
-  void sendZapsMessage(BuildContext context, String zapper, String invoice, String amount,
-      String description) async {
-    try {
+  Future<bool> sendZapsMessage(BuildContext context, String zapper, String invoice, String amount,
+      String description) {
+    return _sendReportingErrors(context, 'sendZapsMessage', () {
       final content = jsonEncode(CustomMessageEx.zapsMetaData(
         zapper: zapper,
         invoice: invoice,
         amount: amount,
         description: description,
       ));
-      _sendMessageHandler(
+      return _sendMessageHandler(
         context: context,
         content: content,
         messageType: MessageType.template,
       );
-    } catch (_) {}
+    });
   }
 
   Future sendImageMessageWithFile(BuildContext? context, List<File> images) async {
@@ -875,26 +903,26 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     );
   }
 
-  void sendEcashMessage(
+  Future<bool> sendEcashMessage(
     BuildContext context, {
     required List<String> tokenList,
     List<String> receiverPubkeys = const [],
     List<EcashSignee> signees = const [],
     String validityDate = '',
   }) {
-    try {
+    return _sendReportingErrors(context, 'sendEcashMessage', () {
       final content = jsonEncode(CustomMessageEx.ecashV2MetaData(
         tokenList: tokenList,
         receiverPubkeys: receiverPubkeys,
         signees: signees,
         validityDate: validityDate,
       ));
-      _sendMessageHandler(
+      return _sendMessageHandler(
         context: context,
         content: content,
         messageType: MessageType.template,
       );
-    } catch (_) {}
+    });
   }
 }
 

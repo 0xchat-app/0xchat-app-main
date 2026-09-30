@@ -55,6 +55,7 @@
   "message_send_image_fail": "Kép küldése sikertelen",
   "message_send_audio_fail": "Hang küldése sikertelen",
   "message_send_video_fail": "Videó küldése sikertelen",
+  "message_send_fail": "Üzenet küldése sikertelen",
   "pin_to_top": "Rögzítés a tetejére",
   "unpin_from_top": "Levétel a tetejéről",
   "mark_as_read": "Olvasott",

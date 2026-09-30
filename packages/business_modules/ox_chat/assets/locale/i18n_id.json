@@ -55,6 +55,7 @@
   "message_send_image_fail": "Pengiriman gambar gagal",
   "message_send_audio_fail": "Pengiriman audio gagal",
   "message_send_video_fail": "Pengiriman video gagal",
+  "message_send_fail": "Pengiriman pesan gagal",
   "pin_to_top": "Sematkan",
   "unpin_from_top": "Lepaskan sematan",
   "mark_as_read": "Tandai sebagai sudah dibaca",
