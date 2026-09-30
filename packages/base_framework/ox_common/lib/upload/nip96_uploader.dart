@@ -53,7 +53,7 @@ class NIP96Uploader {
 
     // log("file size is ${bytes.length}");
 
-    payload = HashUtil.sha256Bytes(bytes);
+    payload = await HashUtil.sha256BytesAsync(bytes);
     final mimeType = lookupMimeType(filePath) ?? 'application/octet-stream';
     multipartFile = MultipartFile.fromBytes(
       bytes,

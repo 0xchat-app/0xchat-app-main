@@ -120,7 +120,7 @@ class DecryptedCacheManager extends CacheManager {
     final validTill = const Duration(days: 90);
     final newCacheFile = await super.putFile(
       url,
-      decryptedTempFile.readAsBytesSync(),
+      await decryptedTempFile.readAsBytes(),
       key: key,
       maxAge: validTill,
       fileExtension: fileExtension,
