@@ -36,6 +36,18 @@ class RelayGroup {
   GroupsNoteCallBack? noteCallBack;
   OfflineGroupMessageFinishCallBack? offlineGroupMessageFinishCallBack;
 
+  // One function object per singleton: addConnectStatusListener dedupes by
+  // identity, so re-running init (every login / account switch) no longer
+  // stacks another listener and multiplies the re-subscriptions.
+  late final ConnectStatusCallBack _onRelayConnectStatus = (relay, status, relayKinds) async {
+    if (status == 1 && Account.sharedInstance.me != null) {
+      if (groupRelays.contains(relay)) {
+        _udpateGroupInfos(relay: relay);
+        updateGroupSubscription(relay: relay);
+      }
+    }
+  };
+
   Future<void> init({GroupsUpdatedCallBack? callBack}) async {
     privkey = Account.sharedInstance.currentPrivkey;
     pubkey = Account.sharedInstance.currentPubkey;
@@ -44,14 +56,7 @@ class RelayGroup {
     Account.sharedInstance.relayGroupListUpdateCallback = () {
       groupListUpdated();
     };
-    Connect.sharedInstance.addConnectStatusListener((relay, status, relayKinds) async {
-      if (status == 1 && Account.sharedInstance.me != null) {
-        if (groupRelays.contains(relay)) {
-          _udpateGroupInfos(relay: relay);
-          updateGroupSubscription(relay: relay);
-        }
-      }
-    });
+    Connect.sharedInstance.addConnectStatusListener(_onRelayConnectStatus);
     await _loadAllGroupsFromDB();
     updateGroupSubscription();
   }

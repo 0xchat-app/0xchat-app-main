@@ -52,6 +52,21 @@ class Contacts {
   int lastFriendListUpdateTime = 0;
   List<String>? blockList;
   Map<String, CallMessage> callMessages = {};
+  // One function object per singleton: addConnectStatusListener dedupes by
+  // identity, so re-running init (every login / account switch) no longer
+  // stacks another listener and multiplies the re-subscriptions.
+  late final ConnectStatusCallBack _onRelayConnectStatus = (relay, status, relayKinds) async {
+    if (status == 1 &&
+        Account.sharedInstance.me != null &&
+        (relayKinds.contains(RelayKind.general) ||
+            relayKinds.contains(RelayKind.inbox) ||
+            relayKinds.contains(RelayKind.dm) ||
+            relayKinds.contains(RelayKind.circleRelay))) {
+      _subscriptMessages(relay: relay);
+      _updateSubscriptions(relay: relay);
+    }
+  };
+
   int maxLimit = 2048;
   int offset2 = 24 * 60 * 60 * 3;
 
@@ -83,17 +98,7 @@ class Contacts {
       await _syncContactsFromDB();
     };
     // subscript friend requests
-    Connect.sharedInstance.addConnectStatusListener((relay, status, relayKinds) async {
-      if (status == 1 &&
-          Account.sharedInstance.me != null &&
-          (relayKinds.contains(RelayKind.general) ||
-              relayKinds.contains(RelayKind.inbox) ||
-              relayKinds.contains(RelayKind.dm) ||
-              relayKinds.contains(RelayKind.circleRelay))) {
-        _subscriptMessages(relay: relay);
-        _updateSubscriptions(relay: relay);
-      }
-    });
+    Connect.sharedInstance.addConnectStatusListener(_onRelayConnectStatus);
     _subscriptMessages();
     // sync friend list from DB & relays
     await syncBlockListFromDB();

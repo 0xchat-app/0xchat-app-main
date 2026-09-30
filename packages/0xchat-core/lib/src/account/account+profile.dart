@@ -5,23 +5,47 @@ import 'package:nostr_core_dart/nostr.dart';
 import 'package:chatcore/chat-core.dart';
 
 extension AccountProfile on Account {
-  Future<void> loginSuccess() async {
-    Connect.sharedInstance.addConnectStatusListener((relay, status, relayKinds) async {
-      if (status == 1 &&
-          Account.sharedInstance.me != null &&
-          relayKinds.contains(RelayKind.general)) {
-        reloadMyProfileFromRelay(relay: relay);
+  // A single listener object, so logging in again (account switch) doesn't
+  // stack another one; see addConnectStatusListener.
+  static final ConnectStatusCallBack _reloadProfileOnConnect = (relay, status, relayKinds) {
+    if (status == 1 &&
+        Account.sharedInstance.me != null &&
+        relayKinds.contains(RelayKind.general)) {
+      _queueProfileReload(relay);
+    }
+  };
+
+  // Relays whose copy of our profile still has to be pulled. Batched so the
+  // start-up burst of relay connects costs a few subscriptions, not one each.
+  static final Set<String> _profileReloadRelays = {};
+  static Timer? _profileReloadTimer;
+
+  static void _queueProfileReload(String relay) {
+    _profileReloadRelays.add(relay);
+    _profileReloadTimer ??= Timer(const Duration(seconds: 1), () {
+      _profileReloadTimer = null;
+      final relays = _profileReloadRelays.toList();
+      _profileReloadRelays.clear();
+      if (relays.isNotEmpty && Account.sharedInstance.me != null) {
+        Account.sharedInstance.reloadMyProfileFromRelay(relays: relays);
       }
     });
-    await Future.delayed(Duration(seconds: 1));
-    reloadMyProfileFromRelay();
   }
 
-  Future<UserDBISAR> reloadMyProfileFromRelay({String? relay}) async {
+  Future<void> loginSuccess() async {
+    Connect.sharedInstance.addConnectStatusListener(_reloadProfileOnConnect);
+    // Relays that are already up won't report a connect; queue them too.
+    for (final relay
+        in Connect.sharedInstance.relays(relayKinds: [RelayKind.general, RelayKind.circleRelay])) {
+      _queueProfileReload(relay);
+    }
+  }
+
+  Future<UserDBISAR> reloadMyProfileFromRelay({String? relay, List<String>? relays}) async {
     Completer<UserDBISAR> completer = Completer<UserDBISAR>();
     Filter f = Filter(kinds: ChatCoreManager().myProfileKinds(), authors: [currentPubkey]);
     List<Event> events = [];
-    Connect.sharedInstance.addSubscription([f], relays: relay == null ? null : [relay],
+    Connect.sharedInstance.addSubscription([f], relays: relays ?? (relay == null ? null : [relay]),
         eventCallBack: (event, relay) async {
       events.add(event);
     }, eoseCallBack: (requestId, ok, relay, unRelays) async {

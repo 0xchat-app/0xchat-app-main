@@ -25,19 +25,24 @@ class NotificationHelper {
     startHeartBeat();
     _heartBeat(serverPubkey);
 
-    Connect.sharedInstance.addConnectStatusListener((relay, status, relayKinds) async {
-      if (status == 1 && toRelays.contains(relay)) {
-        _heartBeat(serverPubkey, relay: [relay]);
-        if (unSendNotification != null) {
-          Connect.sharedInstance.sendEvent(unSendNotification!, sendCallBack: (ok, relay) {
-            if (ok.status) unSendNotification = null;
-          }, toRelays: toRelays);
-        } else {
-          _heartBeat(serverPubkey);
-        }
-      }
-    });
+    Connect.sharedInstance.addConnectStatusListener(_onRelayConnectStatus);
   }
+
+  // One function object per singleton: addConnectStatusListener dedupes by
+  // identity, so re-running init (every login / account switch) no longer
+  // stacks another listener and multiplies the re-subscriptions.
+  late final ConnectStatusCallBack _onRelayConnectStatus = (relay, status, relayKinds) async {
+    if (status == 1 && toRelays.contains(relay)) {
+      _heartBeat(serverPubkey, relay: [relay]);
+      if (unSendNotification != null) {
+        Connect.sharedInstance.sendEvent(unSendNotification!, sendCallBack: (ok, relay) {
+          if (ok.status) unSendNotification = null;
+        }, toRelays: toRelays);
+      } else {
+        _heartBeat(serverPubkey);
+      }
+    }
+  };
 
   void startHeartBeat() {
     if (timer == null || timer!.isActive == false) {

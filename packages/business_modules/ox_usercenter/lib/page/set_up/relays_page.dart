@@ -57,9 +57,7 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _initDefault();
-    Connect.sharedInstance.addConnectStatusListener((relay, status, relayKinds) {
-      didRelayStatusChange(relay, status);
-    });
+    Connect.sharedInstance.addConnectStatusListener(_onRelayConnectStatus);
     Account.sharedInstance.relayListUpdateCallback = _initDefault;
     Account.sharedInstance.dmRelayListUpdateCallback = _initDefault;
   }
@@ -70,8 +68,21 @@ class _RelaysPageState extends State<RelaysPage> with WidgetsBindingObserver, Na
     });
   }
 
+  void _onRelayConnectStatus(String relay, int status, List<RelayKind> relayKinds) {
+    didRelayStatusChange(relay, status);
+  }
+
   @override
   void dispose() {
+    // The listener and callbacks outlived the page before, so every visit
+    // leaked one and later status changes hit a disposed State.
+    Connect.sharedInstance.removeConnectStatusListener(_onRelayConnectStatus);
+    if (Account.sharedInstance.relayListUpdateCallback == _initDefault) {
+      Account.sharedInstance.relayListUpdateCallback = null;
+    }
+    if (Account.sharedInstance.dmRelayListUpdateCallback == _initDefault) {
+      Account.sharedInstance.dmRelayListUpdateCallback = null;
+    }
     WidgetsBinding.instance.removeObserver(this);
     _pingLifecycleController.isPaused.dispose();
     super.dispose();
