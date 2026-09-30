@@ -29,7 +29,6 @@ dependencies:
   emoji_picker_flutter: 1.5.4
   record: ^4.4.4
   audioplayers: ^6.0.0
-  just_audio: ^0.9.31
   syncfusion_flutter_sliders: ^20.4.51
   flutter_chat_types:  #Message type template
     path: ./flutter_chat_types
