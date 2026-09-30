@@ -174,6 +174,7 @@ class Connect {
         // (which would wait out a backoff before reconnecting).
         webSockets[relay]?.socket = null;
         webSockets[relay]?.connectStatus = 3;
+        _dropRelaySubscriptions(relay);
         await socket?.close();
       }
       // One-off temp relays are reconnected by whoever needs them next.
@@ -217,12 +218,14 @@ class Connect {
     for (var requestMapKey in requestMapKeys) {
       var request = requestsMap[requestMapKey];
       if (request != null) {
-        // call closeSubscription type eoseCallBack only once
-        if (request.closeSubscription == false && request.eoseCallBack == null) continue;
+        String relay = requestMapKey.substring(64);
+        // EOSE already handled for this relay. A persistent subscription that
+        // never gets one (no eoseCallBack) still times out here, which frees
+        // its slot while it keeps receiving events.
+        if (!request.relays.contains(relay)) continue;
         var start = request.requestTime;
         if (start > 0 && now - start > timeout * 1000) {
           // request timeout
-          String relay = requestMapKey.substring(64);
           _handleEOSE(jsonEncode([request.requestId]), relay, true);
         }
       }
@@ -277,10 +280,12 @@ class Connect {
     try {
       final WebSocket? socket = await _connectWs(relay);
       if (socket != null) {
+        _requeueUndeliveredSubscriptions(relay);
         socket.done.then((dynamic _) => _onSocketClosed(socket, relay, relayKind));
         _listenEvent(socket, relay, relayKind);
         webSockets[relay] = ISocket(socket, 1, relayKinds);
         LogUtils.v(() => "$relay connection initialized");
+        _drainSubscriptionQueue(relay);
         _setConnectStatus(relay, 1);
       }
     } catch (_) {
@@ -336,6 +341,7 @@ class Connect {
     LogUtils.v(() => 'closeConnect ${webSockets[relay]?.socket}');
     final socket = webSockets[relay]?.socket;
     webSockets.remove(relay);
+    _dropRelaySubscriptions(relay);
     _reconnectAttempts.remove(relay);
     final wait = _reconnectWaits.remove(relay);
     if (wait != null && !wait.isCompleted) wait.complete();
@@ -423,6 +429,64 @@ class Connect {
     } else {
       LogUtils.v(
           () => 'sendingQueue: ${sendingQueue}, waitingQueue: ${waitingQueue.length}, $relay');
+    }
+  }
+
+  void _drainSubscriptionQueue(String relay) {
+    var queue = subscriptionsWaitingQueue[relay];
+    while (queue != null && queue.isNotEmpty) {
+      final before = queue.length;
+      _sendSubscription(relay);
+      if (queue.length == before) break; // no free slot
+      queue = subscriptionsWaitingQueue[relay];
+    }
+  }
+
+  /// A relay forgets every subscription when its socket goes away, so settle
+  /// ours for it: a request still waiting for this relay's EOSE (queued ones
+  /// included) gets an error EOSE, and every entry is dropped so none keeps
+  /// holding one of the relay's [MAX_SUBSCRIPTIONS_COUNT] slots. Status
+  /// listeners re-subscribe once it reconnects.
+  void _dropRelaySubscriptions(String relay) {
+    // Detach the queue first so settling requests below can't pull queued
+    // ones out and "send" them to a relay without an open socket.
+    subscriptionsWaitingQueue.remove(relay);
+    for (final key in List.of(requestsMap.keys)) {
+      if (key.length <= 64 || key.substring(64) != relay) continue;
+      final request = requestsMap[key];
+      if (request == null) continue;
+      eventCheckerFutures.remove(key);
+      if (request.relays.contains(relay)) {
+        _removeRequestsMapRelay(key.substring(0, 64), relay, true);
+      }
+      requestsMap.remove(key);
+    }
+  }
+
+  /// Runs when a relay's new socket is open, before anything is sent on it.
+  /// Every entry for the relay predates this socket (a closed socket's
+  /// entries are dropped), so none was delivered - _send drops a REQ while
+  /// there is no open socket. Re-queue the ones still expecting an EOSE here
+  /// so they go out now, within the slot limit; drop the rest.
+  void _requeueUndeliveredSubscriptions(String relay) {
+    final queue = subscriptionsWaitingQueue[relay] ?? <String>[];
+    final queued = queue.toSet();
+    final requeue = <String>[];
+    for (final key in List.of(requestsMap.keys)) {
+      if (key.length <= 64 || key.substring(64) != relay) continue;
+      final subscriptionId = key.substring(0, 64);
+      if (queued.contains(subscriptionId)) continue;
+      final request = requestsMap[key]!;
+      if (request.relays.contains(relay)) {
+        request.requestTime = 0;
+        requeue.add(subscriptionId);
+      } else {
+        requestsMap.remove(key);
+        eventCheckerFutures.remove(key);
+      }
+    }
+    if (requeue.isNotEmpty || queue.isNotEmpty) {
+      subscriptionsWaitingQueue[relay] = [...requeue, ...queue];
     }
   }
 
@@ -793,6 +857,7 @@ class Connect {
     final current = webSockets[relay];
     if (current == null || current.socket != socket) return;
     current.socket = null;
+    _dropRelaySubscriptions(relay);
     _setConnectStatus(relay, 3); // closed
     // One-off temp relays are reconnected by whoever needs them next.
     if (!_hasNonTempKind(relay)) return;
