@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:core';
 import 'dart:io';
+import 'dart:math' as math;
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -112,6 +113,46 @@ class Connect {
 
   Map<String, List<String>> subscriptionsWaitingQueue = {};
 
+  // Reconnect backoff per relay: consecutive failures, and the pending wait
+  // before the next attempt (at most one per relay), so a dead relay is
+  // retried with growing delays instead of every 3s forever.
+  final Map<String, int> _reconnectAttempts = {};
+  final Map<String, Completer<void>> _reconnectWaits = {};
+  final math.Random _random = math.Random();
+
+  bool _hasNonTempKind(String relay) =>
+      webSockets[relay]?.relayKinds.any((kind) => kind != RelayKind.temp) ?? false;
+
+  /// 3s, 6s, 12s, ... capped at 5 minutes, plus up to 20% jitter so many
+  /// relays failing together don't retry in lockstep.
+  Duration _nextReconnectDelay(String relay) {
+    final attempt = _reconnectAttempts[relay] = (_reconnectAttempts[relay] ?? 0) + 1;
+    // Cap the exponent: an int pow() overflows (to 0) for large attempts.
+    final seconds = math.min(3 * math.pow(2, math.min(attempt - 1, 7)), 300).toDouble();
+    final jittered = seconds * (1 + 0.2 * _random.nextDouble());
+    return Duration(milliseconds: (jittered * 1000).round());
+  }
+
+  Future<void> _waitBeforeReconnect(String relay) {
+    final wait = Completer<void>();
+    _reconnectWaits[relay] = wait;
+    final timer = Timer(_nextReconnectDelay(relay), () {
+      if (!wait.isCompleted) wait.complete();
+    });
+    return wait.future.whenComplete(() {
+      timer.cancel();
+      if (_reconnectWaits[relay] == wait) _reconnectWaits.remove(relay);
+    });
+  }
+
+  /// Ends all pending backoff waits so those relays retry right away.
+  void _retryPendingReconnectsNow() {
+    _reconnectAttempts.clear();
+    for (final wait in List.of(_reconnectWaits.values)) {
+      if (!wait.isCompleted) wait.complete();
+    }
+  }
+
   void startHeartBeat() {
     if (timer == null || timer!.isActive == false) {
       timer = Timer.periodic(Duration(seconds: 5), (Timer t) {
@@ -122,11 +163,21 @@ class Connect {
   }
 
   Future<void> resetConnection({bool force = true}) async {
-    for (var relay in webSockets.keys) {
+    // Network is back, the app resumed or the proxy changed: relays waiting
+    // out a backoff retry now instead.
+    _retryPendingReconnectsNow();
+    for (var relay in List.of(webSockets.keys)) {
+      if (!webSockets.containsKey(relay)) continue;
       if (webSockets[relay]?.connectStatus != 3 && force) {
+        final socket = webSockets[relay]?.socket;
+        // Detach first so this deliberate close isn't handled as a drop
+        // (which would wait out a backoff before reconnecting).
+        webSockets[relay]?.socket = null;
         webSockets[relay]?.connectStatus = 3;
-        await webSockets[relay]?.socket?.close();
+        await socket?.close();
       }
+      // One-off temp relays are reconnected by whoever needs them next.
+      if (!_hasNonTempKind(relay)) continue;
       for (var relayKind in webSockets[relay]?.relayKinds ?? []) {
         connect(relay, relayKind: relayKind);
       }
@@ -219,20 +270,21 @@ class Connect {
     webSockets[relay]?.relayKinds = relayKinds;
     // connecting or open
     if (webSockets[relay]?.connectStatus == 0 || webSockets[relay]?.connectStatus == 1) return;
+    // A reconnect for this relay is already waiting out its backoff.
+    if (_reconnectWaits.containsKey(relay)) return;
     LogUtils.v(() => "connecting... $relay");
     webSockets[relay] = ISocket(null, 0, relayKinds);
     try {
-      WebSocket? socket;
-      socket = await _connectWs(relay);
+      final WebSocket? socket = await _connectWs(relay);
       if (socket != null) {
-        socket.done.then((dynamic _) => _onDisconnected(relay, relayKind));
+        socket.done.then((dynamic _) => _onSocketClosed(socket, relay, relayKind));
         _listenEvent(socket, relay, relayKind);
         webSockets[relay] = ISocket(socket, 1, relayKinds);
         LogUtils.v(() => "$relay connection initialized");
         _setConnectStatus(relay, 1);
       }
     } catch (_) {
-      _onDisconnected(relay, relayKind);
+      _setConnectStatus(relay, 3); // closed
     }
   }
 
@@ -284,6 +336,9 @@ class Connect {
     LogUtils.v(() => 'closeConnect ${webSockets[relay]?.socket}');
     final socket = webSockets[relay]?.socket;
     webSockets.remove(relay);
+    _reconnectAttempts.remove(relay);
+    final wait = _reconnectWaits.remove(relay);
+    if (wait != null && !wait.isCompleted) wait.complete();
     await socket?.close();
   }
 
@@ -731,9 +786,17 @@ class Connect {
     _send(authJson, toRelays: [relay]);
   }
 
-  Future<void> _reConnectToRelay(String relay, RelayKind relayKind) async {
+  /// done, onDone and onError can all fire for the same socket, and late ones
+  /// can arrive after a newer socket took over (e.g. resetConnection(force)
+  /// closing it); only a close of the relay's current socket is acted on.
+  Future<void> _onSocketClosed(WebSocket socket, String relay, RelayKind relayKind) async {
+    final current = webSockets[relay];
+    if (current == null || current.socket != socket) return;
+    current.socket = null;
     _setConnectStatus(relay, 3); // closed
-    await Future.delayed(Duration(milliseconds: 3000));
+    // One-off temp relays are reconnected by whoever needs them next.
+    if (!_hasNonTempKind(relay)) return;
+    await _waitBeforeReconnect(relay);
     if (webSockets.containsKey(relay)) {
       await connect(relay, relayKind: relayKind);
     }
@@ -744,37 +807,39 @@ class Connect {
       await _handleMessage(message, relay);
     }, onDone: () async {
       LogUtils.v(() => "connect aborted");
-      await _reConnectToRelay(relay, relayKind);
+      await _onSocketClosed(socket, relay, relayKind);
     }, onError: (e) async {
       LogUtils.v(() => 'Server error: $e');
-      await _reConnectToRelay(relay, relayKind);
+      await _onSocketClosed(socket, relay, relayKind);
     });
   }
 
-  Future _connectWs(String relay) async {
-    try {
-      _setConnectStatus(relay, 0); // connecting
-      return await _connectWsSetting(relay);
-    } catch (e) {
-      LogUtils.v(() => "Error! can not connect WS connectWs $e relay:$relay");
-      _setConnectStatus(relay, 3); // closed
+  /// Keeps retrying (with backoff) until connected for relays that have a
+  /// non-temp kind, so callers awaiting [connect] still resume once the relay
+  /// is up; returns null when giving up.
+  Future<WebSocket?> _connectWs(String relay) async {
+    while (true) {
+      try {
+        _setConnectStatus(relay, 0); // connecting
+        final WebSocket socket = await _connectWsSetting(relay);
+        _reconnectAttempts.remove(relay);
+        return socket;
+      } catch (e) {
+        LogUtils.v(() => "Error! can not connect WS connectWs $e relay:$relay");
+        _setConnectStatus(relay, 3); // closed
 
-      // Check if error is "was not upgraded to websocket, HTTP status code: 200"
-      // If so, don't retry connection
-      String errorStr = e.toString();
-      if (errorStr.contains('was not upgraded to websocket') && 
-          errorStr.contains('HTTP status code: 200')) {
-        LogUtils.v(() => "WebSocket upgrade failed with HTTP 200, skipping retry for relay:$relay");
-        return;
-      }
-
-      List<RelayKind>? relayKinds = webSockets[relay]?.relayKinds;
-      bool hasNonTempKind = relayKinds?.any((kind) => kind != RelayKind.temp) ?? false;
-      if (hasNonTempKind) {
-        await Future.delayed(Duration(milliseconds: 3000));
-        if (webSockets.containsKey(relay)) {
-          return await _connectWs(relay);
+        // Check if error is "was not upgraded to websocket, HTTP status code: 200"
+        // If so, don't retry connection
+        String errorStr = e.toString();
+        if (errorStr.contains('was not upgraded to websocket') &&
+            errorStr.contains('HTTP status code: 200')) {
+          LogUtils.v(() => "WebSocket upgrade failed with HTTP 200, skipping retry for relay:$relay");
+          return null;
         }
+
+        if (!_hasNonTempKind(relay)) return null;
+        await _waitBeforeReconnect(relay);
+        if (!webSockets.containsKey(relay)) return null;
       }
     }
   }
@@ -786,11 +851,6 @@ class Connect {
     }
 
     return await WebSocket.connect(relay);
-  }
-
-  Future<void> _onDisconnected(String relay, RelayKind relayKind) async {
-    LogUtils.v(() => "_onDisconnected");
-    return await _reConnectToRelay(relay, relayKind);
   }
 
   /// Wait for a relay connection to be established
