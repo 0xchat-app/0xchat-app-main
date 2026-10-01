@@ -26,7 +26,7 @@ A change spanning several of these is a single pull request.
 
 ## Getting Started
 
-Requires Flutter `3.29.3`.
+Requires Flutter `3.38.10`.
 
 **1. Install dependencies**
 

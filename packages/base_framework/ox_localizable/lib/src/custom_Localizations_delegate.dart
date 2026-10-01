@@ -51,6 +51,12 @@ class _DefaultCupertinoLocalizations extends CupertinoLocalizations {
   String get selectAllButtonLabel => Localized.text('ox_common.selectAllButtonLabel');
 
   @override
+  String get cancelButtonLabel => Localized.text('ox_common.cancel');
+
+  @override
+  String get backButtonLabel => _en.backButtonLabel;
+
+  @override
   String get modalBarrierDismissLabel => _en.modalBarrierDismissLabel;
 
   @override

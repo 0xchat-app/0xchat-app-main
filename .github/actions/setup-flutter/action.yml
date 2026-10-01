@@ -7,7 +7,7 @@ inputs:
   flutter-version:
     description: Flutter SDK version to install (must match README / Dockerfile).
     required: false
-    default: '3.29.3'
+    default: '3.38.10'
 
 outputs:
   version:

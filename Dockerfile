@@ -1,7 +1,7 @@
 FROM ubuntu:24.04
 
 ARG DEBIAN_FRONTEND=noninteractive
-ARG FLUTTER_VERSION=3.29.3
+ARG FLUTTER_VERSION=3.38.10
 
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 ENV FLUTTER_ROOT=/opt/flutter

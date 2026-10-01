@@ -1,4 +1,4 @@
-platform :osx, '10.15'
+platform :osx, '12.0'
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
@@ -40,12 +40,13 @@ post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_macos_build_settings(target)
 
-    # Some pods declare a deployment target below the 10.15 this app requires
+    # Some pods declare an older deployment target than the platform above
     # (flutter_inappwebview_macos ships 10.14). Newer Swift compilers turn the
-    # resulting availability mismatch into a hard error, so align every pod
-    # with the platform declared above.
+    # resulting availability mismatch into a hard error, and current Xcode
+    # rejects anything below 12.0 outright, so align every pod with the platform
+    # declared above. The Runner itself targets 12.4+, so this drops nothing.
     target.build_configurations.each do |config|
-      config.build_settings['MACOSX_DEPLOYMENT_TARGET'] = '10.15'
+      config.build_settings['MACOSX_DEPLOYMENT_TARGET'] = '12.0'
 
       # libtor.a (the Rust static library built for the `tor` package)
       # references liblzma symbols, but neither the pod nor the crate declares
