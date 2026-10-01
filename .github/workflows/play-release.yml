@@ -1,0 +1,96 @@
+# Releases a version code that a tag build already uploaded to Google Play
+# (Build & Package leaves it as a draft on the internal track) to production or
+# a testing track, with its "What's new" text.
+#
+# Release notes live in .github/play/release-notes/<version code>/, one file
+# per Play language code (en-US.txt, zh-CN.txt, ...), at most 500 characters
+# each. Languages without a file get the store's default-language text.
+#
+# The default is a dry run: it prints the store languages and what every track
+# currently serves, sets the release up and discards it, so nothing on Play
+# changes. Tick "release" to publish. A production release still goes through
+# Google's review before users see it; a rollout below 100% is a staged rollout
+# that can be raised later in the Play Console.
+
+name: Play release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_code:
+        description: Version code to release (the +N of pubspec.yaml's version)
+        required: true
+        type: string
+      track:
+        description: Track to release on
+        type: choice
+        default: production
+        options:
+          - production
+          - beta
+          - alpha
+      rollout:
+        description: Percentage of users (100 = everyone, less = staged rollout)
+        type: string
+        default: '100'
+      release:
+        description: Actually release. Off = dry run that changes nothing on Play.
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: play-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Play ${{ inputs.track }} ${{ inputs.release && 'release' || 'dry run' }}
+    runs-on: ubuntu-latest
+    env:
+      PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Require the Play credential
+        if: env.PLAY_SERVICE_ACCOUNT_JSON == ''
+        run: |
+          echo "::error::PLAY_SERVICE_ACCOUNT_JSON is not set."
+          exit 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - run: pip install --quiet google-auth requests
+
+      # Inputs reach the script through env, never interpolated into the shell.
+      - name: Release on Play
+        env:
+          VERSION_CODE: ${{ inputs.version_code }}
+          TRACK: ${{ inputs.track }}
+          ROLLOUT: ${{ inputs.rollout }}
+          RELEASE: ${{ inputs.release }}
+        run: |
+          case "$VERSION_CODE" in
+            ''|*[!0-9]*) echo "::error::version_code must be a number, got '$VERSION_CODE'"; exit 1 ;;
+          esac
+
+          # Name the release after the version in pubspec.yaml when it is this
+          # build; otherwise fall back to the version code.
+          full=$(awk '/^version:/ {print $2; exit}' pubspec.yaml)
+          name="$VERSION_CODE"
+          [ "${full##*+}" = "$VERSION_CODE" ] && name="${full%%+*}"
+
+          args=(--version-code "$VERSION_CODE" --track "$TRACK" --rollout "$ROLLOUT" --release-name "$name")
+          notes=".github/play/release-notes/$VERSION_CODE"
+          if [ -d "$notes" ]; then
+            args+=(--notes-dir "$notes")
+          else
+            echo "::warning::no release notes in $notes - the release will have no What's new text"
+          fi
+          [ "$RELEASE" = "true" ] && args+=(--commit)
+
+          python .github/scripts/play_promote.py "${args[@]}"
