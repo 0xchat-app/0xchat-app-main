@@ -33,12 +33,12 @@ subprojects {
             }
             def javaVersion = JavaVersion.VERSION_17
             android {
-                // compileSdk only decides which APIs plugins compile against
-                // (sqflite_android 2.4.2+ needs 36); targetSdk, which changes
-                // runtime behaviour, stays at the app's 35.
+                // Google Play requires targetSdk 36 for updates (it refused
+                // 1.5.6+110 at 35); sqflite_android 2.4.2+ also needs
+                // compileSdk 36.
                 compileSdkVersion 36
                 defaultConfig {
-                    targetSdkVersion 35
+                    targetSdkVersion 36
                 }
                 compileOptions {
                     sourceCompatibility javaVersion
