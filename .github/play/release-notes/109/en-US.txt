@@ -1,0 +1,8 @@
+• Faster start-up, smoother chats and lower data use
+• More reliable relay connections and message sync
+• Clear errors when a message, zap or ecash fails to send
+• Images and voice messages retry and explain failures
+• New NApps, including Nostrord, and a "Disabled" notification sound
+• Amber no longer has to reconnect on every start
+• A failed login no longer signs you out
+• Security and privacy fixes for Cashu, gift-wrapped DMs, the in-app browser and Tor/proxy connections
