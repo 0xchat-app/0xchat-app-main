@@ -149,6 +149,11 @@ jobs:
       - name: Build App Bundle
         run: flutter build appbundle --release
 
+      # Google Play rejects 64-bit native libraries that are not 16 KB-page
+      # aligned, and only says so when a release is committed. Catch it here.
+      - name: Check 16 KB page alignment
+        run: python3 .github/scripts/check_16kb_pages.py build/app/outputs/bundle/release/app-release.aab
+
       - name: Rename outputs
         run: |
           v="${{ steps.setup.outputs.version_name }}"
