@@ -241,7 +241,9 @@ class ImagePickerUtils {
       pageSize: 320,
       gridThumbnailSize: const ThumbnailSize(80, 80),
       previewThumbnailSize: const ThumbnailSize(150, 150),
-      specialItemPosition: showCamera ? SpecialItemPosition.prepend : SpecialItemPosition.none,
+      // No specialItems: the old specialItemPosition was never paired with a
+      // specialItemBuilder, so no camera tile was ever shown (wechat_assets_picker
+      // 10 replaced both with specialItems).
     );
 
     // Show picker and get selected assets
