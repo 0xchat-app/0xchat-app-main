@@ -56,6 +56,15 @@ android {
     }
   }
 
+  // isar_flutter_libs 3.1.0+1 ships a libisar.so that is not 16 KB-page
+  // aligned, which Google Play rejects. src/main/jniLibs holds a rebuild of
+  // the same isar core (see ../LIBISAR.md); pick it over the plugin's copy.
+  packaging {
+    jniLibs {
+      pickFirsts += ['lib/arm64-v8a/libisar.so', 'lib/x86_64/libisar.so']
+    }
+  }
+
   splits {
     abi {
       enable false  // Temporarily disable to fix packaging issue

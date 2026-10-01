@@ -40,6 +40,13 @@ subprojects {
                 defaultConfig {
                     targetSdkVersion 36
                 }
+                // Google Play requires 16 KB-page-aligned native libraries.
+                // Plugins that compile theirs with CMake (rive_common's
+                // librive_text) only get that when asked; the app-level
+                // argument in app/build.gradle does not reach them.
+                if (externalNativeBuild.cmake.path != null) {
+                    defaultConfig.externalNativeBuild.cmake.arguments "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON"
+                }
                 compileOptions {
                     sourceCompatibility javaVersion
                     targetCompatibility javaVersion
