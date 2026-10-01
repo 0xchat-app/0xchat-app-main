@@ -43,7 +43,7 @@ android {
   defaultConfig {
     applicationId "com.oxchat.nostr"
     minSdk 28
-    targetSdk 35
+    targetSdk 36
     multiDexEnabled true
     versionCode resolvedVersionCode
     versionName resolvedVersionName
