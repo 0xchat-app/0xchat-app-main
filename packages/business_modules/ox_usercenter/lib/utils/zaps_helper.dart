@@ -1,6 +1,5 @@
 
 import 'package:chatcore/chat-core.dart';
-import 'package:ox_common/const/common_constant.dart';
 
 class ZapsHelper {
 
@@ -22,8 +21,12 @@ class ZapsHelper {
       'message': '',
     };
 
-    final relayNameList = Account.sharedInstance.getMyGeneralRelayList().map((e) => e.url).toList();
-    if(!relayNameList.contains(CommonConstant.oxChatRelay)) relayNameList.add(CommonConstant.oxChatRelay);
+    // Where the zapper publishes the receipt. Without a relay list of its own
+    // the account reads from the general relays the app connected to.
+    var relayNameList = Account.sharedInstance.getMyGeneralRelayList().map((e) => e.url).toList();
+    if (relayNameList.isEmpty) {
+      relayNameList = Connect.sharedInstance.relays(relayKinds: [RelayKind.general]);
+    }
 
     if (recipient.isEmpty) {
       result['message'] = 'Recipient is empty';

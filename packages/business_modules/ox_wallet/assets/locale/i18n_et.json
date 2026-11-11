@@ -1,9 +1,7 @@
 {
-  "mint_guide_text": "Võite kasutada vaikimisi rahapaja\r\nvõi\r\ntutvustada kohandatud rahapaja",
-  "use_default_mint_text": "Kasuta vaikimisi vermimist",
+  "mint_guide_text": "Lisage rahapaja, mida usaldate\r\nvõi\r\nimportige olemasolev rahakott",
   "add_mint_url_text": "Lisa vermimise URL",
   "import_mint_text": "Impordi rahakott",
-  "add_default_mint_failed_tips": "Vaikimisi vermimise lisamine ebaõnnestus, palun proovi uuesti.",
   "accept_privacy_policy_tips": "Palun nõustu privaatsuspoliitikaga",
   "privacy_policy_tips": "Oma rahakoti loomisega nõustute",
   "disclaimer_text": "Vastutusest loobumine",

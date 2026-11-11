@@ -1,9 +1,7 @@
 {
-  "mint_guide_text": "Anda dapat menggunakan mint default\r\natau\r\nmemperkenalkan mint kustom",
-  "use_default_mint_text": "Gunakan mint default",
+  "mint_guide_text": "Tambahkan mint yang Anda percayai\r\natau\r\nimpor dompet yang sudah ada",
   "add_mint_url_text": "Tambahkan URL mint",
   "import_mint_text": "Impor dompet",
-  "add_default_mint_failed_tips": "Gagal menambahkan mint default, silakan coba lagi.",
   "accept_privacy_policy_tips": "Harap terima kebijakan privasi",
   "privacy_policy_tips": "Dengan membuat dompet Anda, Anda menerima",
   "disclaimer_text": "Penafian",

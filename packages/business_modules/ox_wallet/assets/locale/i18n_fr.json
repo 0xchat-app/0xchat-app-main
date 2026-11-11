@@ -1,9 +1,7 @@
 {
-  "mint_guide_text": "Vous pouvez utiliser la Monnaie par défaut\r\nou\r\nintroduire une Monnaie personnalisée",
-  "use_default_mint_text": "Utiliser la frappe par défaut",
+  "mint_guide_text": "Ajoutez une Monnaie de confiance\r\nou\r\nimportez un portefeuille existant",
   "add_mint_url_text": "Ajouter l'URL de la frappe",
   "import_mint_text": "Importer un portefeuille",
-  "add_default_mint_failed_tips": "Échec de l'ajout de la frappe par défaut, veuillez réessayer.",
   "accept_privacy_policy_tips": "Veuillez accepter la politique de confidentialité",
   "privacy_policy_tips": "En créant votre portefeuille, vous acceptez la",
   "disclaimer_text": "Avertissement",

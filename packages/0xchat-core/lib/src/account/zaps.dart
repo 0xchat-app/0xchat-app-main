@@ -245,7 +245,6 @@ class Zaps {
           case ZapType.donate:
             toRelays.addAll(
                 Connect.sharedInstance.relays(relayKinds: [RelayKind.general]));
-            toRelays.add(Config.sharedInstance.wssHost);
             break;
         }
 

@@ -13,21 +13,21 @@ class Relays {
   // ALL relays list
   Map<String, RelayDBISAR> relays = {};
 
+  // The 0xchat-run relays (relay.0xchat.com, groups.0xchat.com) are gone for
+  // good, and relay.nostr.band, relay.siamstr.com and relay.groups.nip29.com
+  // stopped answering in 2026, so none of them is offered any more.
   List<String> recommendGlobalRelays = [
-    'wss://relay.nostr.band',
     'wss://relay.damus.io',
     'wss://nos.lol',
+    'wss://relay.primal.net',
     'wss://yabu.me',
-    'wss://relay.siamstr.com',
   ];
 
   List<String> recommendGeneralRelays = [
-    'wss://relay.0xchat.com',
     'wss://yabu.me',
-    'wss://relay.siamstr.com',
     'wss://relay.damus.io',
-    'wss://relay.nostr.band',
     'wss://nos.lol',
+    'wss://relay.primal.net',
     'wss://nostr.wine',
     'wss://eden.nostr.land',
     'wss://nostr.data.haus',
@@ -36,24 +36,23 @@ class Relays {
 
   List<String> recommendDMRelays = [
     'wss://auth.nostr1.com',
-    'wss://relay.0xchat.com',
+    'wss://nos.lol',
     'wss://inbox.nostr.wine',
   ];
 
   List<String> recommendGroupRelays = [
-    'wss://groups.0xchat.com',
     'wss://relay.highlighter.com',
-    'wss://relay.groups.nip29.com'
+    'wss://groups.hzrd149.com',
   ];
 
   List<String> recommendSecretChatRelays = [
     'wss://auth.nostr1.com',
     'wss://inbox.nostr.wine',
-    'wss://relay.0xchat.com'
+    'wss://nos.lol',
   ];
 
   List<String> recommendSearchRelays = [
-    'wss://relay.nostr.band/',
+    'wss://relay.ditto.pub/',
     'wss://search.nos.today/',
     'wss://relay.noswhere.com/',
     'wss://filter.nostr.wine/',

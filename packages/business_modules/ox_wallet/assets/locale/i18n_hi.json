@@ -1,9 +1,7 @@
 {
-  "mint_guide_text": "आप डिफ़ॉल्ट मिंट का उपयोग कर सकते हैं\r\nया\r\nकस्टम मिंट पेश कर सकते हैं",
-  "use_default_mint_text": "डिफ़ॉल्ट मिंट का उपयोग करें",
+  "mint_guide_text": "भरोसेमंद मिंट जोड़ें\r\nया\r\nमौजूदा वॉलेट इम्पोर्ट करें",
   "add_mint_url_text": "मिंट URL जोड़ें",
   "import_mint_text": "वॉलेट इम्पोर्ट करें",
-  "add_default_mint_failed_tips": "डिफ़ॉल्ट मिंट जोड़ने में विफल, कृपया पुनः प्रयास करें।",
   "accept_privacy_policy_tips": "कृपया गोपनीयता नीति को स्वीकार करें",
   "privacy_policy_tips": "अपना वॉलेट बनाकर, आप स्वीकार करते हैं",
   "disclaimer_text": "अस्वीकरण",

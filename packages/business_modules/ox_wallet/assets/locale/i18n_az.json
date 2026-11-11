@@ -1,9 +1,7 @@
 {
-  "mint_guide_text": "Varsayılan darphaneyi kullanabilir\r\nveya\r\nözel bir darphane tanıtabilirsiniz",
-  "use_default_mint_text": "Varsayılan sikkəni istifadə et",
+  "mint_guide_text": "Etibar etdiyiniz mint-i əlavə edin\r\nvə ya\r\nmövcud cüzdanı idxal edin",
   "add_mint_url_text": "Sikkə URL əlavə et",
   "import_mint_text": "Cüzdanı idxal et",
-  "add_default_mint_failed_tips": "Varsayılan sikkə əlavə etmək uğursuz oldu, Zəhmət olmasa yenidən cəhd edin.",
   "accept_privacy_policy_tips": "Zəhmət olmasa məxfilik siyasətini qəbul edin",
   "privacy_policy_tips": "Cüzdanınızı yaradaraq, siz",
   "disclaimer_text": "Feragatname",

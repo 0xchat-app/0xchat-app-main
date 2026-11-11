@@ -1,9 +1,7 @@
 {
-  "mint_guide_text": "您可以使用默认mint\r\n或\r\n引入自定义mint",
-  "use_default_mint_text": "使用默认mint",
+  "mint_guide_text": "添加您信任的mint\r\n或\r\n导入已有钱包",
   "add_mint_url_text": "添加mint链接",
   "import_mint_text": "导入钱包",
-  "add_default_mint_failed_tips": "添加默认mint失败，请重试",
   "accept_privacy_policy_tips": "请接受隐私政策",
   "privacy_policy_tips": "创建您的钱包即表示您同意",
   "disclaimer_text": "免责声明",

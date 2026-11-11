@@ -1,9 +1,7 @@
 {
-  "mint_guide_text": "Możesz użyć domyślnej mennicy\r\nlub\r\nwprowadzić własną mennicę",
-  "use_default_mint_text": "Użyj domyślnej mennicy",
+  "mint_guide_text": "Dodaj mennicę, której ufasz\r\nlub\r\nzaimportuj istniejący portfel",
   "add_mint_url_text": "Dodaj URL mennicy",
   "import_mint_text": "Importuj portfel",
-  "add_default_mint_failed_tips": "Dodanie domyślnej mennicy nie powiodło się, spróbuj ponownie.",
   "accept_privacy_policy_tips": "Proszę zaakceptować politykę prywatności",
   "privacy_policy_tips": "Tworząc swój portfel, akceptujesz",
   "disclaimer_text": "Zrzeczenie się",

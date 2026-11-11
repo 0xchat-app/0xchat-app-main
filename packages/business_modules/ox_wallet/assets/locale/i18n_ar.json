@@ -1,9 +1,7 @@
 {
-  "mint_guide_text": "يمكنك استخدام السك الافتراضي\r\nأو\r\nتقديم سك مخصص",
-  "use_default_mint_text": "استخدم السك الافتراضي",
+  "mint_guide_text": "أضف سكًّا تثق به\r\nأو\r\nاستورد محفظة موجودة",
   "add_mint_url_text": "أضف رابط السك",
   "import_mint_text": "استيراد المحفظة",
-  "add_default_mint_failed_tips": "فشل في إضافة السك الافتراضي، الرجاء المحاولة مجدداً.",
   "accept_privacy_policy_tips": "الرجاء قبول سياسة الخصوصية",
   "privacy_policy_tips": "بإنشائك للمحفظة، أنت توافق على",
   "disclaimer_text": "إخلاء المسؤولية",

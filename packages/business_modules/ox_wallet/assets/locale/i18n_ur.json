@@ -1,9 +1,7 @@
 {
-  "mint_guide_text": "آپ یا تو ڈیفالٹ mint استعمال کر سکتے ہیں\r\nیا\r\nکسٹم mint شامل کر سکتے ہیں",
-  "use_default_mint_text": "ڈیفالٹ mint استعمال کریں",
+  "mint_guide_text": "اپنا قابلِ اعتماد mint شامل کریں\r\nیا\r\nموجودہ والیٹ امپورٹ کریں",
   "add_mint_url_text": "‏mint URL شامل کریں",
   "import_mint_text": "والیٹ امپورٹ کریں",
-  "add_default_mint_failed_tips": "ڈیفالٹ mint شامل کرنا ناکام ہو گیا، براہ کرم دوبارہ کوشش کریں",
   "accept_privacy_policy_tips": "براہ کرم پرائیویسی پالیسی قبول کریں",
   "privacy_policy_tips": "اپنا والیٹ بنا کر، آپ اس کو قبول کرتے ہیں",
   "disclaimer_text": "دستبرداری",

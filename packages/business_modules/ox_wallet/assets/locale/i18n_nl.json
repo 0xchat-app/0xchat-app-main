@@ -1,9 +1,7 @@
 {
-  "mint_guide_text": "U kunt de standaard munt gebruiken\r\nof\r\neen aangepaste munt introduceren",
-  "use_default_mint_text": "Gebruik de standaard mint",
+  "mint_guide_text": "Voeg een munt toe die u vertrouwt\r\nof\r\nimporteer een bestaande portemonnee",
   "add_mint_url_text": "Voeg mint-URL toe",
   "import_mint_text": "Portemonnee importeren",
-  "add_default_mint_failed_tips": "Toevoegen van standaard mint mislukt, probeer het opnieuw.",
   "accept_privacy_policy_tips": "Accepteer het privacybeleid alstublieft",
   "privacy_policy_tips": "Door uw portemonnee aan te maken, accepteert u de",
   "disclaimer_text": "Disclaimer",

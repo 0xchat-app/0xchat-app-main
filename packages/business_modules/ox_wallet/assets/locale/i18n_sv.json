@@ -1,9 +1,7 @@
 {
-  "mint_guide_text": "Du kan antingen använda standardminten\r\neller\r\nintroducera en anpassad mint",
-  "use_default_mint_text": "Använd standardmint",
+  "mint_guide_text": "Lägg till en mint du litar på\r\neller\r\nimportera en befintlig plånbok",
   "add_mint_url_text": "Lägg till mint-URL",
   "import_mint_text": "Importera plånbok",
-  "add_default_mint_failed_tips": "Misslyckades med att lägga till standardmint, försök igen.",
   "accept_privacy_policy_tips": "Vänligen acceptera sekretesspolicyn",
   "privacy_policy_tips": "Genom att skapa din plånbok godkänner du",
   "disclaimer_text": "Ansvarsfriskrivning",

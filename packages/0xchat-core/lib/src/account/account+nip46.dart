@@ -15,6 +15,13 @@ const Duration _nip46CommandTimeout = Duration(seconds: 60);
 const Duration _nip46AuthTimeout = Duration(minutes: 3);
 
 extension AccountNIP46 on Account {
+  /// Relays put in a nostrconnect:// URI unless the user picks others.
+  /// relay.nsec.app used to be the only one; it stopped answering in 2026.
+  static const List<String> defaultSignerRelays = [
+    'wss://relay.primal.net',
+    'wss://nos.lol',
+  ];
+
   Future<bool> _checkNIP46Pubkey(String pubkey) async {
     if (me == null || me?.remoteSignerURI == null) return false;
     OKEvent connectResult = await connectToRemoteSigner(me!.remoteSignerURI!, true, pubkey);
@@ -70,7 +77,7 @@ extension AccountNIP46 on Account {
     return me;
   }
 
-  static String createNostrConnectURI({List<String> relays = const ['wss://relay.nsec.app']}) {
+  static String createNostrConnectURI({List<String> relays = defaultSignerRelays}) {
     Keychain newKeychain = Keychain.generate();
     String secret = generate64RandomHexChars();
     Account.sharedInstance.tempRemoteConnection = RemoteSignerConnection('', relays, secret);

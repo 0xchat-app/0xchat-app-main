@@ -1,4 +1,3 @@
-import 'package:chatcore/chat-core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/const/common_constant.dart';
@@ -52,27 +51,6 @@ class NetworkTool {
     }
   }
 
-
-  Future<String> dnsReplaceIp(String url, String domain) async {
-    String? server = await getUrlServer(url);
-    if (server != null) {
-      String? host = Config.sharedInstance.hostConfig[domain];
-      if (host !=null && host.isNotEmpty) {
-        String replaceUrl = url.replaceFirst(domain, host);
-        return replaceUrl;
-      }
-    }
-    return url;
-  }
-
-  Future<String?> getUrlServer(String url) async {
-    RegExp regExp = new RegExp(r"^.*?://(.*?)\..*?$");
-    RegExpMatch? match = regExp.firstMatch(url);
-    if (match != null) {
-      return match.group(1);
-    }
-    return null;
-  }
 
   Future<String?> getUrlDomain(String url) async {
     RegExp regExp = new RegExp(r"^.*?://(.*?)/.*?$");

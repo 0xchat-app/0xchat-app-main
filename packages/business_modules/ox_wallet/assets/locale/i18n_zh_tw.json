@@ -1,9 +1,7 @@
 {
-  "mint_guide_text": "您可以使用預設鑄幣\r\n或\r\n引入自訂鑄幣",
-  "use_default_mint_text": "使用預設鑄幣",
+  "mint_guide_text": "新增您信任的鑄幣\r\n或\r\n匯入現有錢包",
   "add_mint_url_text": "新增鑄幣URL",
   "import_mint_text": "匯入錢包",
-  "add_default_mint_failed_tips": "新增預設鑄幣失敗，請重試",
   "accept_privacy_policy_tips": "請接受隱私政策",
   "privacy_policy_tips": "建立您的錢包即表示您同意",
   "disclaimer_text": "免責聲明",

@@ -11,7 +11,6 @@ import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_module_service/ox_module_service.dart';
-import 'package:ox_usercenter/model/request_verify_dns.dart';
 import 'package:ox_usercenter/page/badge/usercenter_badge_wall_page.dart';
 import 'package:ox_usercenter/page/set_up/avatar_preview_page.dart';
 import 'package:ox_usercenter/page/set_up/relay_detail_page.dart';
@@ -46,7 +45,6 @@ class OXUserCenter extends OXFlutterModule {
   Map<String, Function> get interfaces => {
         'showRelayPage': showRelayPage,
         'showRelaySelectorDialog': showRelaySelectorDialog,
-        'requestVerifyDNS': requestVerifyDNS,
         'userCenterPageWidget': userCenterPageWidget,
         'showZapsInvoiceDialog': _showZapsInvoiceDialog,
         'getInvoice': _getInvoice,
@@ -142,10 +140,6 @@ class OXUserCenter extends OXFlutterModule {
         builder: (BuildContext context) {
           return const RelaysSelectorPage();
         });
-  }
-
-  Future<Map<String, dynamic>?> requestVerifyDNS(Map<String, dynamic>? params, BuildContext? context, bool? showErrorToast, bool? showLoading) async {
-    return await registerNip05(context: context, params: params, showLoading: showLoading, showErrorToast: showErrorToast);
   }
 
   Widget userCenterPageWidget(BuildContext context) {

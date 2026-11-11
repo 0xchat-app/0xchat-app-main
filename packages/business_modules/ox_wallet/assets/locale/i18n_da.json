@@ -1,9 +1,7 @@
 {
-  "mint_guide_text": "Du kan enten bruge standardminten\r\neller\r\nintroducere en brugerdefineret mint",
-  "use_default_mint_text": "Brug standard prægningen",
+  "mint_guide_text": "Tilføj en mint, du stoler på\r\neller\r\nimporter en eksisterende tegnebog",
   "add_mint_url_text": "Tilføj mint URL",
   "import_mint_text": "Importer tegnebog",
-  "add_default_mint_failed_tips": "Tilføjelse af standard mint mislykkedes, prøv venligst igen.",
   "accept_privacy_policy_tips": "Accepter venligst privatlivspolitikken",
   "privacy_policy_tips": "Ved at oprette din tegnebog, accepterer du",
   "disclaimer_text": "Ansvarsfraskrivelse",

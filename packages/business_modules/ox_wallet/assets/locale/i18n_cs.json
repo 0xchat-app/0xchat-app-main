@@ -1,9 +1,7 @@
 {
-  "mint_guide_text": "Můžete použít výchozí mincovnu\r\nnebo\r\npředstavit vlastní mincovnu",
-  "use_default_mint_text": "Použít výchozí ražbu",
+  "mint_guide_text": "Přidejte mincovnu, které důvěřujete\r\nnebo\r\nimportujte existující peněženku",
   "add_mint_url_text": "Přidat URL mincovny",
   "import_mint_text": "Importovat peněženku",
-  "add_default_mint_failed_tips": "Přidání výchozí mincovny se nezdařilo, zkuste to prosím znovu.",
   "accept_privacy_policy_tips": "Přijměte prosím zásady ochrany osobních údajů",
   "privacy_policy_tips": "Vytvořením vaší peněženky souhlasíte s",
   "disclaimer_text": "Prohlášení",

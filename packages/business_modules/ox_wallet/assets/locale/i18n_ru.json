@@ -1,9 +1,7 @@
 {
-  "mint_guide_text": "Вы можете использовать стандартный mint\r\nили\r\nввести собственный mint",
-  "use_default_mint_text": "Использовать стандартный mint",
+  "mint_guide_text": "Добавьте mint, которому доверяете\r\nили\r\nимпортируйте существующий кошелек",
   "add_mint_url_text": "Добавить URL mint",
   "import_mint_text": "Импортировать кошелек",
-  "add_default_mint_failed_tips": "Не удалось добавить стандартный mint, попробуйте снова.",
   "accept_privacy_policy_tips": "Пожалуйста, примите политику конфиденциальности",
   "privacy_policy_tips": "Создавая свой кошелек, вы соглашаетесь с",
   "disclaimer_text": "Отказ от ответственности",

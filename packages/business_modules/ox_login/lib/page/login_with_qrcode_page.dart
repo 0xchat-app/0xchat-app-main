@@ -33,7 +33,7 @@ class LoginWithQRCodePage extends StatefulWidget {
 
 class _LoginWithQRCodePageState extends BasePageState<LoginWithQRCodePage> {
   String _loginQRCodeUrl = '';
-  List<String> _relayUrls = ['wss://relay.nsec.app'];
+  List<String> _relayUrls = List.of(AccountNIP46.defaultSignerRelays);
 
   @override
   void initState() {

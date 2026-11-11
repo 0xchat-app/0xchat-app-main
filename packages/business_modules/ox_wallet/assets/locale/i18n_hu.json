@@ -1,9 +1,7 @@
 {
-  "mint_guide_text": "Használhatja az alapértelmezett verdet\r\nvagy\r\nbevezethet egy egyéni verdet",
-  "use_default_mint_text": "Az alapértelmezett veret használata",
+  "mint_guide_text": "Adjon hozzá egy megbízható verdét\r\nvagy\r\nimportáljon egy meglévő tárcát",
   "add_mint_url_text": "Veret URL hozzáadása",
   "import_mint_text": "Tárca importálása",
-  "add_default_mint_failed_tips": "Az alapértelmezett veret hozzáadása sikertelen, kérjük próbálja újra.",
   "accept_privacy_policy_tips": "Kérjük, fogadja el az adatvédelmi irányelveket",
   "privacy_policy_tips": "A tárcája létrehozásával elfogadja a",
   "disclaimer_text": "Jogi nyilatkozat",

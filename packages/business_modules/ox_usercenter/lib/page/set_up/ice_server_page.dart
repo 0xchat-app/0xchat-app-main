@@ -44,19 +44,8 @@ class _ICEServerPageState extends State<ICEServerPage> {
 
   Future<void> _initData() async {
     List<ICEServerModel> iCEServerList = await OXServerManager.sharedInstance.getICEServerList();
-    // Filter out old servers (rtc.0xchat.com, rtc2-6.0xchat.com)
-    final oldServerPatterns = [
-      'rtc.0xchat.com',
-      'rtc2.0xchat.com',
-      'rtc3.0xchat.com',
-      'rtc4.0xchat.com',
-      'rtc5.0xchat.com',
-      'rtc6.0xchat.com',
-    ];
-    var filteredList = iCEServerList.where((server) {
-      final host = server.host;
-      return !oldServerPatterns.any((pattern) => host.contains(pattern));
-    }).toList();
+    // Filter out old servers (0xchat's shut-down TURN servers)
+    var filteredList = iCEServerList.where((server) => !server.isRetired).toList();
     
     // Ensure all default servers are in the connected list
     final defaultServers = ICEServerModel.defaultICEServers;

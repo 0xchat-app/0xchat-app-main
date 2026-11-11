@@ -6,9 +6,6 @@ abstract class ConstantInterface {
   ///db version
   int get dbVersion => 10;
 
-  /// 0xchat relay
-  String get oxChatRelay => 'wss://relay.0xchat.com';
-
   /// nprofile: (0)User QRCode；
   int get qrCodeUser => 0;
   /// nevent: (1) Channel QRCode;

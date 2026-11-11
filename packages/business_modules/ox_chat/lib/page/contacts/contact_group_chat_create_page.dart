@@ -40,7 +40,7 @@ class _ContactGroupChatCreatePageState extends State<ContactGroupChatCreatePage>
 
   List<UserDBISAR> userList = [];
 
-  String _chatRelay = 'wss://relay.0xchat.com';
+  String _chatRelay = Relays.sharedInstance.recommendDMRelays.first;
 
   @override
   void initState() {

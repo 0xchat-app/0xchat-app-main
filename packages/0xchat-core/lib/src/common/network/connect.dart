@@ -906,7 +906,7 @@ class Connect {
     while (true) {
       try {
         _setConnectStatus(relay, 0); // connecting
-        final WebSocket socket = await _connectWsSetting(relay);
+        final WebSocket socket = await WebSocket.connect(relay);
         _reconnectAttempts.remove(relay);
         return socket;
       } catch (e) {
@@ -927,15 +927,6 @@ class Connect {
         if (!webSockets.containsKey(relay)) return null;
       }
     }
-  }
-
-  Future _connectWsSetting(String relay) async {
-    String? host = Config.sharedInstance.hostConfig[relay];
-    if (host != null && host.isNotEmpty) {
-      relay = host;
-    }
-
-    return await WebSocket.connect(relay);
   }
 
   /// Wait for a relay connection to be established
