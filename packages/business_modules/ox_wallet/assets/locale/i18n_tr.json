@@ -1,9 +1,7 @@
 {
-  "mint_guide_text": "Varsayılan minti kullanabilir\r\nveya\r\nözel bir mint tanıtabilirsiniz",
-  "use_default_mint_text": "Varsayılan minti kullan",
+  "mint_guide_text": "Güvendiğiniz bir mint ekleyin\r\nveya\r\nmevcut bir cüzdanı içe aktarın",
   "add_mint_url_text": "Mint URL'si ekle",
   "import_mint_text": "Cüzdanı içe aktar",
-  "add_default_mint_failed_tips": "Varsayılan mint eklenemedi, lütfen tekrar deneyin.",
   "accept_privacy_policy_tips": "Lütfen gizlilik politikasını kabul edin",
   "privacy_policy_tips": "Cüzdanınızı oluşturarak, siz",
   "disclaimer_text": "Feragatname",

@@ -1,9 +1,7 @@
 {
-  "mint_guide_text": "Jūs varat izmantot noklusējuma kaltuvi\r\nvai\r\nievietot pielāgotu kaltuvi",
-  "use_default_mint_text": "Izmantot noklusējuma kalšanu",
+  "mint_guide_text": "Pievienojiet kaltuvi, kurai uzticaties\r\nvai\r\nimportējiet esošu maku",
   "add_mint_url_text": "Pievienot kalšanas URL",
   "import_mint_text": "Importēt maku",
-  "add_default_mint_failed_tips": "Noklusējuma kalšanas pievienošana neizdevās, lūdzu, mēģiniet vēlreiz.",
   "accept_privacy_policy_tips": "Lūdzu, pieņemiet privātuma politiku",
   "privacy_policy_tips": "Izveidojot savu maku, jūs piekrītat",
   "disclaimer_text": "Atbildības atruna",

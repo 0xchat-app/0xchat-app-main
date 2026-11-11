@@ -1,9 +1,7 @@
 {
-  "mint_guide_text": "Pots utilitzar la conyeria per defecte\r\no\r\nintroduir una conyeria personalitzada",
-  "use_default_mint_text": "Utilitza l'encunyació per defecte",
+  "mint_guide_text": "Afegeix una encunyació de confiança\r\no\r\nimporta una cartera existent",
   "add_mint_url_text": "Afegeix URL de l'encunyació",
   "import_mint_text": "Importa cartera",
-  "add_default_mint_failed_tips": "L'afegit de l'encunyació per defecte ha fallat, si us plau, torna-ho a intentar.",
   "accept_privacy_policy_tips": "Si us plau, accepta la política de privacitat",
   "privacy_policy_tips": "En crear la teva cartera, acceptes la",
   "disclaimer_text": "Avís legal",

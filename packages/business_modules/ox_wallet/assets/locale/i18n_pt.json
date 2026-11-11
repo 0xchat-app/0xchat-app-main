@@ -1,9 +1,7 @@
 {
-  "mint_guide_text": "Você pode usar a cunhagem padrão\r\nou\r\nintroduzir uma cunhagem personalizada",
-  "use_default_mint_text": "Usar a cunhagem padrão",
+  "mint_guide_text": "Adicione uma cunhagem de confiança\r\nou\r\nimporte uma carteira existente",
   "add_mint_url_text": "Adicionar URL da cunhagem",
   "import_mint_text": "Importar carteira",
-  "add_default_mint_failed_tips": "Falha ao adicionar a cunhagem padrão, tente novamente.",
   "accept_privacy_policy_tips": "Por favor, aceite a política de privacidade",
   "privacy_policy_tips": "Ao criar sua carteira, você aceita a",
   "disclaimer_text": "Isenção de responsabilidade",

@@ -1,9 +1,7 @@
 {
-  "mint_guide_text": "Sie können entweder die Standard-Münzprägeanstalt verwenden\r\noder\r\neine benutzerdefinierte Münzprägeanstalt einführen",
-  "use_default_mint_text": "Die Standardprägung verwenden",
+  "mint_guide_text": "Fügen Sie eine Mint hinzu, der Sie vertrauen\r\noder\r\nimportieren Sie eine bestehende Wallet",
   "add_mint_url_text": "Mint-URL hinzufügen",
   "import_mint_text": "Wallet importieren",
-  "add_default_mint_failed_tips": "Standard-Mint hinzufügen fehlgeschlagen, bitte versuchen Sie es erneut.",
   "accept_privacy_policy_tips": "Bitte akzeptieren Sie die Datenschutzrichtlinie",
   "privacy_policy_tips": "Durch Erstellen Ihrer Wallet stimmen Sie den",
   "disclaimer_text": "Haftungsausschluss",

@@ -91,7 +91,7 @@ class CreateMomentsPage extends StatefulWidget {
 }
 
 class _CreateMomentsPageState extends State<CreateMomentsPage> with WidgetsBindingObserver {
-  String _chatRelay = 'wss://relay.0xchat.com';
+  String _chatRelay = Relays.sharedInstance.recommendGeneralRelays.first;
   Map<String,UserDBISAR> draftCueUserMap = {};
 
   List<String> addImageList = [];

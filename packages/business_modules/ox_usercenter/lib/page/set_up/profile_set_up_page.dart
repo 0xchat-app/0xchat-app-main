@@ -22,7 +22,6 @@ import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
-import 'package:ox_usercenter/model/request_verify_dns.dart';
 import 'package:ox_usercenter/page/set_up/avatar_preview_page.dart';
 import 'package:ox_usercenter/utils/widget_tool.dart';
 import 'package:ox_usercenter/widget/npub_cash_address_widget.dart';
@@ -46,8 +45,6 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
       TextEditingController();
   final TextEditingController _bltTextEditingController =
       TextEditingController();
-  final ValueNotifier<bool> _is0xchatAddress = ValueNotifier<bool>(true);
-  List<String> _relayNameList = [];
   File? imageFile;
   late String headerUrl;
 
@@ -58,35 +55,11 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
     _userNameTextEditingController.text = mCurrentUserInfo?.name ?? '';
     _aboutTextEditingController.text = mCurrentUserInfo?.about ?? '';
     _bltTextEditingController.text = mCurrentUserInfo?.lnurl ?? '';
+    // Shown in full: @0xchat.com names can no longer be registered, so the
+    // field no longer completes a bare name with that domain.
+    _dnsTextEditingController.text = mCurrentUserInfo?.dns ?? '';
     headerUrl =
         OXUserInfoManager.sharedInstance.currentUserInfo?.picture ?? '';
-    _initData();
-    _initDNSItem();
-  }
-
-  void _initData() async {
-    _relayNameList = Account.sharedInstance.getMyGeneralRelayList().map((e) => e.url).toList();
-    // mCurrentUserInfo = await Account.sharedInstance.reloadProfileFromRelay(mCurrentUserInfo!.pubKey);
-    setState(() {});
-  }
-
-  void _initDNSItem() {
-    String dns = mCurrentUserInfo?.dns ?? '';
-    if (dns.isEmpty || dns.contains('@0xchat.com')) {
-      _is0xchatAddress.value = true;
-      _dnsTextEditingController.text = dns.split('@').first;
-    } else {
-      _is0xchatAddress.value = false;
-      _dnsTextEditingController.text = dns;
-    }
-    _dnsTextEditingController.addListener(() {
-      String dnsStr = _dnsTextEditingController.text;
-      if (dnsStr.contains('@')) {
-        _is0xchatAddress.value = false;
-      } else {
-        _is0xchatAddress.value = true;
-      }
-    });
   }
 
   @override
@@ -155,17 +128,8 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
       LogUtil.e('Michael: --dns =${dns}');
       if (dns.isEmpty || dns == mCurrentUserInfo!.dns) {
         result = true;
-      } else if (dns != mCurrentUserInfo!.dns) {
-        if (dns.contains('@') && !dns.contains('@0xchat')) {
-          result = await _checkDNS(dns);
-        } else if (!dns.contains('@0xchat')) {
-          dns = '$dns@0xchat.com';
-          result = await _set0xchatDNS(dns);
-        } else {
-          result = await _set0xchatDNS(dns);
-        }
       } else {
-        result = true;
+        result = await _checkDNS(dns);
       }
       LogUtil.e('Michael: --dns set result =${result}');
       if (result) {
@@ -254,22 +218,7 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
                       Localized.text('ox_usercenter.username'), Localized.text('ox_usercenter.username_hint_text'),
                       editingController: _userNameTextEditingController),
                   _itemView(Localized.text('ox_usercenter.dns'), Localized.text('ox_usercenter.dns_hint_text'),
-                      editingController: _dnsTextEditingController,
-                      suffix: ValueListenableBuilder(
-                        valueListenable: _is0xchatAddress,
-                        builder: (BuildContext context, dynamic value,
-                            Widget? child) {
-                          return value
-                              ? Text(
-                                  '@0xchat.com',
-                                  style: TextStyle(
-                                      fontSize: Adapt.px(16),
-                                      color: ThemeColor.color0,
-                                      fontWeight: FontWeight.w400),
-                                )
-                              : Container();
-                        },
-                      )),
+                      editingController: _dnsTextEditingController),
                   _itemView(Localized.text('ox_usercenter.about'),
                       Localized.text('ox_usercenter.about_hint_text'),
                       editingController: _aboutTextEditingController,
@@ -551,39 +500,14 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
     );
   }
 
-  Future<Map<String, dynamic>?> _registerNip05(String dns) async {
-    String publicKey = mCurrentUserInfo?.pubKey ?? '';
-    String sig = await signData([publicKey, dns, _relayNameList],Account.sharedInstance.currentPubkey,
-        Account.sharedInstance.currentPrivkey);
-    Map<String, dynamic> params = {};
-    params['name'] = _userNameTextEditingController.text;
-    params['publicKey'] = publicKey;
-    params['nip05Url'] = dns;
-    params['relays'] = _relayNameList;
-    params['sig'] = sig;
-
-    return await registerNip05(
-        context: context, params: params, showLoading: false);
-  }
-
-  Future<bool> _set0xchatDNS(String dns) async {
-    Map<String, dynamic>? result = await _registerNip05(dns);
-    if (result != null) {
-      if (result['code'] == NIP05_SUCCESSFUL) {
-        return true;
-      } else {
-        CommonToast.instance.show(context, result['message']);
-        return false;
-      }
-    } else {
-      CommonToast.instance.show(context, Localized.text('ox_usercenter.set_0xchat_dns_toast'));
-      return false;
-    }
-  }
-
   Future<bool> _checkDNS(String dnsStr) async {
     String pubKey = mCurrentUserInfo?.pubKey ?? '';
     List<String> temp = dnsStr.split('@');
+    // A NIP-05 address is name@domain; a bare name used to mean @0xchat.com.
+    if (temp.length != 2 || temp[0].isEmpty || temp[1].isEmpty) {
+      CommonToast.instance.show(context, Localized.text('ox_usercenter.set_dns_legal_toast'));
+      return false;
+    }
     String name = temp[0];
     String domain = temp[1];
     DNS dns = DNS(name, domain, pubKey, []);
@@ -690,7 +614,10 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
 
   @override
   void dispose() {
+    _userNameTextEditingController.dispose();
+    _dnsTextEditingController.dispose();
+    _aboutTextEditingController.dispose();
+    _bltTextEditingController.dispose();
     super.dispose();
-    _is0xchatAddress.dispose();
   }
 }

@@ -396,7 +396,9 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
         _descriptionController.text,
         _avatarAliyunUrl,
         requirementBadgeIdList,
-        'wss://relay.0xchat.com',
+        // Relay hint kept with the channel: one the creation event goes to.
+        Connect.sharedInstance.relays().firstOrNull ??
+            Relays.sharedInstance.recommendGeneralRelays.first,
       );
       await OXLoading.dismiss();
       if (channelDB != null) {

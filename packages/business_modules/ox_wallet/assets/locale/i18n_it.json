@@ -1,9 +1,7 @@
 {
-  "mint_guide_text": "Puoi utilizzare il conio predefinito\r\no\r\nintrodurre un conio personalizzato",
-  "use_default_mint_text": "Usa il mint predefinito",
+  "mint_guide_text": "Aggiungi un conio di cui ti fidi\r\no\r\nimporta un portafoglio esistente",
   "add_mint_url_text": "Aggiungi URL del mint",
   "import_mint_text": "Importa portafoglio",
-  "add_default_mint_failed_tips": "Aggiunta del mint predefinito fallita, si prega di riprovare.",
   "accept_privacy_policy_tips": "Si prega di accettare la politica sulla privacy",
   "privacy_policy_tips": "Creando il tuo portafoglio, accetti la",
   "disclaimer_text": "Esclusione di responsabilità",

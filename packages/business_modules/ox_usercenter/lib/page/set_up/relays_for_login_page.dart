@@ -61,14 +61,14 @@ class _RelaysForLoginPageState extends State<RelaysForLoginPage> with WidgetsBin
   }
 
   void _initRelayList() {
-    List<String> urls = ['wss://relay.nsec.app'];
+    List<String> urls = AccountNIP46.defaultSignerRelays;
     if (widget.relayUrls.isNotEmpty) {
       urls = widget.relayUrls;
     }
     for(String url in urls) {
       _relayList.add(RelayDBISAR(url: url));
     }
-    _recommendRelayList = [RelayDBISAR(url: 'wss://relay.nsec.app')];
+    _recommendRelayList = [for (final url in AccountNIP46.defaultSignerRelays) RelayDBISAR(url: url)];
     //Filters elements in the relay LIst
     _recommendRelayList.removeWhere((recommendRelay) {
       return _relayList.any((relay) => relay.url == recommendRelay.url);
@@ -462,7 +462,7 @@ class _RelaysForLoginPageState extends State<RelaysForLoginPage> with WidgetsBin
               text: Localized.text('ox_common.confirm'),
               onTap: () async {
                 _relayList.removeWhere((element) => element.url == relayModel.url);
-                if (relayModel.url == 'wss://relay.nsec.app' || relayModel.url == 'wss://relay.0xchat.com') {
+                if (AccountNIP46.defaultSignerRelays.contains(relayModel.url)) {
                   _recommendRelayList.add(relayModel);
                 }
                 OXNavigator.pop(context);

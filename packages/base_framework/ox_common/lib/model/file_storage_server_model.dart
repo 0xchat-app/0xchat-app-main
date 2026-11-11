@@ -112,14 +112,14 @@ class FileStorageServer {
     return other is FileStorageServer && other.url == url;
   }
 
-  /// Default file storage server list. Originless is first so it becomes the default selected server (index 0).
+  /// Servers that no longer exist: 0xchat's own upload service (the only OSS
+  /// server) and originless.besoeasy.com, the first default up to 1.5.6.
+  bool get isRetired =>
+      protocol == FileStorageProtocol.oss || url == 'https://originless.besoeasy.com';
+
+  /// Default file storage server list. The first one is selected until the
+  /// user picks another.
   static List<FileStorageServer> get defaultFileStorageServers => List.from([
-        OriginlessServer(
-          url: 'https://originless.besoeasy.com',
-          name: 'originless.besoeasy.com',
-          canEdit: false,
-          description: 'https://originless.besoeasy.com',
-        ),
         BlossomServer(
           url: 'https://blossom.band',
           name: 'blossom.band',

@@ -1,19 +1,15 @@
 
 import 'package:flutter/material.dart';
-import 'package:chatcore/chat-core.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
-import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/theme_button.dart';
 import 'package:ox_wallet/page/wallet_home_page.dart';
 import 'package:ox_wallet/page/wallet_mint_management_add_page.dart';
-import 'package:ox_wallet/services/ecash_manager.dart';
-import 'package:ox_wallet/services/ecash_service.dart';
 import 'package:ox_wallet/widget/ecash_common_button.dart';
 import 'package:ox_wallet/widget/privacy_policy_widget.dart';
 import 'package:ox_localizable/ox_localizable.dart';
@@ -26,7 +22,8 @@ class WalletPage extends StatefulWidget {
 }
 
 class _WalletPageState extends State<WalletPage> {
-  String get _defaultMintURL => 'https://${Config.sharedInstance.mintHost}';
+  // There is no "use the default mint" option any more: 0xchat's mint is shut
+  // down, and picking a third-party custodian is left to the user.
   final ValueNotifier<bool> _hasAgreedToPrivacyPolicy = ValueNotifier(true);
 
   @override
@@ -66,8 +63,7 @@ class _WalletPageState extends State<WalletPage> {
               ),
             ).setPaddingOnly(top: 56.px),
             SizedBox(height: 200.px,),
-            ThemeButton(height: 48.px,text: Localized.text('ox_wallet.use_default_mint_text'),onTap: _useDefaultMint,),
-            EcashCommonButton(text: Localized.text('ox_wallet.add_mint_url_text'),onTap: _addMint).setPaddingOnly(top: 18.px),
+            ThemeButton(height: 48.px,text: Localized.text('ox_wallet.add_mint_url_text'),onTap: _addMint,),
             EcashCommonButton(text: Localized.text('ox_wallet.import_mint_text'),onTap: _importWallet).setPaddingOnly(top: 18.px),
             PrivacyPolicyWidget(controller: _hasAgreedToPrivacyPolicy,).setPaddingOnly(top: 18.px),
             SizedBox(height: 40.px,)
@@ -88,20 +84,6 @@ class _WalletPageState extends State<WalletPage> {
         callback: () => OXNavigator.pushPage(context!, (context) => const WalletHomePage()),
       ),
     );
-  }
-
-  void _useDefaultMint() {
-    if(!_checkPrivacyPolicyAgreement()) return;
-    OXLoading.show();
-    EcashService.addMint(_defaultMintURL).then((mint) {
-      OXLoading.dismiss();
-      if (mint != null || EcashManager.shared.mintList.any((mint) => mint.mintURL.toLowerCase() == _defaultMintURL.toLowerCase())) {
-        EcashManager.shared.setWalletAvailable();
-        OXNavigator.pushPage(context, (context) => const WalletHomePage());
-      } else {
-        CommonToast.instance.show(context, Localized.text('ox_wallet.add_default_mint_failed_tips'));
-      }
-    });
   }
 
   void _importWallet(){

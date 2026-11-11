@@ -1,9 +1,7 @@
 {
-  "mint_guide_text": "Puedes usar la ceca predeterminada\r\no\r\nintroducir una ceca personalizada",
-  "use_default_mint_text": "Usar la acuñación predeterminada",
+  "mint_guide_text": "Agrega una ceca de confianza\r\no\r\nimporta una billetera existente",
   "add_mint_url_text": "Agregar URL de acuñación",
   "import_mint_text": "Importar billetera",
-  "add_default_mint_failed_tips": "Falló al agregar la acuñación predeterminada, por favor intente de nuevo.",
   "accept_privacy_policy_tips": "Por favor acepte la política de privacidad",
   "privacy_policy_tips": "Al crear su billetera, acepta la",
   "disclaimer_text": "Descargo de responsabilidad",

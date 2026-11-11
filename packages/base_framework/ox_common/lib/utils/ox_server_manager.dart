@@ -23,6 +23,7 @@ class OXServerManager {
   static final String iceServerKey = StorageSettingKey.KEY_ICE_SERVER.name;
   static final String fileStorageServer = StorageSettingKey.KEY_FILE_STORAGE_SERVER.name;
   static final String selectedFileStorageServerIndex = StorageSettingKey.KEY_FILE_STORAGE_SERVER_INDEX.name;
+  static final String selectedFileStorageServerUrl = StorageSettingKey.KEY_FILE_STORAGE_SERVER_URL.name;
 
   OXServerManager._internal();
 
@@ -49,21 +50,10 @@ class OXServerManager {
 
   void loadConnectICEServer() async {
     List<ICEServerModel> connectICEServerList = await getICEServerList();
-    
+
     // Filter out old servers
-    final oldServerPatterns = [
-      'rtc.0xchat.com',
-      'rtc2.0xchat.com',
-      'rtc3.0xchat.com',
-      'rtc4.0xchat.com',
-      'rtc5.0xchat.com',
-      'rtc6.0xchat.com',
-    ];
-    connectICEServerList = connectICEServerList.where((server) {
-      final host = server.host;
-      return !oldServerPatterns.any((pattern) => host.contains(pattern));
-    }).toList();
-    
+    connectICEServerList = connectICEServerList.where((server) => !server.isRetired).toList();
+
     // Ensure all default servers are in the list
     final defaultServers = ICEServerModel.defaultICEServers;
     final existingUrls = connectICEServerList.map((s) => s.url).toSet();
@@ -152,28 +142,53 @@ class OXServerManager {
   }
 
   List<FileStorageServer> getFileStorageServers() {
-    final jsonString = UserConfigTool.getSetting(fileStorageServer, defaultValue: '');
     var fileStorageServers = FileStorageServer.defaultFileStorageServers;
-    if (jsonString.isEmpty) {
-      return fileStorageServers;
-    }
-    final addFileStorageServers = jsonDecode(jsonString);
-    for (var json in addFileStorageServers) {
-      var server = FileStorageServer.fromJson(json);
+    for (var server in _savedFileStorageServers()) {
       var exists = fileStorageServers.any((s) => s.url == server.url);
-      if (!exists) {
+      if (!exists && !server.isRetired) {
         fileStorageServers.add(server);
       }
     }
     return fileStorageServers;
   }
 
+  List<FileStorageServer> _savedFileStorageServers() {
+    final jsonString = UserConfigTool.getSetting(fileStorageServer, defaultValue: '');
+    if (jsonString.isEmpty) return [];
+    return [for (var json in jsonDecode(jsonString)) FileStorageServer.fromJson(json)];
+  }
+
   Future<void> saveSelectedFileStorageServer() async {
+    await UserConfigTool.saveSetting(selectedFileStorageServerUrl, selectedFileStorageServer.url);
     return await UserConfigTool.saveSetting(selectedFileStorageServerIndex, _selectedFileStorageIndex);
   }
-  
+
+  /// The selected server's position in [fileStorageServers], or 0 when it is
+  /// gone. Looked up by URL, so the list can change around it.
   int getSelectedFileStorageServer() {
-    return UserConfigTool.getSetting(selectedFileStorageServerIndex,defaultValue: 0);
+    String url = UserConfigTool.getSetting(selectedFileStorageServerUrl, defaultValue: '');
+    if (url.isEmpty) {
+      url = _legacySelectedUrl(UserConfigTool.getSetting(selectedFileStorageServerIndex, defaultValue: 0));
+    }
+    final index = fileStorageServers.indexWhere((s) => s.url == url);
+    return index < 0 ? 0 : index;
+  }
+
+  /// Up to 1.5.6 only the position was saved. It counted over that version's
+  /// defaults, which began with originless.besoeasy.com, then the saved extras.
+  String _legacySelectedUrl(int index) {
+    final legacy = [
+      'https://originless.besoeasy.com',
+      'https://blossom.band',
+      'https://blossom.azzamo.media',
+      'https://blossom.primal.net',
+      'https://24242.io',
+      'https://nostr.build',
+    ];
+    for (var server in _savedFileStorageServers()) {
+      if (!legacy.contains(server.url)) legacy.add(server.url);
+    }
+    return index >= 0 && index < legacy.length ? legacy[index] : '';
   }
 
   updateSelectedFileStorageServer(int selectedIndex) async {

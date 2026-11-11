@@ -1,9 +1,7 @@
 {
-  "mint_guide_text": "기본 민트를 사용할 수 있습니다\r\n또는\r\n사용자 정의 민트를 도입할 수 있습니다",
-  "use_default_mint_text": "기본 민트 사용",
+  "mint_guide_text": "신뢰할 수 있는 민트 추가\r\n또는\r\n기존 지갑 가져오기",
   "add_mint_url_text": "민트 URL 추가",
   "import_mint_text": "지갑 가져오기",
-  "add_default_mint_failed_tips": "기본 민트 추가 실패, 다시 시도해주세요.",
   "accept_privacy_policy_tips": "개인정보 보호정책을 수락해 주세요",
   "privacy_policy_tips": "지갑을 생성함으로써, 당신은",
   "disclaimer_text": "면책 조항",

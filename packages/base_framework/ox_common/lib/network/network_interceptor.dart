@@ -1,4 +1,3 @@
-
 import 'package:ox_common/network/network_tool.dart';
 
 class NetworkInterceptor {
@@ -10,7 +9,8 @@ class NetworkInterceptor {
     String? domain = await NetworkTool.instance.getUrlDomain(url);
     if (domain != null) {
       headers["host"] = domain;
-      url = await NetworkTool.instance.dnsReplaceIp(url, domain);
+      // The URL used to be rewritten to a fixed IP for 0xchat's own hosts.
+      // Those servers are shut down, so requests go to the URL as given.
     }
     return (url: url, headers: headers);
   }

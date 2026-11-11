@@ -1,9 +1,7 @@
 {
-  "mint_guide_text": "デフォルトのミントを使用することも\r\nまたは\r\nカスタムミントを導入することもできます",
-  "use_default_mint_text": "デフォルトのミントを使用する",
+  "mint_guide_text": "信頼できるミントを追加\r\nまたは\r\n既存のウォレットをインポート",
   "add_mint_url_text": "ミントのURLを追加",
   "import_mint_text": "ウォレットをインポート",
-  "add_default_mint_failed_tips": "デフォルトのミントの追加に失敗しました。もう一度お試しください。",
   "accept_privacy_policy_tips": "プライバシーポリシーに同意してください",
   "privacy_policy_tips": "ウォレットを作成することで、あなたは",
   "disclaimer_text": "免責事項",

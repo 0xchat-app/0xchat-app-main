@@ -50,23 +50,7 @@ class ICEServerModel {
 
   String get host => isTurnAddress ? domain.split(':')[0] : url;
 
-  /// Get display name for the server (e.g., rtc1, rtc3, rtc4 instead of IP)
-  String get displayName {
-    if (!isTurnAddress) return url;
-    final hostPart = domain.split(':')[0];
-    
-    // Map IP addresses to friendly names
-    switch (hostPart) {
-      case '52.76.210.159':
-        return 'rtc1.0xchat.com';
-      case '13.213.17.140':
-        return 'rtc3.0xchat.com';
-      case '15.222.242.167':
-        return 'rtc4.0xchat.com';
-      default:
-        return hostPart;
-    }
-  }
+  String get displayName => isTurnAddress ? domain.split(':')[0] : url;
 
   String get domain => (isTurnAddress && url.contains('@')) ? url.split('@')[1] : url;
 
@@ -95,30 +79,32 @@ class ICEServerModel {
         'createTime': iceServerModel.createTime,
       };
 
+  /// Public STUN servers. There is no free TURN relay to fall back on, so a
+  /// call between two strict NATs needs a TURN server the user adds.
   static List<ICEServerModel> get defaultICEServers => [
     ICEServerModel(
-      url: 'turn:0xchat:Prettyvs511@52.76.210.159:5349',
-      createTime: DateTime.now().millisecondsSinceEpoch,
-    ),
-    // ICEServerModel(
-    //   url: 'turn:0xchat:Prettyvs511@rtc2.0xchat.com:5349',
-    //   createTime: DateTime.now().millisecondsSinceEpoch,
-    // ),
-    ICEServerModel(
-      url: 'turn:0xchat:Prettyvs511@13.213.17.140:5349',
+      url: 'stun:stun.l.google.com:19302',
       createTime: DateTime.now().millisecondsSinceEpoch,
     ),
     ICEServerModel(
-      url: 'turn:0xchat:Prettyvs511@15.222.242.167:5349',
+      url: 'stun:stun.cloudflare.com:3478',
       createTime: DateTime.now().millisecondsSinceEpoch,
     ),
-    // ICEServerModel(
-    //   url: 'turn:0xchat:Prettyvs511@rtc5.0xchat.com:5349',
-    //   createTime: DateTime.now().millisecondsSinceEpoch,
-    // ),
-    // ICEServerModel(
-    //   url: 'turn:0xchat:Prettyvs511@rtc6.0xchat.com:5349',
-    //   createTime: DateTime.now().millisecondsSinceEpoch,
-    // ),
   ];
+
+  /// 0xchat's TURN servers, by name and by address. They are shut down, so
+  /// entries for them are dropped from saved server lists.
+  static const List<String> retiredHosts = [
+    'rtc.0xchat.com',
+    'rtc2.0xchat.com',
+    'rtc3.0xchat.com',
+    'rtc4.0xchat.com',
+    'rtc5.0xchat.com',
+    'rtc6.0xchat.com',
+    '52.76.210.159',
+    '13.213.17.140',
+    '15.222.242.167',
+  ];
+
+  bool get isRetired => retiredHosts.any((retired) => host.contains(retired));
 }

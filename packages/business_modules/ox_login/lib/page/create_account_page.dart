@@ -7,17 +7,14 @@ import 'package:ox_common/widgets/base_page_state.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_toast.dart';
-import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 
 import 'package:ox_login/page/save_account_page.dart';
-import 'package:ox_module_service/ox_module_service.dart';
 // component
 import '../component/common_input.dart';
 import '../component/input_wrap.dart';
 import '../component/lose_focus_wrap.dart';
 // plugin
-import 'package:chatcore/chat-core.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 export 'package:visibility_detector/visibility_detector.dart';
 import 'package:nostr_core_dart/nostr.dart';
@@ -41,11 +38,8 @@ class CreateAccountPage extends StatefulWidget {
 class _CreateAccountPageState extends BasePageState<CreateAccountPage> {
   TextEditingController _userNameTextEditingController =
       new TextEditingController();
-  TextEditingController _dnsTextEditingController = new TextEditingController();
   TextEditingController _aboutTextEditingController =
       new TextEditingController();
-
-  String dnsSuffix = '@0xchat.com';
 
   @override
   String get routeName => 'CreateAccount';
@@ -159,11 +153,10 @@ class _CreateAccountPageState extends BasePageState<CreateAccountPage> {
   void _create() async {
     bool checkResult = await _checkForm();
     if (!checkResult) return;
-    String dnsText = _dnsTextEditingController.text;
     String userName = _userNameTextEditingController.text;
     String userAbout = _aboutTextEditingController.text;
-    String userDns = dnsText.length == 0 ? '' : dnsText + dnsSuffix;
-    OXNavigator.pushPage(context, (context) => SaveAccountPage(userName: userName, userAbout: userAbout, userDns: userDns, keychain: widget.keychain));
+    // No NIP-05 here: the @0xchat.com registration service is shut down.
+    OXNavigator.pushPage(context, (context) => SaveAccountPage(userName: userName, userAbout: userAbout, userDns: '', keychain: widget.keychain));
   }
 
   Future<bool> _checkForm() async {
@@ -171,36 +164,6 @@ class _CreateAccountPageState extends BasePageState<CreateAccountPage> {
     if (userNameIsEmpty) {
       CommonToast.instance.show(context, 'The user name cannot be empty');
       return false;
-    }
-
-    String dnsText = _dnsTextEditingController.text;
-    if (dnsText.length > 0) {
-      String pubKey = widget.keychain.public;
-      String nip05Url = dnsText + dnsSuffix;
-
-      Map<String, dynamic>? dnsParams = {
-        "name": _userNameTextEditingController.text,
-        "publicKey": pubKey,
-        'relays': [CommonConstant.oxChatRelay],
-        "nip05Url": nip05Url,
-        'sig': await signData([
-          pubKey,
-          nip05Url,
-          [CommonConstant.oxChatRelay]
-        ],Account.sharedInstance.currentPubkey, Account.sharedInstance.currentPrivkey)
-      };
-
-      Map<String, dynamic>? dnsResult = OXModuleService.invoke(
-          'ox_usercenter',
-          'requestVerifyDNS',
-          [dnsParams, context, null, null]);
-      if (dnsResult == null || dnsResult['code'] != '000000') {
-        _dnsTextEditingController.text = '';
-        String toastText =
-            dnsResult == null ? 'DNS unavailable' : dnsResult['message'];
-        CommonToast.instance.show(context, toastText);
-        return false;
-      }
     }
 
     return true;

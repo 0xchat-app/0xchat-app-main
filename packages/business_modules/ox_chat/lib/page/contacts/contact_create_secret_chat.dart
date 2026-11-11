@@ -58,7 +58,7 @@ class _ContactCreateSecret extends State<ContactCreateSecret> {
   ESecretChatTime _keyUpdateTime = ESecretChatTime.oneHour;
   ESecretChatTime _requestValidityPeriod = ESecretChatTime.twentyFourHours;
 
-  String _chatRelay = 'wss://relay.0xchat.com';
+  String _chatRelay = Relays.sharedInstance.recommendSecretChatRelays.first;
 
   @override
   void initState() {

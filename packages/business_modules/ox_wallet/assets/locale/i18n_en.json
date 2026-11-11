@@ -1,9 +1,7 @@
 {
-  "mint_guide_text": "You can either use the default mint\r\nor\r\nintroduce custom mint",
-  "use_default_mint_text": "Use the default mint",
+  "mint_guide_text": "Add a mint you trust\r\nor\r\nimport an existing wallet",
   "add_mint_url_text": "Add mint URL",
   "import_mint_text": "Import wallet",
-  "add_default_mint_failed_tips": "Add default mint Failed, Please try again.",
   "accept_privacy_policy_tips": "Please accept the privacy policy",
   "privacy_policy_tips": "By creating your wallet, you accept the",
   "disclaimer_text": "Disclaimer",
