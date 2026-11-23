@@ -154,6 +154,12 @@ jobs:
       - name: Check 16 KB page alignment
         run: python3 .github/scripts/check_16kb_pages.py build/app/outputs/bundle/release/app-release.aab
 
+      # cargokit builds the Rust library of the `tor` plugin and, when it does
+      # not recognise Flutter's Gradle plugin, skips itself with one log line
+      # while the build still passes. Play 111 shipped that way, without Tor.
+      - name: Check Rust libraries are bundled
+        run: python3 .github/scripts/check_native_libs.py build/app/outputs/bundle/release/app-release.aab libtor.so
+
       - name: Rename outputs
         run: |
           v="${{ steps.setup.outputs.version_name }}"
