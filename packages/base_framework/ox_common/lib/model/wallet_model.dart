@@ -83,6 +83,12 @@ class WalletModel {
             title: 'Zebedee',
             scheme: 'zebedee:lightning:',
             image: 'icon_lighting_wallet_zebedee.png'),
+        WalletModel(
+            id: '', // Not in the App Store yet; on Android, Google Play is the fallback.
+            appId: 'mybuho.buhogo',
+            title: 'BuhoGO',
+            scheme: 'buhogo:lightning:',
+            image: 'icon_lighting_wallet_buhogo.png'),
       ]);
 
 
